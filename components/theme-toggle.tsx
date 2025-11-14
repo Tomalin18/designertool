@@ -1,21 +1,40 @@
 "use client"
+import { useEffect, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "./theme-provider"
-import { Button } from "./ui/button"
+import { Switch } from "./ui/switch"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // 避免 hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    // 服務器端渲染時返回一個佔位符，避免 hydration mismatch
+    return (
+      <div className="flex items-center gap-2">
+        <Sun className="h-4 w-4 text-muted-foreground" />
+        <Switch checked={false} disabled aria-label="Toggle theme" />
+        <Moon className="h-4 w-4 text-muted-foreground" />
+      </div>
+    )
+  }
+
+  const isDark = theme === "dark"
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="leading-7 w-10 h-10"
-    >
-      <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 w-6 h-6" />
-      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+    <div className="flex items-center gap-2">
+      <Sun className="h-4 w-4 text-muted-foreground" />
+      <Switch
+        checked={isDark}
+        onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+        aria-label="Toggle theme"
+      />
+      <Moon className="h-4 w-4 text-muted-foreground" />
+    </div>
   )
 }
