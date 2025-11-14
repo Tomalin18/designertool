@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>ComponentUI - Beautiful React Components</title>
+        <title>DesignerTool - Beautiful React Components</title>
         <meta
           name="description"
           content="A collection of beautifully designed components for your React applications"
