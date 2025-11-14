@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import * as React from "react"
+import * as ReactDOM from "react-dom/client"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -64,16 +66,260 @@ export default function IconsPage() {
     
     try {
       if (selectedIcon.source === "lineicons") {
-        // For Lineicons, copy the SVG path or code
+        // For Lineicons, fetch and copy the actual SVG content
         const svgPath = getLineiconSvgPath(selectedIcon.name)
-        const code = `<img src="${svgPath}" alt="${selectedIcon.name}" />`
-        await navigator.clipboard.writeText(code)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        
+        try {
+          const response = await fetch(svgPath)
+          let svgContent = await response.text()
+          
+          // 解析 SVG 並調整大小
+          const parser = new DOMParser()
+          const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml')
+          const svgElement = svgDoc.querySelector('svg')
+          
+          if (svgElement) {
+            // 設置新的尺寸
+            svgElement.setAttribute('width', exportSettings.size.toString())
+            svgElement.setAttribute('height', exportSettings.size.toString())
+            
+            // 根據檔案類型處理顏色
+            if (exportSettings.fileType === "PNG") {
+              // PNG 格式：保持原始顏色或設置為黑色（確保可見）
+              const paths = svgElement.querySelectorAll('path')
+              paths.forEach(path => {
+                const fill = path.getAttribute('fill')
+                if (fill && fill !== 'none') {
+                  // 保持原始顏色，如果是 currentColor 或沒有顏色，設置為黑色
+                  if (fill === 'currentColor' || !fill) {
+                    path.setAttribute('fill', '#000000')
+                  }
+                }
+              })
+            } else {
+              // SVG/JSX 格式：改為 currentColor 以便適應主題
+              const paths = svgElement.querySelectorAll('path')
+              paths.forEach(path => {
+                const fill = path.getAttribute('fill')
+                if (fill && fill !== 'none') {
+                  path.setAttribute('fill', 'currentColor')
+                }
+              })
+            }
+            
+            // 獲取更新後的 SVG 內容
+            svgContent = new XMLSerializer().serializeToString(svgElement)
+          }
+          
+          // 根據檔案類型複製
+          if (exportSettings.fileType === "SVG") {
+            await navigator.clipboard.writeText(svgContent)
+          } else if (exportSettings.fileType === "PNG") {
+            // 轉換為 PNG
+            const img = new Image()
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+            const url = URL.createObjectURL(blob)
+            
+            img.onload = async () => {
+              const canvas = document.createElement('canvas')
+              canvas.width = exportSettings.size + (exportSettings.padding * 2)
+              canvas.height = exportSettings.size + (exportSettings.padding * 2)
+              const ctx = canvas.getContext('2d')
+              
+              if (ctx) {
+                // 填充白色背景（確保 PNG 有背景）
+                ctx.fillStyle = '#ffffff'
+                ctx.fillRect(0, 0, canvas.width, canvas.height)
+                
+                // 繪製 SVG
+                ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
+                
+                canvas.toBlob(async (blob) => {
+                  if (blob) {
+                    try {
+                      await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                      ])
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    } catch (err) {
+                      console.error('Failed to copy PNG:', err)
+                      // Fallback: copy as SVG
+                      await navigator.clipboard.writeText(svgContent)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }
+                  }
+                  URL.revokeObjectURL(url)
+                }, 'image/png')
+              }
+            }
+            
+            img.onerror = () => {
+              console.error('Failed to load SVG image')
+              URL.revokeObjectURL(url)
+            }
+            
+            img.src = url
+            return
+          } else {
+            // JSX 格式
+            const jsxCode = `import React from 'react';\n\nexport const ${selectedIcon.name.replace(/^lni-/, '').replace(/-/g, '')} = () => (\n  ${svgContent.replace(/<svg/, '<svg className="w-6 h-6"').replace(/>/g, ' />')}\n);`
+            await navigator.clipboard.writeText(jsxCode)
+          }
+          
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        } catch (err) {
+          console.error('Failed to fetch SVG:', err)
+          // Fallback: copy path
+          await navigator.clipboard.writeText(`<img src="${svgPath}" alt="${selectedIcon.name}" />`)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        }
         return
       }
 
-      // For Lucide icons, use the existing canvas method
+      // For Lucide icons, extract actual SVG from the component
+      if (SelectedIconComponent) {
+        // 創建臨時容器來渲染圖標
+        const tempContainer = document.createElement('div')
+        tempContainer.style.position = 'absolute'
+        tempContainer.style.left = '-9999px'
+        tempContainer.style.width = `${exportSettings.size}px`
+        tempContainer.style.height = `${exportSettings.size}px`
+        document.body.appendChild(tempContainer)
+        
+        // 使用 React 渲染圖標
+        const root = ReactDOM.createRoot(tempContainer)
+        root.render(
+          React.createElement(SelectedIconComponent, {
+            size: exportSettings.size,
+            strokeWidth: exportSettings.stroke,
+            color: exportSettings.fileType === "PNG" ? "#000000" : "currentColor"
+          })
+        )
+        
+        // 等待渲染完成
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // 提取 SVG 元素
+        const svgElement = tempContainer.querySelector('svg')
+        
+        if (svgElement) {
+          // 克隆 SVG 以便修改
+          const svgClone = svgElement.cloneNode(true) as SVGElement
+          
+          // 設置尺寸和 viewBox
+          svgClone.setAttribute('width', exportSettings.size.toString())
+          svgClone.setAttribute('height', exportSettings.size.toString())
+          
+          // 根據檔案類型處理顏色
+          if (exportSettings.fileType === "PNG") {
+            // PNG 格式：確保有明確的顏色
+            const paths = svgClone.querySelectorAll('path, line, circle, rect, polygon, polyline')
+            paths.forEach((el) => {
+              const stroke = el.getAttribute('stroke')
+              if (stroke === 'currentColor' || !stroke) {
+                el.setAttribute('stroke', '#000000')
+              }
+              const fill = el.getAttribute('fill')
+              if (fill === 'currentColor' || (fill && fill !== 'none')) {
+                el.setAttribute('fill', fill === 'currentColor' ? '#000000' : fill)
+              }
+            })
+          }
+          
+          // 序列化 SVG
+          const serializer = new XMLSerializer()
+          let svgContent = serializer.serializeToString(svgClone)
+          
+          // 添加 padding（如果需要）
+          if (exportSettings.padding > 0) {
+            const paddedSvg = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="${exportSettings.size + (exportSettings.padding * 2)}" height="${exportSettings.size + (exportSettings.padding * 2)}" viewBox="0 0 ${exportSettings.size + (exportSettings.padding * 2)} ${exportSettings.size + (exportSettings.padding * 2)}">
+                <g transform="translate(${exportSettings.padding}, ${exportSettings.padding})">
+                  ${svgContent.replace(/<svg[^>]*>/, '').replace('</svg>', '')}
+                </g>
+              </svg>
+            `
+            svgContent = paddedSvg
+          }
+          
+          // 根據檔案類型複製
+          if (exportSettings.fileType === "SVG") {
+            await navigator.clipboard.writeText(svgContent)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+          } else if (exportSettings.fileType === "PNG") {
+            // 轉換為 PNG
+            const img = new Image()
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+            const url = URL.createObjectURL(blob)
+            
+            img.onload = async () => {
+              const canvas = document.createElement('canvas')
+              const finalSize = exportSettings.size + (exportSettings.padding * 2)
+              canvas.width = finalSize
+              canvas.height = finalSize
+              const ctx = canvas.getContext('2d')
+              
+              if (ctx) {
+                // 填充白色背景
+                ctx.fillStyle = '#ffffff'
+                ctx.fillRect(0, 0, canvas.width, canvas.height)
+                
+                // 繪製 SVG
+                ctx.drawImage(img, 0, 0)
+                
+                canvas.toBlob(async (blob) => {
+                  if (blob) {
+                    try {
+                      await navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                      ])
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    } catch (err) {
+                      console.error('Failed to copy PNG:', err)
+                      // Fallback: copy as SVG
+                      await navigator.clipboard.writeText(svgContent)
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                    }
+                  }
+                  URL.revokeObjectURL(url)
+                }, 'image/png')
+              }
+            }
+            
+            img.onerror = () => {
+              console.error('Failed to load SVG image')
+              URL.revokeObjectURL(url)
+            }
+            
+            img.src = url
+          } else {
+            // JSX 格式
+            const iconName = selectedIcon.name.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '')
+            const jsxCode = `import { ${selectedIcon.name} } from 'lucide-react';\n\nexport const Icon = () => <${selectedIcon.name} size={${exportSettings.size}} strokeWidth={${exportSettings.stroke}} />;`
+            await navigator.clipboard.writeText(jsxCode)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+          }
+          
+          // 清理
+          root.unmount()
+          document.body.removeChild(tempContainer)
+          return
+        }
+        
+        // 如果提取失敗，清理並使用 fallback
+        root.unmount()
+        document.body.removeChild(tempContainer)
+      }
+      
+      // Fallback: 使用 canvas 方法
       const canvas = document.createElement('canvas')
       const size = exportSettings.size + (exportSettings.padding * 2)
       canvas.width = size
@@ -82,13 +328,10 @@ export default function IconsPage() {
       
       if (!ctx) return
 
-      // Create SVG string
+      // 創建簡單的 SVG（fallback）
       const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-          <rect width="${size}" height="${size}" fill="transparent"/>
-          <g transform="translate(${exportSettings.padding}, ${exportSettings.padding})">
-            ${generateIconSVGPath(selectedIcon.name, exportSettings.size, exportSettings.stroke)}
-          </g>
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${exportSettings.fileType === "PNG" ? "#000000" : "currentColor"}" stroke-width="${exportSettings.stroke}" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
         </svg>
       `
       
@@ -99,7 +342,11 @@ export default function IconsPage() {
       // Load image and draw to canvas
       const img = new Image()
       img.onload = async () => {
-        ctx.drawImage(img, 0, 0)
+        if (ctx) {
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, canvas.width, canvas.height)
+          ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
+        }
         
         // Convert canvas to blob
         canvas.toBlob(async (blob) => {
@@ -118,7 +365,7 @@ export default function IconsPage() {
               setTimeout(() => setCopied(false), 2000)
             }
           }
-        })
+        }, 'image/png')
         
         URL.revokeObjectURL(url)
       }
