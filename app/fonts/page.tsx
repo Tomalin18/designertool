@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Toggle } from "@/components/ui/toggle"
 import { getAllLineiconNames, filterLineicons } from "@/lib/lineicons-utils"
+import { useTheme } from "@/components/theme-provider"
 
 const fonts = [
   { name: "Inter", category: "Sans Serif", weights: [400, 500, 600, 700] },
@@ -31,6 +32,7 @@ const fonts = [
 const categories = ["All", "Sans Serif", "Serif", "Monospace", "Handwriting"]
 
 export default function FontsPage() {
+  const { colorPalette, theme } = useTheme()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [fontSize, setFontSize] = useState([24])
@@ -39,6 +41,18 @@ export default function FontsPage() {
   const [copiedFont, setCopiedFont] = useState<string | null>(null)
   const [lineiconSearchQuery, setLineiconSearchQuery] = useState("")
   const [copiedLineicon, setCopiedLineicon] = useState<string | null>(null)
+
+  // Get current theme mode colors
+  const getCurrentColors = () => {
+    if (!colorPalette) return null
+    if (typeof window === "undefined") return colorPalette.light // Default for SSR
+    const currentMode = theme === "system" 
+      ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      : theme
+    return currentMode === "dark" ? colorPalette.dark : colorPalette.light
+  }
+
+  const colors = getCurrentColors()
   
   const allLineicons = getAllLineiconNames()
   const filteredLineicons = lineiconSearchQuery 
@@ -139,15 +153,32 @@ export default function FontsPage() {
                     variant={selectedCategory === category ? "secondary" : "ghost"}
                     className="w-full justify-start"
                     onClick={() => setSelectedCategory(category)}
+                    style={
+                      selectedCategory === category && colors
+                        ? {
+                            backgroundColor: colors[0] + "20",
+                            color: colors[0],
+                            borderColor: colors[0] + "40",
+                          }
+                        : {}
+                    }
                   >
                     {category}
                     {category === "All" && (
-                      <Badge variant="outline" className="ml-auto">
+                      <Badge 
+                        variant="outline" 
+                        className="ml-auto"
+                        style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
+                      >
                         {fonts.length}
                       </Badge>
                     )}
                     {category !== "All" && (
-                      <Badge variant="outline" className="ml-auto">
+                      <Badge 
+                        variant="outline" 
+                        className="ml-auto"
+                        style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
+                      >
                         {fonts.filter(f => f.category === category).length}
                       </Badge>
                     )}
@@ -189,7 +220,12 @@ export default function FontsPage() {
       <main className="relative py-6 lg:py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Font Library</h1>
+          <h1 
+            className="text-4xl font-bold tracking-tight mb-2"
+            style={colors ? { color: colors[0] } : {}}
+          >
+            Font Library
+          </h1>
           <p className="text-muted-foreground">Preview and explore different font families</p>
         </div>
 
@@ -220,10 +256,20 @@ export default function FontsPage() {
         {/* Fonts List */}
         <div className="space-y-4">
           {filteredFonts.map((font) => (
-            <Card key={font.name} id={`font-${font.name}`} className="p-6 scroll-mt-20">
+            <Card 
+              key={font.name} 
+              id={`font-${font.name}`} 
+              className="p-6 scroll-mt-20"
+              style={colors ? { borderColor: colors[0] + "20" } : {}}
+            >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-lg">{font.name}</h3>
+                  <h3 
+                    className="font-semibold text-lg"
+                    style={colors ? { color: colors[0] } : {}}
+                  >
+                    {font.name}
+                  </h3>
                   <p className="text-sm text-muted-foreground">{font.category}</p>
                 </div>
                 <div className="flex gap-1">
@@ -304,8 +350,18 @@ export default function FontsPage() {
         {/* Lineicons Icon Font Section */}
         <div className="mt-12 space-y-4">
           <div className="flex items-center gap-3 mb-6">
-            <h2 className="text-3xl font-bold tracking-tight">Lineicons Icon Font</h2>
-            <Badge variant="secondary">Icon Font</Badge>
+            <h2 
+              className="text-3xl font-bold tracking-tight"
+              style={colors ? { color: colors[1] } : {}}
+            >
+              Lineicons Icon Font
+            </h2>
+            <Badge 
+              variant="secondary"
+              style={colors ? { backgroundColor: colors[1] + "20", color: colors[1] } : {}}
+            >
+              Icon Font
+            </Badge>
           </div>
           
           <div className="mb-6">
@@ -330,11 +386,18 @@ export default function FontsPage() {
               const displayName = iconName.replace(/^lni-/, "")
               
               return (
-                <Card key={iconName} className="p-4 group relative">
+                <Card 
+                  key={iconName} 
+                  className="p-4 group relative"
+                  style={colors ? { borderColor: colors[2] + "20" } : {}}
+                >
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <div 
                       className={`lni ${className}`}
-                      style={{ fontSize: `${fontSize[0]}px` }}
+                      style={{ 
+                        fontSize: `${fontSize[0]}px`,
+                        color: colors ? colors[2] : undefined
+                      }}
                     />
                     <p className="text-xs text-center text-muted-foreground truncate w-full">
                       {displayName}

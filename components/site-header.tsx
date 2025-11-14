@@ -6,7 +6,7 @@ import { Package2 } from 'lucide-react'
 import { ThemeToggle } from "./theme-toggle"
 import { useTheme } from "./theme-provider"
 import { cn } from "@/lib/utils"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -19,6 +19,12 @@ const navigation = [
 export function SiteHeader() {
   const pathname = usePathname()
   const { colorPalette, theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Set up CSS animation for color cycling
   useEffect(() => {
@@ -105,11 +111,14 @@ export function SiteHeader() {
     }
   }, [colorPalette, theme])
 
+  // Only apply animation class after mount to avoid hydration mismatch
+  const shouldAnimate = mounted && colorPalette
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center text-2xl">
         <div className="mr-4 flex">
-          <Link href="/" className={cn("mr-6 flex items-center gap-2", colorPalette && "header-nav-animated")}>
+          <Link href="/" className={cn("mr-6 flex items-center gap-2", shouldAnimate && "header-nav-animated")}>
             <Package2 className="h-6 w-6" />
             <span className="font-bold">DesignerTool</span>
           </Link>
@@ -127,7 +136,7 @@ export function SiteHeader() {
                   isActive
                     ? "text-foreground font-medium"
                     : "text-foreground/60",
-                  colorPalette && "header-nav-animated"
+                  shouldAnimate && "header-nav-animated"
                 )}
               >
                 {item.name}

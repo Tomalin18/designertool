@@ -18,13 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useState } from "react"
+import { FireflyBackground } from "@/components/firefly-background"
 
 export default function HomePage() {
   const [selectOpen, setSelectOpen] = useState(false)
   const [progress, setProgress] = useState(60)
 
   return (
-    <div className="container max-w-7xl mx-auto py-8 md:py-16 lg:py-20">
+    <div className="relative">
+      <FireflyBackground />
+      <div className="container max-w-7xl mx-auto py-8 md:py-16 lg:py-20 relative z-10">
       {/* Hero Section */}
       <div className="text-center mb-16 lg:mb-20 space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
@@ -267,6 +270,7 @@ export default function HomePage() {
 
       {/* Stats Section */}
       
+      </div>
     </div>
   )
 }
