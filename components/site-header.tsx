@@ -14,7 +14,7 @@ const navigation = [
   { name: "Colors", href: "/colors" },
   { name: "Fonts", href: "/fonts" },
   { name: "Icons", href: "/icons" },
-  { name: "Playground", href: "/playground" },
+  // { name: "Playground", href: "/playground" },
 ]
 
 export function SiteHeader() {
@@ -124,7 +124,7 @@ export function SiteHeader() {
             <span className="font-bold">DesignerTool</span>
           </Link>
         </div>
-        
+
         <nav className="flex items-center gap-6 text-2xl">
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
