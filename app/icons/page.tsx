@@ -569,8 +569,101 @@ export default function IconsPage() {
   const filteredIconCount = Object.values(filteredCategories).flat().length
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
-      <aside className="w-64 border-r bg-card overflow-y-auto flex-shrink-0">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)]">
+      {/* Mobile: Top horizontal scroll */}
+      <div className="md:hidden border-b bg-card">
+        <div className="p-4 space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search icons..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {/* Icon Source Filter - Horizontal Scroll */}
+          <div>
+            <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+              Source
+            </h3>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {(["all", "lucide", "lineicons"] as IconSource[]).map((source) => (
+                <button
+                  key={source}
+                  onClick={() => setIconSource(source)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${iconSource === source
+                    ? "bg-accent font-medium"
+                    : "bg-muted hover:bg-accent/50"
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="capitalize whitespace-nowrap">
+                      {source === "all" ? "All" : source}
+                    </span>
+                    <Badge variant="secondary" className="text-xs">
+                      {source === "all"
+                        ? totalIconCount + allLineicons.length
+                        : source === "lucide"
+                          ? totalIconCount
+                          : allLineicons.length}
+                    </Badge>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Categories - Horizontal Scroll */}
+          {iconSource !== "lineicons" && (
+            <div>
+              <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+                Categories
+              </h3>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
+                    ? "bg-accent font-medium"
+                    : "bg-muted hover:bg-accent/50"
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="whitespace-nowrap">All</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {totalIconCount}
+                    </Badge>
+                  </div>
+                </button>
+
+                {Object.entries(iconCategories).map(([category, icons]) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
+                      ? "bg-accent font-medium"
+                      : "bg-muted hover:bg-accent/50"
+                      }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="whitespace-nowrap">{category}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {icons.length}
+                      </Badge>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop: Left sidebar */}
+      <aside className="hidden md:block w-64 border-r bg-card overflow-y-auto flex-shrink-0">
         <div className="p-4 space-y-6">
           {/* Search */}
           <div>
@@ -597,8 +690,8 @@ export default function IconsPage() {
                   key={source}
                   onClick={() => setIconSource(source)}
                   className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${iconSource === source
-                      ? "bg-accent font-medium"
-                      : "hover:bg-accent/50"
+                    ? "bg-accent font-medium"
+                    : "hover:bg-accent/50"
                     }`}
                 >
                   <div className="flex items-center justify-between">
@@ -608,8 +701,7 @@ export default function IconsPage() {
                         ? totalIconCount + allLineicons.length
                         : source === "lucide"
                           ? totalIconCount
-                          : allLineicons.length
-                      }
+                          : allLineicons.length}
                     </Badge>
                   </div>
                 </button>
@@ -628,8 +720,8 @@ export default function IconsPage() {
                 <button
                   onClick={() => setSelectedCategory(null)}
                   className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
-                      ? "bg-accent font-medium"
-                      : "hover:bg-accent/50"
+                    ? "bg-accent font-medium"
+                    : "hover:bg-accent/50"
                     }`}
                 >
                   <div className="flex items-center justify-between">
@@ -646,8 +738,8 @@ export default function IconsPage() {
                     key={category}
                     onClick={() => setSelectedCategory(category)}
                     className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
-                        ? "bg-accent font-medium"
-                        : "hover:bg-accent/50"
+                      ? "bg-accent font-medium"
+                      : "hover:bg-accent/50"
                       }`}
                   >
                     <div className="flex items-center justify-between">
@@ -681,7 +773,7 @@ export default function IconsPage() {
       </aside>
 
       {/* Main Content - Icon Categories */}
-      <div className="flex-1 overflow-y-auto px-8 py-8">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-8">
         {/* Lucide Icons */}
         {(iconSource === "all" || iconSource === "lucide") && (
           <>
@@ -715,8 +807,8 @@ export default function IconsPage() {
                             key={iconName}
                             onClick={() => handleIconSelect(iconName, category, "lucide")}
                             className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
-                                ? "border-foreground bg-accent"
-                                : "border-border bg-card"
+                              ? "border-foreground bg-accent"
+                              : "border-border bg-card"
                               }`}
                           >
                             <IconComponent className="h-10 w-10" strokeWidth={1.5} />
@@ -756,8 +848,8 @@ export default function IconsPage() {
                       key={iconName}
                       onClick={() => handleIconSelect(iconName, "Lineicons", "lineicons")}
                       className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
-                          ? "border-foreground bg-accent"
-                          : "border-border bg-card"
+                        ? "border-foreground bg-accent"
+                        : "border-border bg-card"
                         }`}
                     >
                       <img
@@ -834,8 +926,8 @@ export default function IconsPage() {
                         key={type}
                         onClick={() => setExportSettings({ ...exportSettings, fileType: type })}
                         className={`px-3 py-2 rounded-md border text-sm font-medium transition-colors ${exportSettings.fileType === type
-                            ? "bg-foreground text-background"
-                            : "bg-background hover:bg-accent"
+                          ? "bg-foreground text-background"
+                          : "bg-background hover:bg-accent"
                           }`}
                       >
                         {type}

@@ -18,7 +18,7 @@ export function MobileNav() {
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 safe-bottom">
-            <div className="flex items-center justify-around h-16 px-2">
+            <div className="grid grid-cols-5 h-16">
                 {mobileNavItems.map((item) => {
                     const Icon = item.icon
                     const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
@@ -28,7 +28,7 @@ export function MobileNav() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "flex flex-col items-center justify-center gap-1 min-w-[48px] min-h-[48px] px-3 py-2 rounded-lg transition-colors",
+                                "flex flex-col items-center justify-center gap-1 py-2 transition-colors",
                                 isActive
                                     ? "text-primary"
                                     : "text-muted-foreground hover:text-foreground"
