@@ -52,9 +52,9 @@ const componentConfigs: Record<string, any> = {
         style.borderColor = 'hsl(var(--border))'
       }
       return (
-        <Button 
-          {...domProps} 
-          className="scale-150" 
+        <Button
+          {...domProps}
+          className="scale-150"
           style={style}
         >
           {props.children}
@@ -81,9 +81,9 @@ const componentConfigs: Record<string, any> = {
         style.borderColor = 'hsl(var(--border))'
       }
       return (
-        <Badge 
-          {...domProps} 
-          className="scale-150 inline-block" 
+        <Badge
+          {...domProps}
+          className="scale-150 inline-block"
           style={style}
         >
           {props.children}
@@ -129,7 +129,11 @@ const componentConfigs: Record<string, any> = {
       collapsible: { type: "boolean", default: true },
     },
     render: (props: any) => (
-      <Accordion type={props.type} collapsible={props.collapsible} className="w-full">
+      <Accordion
+        type={props.type}
+        collapsible={props.type === "single" ? props.collapsible : undefined}
+        className="w-full"
+      >
         <AccordionItem value="item-1">
           <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>
           <AccordionContent className="text-lg pb-6">Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
@@ -160,9 +164,9 @@ const componentConfigs: Record<string, any> = {
         borderWidth: `${borderWidth}px`,
       }
       return (
-        <Input 
-          {...domProps} 
-          className="max-w-2xl text-xl h-16 px-6" 
+        <Input
+          {...domProps}
+          className="max-w-2xl text-xl h-16 px-6"
           style={style}
         />
       )
@@ -391,9 +395,9 @@ const componentConfigs: Record<string, any> = {
         borderWidth: `${borderWidth}px`,
       }
       return (
-        <Textarea 
-          {...domProps} 
-          className="max-w-3xl text-xl p-6" 
+        <Textarea
+          {...domProps}
+          className="max-w-3xl text-xl p-6"
           style={style}
         />
       )
@@ -468,7 +472,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
 
   const generateCode = () => {
     if (!config) return ""
-    
+
     const propsString = Object.entries(props)
       .filter(([key, value]) => {
         const propConfig = config.props[key]
@@ -487,7 +491,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       .join(" ")
 
     const children = props.children || ""
-    
+
     if (componentName === "Accordion") {
       return `<Accordion${propsString ? " " + propsString : ""}>\n  <AccordionItem value="item-1">\n    <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It adheres to the WAI-ARIA design pattern.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value="item-2">\n    <AccordionTrigger className="text-xl py-6">Is it styled?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It comes with default styles that you can override.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value="item-3">\n    <AccordionTrigger className="text-xl py-6">Is it animated?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It's animated by default, but you can disable it if you prefer.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>`
     }
@@ -629,7 +633,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
             {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
               <div key={key} className="space-y-2">
                 <Label className="capitalize">{key}</Label>
-                
+
                 {propConfig.type === "select" && (
                   <Select value={props[key]} onValueChange={(value) => updateProp(key, value)}>
                     <SelectTrigger>
