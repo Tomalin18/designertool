@@ -67,7 +67,7 @@ export default function ColorsPage() {
   }
 
   return (
-    <div className="container flex-1 items-start md:grid md:grid-cols-[280px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10">
+    <div className="flex flex-col md:flex-row container flex-1 items-start md:grid md:grid-cols-[280px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
       <style jsx global>{`
         .color-themed-switch[data-state="checked"] {
           background-color: ${selectedPalette.light[0]} !important;
@@ -82,7 +82,52 @@ export default function ColorsPage() {
         }
       `}</style>
 
-      <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
+      {/* Mobile: Top horizontal scroll */}
+      <div className="md:hidden w-full border-b bg-card mb-4">
+        <div className="p-4">
+          <h2 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+            Color Palettes
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {colorPalettes.map((palette) => {
+              const isSelected = selectedPalette.name === palette.name
+              const isActive = colorPalette?.name === palette.name
+              return (
+                <button
+                  key={palette.name}
+                  onClick={() => {
+                    setSelectedPalette(palette)
+                    setColorPalette(palette.name)
+                  }}
+                  className={`flex-shrink-0 w-32 rounded-lg p-3 transition-all relative ${isSelected
+                      ? "bg-accent border-2 border-primary"
+                      : "bg-muted/50 hover:bg-muted border-2 border-transparent"
+                    }`}
+                >
+                  {isActive && (
+                    <div className="absolute top-2 right-2">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    </div>
+                  )}
+                  <div className="flex gap-1 mb-2">
+                    {palette.light.map((color, idx) => (
+                      <div
+                        key={idx}
+                        className="h-6 flex-1 rounded"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-xs font-medium truncate">{palette.name}</div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: Left sidebar */}
+      <aside className="hidden md:block fixed top-14 z-30 -ml-2 h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky">
         <div className="py-6 pl-6 pr-4 lg:py-8 lg:pl-8">
           <h2 className="mb-4 text-lg font-semibold">Color Palettes</h2>
           <div className="space-y-2">
@@ -96,11 +141,10 @@ export default function ColorsPage() {
                     setSelectedPalette(palette)
                     setColorPalette(palette.name)
                   }}
-                  className={`w-full text-left rounded-lg p-3 transition-all relative ${
-                    isSelected
+                  className={`w-full text-left rounded-lg p-3 transition-all relative ${isSelected
                       ? "bg-primary/10 border-2 border-primary"
                       : "bg-muted/50 hover:bg-muted border-2 border-transparent"
-                  }`}
+                    }`}
                 >
                   {isActive && (
                     <div className="absolute top-2 right-2">
@@ -127,7 +171,7 @@ export default function ColorsPage() {
         </div>
       </aside>
 
-      <div className="py-8 md:py-12">
+      <div className="py-4 md:py-8 lg:py-12 w-full">
         {/* Color Info Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -153,7 +197,7 @@ export default function ColorsPage() {
             </Button>
           </div>
           <p className="text-muted-foreground mb-4">{selectedPalette.description}</p>
-          
+
           {/* Color Swatches */}
           <div className="space-y-4 mb-4">
             <div>
@@ -280,8 +324,8 @@ export default function ColorsPage() {
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="airplane-mode" 
+                  <Switch
+                    id="airplane-mode"
                     className="color-themed-switch"
                     style={{
                       "--switch-checked-bg": selectedPalette.light[0],
@@ -312,7 +356,7 @@ export default function ColorsPage() {
 
               <div className="flex gap-4">
                 <Select>
-                  <SelectTrigger 
+                  <SelectTrigger
                     className="w-[200px] color-themed-select"
                     style={{
                       borderColor: selectedPalette.light[0],
@@ -321,7 +365,7 @@ export default function ColorsPage() {
                     <SelectValue placeholder="Select option" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem 
+                    <SelectItem
                       value="1"
                       style={{
                         backgroundColor: "transparent",
@@ -337,7 +381,7 @@ export default function ColorsPage() {
                     >
                       Option 1
                     </SelectItem>
-                    <SelectItem 
+                    <SelectItem
                       value="2"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = selectedPalette.light[0] + "20"
@@ -350,7 +394,7 @@ export default function ColorsPage() {
                     >
                       Option 2
                     </SelectItem>
-                    <SelectItem 
+                    <SelectItem
                       value="3"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = selectedPalette.light[0] + "20"
@@ -368,7 +412,7 @@ export default function ColorsPage() {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
+                    <Button
                       variant="outline"
                       style={{
                         borderColor: selectedPalette.light[0],
@@ -381,7 +425,7 @@ export default function ColorsPage() {
                   <DropdownMenuContent>
                     <DropdownMenuLabel>Menu Items</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="color-themed-dropdown-item"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = selectedPalette.light[0] + "20"

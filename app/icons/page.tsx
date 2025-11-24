@@ -614,8 +614,8 @@ export default function IconsPage() {
                       key={source}
                       onClick={() => setIconSource(source)}
                       className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${iconSource === source
-                          ? "bg-accent font-medium"
-                          : "bg-muted hover:bg-accent/50"
+                        ? "bg-accent font-medium"
+                        : "bg-muted hover:bg-accent/50"
                         }`}
                     >
                       <div className="flex items-center gap-2">
@@ -645,8 +645,8 @@ export default function IconsPage() {
                     <button
                       onClick={() => setSelectedCategory(null)}
                       className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
-                          ? "bg-accent font-medium"
-                          : "bg-muted hover:bg-accent/50"
+                        ? "bg-accent font-medium"
+                        : "bg-muted hover:bg-accent/50"
                         }`}
                     >
                       <div className="flex items-center gap-2">
@@ -662,8 +662,8 @@ export default function IconsPage() {
                         key={category}
                         onClick={() => setSelectedCategory(category)}
                         className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
-                            ? "bg-accent font-medium"
-                            : "bg-muted hover:bg-accent/50"
+                          ? "bg-accent font-medium"
+                          : "bg-muted hover:bg-accent/50"
                           }`}
                       >
                         <div className="flex items-center gap-2">
@@ -793,7 +793,7 @@ export default function IconsPage() {
       </aside>
 
       {/* Main Content - Icon Categories */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-8">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-8 py-4 md:py-8">
         {/* Lucide Icons */}
         {(iconSource === "all" || iconSource === "lucide") && (
           <>
@@ -817,7 +817,10 @@ export default function IconsPage() {
                     </h2>
 
                     {/* Horizontal Scrollable Icons */}
-                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
+                    <div
+                      className="flex gap-3 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin"
+                      style={{ touchAction: 'pan-x' }}
+                    >
                       {icons.map((iconName) => {
                         const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as any
                         const isSelected = selectedIcon?.name === iconName && selectedIcon?.source === "lucide"
@@ -826,12 +829,12 @@ export default function IconsPage() {
                           <button
                             key={iconName}
                             onClick={() => handleIconSelect(iconName, category, "lucide")}
-                            className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
+                            className={`flex-shrink-0 w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
                               ? "border-foreground bg-accent"
                               : "border-border bg-card"
                               }`}
                           >
-                            <IconComponent className="h-10 w-10" strokeWidth={1.5} />
+                            <IconComponent className="h-5 w-5" strokeWidth={1.5} />
                           </button>
                         )
                       })}
@@ -858,7 +861,10 @@ export default function IconsPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              <div
+                className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4"
+                style={{ touchAction: 'auto' }}
+              >
                 {filteredLineicons.map((iconName) => {
                   const isSelected = selectedIcon?.name === iconName && selectedIcon?.source === "lineicons"
                   const svgPath = getLineiconSvgPath(iconName)
@@ -867,7 +873,7 @@ export default function IconsPage() {
                     <button
                       key={iconName}
                       onClick={() => handleIconSelect(iconName, "Lineicons", "lineicons")}
-                      className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
+                      className={`flex-shrink-0 w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
                         ? "border-foreground bg-accent"
                         : "border-border bg-card"
                         }`}
@@ -875,8 +881,8 @@ export default function IconsPage() {
                       <img
                         src={svgPath}
                         alt={iconName}
-                        width={40}
-                        height={40}
+                        width={20}
+                        height={20}
                         className="object-contain"
                       />
                     </button>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 interface Font {
     name: string
@@ -12,26 +12,54 @@ interface GoogleFontLoaderProps {
 }
 
 export function GoogleFontLoader({ fonts }: GoogleFontLoaderProps) {
+    const [loadedFonts, setLoadedFonts] = useState<Set<string>>(new Set())
+
     useEffect(() => {
         if (fonts.length === 0) return
 
-        // Construct the Google Fonts URL
-        // Format: family=Font1:wght@400;700&family=Font2:wght@400
-        const fontFamilies = fonts
-            .map((font) => {
-                const weights = font.weights.join(";")
-                return `family=${font.name.replace(/\s+/g, "+")}:wght@${weights}`
-            })
-            .join("&")
+        // Separate fonts into priority groups
+        const latinFonts = fonts.filter(font =>
+            !font.name.includes('Noto') ||
+            (!font.name.includes('TC') && !font.name.includes('JP'))
+        )
+        const cjkFonts = fonts.filter(font =>
+            font.name.includes('Noto') &&
+            (font.name.includes('TC') || font.name.includes('JP'))
+        )
 
-        const link = document.createElement("link")
-        link.href = `https://fonts.googleapis.com/css2?${fontFamilies}&display=swap`
-        link.rel = "stylesheet"
+        // Load Latin fonts immediately (smaller files)
+        const loadFonts = (fontsToLoad: Font[]) => {
+            const fontFamilies = fontsToLoad
+                .filter(font => !loadedFonts.has(font.name))
+                .map((font) => {
+                    const weights = font.weights.join(";")
+                    return `family=${font.name.replace(/\s+/g, "+")}:wght@${weights}`
+                })
+                .join("&")
 
-        document.head.appendChild(link)
+            if (fontFamilies) {
+                const link = document.createElement("link")
+                link.href = `https://fonts.googleapis.com/css2?${fontFamilies}&display=swap`
+                link.rel = "stylesheet"
+                document.head.appendChild(link)
+
+                // Mark fonts as loaded
+                fontsToLoad.forEach(font => {
+                    setLoadedFonts(prev => new Set(prev).add(font.name))
+                })
+            }
+        }
+
+        // Load Latin fonts immediately
+        loadFonts(latinFonts)
+
+        // Load CJK fonts after a delay (they're much larger)
+        const cjkTimeout = setTimeout(() => {
+            loadFonts(cjkFonts)
+        }, 1000)
 
         return () => {
-            document.head.removeChild(link)
+            clearTimeout(cjkTimeout)
         }
     }, [fonts])
 
