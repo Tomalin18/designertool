@@ -100,8 +100,8 @@ export default function ColorsPage() {
                     setColorPalette(palette.name)
                   }}
                   className={`flex-shrink-0 w-32 rounded-lg p-3 transition-all relative ${isSelected
-                      ? "bg-accent border-2 border-primary"
-                      : "bg-muted/50 hover:bg-muted border-2 border-transparent"
+                    ? "bg-accent border-2 border-primary"
+                    : "bg-muted/50 hover:bg-muted border-2 border-transparent"
                     }`}
                 >
                   {isActive && (
@@ -142,8 +142,8 @@ export default function ColorsPage() {
                     setColorPalette(palette.name)
                   }}
                   className={`w-full text-left rounded-lg p-3 transition-all relative ${isSelected
-                      ? "bg-primary/10 border-2 border-primary"
-                      : "bg-muted/50 hover:bg-muted border-2 border-transparent"
+                    ? "bg-primary/10 border-2 border-primary"
+                    : "bg-muted/50 hover:bg-muted border-2 border-transparent"
                     }`}
                 >
                   {isActive && (

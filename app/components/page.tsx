@@ -1,13 +1,26 @@
+```javascript
 "use client"
 
+import dynamic from "next/dynamic"
 import { useState } from "react"
-import { Search } from 'lucide-react'
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories } from "@/lib/components-data"
-import { ComponentPreview } from "@/components/component-preview"
 import { SidebarNav } from "@/components/sidebar-nav"
+
+// Lazy load heavy components
+const ComponentPreview = dynamic(() => import("@/components/component-preview"), { ssr: false })
+// Placeholder components for code and properties (could be replaced with actual implementations)
+const CodeView = dynamic(() => import("@/components/code-view"), {
+  ssr: false,
+  loading: () => <p className="text-muted-foreground">Loading code...</p>,
+})
+const PropertiesView = dynamic(() => import("@/components/properties-view"), {
+  ssr: false,
+  loading: () => <p className="text-muted-foreground">Loading properties...</p>,
+})
 
 export default function ComponentsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All")
@@ -53,13 +66,16 @@ export default function ComponentsPage() {
       </aside>
 
       <section className="py-6 md:py-8">
-        <Tabs defaultValue="default" className="w-full">
+        <Tabs defaultValue="preview" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="default">Default</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="customize">Customize</TabsTrigger>
+            <TabsTrigger value="code">Code</TabsTrigger>
+            <TabsTrigger value="properties">Properties</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="default" className="mt-0">
+          {/* Preview Tab */}
+          <TabsContent value="preview" className="mt-0">
             {/* Search and Filter */}
             <div className="flex flex-col gap-4 mb-8">
               {/* Search */}
@@ -104,6 +120,7 @@ export default function ComponentsPage() {
             )}
           </TabsContent>
 
+          {/* Customize Tab */}
           <TabsContent value="customize" className="mt-0">
             <div className="flex flex-col gap-4 mb-8">
               {/* Search */}
@@ -146,6 +163,16 @@ export default function ComponentsPage() {
                 <p className="text-sm text-muted-foreground">Custom components you create will appear here</p>
               </div>
             )}
+          </TabsContent>
+
+          {/* Code Tab */}
+          <TabsContent value="code" className="mt-0">
+            <CodeView />
+          </TabsContent>
+
+          {/* Properties Tab */}
+          <TabsContent value="properties" className="mt-0">
+            <PropertiesView />
           </TabsContent>
         </Tabs>
       </section>

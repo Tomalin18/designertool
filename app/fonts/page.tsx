@@ -5,6 +5,7 @@ import { Search, Bold, Italic, Underline, Strikethrough, Copy, Check } from 'luc
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Toggle } from "@/components/ui/toggle"
@@ -41,7 +42,7 @@ const categories = ["All", "Sans Serif", "Serif", "Monospace", "Handwriting"]
 
 const DEFAULT_PREVIEW = "The quick brown fox jumps over the lazy dog"
 
-import { GoogleFontLoader } from "@/components/google-font-loader"
+const GoogleFontLoader = dynamic(() => import("@/components/google-font-loader"), { ssr: false })
 
 export default function FontsPage() {
   const { colorPalette, theme } = useTheme()
