@@ -49,6 +49,7 @@ export default function IconsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [iconSource, setIconSource] = useState<IconSource>("all")
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false)
 
   const allLineicons = getAllLineiconNames()
   const filteredLineicons = searchQuery
@@ -573,90 +574,109 @@ export default function IconsPage() {
       {/* Mobile: Top horizontal scroll */}
       <div className="md:hidden border-b bg-card">
         <div className="p-4 space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search icons..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {/* Icon Source Filter - Horizontal Scroll */}
-          <div>
-            <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-              Source
-            </h3>
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {(["all", "lucide", "lineicons"] as IconSource[]).map((source) => (
-                <button
-                  key={source}
-                  onClick={() => setIconSource(source)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${iconSource === source
-                    ? "bg-accent font-medium"
-                    : "bg-muted hover:bg-accent/50"
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="capitalize whitespace-nowrap">
-                      {source === "all" ? "All" : source}
-                    </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {source === "all"
-                        ? totalIconCount + allLineicons.length
-                        : source === "lucide"
-                          ? totalIconCount
-                          : allLineicons.length}
-                    </Badge>
-                  </div>
-                </button>
-              ))}
+          {/* Search with Toggle Button */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search icons..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
             </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              className="flex-shrink-0"
+            >
+              {isFilterExpanded ? (
+                <LucideIcons.ChevronUp className="h-4 w-4" />
+              ) : (
+                <LucideIcons.ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
           </div>
 
-          {/* Categories - Horizontal Scroll */}
-          {iconSource !== "lineicons" && (
-            <div>
-              <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
-                Categories
-              </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
-                    ? "bg-accent font-medium"
-                    : "bg-muted hover:bg-accent/50"
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="whitespace-nowrap">All</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {totalIconCount}
-                    </Badge>
-                  </div>
-                </button>
-
-                {Object.entries(iconCategories).map(([category, icons]) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
-                      ? "bg-accent font-medium"
-                      : "bg-muted hover:bg-accent/50"
-                      }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="whitespace-nowrap">{category}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {icons.length}
-                      </Badge>
-                    </div>
-                  </button>
-                ))}
+          {/* Collapsible Filters */}
+          {isFilterExpanded && (
+            <div className="space-y-4">
+              {/* Icon Source Filter - Horizontal Scroll */}
+              <div>
+                <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+                  Source
+                </h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {(["all", "lucide", "lineicons"] as IconSource[]).map((source) => (
+                    <button
+                      key={source}
+                      onClick={() => setIconSource(source)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${iconSource === source
+                          ? "bg-accent font-medium"
+                          : "bg-muted hover:bg-accent/50"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="capitalize whitespace-nowrap">
+                          {source === "all" ? "All" : source}
+                        </span>
+                        <Badge variant="secondary" className="text-xs">
+                          {source === "all"
+                            ? totalIconCount + allLineicons.length
+                            : source === "lucide"
+                              ? totalIconCount
+                              : allLineicons.length}
+                        </Badge>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Categories - Horizontal Scroll */}
+              {iconSource !== "lineicons" && (
+                <div>
+                  <h3 className="text-xs font-semibold mb-2 text-muted-foreground uppercase tracking-wider">
+                    Categories
+                  </h3>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    <button
+                      onClick={() => setSelectedCategory(null)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
+                          ? "bg-accent font-medium"
+                          : "bg-muted hover:bg-accent/50"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="whitespace-nowrap">All</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {totalIconCount}
+                        </Badge>
+                      </div>
+                    </button>
+
+                    {Object.entries(iconCategories).map(([category, icons]) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
+                            ? "bg-accent font-medium"
+                            : "bg-muted hover:bg-accent/50"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="whitespace-nowrap">{category}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {icons.length}
+                          </Badge>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
