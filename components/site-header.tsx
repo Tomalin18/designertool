@@ -125,7 +125,7 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        <nav className="flex items-center gap-6 text-2xl">
+        <nav className="hidden md:flex items-center gap-6 text-2xl">
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
             return (
