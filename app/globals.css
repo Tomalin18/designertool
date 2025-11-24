@@ -122,15 +122,6 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Ensure minimum touch target size */
-  button,
-  a,
-  input,
-  select,
-  textarea {
-    min-height: 44px;
-  }
-
   /* Safe area support for notched devices */
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
