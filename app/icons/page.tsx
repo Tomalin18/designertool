@@ -45,13 +45,13 @@ export default function IconsPage() {
   })
   const [copied, setCopied] = useState(false)
   const [isSheetOpen, setIsSheetOpen] = useState(false)
-  
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [iconSource, setIconSource] = useState<IconSource>("all")
-  
+
   const allLineicons = getAllLineiconNames()
-  const filteredLineicons = searchQuery 
+  const filteredLineicons = searchQuery
     ? filterLineicons(searchQuery)
     : allLineicons.slice(0, 100) // 預設顯示前 100 個
 
@@ -63,26 +63,26 @@ export default function IconsPage() {
   const handleCopy = async () => {
     if (!selectedIcon) return
     if (selectedIcon.source === "lucide" && !SelectedIconComponent) return
-    
+
     try {
       if (selectedIcon.source === "lineicons") {
         // For Lineicons, fetch and copy the actual SVG content
         const svgPath = getLineiconSvgPath(selectedIcon.name)
-        
+
         try {
           const response = await fetch(svgPath)
           let svgContent = await response.text()
-          
+
           // 解析 SVG 並調整大小
           const parser = new DOMParser()
           const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml')
           const svgElement = svgDoc.querySelector('svg')
-          
+
           if (svgElement) {
             // 設置新的尺寸
             svgElement.setAttribute('width', exportSettings.size.toString())
             svgElement.setAttribute('height', exportSettings.size.toString())
-            
+
             // 根據檔案類型處理顏色
             if (exportSettings.fileType === "PNG") {
               // PNG 格式：保持原始顏色或設置為黑色（確保可見）
@@ -106,11 +106,11 @@ export default function IconsPage() {
                 }
               })
             }
-            
+
             // 獲取更新後的 SVG 內容
             svgContent = new XMLSerializer().serializeToString(svgElement)
           }
-          
+
           // 根據檔案類型複製
           if (exportSettings.fileType === "SVG") {
             await navigator.clipboard.writeText(svgContent)
@@ -119,21 +119,21 @@ export default function IconsPage() {
             const img = new Image()
             const blob = new Blob([svgContent], { type: 'image/svg+xml' })
             const url = URL.createObjectURL(blob)
-            
+
             img.onload = async () => {
               const canvas = document.createElement('canvas')
               canvas.width = exportSettings.size + (exportSettings.padding * 2)
               canvas.height = exportSettings.size + (exportSettings.padding * 2)
               const ctx = canvas.getContext('2d')
-              
+
               if (ctx) {
                 // 填充白色背景（確保 PNG 有背景）
                 ctx.fillStyle = '#ffffff'
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
-                
+
                 // 繪製 SVG
                 ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
-                
+
                 canvas.toBlob(async (blob) => {
                   if (blob) {
                     try {
@@ -154,12 +154,12 @@ export default function IconsPage() {
                 }, 'image/png')
               }
             }
-            
+
             img.onerror = () => {
               console.error('Failed to load SVG image')
               URL.revokeObjectURL(url)
             }
-            
+
             img.src = url
             return
           } else {
@@ -167,7 +167,7 @@ export default function IconsPage() {
             const jsxCode = `import React from 'react';\n\nexport const ${selectedIcon.name.replace(/^lni-/, '').replace(/-/g, '')} = () => (\n  ${svgContent.replace(/<svg/, '<svg className="w-6 h-6"').replace(/>/g, ' />')}\n);`
             await navigator.clipboard.writeText(jsxCode)
           }
-          
+
           setCopied(true)
           setTimeout(() => setCopied(false), 2000)
         } catch (err) {
@@ -189,7 +189,7 @@ export default function IconsPage() {
         tempContainer.style.width = `${exportSettings.size}px`
         tempContainer.style.height = `${exportSettings.size}px`
         document.body.appendChild(tempContainer)
-        
+
         // 使用 React 渲染圖標
         const root = ReactDOM.createRoot(tempContainer)
         root.render(
@@ -199,21 +199,21 @@ export default function IconsPage() {
             color: exportSettings.fileType === "PNG" ? "#000000" : "currentColor"
           })
         )
-        
+
         // 等待渲染完成
         await new Promise(resolve => setTimeout(resolve, 100))
-        
+
         // 提取 SVG 元素
         const svgElement = tempContainer.querySelector('svg')
-        
+
         if (svgElement) {
           // 克隆 SVG 以便修改
           const svgClone = svgElement.cloneNode(true) as SVGElement
-          
+
           // 設置尺寸和 viewBox
           svgClone.setAttribute('width', exportSettings.size.toString())
           svgClone.setAttribute('height', exportSettings.size.toString())
-          
+
           // 根據檔案類型處理顏色
           if (exportSettings.fileType === "PNG") {
             // PNG 格式：確保有明確的顏色
@@ -229,11 +229,11 @@ export default function IconsPage() {
               }
             })
           }
-          
+
           // 序列化 SVG
           const serializer = new XMLSerializer()
           let svgContent = serializer.serializeToString(svgClone)
-          
+
           // 添加 padding（如果需要）
           if (exportSettings.padding > 0) {
             const paddedSvg = `
@@ -245,7 +245,7 @@ export default function IconsPage() {
             `
             svgContent = paddedSvg
           }
-          
+
           // 根據檔案類型複製
           if (exportSettings.fileType === "SVG") {
             await navigator.clipboard.writeText(svgContent)
@@ -256,22 +256,22 @@ export default function IconsPage() {
             const img = new Image()
             const blob = new Blob([svgContent], { type: 'image/svg+xml' })
             const url = URL.createObjectURL(blob)
-            
+
             img.onload = async () => {
               const canvas = document.createElement('canvas')
               const finalSize = exportSettings.size + (exportSettings.padding * 2)
               canvas.width = finalSize
               canvas.height = finalSize
               const ctx = canvas.getContext('2d')
-              
+
               if (ctx) {
                 // 填充白色背景
                 ctx.fillStyle = '#ffffff'
                 ctx.fillRect(0, 0, canvas.width, canvas.height)
-                
+
                 // 繪製 SVG
                 ctx.drawImage(img, 0, 0)
-                
+
                 canvas.toBlob(async (blob) => {
                   if (blob) {
                     try {
@@ -292,12 +292,12 @@ export default function IconsPage() {
                 }, 'image/png')
               }
             }
-            
+
             img.onerror = () => {
               console.error('Failed to load SVG image')
               URL.revokeObjectURL(url)
             }
-            
+
             img.src = url
           } else {
             // JSX 格式
@@ -307,25 +307,25 @@ export default function IconsPage() {
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
           }
-          
+
           // 清理
           root.unmount()
           document.body.removeChild(tempContainer)
           return
         }
-        
+
         // 如果提取失敗，清理並使用 fallback
         root.unmount()
         document.body.removeChild(tempContainer)
       }
-      
+
       // Fallback: 使用 canvas 方法
       const canvas = document.createElement('canvas')
       const size = exportSettings.size + (exportSettings.padding * 2)
       canvas.width = size
       canvas.height = size
       const ctx = canvas.getContext('2d')
-      
+
       if (!ctx) return
 
       // 創建簡單的 SVG（fallback）
@@ -334,11 +334,11 @@ export default function IconsPage() {
           <circle cx="12" cy="12" r="10"/>
         </svg>
       `
-      
+
       // Convert SVG to blob
       const blob = new Blob([svg], { type: 'image/svg+xml' })
       const url = URL.createObjectURL(blob)
-      
+
       // Load image and draw to canvas
       const img = new Image()
       img.onload = async () => {
@@ -347,7 +347,7 @@ export default function IconsPage() {
           ctx.fillRect(0, 0, canvas.width, canvas.height)
           ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
         }
-        
+
         // Convert canvas to blob
         canvas.toBlob(async (blob) => {
           if (blob) {
@@ -366,19 +366,161 @@ export default function IconsPage() {
             }
           }
         }, 'image/png')
-        
+
         URL.revokeObjectURL(url)
       }
-      
+
       img.src = url
     } catch (err) {
       console.error('Failed to copy:', err)
     }
   }
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!selectedIcon) return
-    // Mock download functionality
+
+    if (exportSettings.fileType === "PDF") {
+      try {
+        const { jsPDF } = await import("jspdf")
+        const doc = new jsPDF()
+
+        const size = exportSettings.size + (exportSettings.padding * 2)
+
+        // Helper to get image data
+        const getImageData = async (): Promise<string | null> => {
+          if (selectedIcon.source === "lineicons") {
+            const svgPath = getLineiconSvgPath(selectedIcon.name)
+            const response = await fetch(svgPath)
+            let svgContent = await response.text()
+
+            const parser = new DOMParser()
+            const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml')
+            const svgElement = svgDoc.querySelector('svg')
+
+            if (svgElement) {
+              svgElement.setAttribute('width', exportSettings.size.toString())
+              svgElement.setAttribute('height', exportSettings.size.toString())
+
+              // Ensure black color for PDF
+              const paths = svgElement.querySelectorAll('path')
+              paths.forEach(path => {
+                const fill = path.getAttribute('fill')
+                if (fill === 'currentColor' || !fill || fill === 'none') {
+                  path.setAttribute('fill', '#000000')
+                }
+              })
+
+              svgContent = new XMLSerializer().serializeToString(svgElement)
+            }
+
+            return new Promise((resolve) => {
+              const img = new Image()
+              const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+              const url = URL.createObjectURL(blob)
+
+              img.onload = () => {
+                const canvas = document.createElement('canvas')
+                canvas.width = size
+                canvas.height = size
+                const ctx = canvas.getContext('2d')
+                if (ctx) {
+                  ctx.fillStyle = '#ffffff'
+                  ctx.fillRect(0, 0, canvas.width, canvas.height)
+                  ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
+                  resolve(canvas.toDataURL('image/png'))
+                } else {
+                  resolve(null)
+                }
+                URL.revokeObjectURL(url)
+              }
+              img.onerror = () => {
+                URL.revokeObjectURL(url)
+                resolve(null)
+              }
+              img.src = url
+            })
+          } else if (SelectedIconComponent) {
+            // Lucide icons
+            const tempContainer = document.createElement('div')
+            tempContainer.style.position = 'absolute'
+            tempContainer.style.left = '-9999px'
+            tempContainer.style.width = `${exportSettings.size}px`
+            tempContainer.style.height = `${exportSettings.size}px`
+            document.body.appendChild(tempContainer)
+
+            const root = ReactDOM.createRoot(tempContainer)
+            root.render(
+              React.createElement(SelectedIconComponent, {
+                size: exportSettings.size,
+                strokeWidth: exportSettings.stroke,
+                color: "#000000" // Black for PDF
+              })
+            )
+
+            await new Promise(resolve => setTimeout(resolve, 100))
+
+            const svgElement = tempContainer.querySelector('svg')
+            if (svgElement) {
+              const svgClone = svgElement.cloneNode(true) as SVGElement
+              svgClone.setAttribute('width', exportSettings.size.toString())
+              svgClone.setAttribute('height', exportSettings.size.toString())
+
+              const serializer = new XMLSerializer()
+              const svgContent = serializer.serializeToString(svgClone)
+
+              root.unmount()
+              document.body.removeChild(tempContainer)
+
+              return new Promise((resolve) => {
+                const img = new Image()
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+                const url = URL.createObjectURL(blob)
+
+                img.onload = () => {
+                  const canvas = document.createElement('canvas')
+                  canvas.width = size
+                  canvas.height = size
+                  const ctx = canvas.getContext('2d')
+                  if (ctx) {
+                    ctx.fillStyle = '#ffffff'
+                    ctx.fillRect(0, 0, canvas.width, canvas.height)
+                    ctx.drawImage(img, exportSettings.padding, exportSettings.padding, exportSettings.size, exportSettings.size)
+                    resolve(canvas.toDataURL('image/png'))
+                  } else {
+                    resolve(null)
+                  }
+                  URL.revokeObjectURL(url)
+                }
+                img.onerror = () => {
+                  URL.revokeObjectURL(url)
+                  resolve(null)
+                }
+                img.src = url
+              })
+            }
+            root.unmount()
+            document.body.removeChild(tempContainer)
+          }
+          return null
+        }
+
+        const imageData = await getImageData()
+        if (imageData) {
+          // Add image to PDF. 
+          // We center it on the page or just put it at top left. 
+          // Let's put it at top left with some margin.
+          doc.addImage(imageData, 'PNG', 10, 10, size / 4, size / 4) // Convert px to roughly mm (1px ~= 0.26mm), but let's just use a reasonable scale
+          doc.save(`${selectedIcon.name}.pdf`)
+        } else {
+          console.error("Failed to generate image data for PDF")
+        }
+      } catch (err) {
+        console.error("Failed to generate PDF:", err)
+      }
+      return
+    }
+
+    // Existing mock download for other types (or implement them if needed, but user asked for PDF specifically)
     alert(`Downloading ${selectedIcon.name} as ${exportSettings.fileType}`)
   }
 
@@ -393,14 +535,14 @@ export default function IconsPage() {
     const tempDiv = document.createElement('div')
     tempDiv.style.display = 'none'
     document.body.appendChild(tempDiv)
-    
+
     const IconComp = LucideIcons[iconName as keyof typeof LucideIcons] as any
     if (IconComp) {
       // Render React component to get SVG - this is a workaround
       // In production, you'd want a more robust solution
-      return `<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="${stroke}" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="scale(${size/24})"/>`
+      return `<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="${stroke}" strokeLinecap="round" strokeLinejoin="round" fill="none" transform="scale(${size / 24})"/>`
     }
-    
+
     document.body.removeChild(tempDiv)
     return ''
   }
@@ -410,16 +552,16 @@ export default function IconsPage() {
     if (selectedCategory && category !== selectedCategory) {
       return acc
     }
-    
+
     // Filter by search query
-    const filteredIcons = icons.filter(iconName => 
+    const filteredIcons = icons.filter(iconName =>
       iconName.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    
+
     if (filteredIcons.length > 0) {
       acc[category] = filteredIcons
     }
-    
+
     return acc
   }, {} as Record<string, string[]>)
 
@@ -454,20 +596,19 @@ export default function IconsPage() {
                 <button
                   key={source}
                   onClick={() => setIconSource(source)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                    iconSource === source
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${iconSource === source
                       ? "bg-accent font-medium"
                       : "hover:bg-accent/50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="capitalize">{source === "all" ? "All Icons" : source}</span>
                     <Badge variant="secondary" className="text-xs">
-                      {source === "all" 
+                      {source === "all"
                         ? totalIconCount + allLineicons.length
                         : source === "lucide"
-                        ? totalIconCount
-                        : allLineicons.length
+                          ? totalIconCount
+                          : allLineicons.length
                       }
                     </Badge>
                   </div>
@@ -486,11 +627,10 @@ export default function IconsPage() {
                 {/* All Categories Option */}
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                    selectedCategory === null
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
                       ? "bg-accent font-medium"
                       : "hover:bg-accent/50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span>All Icons</span>
@@ -505,11 +645,10 @@ export default function IconsPage() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                      selectedCategory === category
+                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
                         ? "bg-accent font-medium"
                         : "hover:bg-accent/50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span>{category}</span>
@@ -570,16 +709,15 @@ export default function IconsPage() {
                       {icons.map((iconName) => {
                         const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as any
                         const isSelected = selectedIcon?.name === iconName && selectedIcon?.source === "lucide"
-                        
+
                         return (
                           <button
                             key={iconName}
                             onClick={() => handleIconSelect(iconName, category, "lucide")}
-                            className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${
-                              isSelected
+                            className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
                                 ? "border-foreground bg-accent"
                                 : "border-border bg-card"
-                            }`}
+                              }`}
                           >
                             <IconComponent className="h-10 w-10" strokeWidth={1.5} />
                           </button>
@@ -600,7 +738,7 @@ export default function IconsPage() {
               <h2 className="text-2xl font-bold">Lineicons</h2>
               <Badge variant="secondary">Lineicons</Badge>
             </div>
-            
+
             {filteredLineicons.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
@@ -612,16 +750,15 @@ export default function IconsPage() {
                 {filteredLineicons.map((iconName) => {
                   const isSelected = selectedIcon?.name === iconName && selectedIcon?.source === "lineicons"
                   const svgPath = getLineiconSvgPath(iconName)
-                  
+
                   return (
                     <button
                       key={iconName}
                       onClick={() => handleIconSelect(iconName, "Lineicons", "lineicons")}
-                      className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${
-                        isSelected
+                      className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${isSelected
                           ? "border-foreground bg-accent"
                           : "border-border bg-card"
-                      }`}
+                        }`}
                     >
                       <img
                         src={svgPath}
@@ -696,11 +833,10 @@ export default function IconsPage() {
                       <button
                         key={type}
                         onClick={() => setExportSettings({ ...exportSettings, fileType: type })}
-                        className={`px-3 py-2 rounded-md border text-sm font-medium transition-colors ${
-                          exportSettings.fileType === type
+                        className={`px-3 py-2 rounded-md border text-sm font-medium transition-colors ${exportSettings.fileType === type
                             ? "bg-foreground text-background"
                             : "bg-background hover:bg-accent"
-                        }`}
+                          }`}
                       >
                         {type}
                       </button>
