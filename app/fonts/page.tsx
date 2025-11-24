@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Bold, Italic, Underline, Strikethrough, Copy, Check } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Toggle } from "@/components/ui/toggle"
-import { getAllLineiconNames, filterLineicons } from "@/lib/lineicons-utils"
+
 import { useTheme } from "@/components/theme-provider"
 
 const fonts = [
@@ -27,37 +27,50 @@ const fonts = [
   { name: "Source Code Pro", category: "Monospace", weights: [400, 600, 700] },
   { name: "Dancing Script", category: "Handwriting", weights: [400, 700] },
   { name: "Pacifico", category: "Handwriting", weights: [400] },
+  // Chinese (Traditional)
+  { name: "Noto Sans TC", category: "Sans Serif", weights: [100, 300, 400, 500, 700, 900], previewText: "天地玄黃 宇宙洪荒 敏捷的棕色狐狸跳過了懶狗" },
+  { name: "Noto Serif TC", category: "Serif", weights: [200, 300, 400, 500, 600, 700, 900], previewText: "天地玄黃 宇宙洪荒 敏捷的棕色狐狸跳過了懶狗" },
+  // Japanese
+  { name: "Noto Sans JP", category: "Sans Serif", weights: [100, 300, 400, 500, 700, 900], previewText: "いろはにほへと ちりぬるを わかよたれそ つねならむ" },
+  { name: "Noto Serif JP", category: "Serif", weights: [200, 300, 400, 500, 600, 700, 900], previewText: "いろはにほへと ちりぬるを わかよたれそ つねならむ" },
+  { name: "Zen Maru Gothic", category: "Sans Serif", weights: [300, 400, 500, 700, 900], previewText: "雨ニモマケズ 風ニモマケズ" },
+  { name: "Kiwi Maru", category: "Serif", weights: [300, 400, 500], previewText: "吾輩は猫である。名前はまだ無い。" },
 ]
 
 const categories = ["All", "Sans Serif", "Serif", "Monospace", "Handwriting"]
 
+const DEFAULT_PREVIEW = "The quick brown fox jumps over the lazy dog"
+
+import { GoogleFontLoader } from "@/components/google-font-loader"
+
 export default function FontsPage() {
   const { colorPalette, theme } = useTheme()
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [fontSize, setFontSize] = useState([24])
-  const [previewText, setPreviewText] = useState("The quick brown fox jumps over the lazy dog")
+  const [previewText, setPreviewText] = useState(DEFAULT_PREVIEW)
   const [fontStyles, setFontStyles] = useState<Record<string, { bold: boolean; italic: boolean; underline: boolean; strikethrough: boolean }>>({})
   const [copiedFont, setCopiedFont] = useState<string | null>(null)
-  const [lineiconSearchQuery, setLineiconSearchQuery] = useState("")
-  const [copiedLineicon, setCopiedLineicon] = useState<string | null>(null)
+
+  const [mounted, setMounted] = useState(false)
+
+  // Only run on client
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Get current theme mode colors
   const getCurrentColors = () => {
-    if (!colorPalette) return null
-    if (typeof window === "undefined") return colorPalette.light // Default for SSR
-    const currentMode = theme === "system" 
+    if (!mounted || !colorPalette) return null
+
+    const currentMode = theme === "system"
       ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
       : theme
     return currentMode === "dark" ? colorPalette.dark : colorPalette.light
   }
 
   const colors = getCurrentColors()
-  
-  const allLineicons = getAllLineiconNames()
-  const filteredLineicons = lineiconSearchQuery 
-    ? filterLineicons(lineiconSearchQuery)
-    : allLineicons.slice(0, 50) // 預設顯示前 50 個
 
   const filteredFonts = fonts.filter((font) => {
     const matchesSearch = font.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -80,7 +93,7 @@ export default function FontsPage() {
     const decorations = []
     if (styles.underline) decorations.push('underline')
     if (styles.strikethrough) decorations.push('line-through')
-    
+
     return {
       fontWeight: styles.bold ? 'bold' : undefined,
       fontStyle: styles.italic ? 'italic' : undefined,
@@ -99,7 +112,7 @@ export default function FontsPage() {
       underline: styles.underline || false,
       strikethrough: styles.strikethrough || false,
     }
-    
+
     try {
       await navigator.clipboard.writeText(JSON.stringify(fontInfo, null, 2))
       setCopiedFont(`${fontName}-${weight}`)
@@ -109,21 +122,9 @@ export default function FontsPage() {
     }
   }
 
-  const copyLineiconInfo = async (iconName: string) => {
-    const className = iconName.startsWith("lni-") ? iconName : `lni-${iconName}`
-    const code = `<i class="lni ${className}"></i>`
-    
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopiedLineicon(iconName)
-      setTimeout(() => setCopiedLineicon(null), 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
-
   return (
     <div className="container flex-1 items-start md:grid md:grid-cols-[240px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
+      <GoogleFontLoader fonts={fonts} />
       {/* Left Sidebar */}
       <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
         <div className="py-6 pl-6 pr-6 lg:py-8 lg:pl-8">
@@ -156,17 +157,17 @@ export default function FontsPage() {
                     style={
                       selectedCategory === category && colors
                         ? {
-                            backgroundColor: colors[0] + "20",
-                            color: colors[0],
-                            borderColor: colors[0] + "40",
-                          }
+                          backgroundColor: colors[0] + "20",
+                          color: colors[0],
+                          borderColor: colors[0] + "40",
+                        }
                         : {}
                     }
                   >
                     {category}
                     {category === "All" && (
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className="ml-auto"
                         style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
                       >
@@ -174,8 +175,8 @@ export default function FontsPage() {
                       </Badge>
                     )}
                     {category !== "All" && (
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className="ml-auto"
                         style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
                       >
@@ -220,7 +221,7 @@ export default function FontsPage() {
       <main className="relative py-6 lg:py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 
+          <h1
             className="text-4xl font-bold tracking-tight mb-2"
             style={colors ? { color: colors[0] } : {}}
           >
@@ -256,15 +257,15 @@ export default function FontsPage() {
         {/* Fonts List */}
         <div className="space-y-4">
           {filteredFonts.map((font) => (
-            <Card 
-              key={font.name} 
-              id={`font-${font.name}`} 
+            <Card
+              key={font.name}
+              id={`font-${font.name}`}
               className="p-6 scroll-mt-20"
               style={colors ? { borderColor: colors[0] + "20" } : {}}
             >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h3 
+                  <h3
                     className="font-semibold text-lg"
                     style={colors ? { color: colors[0] } : {}}
                   >
@@ -316,12 +317,12 @@ export default function FontsPage() {
                     style={{
                       fontFamily: font.name,
                       fontSize: `${fontSize}px`,
-                      fontWeight: weight,
                       ...getTextStyle(font.name),
+                      fontWeight: getTextStyle(font.name).fontWeight || weight,
                     }}
                   >
                     <span className="text-xs text-muted-foreground mr-3">{weight}</span>
-                    {previewText}
+                    {previewText === DEFAULT_PREVIEW && (font as any).previewText ? (font as any).previewText : previewText}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -339,7 +340,7 @@ export default function FontsPage() {
               </div>
             </Card>
           ))}
-          
+
           {filteredFonts.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               No fonts found matching your criteria
@@ -347,85 +348,7 @@ export default function FontsPage() {
           )}
         </div>
 
-        {/* Lineicons Icon Font Section */}
-        <div className="mt-12 space-y-4">
-          <div className="flex items-center gap-3 mb-6">
-            <h2 
-              className="text-3xl font-bold tracking-tight"
-              style={colors ? { color: colors[1] } : {}}
-            >
-              Lineicons Icon Font
-            </h2>
-            <Badge 
-              variant="secondary"
-              style={colors ? { backgroundColor: colors[1] + "20", color: colors[1] } : {}}
-            >
-              Icon Font
-            </Badge>
-          </div>
-          
-          <div className="mb-6">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search Lineicons..."
-                className="pl-10"
-                value={lineiconSearchQuery}
-                onChange={(e) => setLineiconSearchQuery(e.target.value)}
-              />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Showing {filteredLineicons.length} of {allLineicons.length} icons
-            </p>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {filteredLineicons.map((iconName) => {
-              const className = iconName.startsWith("lni-") ? iconName : `lni-${iconName}`
-              const displayName = iconName.replace(/^lni-/, "")
-              
-              return (
-                <Card 
-                  key={iconName} 
-                  className="p-4 group relative"
-                  style={colors ? { borderColor: colors[2] + "20" } : {}}
-                >
-                  <div className="flex flex-col items-center justify-center space-y-3">
-                    <div 
-                      className={`lni ${className}`}
-                      style={{ 
-                        fontSize: `${fontSize[0]}px`,
-                        color: colors ? colors[2] : undefined
-                      }}
-                    />
-                    <p className="text-xs text-center text-muted-foreground truncate w-full">
-                      {displayName}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                      onClick={() => copyLineiconInfo(iconName)}
-                    >
-                      {copiedLineicon === iconName ? (
-                        <Check className="h-3 w-3 text-green-500" />
-                      ) : (
-                        <Copy className="h-3 w-3" />
-                      )}
-                    </Button>
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-
-          {filteredLineicons.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              No icons found matching your search
-            </div>
-          )}
-        </div>
       </main>
     </div>
   )
