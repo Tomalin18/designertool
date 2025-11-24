@@ -4,10 +4,17 @@ import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SiteHeader } from "@/components/site-header"
 import { componentsData } from "@/lib/components-data"
+import Script from "next/script"
 import "./globals.css"
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const _geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+})
+const _geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+})
 
 export default function RootLayout({
   children,
@@ -39,13 +46,21 @@ export default function RootLayout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
-      <body className={`font-sans antialiased`}>
+      <body className={`${_geist.variable} ${_geistMono.variable} font-sans antialiased`}>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+            data-enabled="true"
+          />
+        )}
         <ThemeProvider defaultTheme="system" storageKey="componentui-theme">
           <div className="relative min-h-screen flex flex-col">
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <footer className="border-t py-6 md:py-0">
-              
+
             </footer>
           </div>
         </ThemeProvider>
@@ -56,5 +71,5 @@ export default function RootLayout({
 }
 
 export const metadata = {
-      generator: 'v0.app'
-    };
+  generator: 'v0.app'
+};

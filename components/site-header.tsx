@@ -14,6 +14,7 @@ const navigation = [
   { name: "Colors", href: "/colors" },
   { name: "Fonts", href: "/fonts" },
   { name: "Icons", href: "/icons" },
+  { name: "Playground", href: "/playground" },
 ]
 
 export function SiteHeader() {
