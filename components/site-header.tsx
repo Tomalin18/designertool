@@ -117,7 +117,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center text-2xl">
+      <div className="flex h-14 w-full items-center px-8 text-2xl">
         <div className="mr-4 flex">
           <Link href="/" className={cn("mr-6 flex items-center gap-2", shouldAnimate && "header-nav-animated")}>
             <Package2 className="h-6 w-6" />

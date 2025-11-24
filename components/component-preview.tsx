@@ -32,7 +32,7 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview({ name, href }: ComponentPreviewProps) {
   const [selectOpen, setSelectOpen] = useState(false)
-  
+
   const renderPreview = () => {
     switch (name) {
       case "Accordion":
@@ -231,7 +231,7 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
   }
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
+    <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0">
       <div className="p-6 min-h-[200px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
         {renderPreview()}
       </div>
