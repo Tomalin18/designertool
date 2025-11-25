@@ -254,7 +254,7 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
         )
       case "ChatInterface":
         return (
-          <div className="w-full max-w-md h-[400px]">
+          <div className="w-full max-w-md">
             <ChatInterface />
           </div>
         )
@@ -280,8 +280,11 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
   }
 
   return (
-    <Card className={cn("overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 inline-flex flex-col w-auto self-start", className)}>
-      <div className={`p-6 bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-shrink-0`}>
+    <Card className={cn(
+      "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
+      className
+    )}>
+      <div className={`p-6 bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden`}>
         {renderPreview()}
       </div>
       <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0">

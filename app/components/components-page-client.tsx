@@ -205,7 +205,7 @@ export function ComponentsPageClient() {
 
                         {/* Custom Components */}
                         {filteredCustomComponents.length > 0 ? (
-                            <div className="flex flex-wrap gap-6 items-start">
+                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                                 {filteredCustomComponents.map((component) => (
                                     <ComponentPreview key={component.name} {...component} />
                                 ))}
