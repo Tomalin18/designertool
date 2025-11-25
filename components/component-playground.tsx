@@ -562,72 +562,17 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   }
 
   return (
-    <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-      <div className="space-y-6">
-        {/* 實時預覽 */}
+    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-6">
+      {/* Mobile Order: 1. Preview */}
+      <div className="order-1 lg:col-span-1">
         <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
           {config.render(props)}
         </Card>
-
-        {/* 代碼顯示 */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Code</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopy}
-              className="gap-2"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4" />
-                  Copy
-                </>
-              )}
-            </Button>
-          </div>
-          <pre className="bg-muted p-4 rounded-lg overflow-x-auto overflow-y-auto text-sm max-h-[400px] scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground transition-colors">
-            <code>{generateCode()}</code>
-          </pre>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4">Properties</h3>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-muted">
-                <tr>
-                  <th className="text-left p-3 font-medium">Name</th>
-                  <th className="text-left p-3 font-medium">Type</th>
-                  <th className="text-left p-3 font-medium">Default</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
-                  <tr key={key} className="border-t">
-                    <td className="p-3 font-mono text-xs">{key}</td>
-                    <td className="p-3">
-                      <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
-                    </td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground">
-                      {String(propConfig.default)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
       </div>
 
-      <div className="space-y-6">
-        <Card className="p-6">
+      {/* Mobile Order: 2. Customize (Desktop: Right Column) */}
+      <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3">
+        <Card className="p-6 sticky top-20">
           <h3 className="font-semibold mb-4">Customize</h3>
           <div className="space-y-4">
             {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
@@ -689,6 +634,67 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
                 )}
               </div>
             ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Mobile Order: 3. Code */}
+      <div className="order-3 lg:col-span-1">
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Code</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCopy}
+              className="gap-2"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copy
+                </>
+              )}
+            </Button>
+          </div>
+          <pre className="bg-muted p-4 rounded-lg overflow-x-auto overflow-y-auto text-sm max-h-[400px] scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground transition-colors">
+            <code>{generateCode()}</code>
+          </pre>
+        </Card>
+      </div>
+
+      {/* Mobile Order: 4. Properties */}
+      <div className="order-4 lg:col-span-1">
+        <Card className="p-6">
+          <h3 className="font-semibold mb-4">Properties</h3>
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="text-left p-3 font-medium">Name</th>
+                  <th className="text-left p-3 font-medium">Type</th>
+                  <th className="text-left p-3 font-medium">Default</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
+                  <tr key={key} className="border-t">
+                    <td className="p-3 font-mono text-xs">{key}</td>
+                    <td className="p-3">
+                      <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
+                    </td>
+                    <td className="p-3 font-mono text-xs text-muted-foreground">
+                      {String(propConfig.default)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Card>
       </div>

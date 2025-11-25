@@ -1,4 +1,3 @@
-```javascript
 "use client"
 
 import dynamic from "next/dynamic"
@@ -11,7 +10,7 @@ import { componentsData, categories } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
 
 // Lazy load heavy components
-const ComponentPreview = dynamic(() => import("@/components/component-preview"), { ssr: false })
+const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
 // Placeholder components for code and properties (could be replaced with actual implementations)
 const CodeView = dynamic(() => import("@/components/code-view"), {
   ssr: false,
