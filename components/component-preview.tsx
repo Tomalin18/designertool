@@ -224,12 +224,11 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
         )
       case "UrlInput":
         return (
-          <div className="w-full max-w-2xl">
-            <UrlInput 
-              onGenerate={(url) => console.log('Generated URL:', url)} 
-              isLoading={false}
-            />
-          </div>
+          <UrlInput 
+            onGenerate={(url) => console.log('Generated URL:', url)} 
+            isLoading={false}
+            className="w-full max-w-2xl"
+          />
         )
       default:
         return (
@@ -242,7 +241,7 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0">
-      <div className="p-6 min-h-[200px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
+      <div className={`p-6 min-h-[200px] bg-gradient-to-br from-background to-muted/20 ${name === "UrlInput" ? "flex items-center justify-center" : "flex items-center justify-center"}`}>
         {renderPreview()}
       </div>
       <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors">
