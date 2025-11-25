@@ -26,6 +26,8 @@ import { MediaPlayer } from "@/components/customize/media-player"
 import { ChatInterface } from "@/components/customize/chat-interface"
 import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+import { heroSections } from "@/lib/hero-sections"
+import { heroComponentsByName, heroDefaultProps } from "@/components/customize/heroes"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -40,7 +42,15 @@ interface ComponentPreviewProps {
 export function ComponentPreview({ name, href, className }: ComponentPreviewProps) {
   const [selectOpen, setSelectOpen] = useState(false)
 
+  const heroMeta = heroSections.find((hero) => hero.name === name)
+  const HeroComponent = heroMeta ? heroComponentsByName[heroMeta.componentName] : null
+
   const renderPreview = () => {
+    if (heroMeta && HeroComponent) {
+      const defaultProps = heroDefaultProps[heroMeta.slug] || {}
+      return <HeroComponent {...defaultProps} />
+    }
+
     switch (name) {
       case "Accordion":
         return (

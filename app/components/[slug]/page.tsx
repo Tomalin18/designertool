@@ -7,6 +7,9 @@ import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { heroSections } from "@/lib/hero-sections"
+import fs from 'fs'
+import path from 'path'
 
 export function generateStaticParams() {
   return Object.keys(componentDetails).map((slug) => ({
@@ -24,6 +27,86 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
   if (!component) {
     notFound()
+  }
+
+  // Read hero component code if it's a hero section
+  let initialCode = ""
+  const heroMeta = heroSections.find(h => h.slug === slug)
+  
+  if (heroMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'heroes', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+      
+      // Extract the specific component function
+      // This regex matches: export function ComponentName({ ... }) { ... }
+      // It assumes standard formatting with balanced braces which might be tricky with regex
+      // Simple approach: Find start of function, find next export or end of file
+      
+      const functionStartRegex = new RegExp(`export function ${heroMeta.componentName}\\s*\\(`, 'm')
+      const match = fileContent.match(functionStartRegex)
+      
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this function (start of next export or end of file)
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index 
+          ? startIndex + 1 + nextExportMatch.index 
+          : fileContent.length
+          
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        
+        // Also get the Props type definition
+        const typeRegex = new RegExp(`export type ${heroMeta.componentName}Props[\\s\\S]*?(\\n\\n|$)`, 'm')
+        const typeMatch = fileContent.match(typeRegex)
+        let typeCode = ""
+        if (typeMatch) {
+           typeCode = typeMatch[0].trim()
+        }
+
+        // Helper functions if needed
+        let helpers = ""
+        if (componentCode.includes("highlightText(")) {
+           const helperMatch = fileContent.match(/const highlightText =[\s\S]*?\n\}/m)
+           if (helperMatch) helpers += helperMatch[0] + "\n\n"
+        }
+        if (componentCode.includes("iconMap[")) {
+           const iconMapMatch = fileContent.match(/const iconMap =[\s\S]*?\n\}/m)
+           if (iconMapMatch) helpers += iconMapMatch[0] + "\n\n"
+        }
+
+        // Basic imports
+        const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  ArrowRight, CheckCircle2, Command, Heart, Layout, Mail, MapPin, Mic, 
+  Play, PlayCircle, Search, Star, Terminal, Zap, Quote, Shield, CreditCard, Smartphone 
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+
+`
+        // Construct full code
+        // Replace HeroComponentProps usage with explicit props if possible, 
+        // but for now just including the type definition we found is good.
+        // However, HeroComponentProps relies on generics.
+        // To make it copy-pasteable, we should probably replace `HeroComponentProps<...>` with a manual interface?
+        // Or just include the `HeroComponentProps` definition?
+        // Including `HeroComponentProps` is cleaner but requires `heroSections`.
+        
+        // Simpler: The user wants copy-pasteable code. 
+        // If we output the `type Props = ...` block that we found in index.tsx, it uses `HeroComponentProps`.
+        // We should try to replace that with a standard interface.
+        // But that requires generating the interface from the props config, which we can do in `ComponentPlayground` client-side!
+        // So here, let's just pass the FUNCTION BODY (componentCode). 
+        // And let ComponentPlayground prepend imports and the interface.
+        
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading hero component code:", e)
+    }
   }
 
   const sidebarItems = [
@@ -72,6 +155,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         <ComponentPlayground
           componentName={component.name}
           slug={slug}
+          initialCode={initialCode}
         />
       </div>
     </div>

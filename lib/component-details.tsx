@@ -1,3 +1,5 @@
+import { heroSections } from "./hero-sections"
+
 export interface ComponentDetail {
   name: string
   description: string
@@ -2200,3 +2202,28 @@ export function MinimalAuthForm() {
     ],
   },
 }
+
+heroSections.forEach((hero) => {
+  componentDetails[hero.slug] = {
+    name: hero.name,
+    description: hero.description,
+    category: "Sections",
+    hasPlayground: true,
+    installation: "Copy the hero component from the code example below.",
+    usage: `import { ${hero.componentName} } from "@/components/customize/heroes"
+
+export function ${hero.componentName}Demo() {
+  return <${hero.componentName} />
+}`,
+    tags: hero.tags,
+    props: Object.entries(hero.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.docType ?? (prop.control === "boolean" ? "boolean" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})

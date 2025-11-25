@@ -1,3 +1,5 @@
+import { heroSections } from "./hero-sections"
+
 export interface ComponentInfo {
   name: string
   description: string
@@ -6,7 +8,7 @@ export interface ComponentInfo {
   tags?: string[]
 }
 
-export const componentsData: ComponentInfo[] = [
+const baseComponents: ComponentInfo[] = [
   {
     name: "Accordion",
     description: "A vertically stacked set of interactive headings that each reveal a section of content.",
@@ -130,4 +132,14 @@ export const componentsData: ComponentInfo[] = [
   },
 ]
 
-export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation"] as const
+const heroComponentEntries: ComponentInfo[] = heroSections.map((hero) => ({
+  name: hero.name,
+  description: hero.description,
+  href: `/components/${hero.slug}`,
+  category: "Sections",
+  tags: hero.tags,
+}))
+
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries]
+
+export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections"] as const

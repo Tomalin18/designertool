@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
 import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { heroSections } from "@/lib/hero-sections"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
@@ -18,6 +19,7 @@ export function ComponentsPageClient() {
     const [selectedCategory, setSelectedCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
     const [customizeSearch, setCustomizeSearch] = useState("")
+    const [sectionSearch, setSectionSearch] = useState("")
 
     const filteredComponents = componentsData.filter((component) => {
         const matchesCategory = selectedCategory === "All" || component.category === selectedCategory
@@ -79,6 +81,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredHeroSections = heroSections.filter((hero) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            hero.name.toLowerCase().includes(searchLower) ||
+            hero.description.toLowerCase().includes(searchLower) ||
+            hero.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     const sidebarItems = [
         {
             title: "Components",
@@ -103,6 +114,7 @@ export function ComponentsPageClient() {
                     <TabsList className="mb-6">
                         <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
                         <TabsTrigger value="customize">Customize</TabsTrigger>
+                        <TabsTrigger value="section">Section</TabsTrigger>
                     </TabsList>
 
                     {/* Preview Tab */}
@@ -202,6 +214,42 @@ export function ComponentsPageClient() {
                             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
                                 <p className="text-lg font-medium mb-2">Your Custom Components</p>
                                 <p className="text-sm text-muted-foreground">Custom components you create will appear here</p>
+                            </div>
+                        )}
+                    </TabsContent>
+
+                    {/* Section Tab */}
+                    <TabsContent value="section" className="mt-0">
+                        <div className="flex flex-col gap-4 mb-8">
+                            {/* Search */}
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    type="search"
+                                    placeholder="Search section components..."
+                                    className="pl-10"
+                                    value={sectionSearch}
+                                    onChange={(e) => setSectionSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {filteredHeroSections.length > 0 ? (
+                            <div className="grid gap-6 grid-cols-1">
+                                {filteredHeroSections.map((hero) => (
+                                    <ComponentPreview
+                                        key={hero.slug}
+                                        name={hero.name}
+                                        description={hero.description}
+                                        href={`/components/${hero.slug}`}
+                                        category="Sections"
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground">
+                                <p className="text-lg font-medium">No hero sections found</p>
+                                <p className="text-sm">Try adjusting your search.</p>
                             </div>
                         )}
                     </TabsContent>
