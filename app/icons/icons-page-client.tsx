@@ -13,7 +13,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@/components/ui/sheet"
-import { Copy, Download, Search } from 'lucide-react'
+import { Copy, Download, Search, Check } from 'lucide-react'
 import * as LucideIcons from "lucide-react"
 import { getAllLineiconNames, filterLineicons, getLineiconSvgPath } from "@/lib/lineicons-utils"
 
