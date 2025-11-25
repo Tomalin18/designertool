@@ -834,7 +834,7 @@ export default function IconsPage() {
                               : "border-border bg-card"
                               }`}
                           >
-                            <IconComponent className="h-5 w-5" strokeWidth={1.5} />
+                            <IconComponent className="h-8 w-8" strokeWidth={1.5} />
                           </button>
                         )
                       })}
@@ -881,8 +881,8 @@ export default function IconsPage() {
                       <img
                         src={svgPath}
                         alt={iconName}
-                        width={20}
-                        height={20}
+                        width={32}
+                        height={32}
                         className="object-contain"
                       />
                     </button>
