@@ -69,14 +69,14 @@ export function ComponentsPageClient() {
             </aside>
 
             <section className="py-6 md:py-8">
-                <Tabs defaultValue="preview" className="w-full">
+                <Tabs defaultValue="customize" className="w-full">
                     <TabsList className="mb-6">
-                        <TabsTrigger value="preview">Preview</TabsTrigger>
+                        <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
                         <TabsTrigger value="customize">Customize</TabsTrigger>
                     </TabsList>
 
                     {/* Preview Tab */}
-                    <TabsContent value="preview" className="mt-0">
+                    <TabsContent value="preview" className="mt-0 hidden">
                         {/* Search and Filter */}
                         <div className="flex flex-col gap-4 mb-8">
                             {/* Search */}
