@@ -32,6 +32,10 @@ import { heroSections } from "@/lib/hero-sections"
 import { heroComponentsByName } from "@/components/customize/heroes"
 import { featureSections } from "@/lib/feature-sections"
 import { featureComponentsByName } from "@/components/customize/features"
+import { paymentSections } from "@/lib/payment-sections"
+import { paymentComponentsByName } from "@/components/customize/payments"
+import { ctaSections } from "@/lib/cta-sections"
+import { ctaComponentsByName } from "@/components/customize/ctas"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -46,6 +50,16 @@ const heroNameToMeta = heroSections.reduce<Record<string, (typeof heroSections)[
 
 const featureNameToMeta = featureSections.reduce<Record<string, (typeof featureSections)[number]>>((acc, feature) => {
   acc[feature.name] = feature
+  return acc
+}, {})
+
+const paymentNameToMeta = paymentSections.reduce<Record<string, (typeof paymentSections)[number]>>((acc, payment) => {
+  acc[payment.name] = payment
+  return acc
+}, {})
+
+const ctaNameToMeta = ctaSections.reduce<Record<string, (typeof ctaSections)[number]>>((acc, cta) => {
+  acc[cta.name] = cta
   return acc
 }, {})
 
@@ -1068,6 +1082,62 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add payment sections to configs
+  paymentSections.forEach((payment) => {
+    const Component = paymentComponentsByName[payment.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(payment.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[payment.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
+  // Add CTA sections to configs
+  ctaSections.forEach((cta) => {
+    const Component = ctaComponentsByName[cta.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(cta.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[cta.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
   return configs
 })()
 
@@ -1081,6 +1151,8 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const config = componentConfigs[componentName]
   const heroMeta = heroNameToMeta[componentName]
   const featureMeta = featureNameToMeta[componentName]
+  const paymentMeta = paymentNameToMeta[componentName]
+  const ctaMeta = ctaNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
 
   const [props, setProps] = React.useState<Record<string, any>>(() => {
@@ -3353,6 +3425,101 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 export function ${featureMeta.componentName}Demo() {
   return (
     <${featureMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
+    // Payment section code generation with initialCode (full component)
+    if (paymentMeta && initialCode) {
+      const interfaceName = `${paymentMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" : 
+                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = PaymentComponentProps<"[^"]+">`),
+        propsInterface
+      )
+      
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+         code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  Check, X, CreditCard, Lock, Shield, Zap, Globe, Smartphone, ArrowRight, Download,
+  FileText, Clock, AlertCircle, Search, Wallet, Bitcoin, ChevronRight, Plus, Trash2,
+  Copy, RefreshCw, Gift, Building
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${paymentMeta.componentName}Demo() {\n  return (\n    <${paymentMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // Payment section code generation (simple import)
+    if (paymentMeta) {
+      return `import { ${paymentMeta.componentName} } from "@/components/customize/payments"
+
+export function ${paymentMeta.componentName}Demo() {
+  return (
+    <${paymentMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
+    // CTA section code generation with initialCode (full component)
+    if (ctaMeta && initialCode) {
+      const interfaceName = `${ctaMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" : 
+                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = CtaComponentProps<"[^"]+">`),
+        propsInterface
+      )
+      
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+         code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  ArrowRight, Mail, Download, Smartphone, Github, CheckCircle2, Play, Zap,
+  MessageCircle, Clock, Shield, Gift
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${ctaMeta.componentName}Demo() {\n  return (\n    <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // CTA section code generation (simple import)
+    if (ctaMeta) {
+      return `import { ${ctaMeta.componentName} } from "@/components/customize/ctas"
+
+export function ${ctaMeta.componentName}Demo() {
+  return (
+    <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />
   )
 }`
     }

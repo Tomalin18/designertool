@@ -1,5 +1,6 @@
 import { heroSections } from "./hero-sections"
 import { featureSections } from "./feature-sections"
+import { paymentSections } from "./payment-sections"
 
 export interface ComponentInfo {
   name: string
@@ -149,6 +150,14 @@ const featureComponentEntries: ComponentInfo[] = featureSections.map((feature) =
   tags: feature.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries]
+const paymentComponentEntries: ComponentInfo[] = paymentSections.map((payment) => ({
+  name: payment.name,
+  description: payment.description,
+  href: `/components/${payment.slug}`,
+  category: "Sections",
+  tags: payment.tags,
+}))
+
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries]
 
 export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections"] as const

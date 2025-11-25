@@ -1,5 +1,6 @@
 import { heroSections } from "./hero-sections"
 import { featureSections } from "./feature-sections"
+import { paymentSections } from "./payment-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2243,6 +2244,31 @@ export function ${feature.componentName}Demo() {
 }`,
     tags: feature.tags,
     props: Object.entries(feature.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})
+
+paymentSections.forEach((payment) => {
+  componentDetails[payment.slug] = {
+    name: payment.name,
+    description: payment.description,
+    category: "Sections",
+    hasPlayground: true,
+    installation: "Copy the payment component from the code example below.",
+    usage: `import { ${payment.componentName} } from "@/components/customize/payments"
+
+export function ${payment.componentName}Demo() {
+  return <${payment.componentName} />
+}`,
+    tags: payment.tags,
+    props: Object.entries(payment.props).map(([propName, prop]) => ({
       name: propName,
       type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
       default:
