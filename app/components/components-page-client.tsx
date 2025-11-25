@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
 import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
-import { Badge } from "@/components/ui/badge"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
@@ -19,7 +18,6 @@ export function ComponentsPageClient() {
     const [searchQuery, setSearchQuery] = useState("")
     const [customizeCategory, setCustomizeCategory] = useState("All")
     const [customizeSearch, setCustomizeSearch] = useState("")
-    const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
     const filteredComponents = componentsData.filter((component) => {
         const matchesCategory = selectedCategory === "All" || component.category === selectedCategory
@@ -58,6 +56,13 @@ export function ComponentsPageClient() {
         category: "Display",
         tags: componentDetails["social-profile-card"]?.tags || [],
       },
+      {
+        name: "GlassAuthForm",
+        description: "A beautiful glassmorphism authentication form component with floating label inputs and social login buttons.",
+        href: "/components/glass-auth-form",
+        category: "Forms",
+        tags: componentDetails["glass-auth-form"]?.tags || [],
+      },
     ]
 
     // Get all unique tags from custom components
@@ -72,8 +77,7 @@ export function ComponentsPageClient() {
             component.name.toLowerCase().includes(searchLower) ||
             component.description.toLowerCase().includes(searchLower) ||
             (component.tags && component.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-        const matchesTag = !selectedTag || (component.tags && component.tags.includes(selectedTag))
-        return matchesCategory && matchesSearch && matchesTag
+        return matchesCategory && matchesSearch
     })
 
     const sidebarItems = [
@@ -96,14 +100,14 @@ export function ComponentsPageClient() {
             </aside>
 
             <section className="py-6 md:py-8">
-                <Tabs defaultValue="customize" className="w-full">
+                <Tabs defaultValue="preview" className="w-full">
                     <TabsList className="mb-6">
-                        <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
+                        <TabsTrigger value="preview">Preview</TabsTrigger>
                         <TabsTrigger value="customize">Customize</TabsTrigger>
                     </TabsList>
 
                     {/* Preview Tab */}
-                    <TabsContent value="preview" className="mt-0 hidden">
+                    <TabsContent value="preview" className="mt-0">
                         {/* Search and Filter */}
                         <div className="flex flex-col gap-4 mb-8">
                             {/* Search */}
@@ -170,60 +174,20 @@ export function ComponentsPageClient() {
                                         key={category}
                                         variant={customizeCategory === category ? "default" : "outline"}
                                         size="sm"
-                                        onClick={() => {
-                                            setCustomizeCategory(category)
-                                            setSelectedTag(null) // Reset tag filter when changing category
-                                        }}
+                                        onClick={() => setCustomizeCategory(category)}
                                     >
                                         {category}
                                     </Button>
                                 ))}
                             </div>
-
-                            {/* Tags Filter */}
-                            {allTags.length > 0 && (
-                                <div className="flex flex-col gap-2">
-                                    <div className="text-sm font-medium text-muted-foreground">Filter by tags:</div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {allTags.map((tag) => (
-                                            <Badge
-                                                key={tag}
-                                                variant={selectedTag === tag ? "default" : "secondary"}
-                                                className="cursor-pointer hover:bg-primary/80 transition-colors"
-                                                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                                            >
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
-                        {/* Custom Components - Bento Grid Layout */}
+                        {/* Custom Components */}
                         {filteredCustomComponents.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 [grid-auto-flow:dense]">
-                                {filteredCustomComponents.map((component) => {
-                                    // Bento layout: different sizes for different components
-                                    let gridClass = ""
-                                    if (component.name === "UrlInput") {
-                                        // UrlInput spans full width on mobile, 3 columns on md, 4 columns on lg
-                                        gridClass = "md:col-span-3 lg:col-span-4"
-                                    } else if (component.name === "MediaPlayer") {
-                                        // MediaPlayer spans full width on mobile, 3 columns on md, 2 columns on lg
-                                        gridClass = "md:col-span-3 lg:col-span-2"
-                                    } else if (component.name === "ChatInterface") {
-                                        // ChatInterface spans full width on mobile, 3 columns on md, 4 columns on lg
-                                        gridClass = "md:col-span-3 lg:col-span-4"
-                                    } else if (component.name === "SocialProfileCard") {
-                                        // SocialProfileCard spans full width on mobile, 3 columns on md, 2 columns on lg
-                                        gridClass = "md:col-span-3 lg:col-span-2"
-                                    }
-                                    
-                                    return (
-                                        <ComponentPreview key={component.name} {...component} className={gridClass} />
-                                    )
-                                })}
+                            <div className="flex flex-wrap gap-6 items-start">
+                                {filteredCustomComponents.map((component) => (
+                                    <ComponentPreview key={component.name} {...component} />
+                                ))}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
