@@ -12,6 +12,7 @@ import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
+import { paymentSections } from "@/lib/payment-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -101,6 +102,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredPaymentSections = paymentSections.filter((payment) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            payment.name.toLowerCase().includes(searchLower) ||
+            payment.description.toLowerCase().includes(searchLower) ||
+            payment.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     // Combine all sections for display
     const allFilteredSections = [
         ...filteredHeroSections.map(hero => ({
@@ -115,12 +125,19 @@ export function ComponentsPageClient() {
             description: feature.description,
             type: 'feature' as const,
         })),
+        ...filteredPaymentSections.map(payment => ({
+            slug: payment.slug,
+            name: payment.name,
+            description: payment.description,
+            type: 'payment' as const,
+        })),
     ]
 
     // Get all unique tags from sections
     const allSectionTags = Array.from(new Set([
         ...heroSections.flatMap(hero => hero.tags),
         ...featureSections.flatMap(feature => feature.tags),
+        ...paymentSections.flatMap(payment => payment.tags),
     ])).sort()
 
     const sidebarItems = [
@@ -139,11 +156,13 @@ export function ComponentsPageClient() {
     const [showToc, setShowToc] = useState(false)
     const heroRef = useRef<HTMLDivElement>(null)
     const featureRef = useRef<HTMLDivElement>(null)
+    const paymentRef = useRef<HTMLDivElement>(null)
 
     // Section categories for TOC
     const sectionCategories = [
         { id: 'hero', label: 'Hero', count: filteredHeroSections.length, ref: heroRef },
         { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
+        { id: 'payment', label: 'Payment', count: filteredPaymentSections.length, ref: paymentRef },
     ]
 
     // Scroll to section
@@ -159,8 +178,11 @@ export function ComponentsPageClient() {
         const handleScroll = () => {
             const heroTop = heroRef.current?.getBoundingClientRect().top ?? Infinity
             const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
+            const paymentTop = paymentRef.current?.getBoundingClientRect().top ?? Infinity
             
-            if (featureTop <= 200) {
+            if (paymentTop <= 200) {
+                setActiveSection('payment')
+            } else if (featureTop <= 200) {
                 setActiveSection('feature')
             } else if (heroTop <= 200) {
                 setActiveSection('hero')
@@ -387,6 +409,24 @@ export function ComponentsPageClient() {
                                                         name={feature.name}
                                                         description={feature.description}
                                                         href={`/components/${feature.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Payment Sections */}
+                                {filteredPaymentSections.length > 0 && (
+                                    <div ref={paymentRef} className="scroll-mt-20 mt-6">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredPaymentSections.map((payment, index) => (
+                                                <div key={payment.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={payment.name}
+                                                        description={payment.description}
+                                                        href={`/components/${payment.slug}`}
                                                         category="Sections"
                                                     />
                                                 </div>
