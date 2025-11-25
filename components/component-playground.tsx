@@ -28,6 +28,7 @@ import { MediaPlayer } from "@/components/customize/media-player"
 import { ChatInterface } from "@/components/customize/chat-interface"
 import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
 import { CodeBlock } from "@/components/code-block"
@@ -457,6 +458,7 @@ const componentConfigs: Record<string, any> = {
   },
   UrlInput: {
     props: {
+      enableHoverTilt: { type: "boolean", default: true },
       isLoading: { type: "boolean", default: false },
       borderRadius: { type: "slider", min: 0, max: 32, default: 12 },
       gradientFrom: { type: "color", default: "" },
@@ -481,7 +483,7 @@ const componentConfigs: Record<string, any> = {
       }
 
       return (
-        <div className="w-full max-w-2xl">
+        <ThreeDCard className="w-full max-w-2xl" disabled={!props.enableHoverTilt}>
           <UrlInput
             onGenerate={(url) => console.log('Generated URL:', url)}
             isLoading={props.isLoading}
@@ -497,12 +499,13 @@ const componentConfigs: Record<string, any> = {
             placeholder={props.placeholder}
             showIcon={props.showIcon}
           />
-        </div>
+        </ThreeDCard>
       )
     },
   },
   MediaPlayer: {
     props: {
+      enableHoverTilt: { type: "boolean", default: true },
       className: { type: "text", default: "" },
       trackTitle: { type: "text", default: "Midnight City" },
       artist: { type: "text", default: "M83" },
@@ -579,7 +582,7 @@ const componentConfigs: Record<string, any> = {
       }
 
       return (
-        <div className="w-full max-w-sm">
+        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
           <MediaPlayer
             className={props.className || undefined}
             trackTitle={props.trackTitle}
@@ -631,13 +634,14 @@ const componentConfigs: Record<string, any> = {
               setProps((prev: any) => ({ ...prev, albumArtUrl: imageUrl }));
             } : undefined}
           />
-        </div>
+        </ThreeDCard>
       )
     },
   },
   ChatInterface: {
     props: {
       className: { type: "text", default: "" },
+      enableHoverTilt: { type: "boolean", default: true },
       // Header
       headerUserName: { type: "text", default: "Sarah Jenkins" },
       headerUserStatus: { type: "select", options: ["Online now", "Offline", "Away", "Busy", "Do not disturb", "Other"], default: "Online now" },
@@ -687,7 +691,7 @@ const componentConfigs: Record<string, any> = {
     },
     render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
       return (
-        <div className="w-full max-w-md h-[600px]">
+        <ThreeDCard className="w-full max-w-md h-[600px]" disabled={!props.enableHoverTilt}>
           <ChatInterface
             className={props.className}
             headerUserName={props.headerUserName}
@@ -739,13 +743,14 @@ const componentConfigs: Record<string, any> = {
             footerButtonColor={props.footerButtonColor}
             footerFocusBorderColor={props.footerFocusBorderColor}
           />
-        </div>
+        </ThreeDCard>
       )
     },
   },
   SocialProfileCard: {
     props: {
       className: { type: "text", default: "" },
+      enableHoverTilt: { type: "boolean", default: true },
       name: { type: "text", default: "Sarah Jenkins" },
       username: { type: "text", default: "@sarah_des" },
       bio: { type: "text", default: "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers." },
@@ -802,7 +807,7 @@ const componentConfigs: Record<string, any> = {
       }
 
       return (
-        <div className="w-full max-w-sm">
+        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
           <SocialProfileCard
             className={props.className}
             name={props.name}
@@ -841,13 +846,14 @@ const componentConfigs: Record<string, any> = {
             gradientWidth={props.gradientWidth}
             gradientAnimated={props.gradientAnimated}
           />
-        </div>
+        </ThreeDCard>
       )
     },
   },
   GlassAuthForm: {
     props: {
       className: { type: "text", default: "" },
+      enableHoverTilt: { type: "boolean", default: true },
       // Text content
       title: { type: "text", default: "Welcome Back" },
       subtitle: { type: "text", default: "Enter your credentials to access the workspace." },
@@ -941,7 +947,7 @@ const componentConfigs: Record<string, any> = {
       }
 
       return (
-        <div className="w-full max-w-sm">
+        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
           <GlassAuthForm
             className={props.className}
             title={props.title}
@@ -986,7 +992,7 @@ const componentConfigs: Record<string, any> = {
             padding={props.padding}
             backdropBlur={props.backdropBlur}
           />
-        </div>
+        </ThreeDCard>
       )
     },
   },
@@ -1094,6 +1100,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
 
     const propsString = Object.entries(props)
       .filter(([key, value]) => {
+        if (key === "enableHoverTilt") return false
         const propConfig = config.props[key]
         return value !== propConfig.default && value !== undefined && value !== ""
       })
