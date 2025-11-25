@@ -1382,6 +1382,12 @@ export function ChatInterfaceDemo() {
         description: "Whether to show the typing indicator animation.",
       },
       {
+        name: "bodyShowReadReceipt",
+        type: "boolean",
+        default: "false",
+        description: "Whether to show read receipt indicators (checkmarks) on own messages. Single checkmark for sent, double checkmark for read.",
+      },
+      {
         name: "ownMessageColor",
         type: "string",
         default: '"bg-indigo-600"',
