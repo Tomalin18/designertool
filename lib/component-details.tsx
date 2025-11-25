@@ -811,7 +811,7 @@ export function TooltipDemo() {
     category: "Forms",
     hasPlayground: true,
     installation: "Copy the component from the code example below.",
-    usage: `import { UrlInput } from "@/components/ui/url-input"
+    usage: `import { UrlInput } from "@/components/customize/url-input"
 
 export function UrlInputDemo() {
   const handleGenerate = (url: string) => {
@@ -918,7 +918,7 @@ export function UrlInputDemo() {
       {
         title: "Basic Usage",
         description: "A simple URL input with submit handler.",
-        code: `import { UrlInput } from "@/components/ui/url-input"
+        code: `import { UrlInput } from "@/components/customize/url-input"
 import { useState } from "react"
 
 export function BasicUrlInput() {
@@ -941,7 +941,7 @@ export function BasicUrlInput() {
       {
         title: "With Loading State",
         description: "URL input with async processing and loading state.",
-        code: `import { UrlInput } from "@/components/ui/url-input"
+        code: `import { UrlInput } from "@/components/customize/url-input"
 import { useState } from "react"
 
 export function AsyncUrlInput() {
@@ -976,7 +976,7 @@ export function AsyncUrlInput() {
     category: "Display",
     hasPlayground: true,
     installation: "Copy the component from the code example below.",
-    usage: `import { MediaPlayer } from "@/components/ui/media-player"
+    usage: `import { MediaPlayer } from "@/components/customize/media-player"
 
 export function MediaPlayerDemo() {
   return (
@@ -1184,7 +1184,7 @@ export function MediaPlayerDemo() {
       {
         title: "Basic Usage",
         description: "A simple media player component with default settings.",
-        code: `import { MediaPlayer } from "@/components/ui/media-player"
+        code: `import { MediaPlayer } from "@/components/customize/media-player"
 
 export function BasicMediaPlayer() {
   return (
@@ -1197,7 +1197,7 @@ export function BasicMediaPlayer() {
       {
         title: "With Custom Track Info",
         description: "Media player with custom track, artist, and album information.",
-        code: `import { MediaPlayer } from "@/components/ui/media-player"
+        code: `import { MediaPlayer } from "@/components/customize/media-player"
 
 export function CustomTrackPlayer() {
   return (
@@ -1217,7 +1217,7 @@ export function CustomTrackPlayer() {
       {
         title: "With Event Handlers",
         description: "Media player with custom event handlers for user interactions.",
-        code: `import { MediaPlayer } from "@/components/ui/media-player"
+        code: `import { MediaPlayer } from "@/components/customize/media-player"
 import { useState } from "react"
 
 export function InteractivePlayer() {
@@ -1247,7 +1247,7 @@ export function InteractivePlayer() {
       {
         title: "With Custom Colors",
         description: "Media player with custom background, border, and glow colors.",
-        code: `import { MediaPlayer } from "@/components/ui/media-player"
+        code: `import { MediaPlayer } from "@/components/customize/media-player"
 
 export function CustomColorPlayer() {
   return (
@@ -1271,7 +1271,7 @@ export function CustomColorPlayer() {
     category: "Display",
     hasPlayground: true,
     installation: "Copy the component from the code example below.",
-    usage: `import { ChatInterface } from "@/components/ui/chat-interface"
+    usage: `import { ChatInterface } from "@/components/customize/chat-interface"
 
 export function ChatInterfaceDemo() {
   return (
@@ -1485,7 +1485,7 @@ export function ChatInterfaceDemo() {
       {
         title: "Basic Usage",
         description: "A simple chat interface component with default settings. Perfect for getting started quickly.",
-        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+        code: `import { ChatInterface } from "@/components/customize/chat-interface"
 
 export function BasicChatInterface() {
   return (
@@ -1498,7 +1498,7 @@ export function BasicChatInterface() {
       {
         title: "With Custom Styling",
         description: "Chat interface with custom className for additional styling and enhanced visual effects.",
-        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+        code: `import { ChatInterface } from "@/components/customize/chat-interface"
 
 export function CustomStyledChat() {
   return (
@@ -1511,7 +1511,7 @@ export function CustomStyledChat() {
       {
         title: "Responsive Layout",
         description: "Chat interface that adapts to different screen sizes using responsive classes.",
-        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+        code: `import { ChatInterface } from "@/components/customize/chat-interface"
 
 export function ResponsiveChat() {
   return (
@@ -1524,7 +1524,7 @@ export function ResponsiveChat() {
       {
         title: "In a Card Container",
         description: "Chat interface embedded within a card component for better integration with your design system.",
-        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+        code: `import { ChatInterface } from "@/components/customize/chat-interface"
 import { Card } from "@/components/ui/card"
 
 export function ChatInCard() {
@@ -1534,6 +1534,348 @@ export function ChatInCard() {
         <ChatInterface />
       </div>
     </Card>
+  )
+}`,
+      },
+    ],
+  },
+  "social-profile-card": {
+    name: "SocialProfileCard",
+    description: "A beautiful social profile card component with avatar, stats, and action buttons. Perfect for user profiles, team member showcases, or social media interfaces.",
+    category: "Display",
+    hasPlayground: true,
+    installation: "Copy the component from the code example below.",
+    usage: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+
+export function SocialProfileCardDemo() {
+  return (
+    <SocialProfileCard 
+      name="Sarah Jenkins"
+      username="@sarah_des"
+      bio="Product Designer crafting digital experiences."
+    />
+  )
+}`,
+    props: [
+      {
+        name: "className",
+        type: "string",
+        description: "Additional CSS classes to apply to the card container.",
+      },
+      {
+        name: "name",
+        type: "string",
+        default: '"Sarah Jenkins"',
+        description: "The user's display name.",
+      },
+      {
+        name: "username",
+        type: "string",
+        default: '"@sarah_des"',
+        description: "The user's username or handle (displayed below the name).",
+      },
+      {
+        name: "bio",
+        type: "string",
+        default: "Product Designer crafting digital experiences...",
+        description: "The user's bio or description text.",
+      },
+      {
+        name: "avatarUrl",
+        type: "string",
+        default: "Unsplash image URL",
+        description: "URL of the user's avatar image.",
+      },
+      {
+        name: "location",
+        type: "string",
+        default: '"San Francisco, CA"',
+        description: "The user's location (displayed with MapPin icon).",
+      },
+      {
+        name: "website",
+        type: "string",
+        default: '"sarah.design"',
+        description: "The user's website URL (displayed with Link icon).",
+      },
+      {
+        name: "twitter",
+        type: "string",
+        default: '"@sarah_des"',
+        description: "The user's Twitter handle (displayed with Twitter icon).",
+      },
+      {
+        name: "showLocation",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the location information.",
+      },
+      {
+        name: "showWebsite",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the website information.",
+      },
+      {
+        name: "showTwitter",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the Twitter handle.",
+      },
+      {
+        name: "followers",
+        type: "string | number",
+        default: '"12.5k"',
+        description: "Number of followers (automatically formatted if number is provided).",
+      },
+      {
+        name: "following",
+        type: "string | number",
+        default: '"842"',
+        description: "Number of following (automatically formatted if number is provided).",
+      },
+      {
+        name: "projects",
+        type: "string | number",
+        default: '"142"',
+        description: "Number of projects (automatically formatted if number is provided).",
+      },
+      {
+        name: "isOnline",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the online status indicator.",
+      },
+      {
+        name: "statusColor",
+        type: "string",
+        default: '"bg-green-500"',
+        description: "Tailwind class for the status indicator color (e.g., 'bg-green-500', 'bg-yellow-500').",
+      },
+      {
+        name: "bannerGradientFrom",
+        type: "string",
+        default: '"from-indigo-500"',
+        description: "Tailwind gradient class for banner start color.",
+      },
+      {
+        name: "bannerGradientVia",
+        type: "string",
+        default: '"via-purple-500"',
+        description: "Tailwind gradient class for banner middle color.",
+      },
+      {
+        name: "bannerGradientTo",
+        type: "string",
+        default: '"to-pink-500"',
+        description: "Tailwind gradient class for banner end color.",
+      },
+      {
+        name: "followButtonText",
+        type: "string",
+        default: '"Follow"',
+        description: "Text displayed on the follow button.",
+      },
+      {
+        name: "showFollowButton",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the follow button.",
+      },
+      {
+        name: "showMessageButton",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the message button.",
+      },
+      {
+        name: "showSimilarButton",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the similar users button.",
+      },
+      {
+        name: "messageButtonText",
+        type: "string",
+        default: '"Message"',
+        description: "Text displayed on the message button.",
+      },
+      {
+        name: "similarButtonText",
+        type: "string",
+        default: '"Similar"',
+        description: "Text displayed on the similar button.",
+      },
+      {
+        name: "onFollow",
+        type: "() => void",
+        description: "Callback function called when the follow button is clicked.",
+      },
+      {
+        name: "onMessage",
+        type: "() => void",
+        description: "Callback function called when the message button is clicked.",
+      },
+      {
+        name: "onSimilar",
+        type: "() => void",
+        description: "Callback function called when the similar button is clicked.",
+      },
+      {
+        name: "onAvatarChange",
+        type: "(url: string) => void",
+        description: "Callback function called when avatar is uploaded (returns base64 data URL).",
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        description: "Background color of the card (supports hex or rgb).",
+      },
+      {
+        name: "borderColor",
+        type: "string",
+        description: "Border color of the card (supports hex or rgb).",
+      },
+      {
+        name: "borderRadius",
+        type: "number",
+        default: "24",
+        description: "Border radius in pixels.",
+      },
+    ],
+    variants: [
+      {
+        name: "Default",
+        description: "The default social profile card with all features enabled.",
+        code: `<SocialProfileCard />`,
+      },
+      {
+        name: "Custom User",
+        description: "Social profile card with custom user information.",
+        code: `<SocialProfileCard 
+  name="John Doe"
+  username="@johndoe"
+  bio="Full-stack developer passionate about creating amazing user experiences."
+  location="New York, NY"
+  followers={12500}
+  following={342}
+  projects={28}
+/>`,
+      },
+      {
+        name: "Minimal Actions",
+        description: "Social profile card with only follow button.",
+        code: `<SocialProfileCard 
+  showMessageButton={false}
+  showSimilarButton={false}
+/>`,
+      },
+    ],
+    examples: [
+      {
+        title: "Basic Usage",
+        description: "A simple social profile card with default settings.",
+        code: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+
+export function BasicProfileCard() {
+  return (
+    <div className="max-w-sm">
+      <SocialProfileCard />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Custom User Info",
+        description: "Social profile card with custom user information and stats.",
+        code: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+
+export function CustomUserCard() {
+  return (
+    <div className="max-w-sm">
+      <SocialProfileCard 
+        name="Alex Chen"
+        username="@alexchen"
+        bio="UI/UX Designer | Coffee Lover | Building beautiful interfaces"
+        location="Tokyo, Japan"
+        website="alexchen.design"
+        twitter="@alexchen"
+        followers={8500}
+        following={1200}
+        projects={45}
+      />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Event Handlers",
+        description: "Social profile card with custom event handlers for user interactions.",
+        code: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+import { useState } from "react"
+
+export function InteractiveCard() {
+  const [isFollowing, setIsFollowing] = useState(false)
+
+  return (
+    <div className="max-w-sm">
+      <SocialProfileCard 
+        followButtonText={isFollowing ? "Following" : "Follow"}
+        onFollow={() => {
+          setIsFollowing(!isFollowing)
+          console.log('Follow status:', !isFollowing)
+        }}
+        onMessage={() => {
+          console.log('Open message dialog')
+        }}
+        onSimilar={() => {
+          console.log('Show similar users')
+        }}
+      />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Custom Colors",
+        description: "Social profile card with custom banner gradient and styling.",
+        code: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+
+export function CustomColorCard() {
+  return (
+    <div className="max-w-sm">
+      <SocialProfileCard 
+        bannerGradientFrom="from-blue-500"
+        bannerGradientVia="via-cyan-500"
+        bannerGradientTo="to-teal-500"
+        statusColor="bg-blue-500"
+        backgroundColor="rgb(15 23 42 / 0.8)"
+        borderColor="rgba(59, 130, 246, 0.3)"
+        borderRadius={32}
+      />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Avatar Upload",
+        description: "Social profile card with avatar upload functionality.",
+        code: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+import { useState } from "react"
+
+export function UploadableAvatarCard() {
+  const [avatarUrl, setAvatarUrl] = useState("https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop")
+
+  return (
+    <div className="max-w-sm">
+      <SocialProfileCard 
+        avatarUrl={avatarUrl}
+        onAvatarChange={(url) => {
+          setAvatarUrl(url)
+          console.log('Avatar updated:', url)
+        }}
+      />
+    </div>
   )
 }`,
       },

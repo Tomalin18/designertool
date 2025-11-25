@@ -23,13 +23,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { Toggle } from "@/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { UrlInput } from "@/components/ui/url-input"
-import { MediaPlayer } from "@/components/ui/media-player"
-import { ChatInterface } from "@/components/ui/chat-interface"
+import { UrlInput } from "@/components/customize/url-input"
+import { MediaPlayer } from "@/components/customize/media-player"
+import { ChatInterface } from "@/components/customize/chat-interface"
+import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
 import { CodeBlock } from "@/components/code-block"
 import { ColorPicker } from "@/components/ui/color-picker"
+import { CustomizePanel } from "@/components/component-playground-customize-panel"
 
 const componentConfigs: Record<string, any> = {
   Button: {
@@ -740,6 +742,100 @@ const componentConfigs: Record<string, any> = {
       )
     },
   },
+  SocialProfileCard: {
+    props: {
+      className: { type: "text", default: "" },
+      name: { type: "text", default: "Sarah Jenkins" },
+      username: { type: "text", default: "@sarah_des" },
+      bio: { type: "text", default: "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers." },
+      avatarUrl: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
+      location: { type: "text", default: "San Francisco, CA" },
+      website: { type: "text", default: "sarah.design" },
+      twitter: { type: "text", default: "@sarah_des" },
+      showLocation: { type: "boolean", default: true },
+      showWebsite: { type: "boolean", default: true },
+      showTwitter: { type: "boolean", default: true },
+      followers: { type: "text", default: "12.5k" },
+      following: { type: "text", default: "842" },
+      projects: { type: "text", default: "142" },
+      isOnline: { type: "boolean", default: true },
+      statusColor: { type: "color-tailwind-bg", default: "bg-green-500" },
+      bannerGradientFrom: { type: "color-tailwind-gradient", default: "from-indigo-500" },
+      bannerGradientVia: { type: "color-tailwind-gradient", default: "via-purple-500" },
+      bannerGradientTo: { type: "color-tailwind-gradient", default: "to-pink-500" },
+      followButtonText: { type: "text", default: "Follow" },
+      showFollowButton: { type: "boolean", default: true },
+      showMessageButton: { type: "boolean", default: true },
+      showSimilarButton: { type: "boolean", default: true },
+      messageButtonText: { type: "text", default: "Message" },
+      similarButtonText: { type: "text", default: "Similar" },
+      backgroundColor: { type: "color", default: "" },
+      borderColor: { type: "color", default: "" },
+      borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
+    },
+    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+      // Convert hex to rgb if needed
+      const hexToRgb = (hex: string) => {
+        if (!hex) return undefined
+        // Extract hex from Tailwind format like bg-[#hex] or from-[#hex]
+        const hexMatch = hex.match(/\[#([0-9A-Fa-f]{6})\]/)
+        if (hexMatch) {
+          const r = parseInt(hexMatch[1].slice(0, 2), 16)
+          const g = parseInt(hexMatch[1].slice(2, 4), 16)
+          const b = parseInt(hexMatch[1].slice(4, 6), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        // If it's already a hex value
+        if (hex.startsWith('#')) {
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        // Return as is if it's already rgb or other format
+        return hex
+      }
+
+      return (
+        <div className="w-full max-w-sm">
+          <SocialProfileCard 
+            className={props.className}
+            name={props.name}
+            username={props.username}
+            bio={props.bio}
+            avatarUrl={props.avatarUrl}
+            location={props.location}
+            website={props.website}
+            twitter={props.twitter}
+            showLocation={props.showLocation}
+            showWebsite={props.showWebsite}
+            showTwitter={props.showTwitter}
+            followers={props.followers}
+            following={props.following}
+            projects={props.projects}
+            isOnline={props.isOnline}
+            statusColor={props.statusColor}
+            bannerGradientFrom={props.bannerGradientFrom}
+            bannerGradientVia={props.bannerGradientVia}
+            bannerGradientTo={props.bannerGradientTo}
+            followButtonText={props.followButtonText}
+            showFollowButton={props.showFollowButton}
+            showMessageButton={props.showMessageButton}
+            showSimilarButton={props.showSimilarButton}
+            messageButtonText={props.messageButtonText}
+            similarButtonText={props.similarButtonText}
+            onFollow={props.onFollow}
+            onMessage={props.onMessage}
+            onSimilar={props.onSimilar}
+            onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, avatarUrl: url })) : undefined}
+            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+            borderRadius={props.borderRadius}
+          />
+        </div>
+      )
+    },
+  },
 }
 
 interface PlaygroundProps {
@@ -767,7 +863,8 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       } else if (propConfig.type === "color" || 
                  propConfig.type === "color-tailwind-bg" || 
                  propConfig.type === "color-tailwind-text" || 
-                 propConfig.type === "color-tailwind-border") {
+                 propConfig.type === "color-tailwind-border" ||
+                 propConfig.type === "color-tailwind-gradient") {
         // Ensure color inputs always have a string value (never undefined)
         initialProps[key] = propConfig.default || ""
       } else {
@@ -2047,369 +2144,14 @@ export function UrlInputDemo() {
       <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3">
         <Card className="p-6 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
           <h3 className="font-semibold mb-4">Customize</h3>
-          
-          {(() => {
-            // For MediaPlayer, group props into General and Color tabs
-            if (componentName === "MediaPlayer") {
-              const generalProps: [string, any][] = []
-              const colorProps: [string, any][] = []
-              
-              const colorRelatedKeys = [
-                'backgroundColor', 'borderColor', 'borderRadius', 
-                'glowColor1', 'glowColor2', 
-                'gradientFrom', 'gradientTo', 'gradientWidth', 'gradientAnimated'
-              ]
-
-              // Props that should not be shown in customize panel (only adjustable in playground)
-              const hiddenProps = ['isPlaying', 'isLoved', 'isShuffle', 'isRepeat']
-
-              Object.entries(config.props).forEach(([key, propConfig]) => {
-                // Skip hidden props (these are only adjustable in playground)
-                if (hiddenProps.includes(key)) {
-                  return
-                }
-                if (colorRelatedKeys.includes(key)) {
-                  colorProps.push([key, propConfig])
-                } else {
-                  generalProps.push([key, propConfig])
-                }
-              })
-
-              const renderProp = (key: string, propConfig: any, isLast: boolean) => (
-                <div key={key} className="space-y-2">
-                  <Label className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
-
-                  {propConfig.type === "select" && (
-                    <>
-                      <Select value={props[key] || propConfig.default || ""} onValueChange={(value) => {
-                        updateProp(key, value)
-                      }}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {propConfig.options.map((option: string) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  )}
-
-                  {propConfig.type === "boolean" && (
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        checked={props[key] === true || props[key] === "true"}
-                        onCheckedChange={(checked) => updateProp(key, checked)}
-                      />
-                      <span className="text-sm text-muted-foreground">
-                        {props[key] === true || props[key] === "true" ? "Enabled" : "Disabled"}
-                      </span>
-                    </div>
-                  )}
-
-                  {propConfig.type === "text" && (
-                    <Input
-                      value={props[key] || ""}
-                      onChange={(e) => updateProp(key, e.target.value)}
-                      placeholder={propConfig.default}
-                    />
-                  )}
-
-                  {propConfig.type === "slider" && (
-                    <div className="space-y-2">
-                      <Slider
-                        value={[props[key] !== undefined ? props[key] : propConfig.default]}
-                        onValueChange={([value]) => updateProp(key, value)}
-                        min={propConfig.min}
-                        max={propConfig.max}
-                        step={1}
-                      />
-                      <div className="text-xs text-muted-foreground text-right">
-                        {props[key] !== undefined ? props[key] : propConfig.default}
-                      </div>
-                    </div>
-                  )}
-
-                  {propConfig.type === "color" && (
-                    <ColorPicker
-                      value={props[key] || ""}
-                      onChange={(value) => updateProp(key, value)}
-                      placeholder={propConfig.default || "#000000"}
-                      outputFormat="hex"
-                      defaultColor={propConfig.default || "#000000"}
-                    />
-                  )}
-
-                  {!isLast && <Separator className="!mt-4" />}
-                </div>
-              )
-
-              return (
-                <Tabs defaultValue="general" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="general">General</TabsTrigger>
-                    <TabsTrigger value="color">Color</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="general" className="space-y-4 mt-4">
-                    {generalProps.map(([key, propConfig], index) => 
-                      renderProp(key, propConfig, index === generalProps.length - 1)
-                    )}
-                  </TabsContent>
-                  <TabsContent value="color" className="space-y-4 mt-4">
-                    {colorProps.map(([key, propConfig], index) => 
-                      renderProp(key, propConfig, index === colorProps.length - 1)
-                    )}
-                  </TabsContent>
-                </Tabs>
-              )
-            }
-
-            // Group props by section (header, body, footer) for other components
-            const headerProps: [string, any][] = []
-            const bodyProps: [string, any][] = []
-            const footerProps: [string, any][] = []
-            const otherProps: [string, any][] = []
-
-            Object.entries(config.props).forEach(([key, propConfig]) => {
-              if (key.startsWith('header')) {
-                headerProps.push([key, propConfig])
-              } else if (key.startsWith('body')) {
-                bodyProps.push([key, propConfig])
-              } else if (key.startsWith('footer')) {
-                footerProps.push([key, propConfig])
-              } else {
-                otherProps.push([key, propConfig])
-              }
-            })
-
-            const renderProp = (key: string, propConfig: any, isLast: boolean) => (
-              <div key={key} className="space-y-2">
-                <Label className="capitalize">{key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()}</Label>
-
-                {propConfig.type === "select" && (
-                  <>
-                    <Select value={props[key] || propConfig.default || ""} onValueChange={(value) => {
-                      updateProp(key, value)
-                      // When switching away from "Other", clear custom status and color
-                      if (key === "headerUserStatus" && value !== "Other") {
-                        updateProp("headerUserStatusCustom", "")
-                        updateProp("headerStatusColor", "")
-                      }
-                    }}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {propConfig.options.map((option: string) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {key === "headerUserStatus" && props[key] === "Other" && (
-                      <>
-                        <Input
-                          value={props.headerUserStatusCustom || ""}
-                          onChange={(e) => updateProp("headerUserStatusCustom", e.target.value)}
-                          placeholder="Enter custom status..."
-                          className="mt-2"
-                        />
-                        <div className="mt-2 space-y-2">
-                          <Label className="text-xs text-muted-foreground">Custom Status Color</Label>
-                          <ColorPicker
-                            value={props.headerStatusColor || ""}
-                            onChange={(value) => updateProp("headerStatusColor", value)}
-                            placeholder="#32814f"
-                            outputFormat="tailwind-text"
-                            defaultColor="#22c55e"
-                          />
-                          <p className="text-xs text-muted-foreground">Use color picker or enter hex color code (e.g., #22c55e)</p>
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {propConfig.type === "boolean" && (
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={props[key] === true || props[key] === "true"}
-                      onCheckedChange={(checked) => updateProp(key, checked)}
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {props[key] === true || props[key] === "true" ? "Enabled" : "Disabled"}
-                    </span>
-                  </div>
-                )}
-
-                {propConfig.type === "text" && (
-                  <Input
-                    value={props[key] || ""}
-                    onChange={(e) => updateProp(key, e.target.value)}
-                    placeholder={propConfig.default}
-                  />
-                )}
-
-                {propConfig.type === "color-tailwind-bg" && (
-                  <ColorPicker
-                    value={props[key] || ""}
-                    onChange={(value) => updateProp(key, value)}
-                    placeholder={propConfig.default || "#000000"}
-                    outputFormat="tailwind-bg"
-                    defaultColor={(() => {
-                      const colorValue = propConfig.default || ""
-                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
-                      if (hexMatch) return `#${hexMatch[1]}`
-                      const colorMap: Record<string, string> = {
-                        "bg-indigo-600": "#4f46e5",
-                        "bg-neutral-800": "#262626",
-                        "bg-neutral-900": "#171717",
-                      }
-                      return colorMap[colorValue] || "#000000"
-                    })()}
-                  />
-                )}
-
-                {propConfig.type === "color-tailwind-text" && (
-                  <ColorPicker
-                    value={props[key] || ""}
-                    onChange={(value) => updateProp(key, value)}
-                    placeholder={propConfig.default || "#000000"}
-                    outputFormat="tailwind-text"
-                    defaultColor={(() => {
-                      const colorValue = propConfig.default || ""
-                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
-                      if (hexMatch) return `#${hexMatch[1]}`
-                      const colorMap: Record<string, string> = {
-                        "text-neutral-500": "#737373",
-                        "text-neutral-200": "#e5e5e5",
-                        "text-white": "#ffffff",
-                        "text-neutral-100": "#f5f5f5",
-                      }
-                      return colorMap[colorValue] || "#000000"
-                    })()}
-                  />
-                )}
-
-                {propConfig.type === "color-tailwind-border" && (
-                  <ColorPicker
-                    value={props[key] || ""}
-                    onChange={(value) => updateProp(key, value)}
-                    placeholder={propConfig.default || "#000000"}
-                    outputFormat="tailwind-border"
-                    defaultColor={(() => {
-                      const colorValue = propConfig.default || ""
-                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
-                      if (hexMatch) return `#${hexMatch[1]}`
-                      const colorMap: Record<string, string> = {
-                        "border-indigo-500/50": "#6366f1",
-                        "border-neutral-800": "#262626",
-                        "border-neutral-500": "#737373",
-                      }
-                      return colorMap[colorValue] || "#000000"
-                    })()}
-                  />
-                )}
-
-                {propConfig.type === "slider" && (
-                  <div className="space-y-2">
-                    <Slider
-                      value={[props[key]]}
-                      onValueChange={([value]) => updateProp(key, value)}
-                      min={propConfig.min}
-                      max={propConfig.max}
-                      step={1}
-                    />
-                    <div className="text-xs text-muted-foreground text-right">
-                      {props[key]}
-                    </div>
-                  </div>
-                )}
-
-                {propConfig.type === "color" && (
-                  <ColorPicker
-                    value={props[key] || ""}
-                    onChange={(value) => updateProp(key, value)}
-                    placeholder={propConfig.default || "#000000"}
-                    outputFormat="hex"
-                    defaultColor={propConfig.default || "#000000"}
-                  />
-                )}
-
-                {!isLast && <Separator className="!mt-4" />}
-              </div>
-            )
-
-            return (
-              <div className="space-y-6">
-                {/* Header Section */}
-                {headerProps.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm text-muted-foreground">Header</h4>
-                      <Separator className="flex-1" />
-                    </div>
-                    {headerProps.map(([key, propConfig], index) => {
-                      // Skip headerUserStatusCustom - it's handled inline with headerUserStatus
-                      if (key === "headerUserStatusCustom") {
-                        return null
-                      }
-                      // Skip headerStatusColor - it's handled inline with headerUserStatus when "Other" is selected
-                      if (key === "headerStatusColor") {
-                        return null
-                      }
-                      return renderProp(key, propConfig, index === headerProps.length - 1)
-                    })}
-                  </div>
-                )}
-
-                {/* Body Section */}
-                {bodyProps.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm text-muted-foreground">Body</h4>
-                      <Separator className="flex-1" />
-                    </div>
-                    {bodyProps.map(([key, propConfig], index) => 
-                      renderProp(key, propConfig, index === bodyProps.length - 1)
-                    )}
-                  </div>
-                )}
-
-                {/* Footer Section */}
-                {footerProps.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm text-muted-foreground">Footer</h4>
-                      <Separator className="flex-1" />
-                    </div>
-                    {footerProps.map(([key, propConfig], index) => 
-                      renderProp(key, propConfig, index === footerProps.length - 1)
-                    )}
-                  </div>
-                )}
-
-                {/* Other Props */}
-                {otherProps.length > 0 && (
-                  <div className="space-y-4">
-                    {otherProps.length > 0 && headerProps.length + bodyProps.length + footerProps.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-sm text-muted-foreground">General</h4>
-                        <Separator className="flex-1" />
-                      </div>
-                    )}
-                    {otherProps.map(([key, propConfig], index) => 
-                      renderProp(key, propConfig, index === otherProps.length - 1)
-                    )}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
+          {config && (
+            <CustomizePanel
+              componentName={componentName}
+              props={props}
+              config={config}
+              updateProp={updateProp}
+            />
+          )}
         </Card>
       </div>
 
