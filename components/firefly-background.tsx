@@ -19,7 +19,7 @@ interface Firefly {
 export function FireflyBackground() {
   const { colorPalette, theme } = useTheme()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
   const firefliesRef = useRef<Firefly[]>([])
   const [mounted, setMounted] = useState(false)
 
