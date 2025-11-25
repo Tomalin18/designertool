@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Toggle } from "@/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { UrlInput } from "@/components/ui/url-input"
+import { MediaPlayer } from "@/components/ui/media-player"
 import { AlertCircle, Terminal } from 'lucide-react'
 
 interface PlaygroundProps {
@@ -498,6 +499,134 @@ const componentConfigs: Record<string, any> = {
       )
     },
   },
+  MediaPlayer: {
+    props: {
+      className: { type: "text", default: "" },
+      trackTitle: { type: "text", default: "Midnight City" },
+      artist: { type: "text", default: "M83" },
+      album: { type: "text", default: "Hurry Up, We're Dreaming" },
+      albumArtUrl: { type: "text", default: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop" },
+      currentTime: { type: "text", default: "2:14" },
+      totalTime: { type: "text", default: "4:03" },
+      progress: { type: "slider", min: 0, max: 100, default: 66.67 },
+      isPlaying: { type: "boolean", default: true },
+      isLoved: { type: "boolean", default: false },
+      isShuffle: { type: "boolean", default: false },
+      isRepeat: { type: "boolean", default: false },
+      showShuffle: { type: "boolean", default: true },
+      showRepeat: { type: "boolean", default: true },
+      showHeart: { type: "boolean", default: true },
+      backgroundColor: { type: "color", default: "#171717" },
+      borderColor: { type: "color", default: "#ffffff" },
+      borderRadius: { type: "slider", min: 0, max: 48, default: 24 },
+      glowColor1: { type: "color", default: "#6366f1" },
+      glowColor2: { type: "color", default: "#a855f7" },
+      enableImageUpload: { type: "boolean", default: true },
+    },
+    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+      // Convert hex to rgb with opacity if needed
+      const hexToRgbWithOpacity = (hex: string, opacity: number = 0.6) => {
+        if (!hex || !hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r} ${g} ${b} / ${opacity})`;
+      };
+
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r} ${g} ${b})`;
+      };
+
+      // Helper to convert hex to rgba
+      const hexToRgba = (hex: string, opacity: number = 0.1) => {
+        if (!hex || !hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      };
+
+      // Helper functions for time conversion (same as in MediaPlayer)
+      const timeToSeconds = (time: string): number => {
+        const parts = time.split(':');
+        if (parts.length === 2) {
+          return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        }
+        return 0;
+      };
+
+      const secondsToTime = (seconds: number): string => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      };
+
+      // Calculate current time from progress if progress is set
+      let displayCurrentTime = props.currentTime;
+      if (props.progress !== undefined && props.totalTime) {
+        const totalSeconds = timeToSeconds(props.totalTime);
+        const currentSeconds = (props.progress / 100) * totalSeconds;
+        displayCurrentTime = secondsToTime(currentSeconds);
+      }
+
+      return (
+        <div className="w-full max-w-sm">
+          <MediaPlayer 
+            className={props.className || undefined}
+            trackTitle={props.trackTitle}
+            artist={props.artist}
+            album={props.album}
+            albumArtUrl={props.albumArtUrl}
+            currentTime={displayCurrentTime}
+            totalTime={props.totalTime}
+            progress={props.progress}
+            isPlaying={props.isPlaying}
+            isLoved={props.isLoved}
+            isShuffle={props.isShuffle}
+            isRepeat={props.isRepeat}
+            showShuffle={props.showShuffle}
+            showRepeat={props.showRepeat}
+            showHeart={props.showHeart}
+            backgroundColor={props.backgroundColor ? hexToRgbWithOpacity(props.backgroundColor, 0.6) : undefined}
+            borderColor={props.borderColor ? hexToRgba(props.borderColor, 0.1) : undefined}
+            borderRadius={props.borderRadius}
+            glowColor1={props.glowColor1 ? hexToRgbWithOpacity(props.glowColor1, 0.2) : undefined}
+            glowColor2={props.glowColor2 ? hexToRgbWithOpacity(props.glowColor2, 0.2) : undefined}
+            enableImageUpload={props.enableImageUpload}
+            onShuffle={setProps ? (isShuffle) => {
+              // Update Playground props when shuffle state changes
+              setProps((prev: any) => ({ ...prev, isShuffle }));
+            } : undefined}
+            onRepeat={setProps ? (isRepeat) => {
+              // Update Playground props when repeat state changes
+              setProps((prev: any) => ({ ...prev, isRepeat }));
+            } : undefined}
+            onPlayPause={setProps ? (isPlaying) => {
+              // Update Playground props when play/pause state changes
+              setProps((prev: any) => ({ ...prev, isPlaying }));
+            } : undefined}
+            onLove={setProps ? (isLoved) => {
+              // Update Playground props when love state changes
+              setProps((prev: any) => ({ ...prev, isLoved }));
+            } : undefined}
+            onTimeChange={(currentTime, progress) => {
+              // Progress and time are automatically synced in the component
+              console.log('Time changed:', currentTime, 'Progress:', progress);
+            }}
+            onImageUpload={setProps ? (imageUrl) => {
+              console.log('Image uploaded:', imageUrl.substring(0, 50) + '...');
+              // Update Playground props when image is uploaded
+              setProps((prev: any) => ({ ...prev, albumArtUrl: imageUrl }));
+            } : undefined}
+          />
+        </div>
+      )
+    },
+  },
 }
 
 export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
@@ -562,7 +691,49 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   }, [config, componentName])
 
   const updateProp = (key: string, value: any) => {
-    setProps((prev) => ({ ...prev, [key]: value }))
+    setProps((prev) => {
+      const updated = { ...prev, [key]: value }
+      
+      // If progress changes, automatically update currentTime for MediaPlayer
+      if (componentName === "MediaPlayer" && key === "progress") {
+        const totalTime = updated.totalTime || "4:03"
+        const timeToSeconds = (time: string): number => {
+          const parts = time.split(':')
+          if (parts.length === 2) {
+            return parseInt(parts[0]) * 60 + parseInt(parts[1])
+          }
+          return 0
+        }
+        const secondsToTime = (seconds: number): string => {
+          const mins = Math.floor(seconds / 60)
+          const secs = Math.floor(seconds % 60)
+          return `${mins}:${secs.toString().padStart(2, '0')}`
+        }
+        const totalSeconds = timeToSeconds(totalTime)
+        const currentSeconds = (value / 100) * totalSeconds
+        updated.currentTime = secondsToTime(currentSeconds)
+      }
+      
+      // If currentTime or totalTime changes, automatically update progress for MediaPlayer
+      if (componentName === "MediaPlayer" && (key === "currentTime" || key === "totalTime")) {
+        const currentTime = updated.currentTime || "2:14"
+        const totalTime = updated.totalTime || "4:03"
+        const timeToSeconds = (time: string): number => {
+          const parts = time.split(':')
+          if (parts.length === 2) {
+            return parseInt(parts[0]) * 60 + parseInt(parts[1])
+          }
+          return 0
+        }
+        const currentSeconds = timeToSeconds(currentTime)
+        const totalSeconds = timeToSeconds(totalTime)
+        if (totalSeconds > 0) {
+          updated.progress = (currentSeconds / totalSeconds) * 100
+        }
+      }
+      
+      return updated
+    })
   }
 
   const generateCode = () => {
@@ -633,6 +804,444 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
 
     if (componentName === "Tooltip") {
       return `<TooltipProvider>\n  <Tooltip>\n    <TooltipTrigger asChild>\n      <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>\n    </TooltipTrigger>\n    <TooltipContent side="${props.side}" className="text-lg p-4">\n      <p>${props.text}</p>\n    </TooltipContent>\n  </Tooltip>\n</TooltipProvider>`
+    }
+
+    if (componentName === "MediaPlayer") {
+      // Convert hex to rgb with opacity for colors in generated code
+      const hexToRgbWithOpacity = (hex: string, opacity: number = 0.6) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b} / ${opacity})`
+      }
+
+      const hexToRgba = (hex: string, opacity: number = 0.1) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`
+      }
+      
+      const propsList = []
+      // Always include all props with their current values (including defaults)
+      propsList.push(`trackTitle="${props.trackTitle || "Midnight City"}"`)
+      propsList.push(`artist="${props.artist || "M83"}"`)
+      propsList.push(`album="${props.album || "Hurry Up, We're Dreaming"}"`)
+      if (props.albumArtUrl) {
+        propsList.push(`albumArtUrl="${props.albumArtUrl}"`)
+      }
+      propsList.push(`currentTime="${props.currentTime || "2:14"}"`)
+      propsList.push(`totalTime="${props.totalTime || "4:03"}"`)
+      if (props.progress !== undefined) {
+        propsList.push(`progress={${props.progress}}`)
+      }
+      propsList.push(`isPlaying={${props.isPlaying !== undefined ? props.isPlaying : true}}`)
+      propsList.push(`isLoved={${props.isLoved !== undefined ? props.isLoved : false}}`)
+      propsList.push(`isShuffle={${props.isShuffle !== undefined ? props.isShuffle : false}}`)
+      propsList.push(`isRepeat={${props.isRepeat !== undefined ? props.isRepeat : false}}`)
+      propsList.push(`showShuffle={${props.showShuffle !== undefined ? props.showShuffle : true}}`)
+      propsList.push(`showRepeat={${props.showRepeat !== undefined ? props.showRepeat : true}}`)
+      propsList.push(`showHeart={${props.showHeart !== undefined ? props.showHeart : true}}`)
+      
+      // Convert colors
+      const bgColor = props.backgroundColor
+        ? hexToRgbWithOpacity(props.backgroundColor, 0.6)
+        : "rgb(23 23 23 / 0.6)"
+      propsList.push(`backgroundColor="${bgColor}"`)
+      
+      const borderCol = props.borderColor
+        ? hexToRgba(props.borderColor, 0.1)
+        : "rgba(255, 255, 255, 0.1)"
+      propsList.push(`borderColor="${borderCol}"`)
+      
+      propsList.push(`borderRadius={${props.borderRadius !== undefined ? props.borderRadius : 24}}`)
+      
+      const glow1 = props.glowColor1
+        ? hexToRgbWithOpacity(props.glowColor1, 0.2)
+        : "rgb(99 102 241 / 0.2)"
+      propsList.push(`glowColor1="${glow1}"`)
+      
+      const glow2 = props.glowColor2
+        ? hexToRgbWithOpacity(props.glowColor2, 0.2)
+        : "rgb(168 85 247 / 0.2)"
+      propsList.push(`glowColor2="${glow2}"`)
+      
+      propsList.push(`enableImageUpload={${props.enableImageUpload !== undefined ? props.enableImageUpload : true}}`)
+      
+      // Format with line breaks for better readability
+      const propsString = propsList.length > 0 
+        ? `\n  ${propsList.join("\n  ")}\n` 
+        : ""
+      
+      return `"use client"
+
+import React, { useState, useEffect, useRef } from "react"
+import { cn } from "@/lib/utils"
+import { Play, Pause, SkipBack, SkipForward, Heart, Repeat, Shuffle, Upload } from "lucide-react"
+
+interface MediaPlayerProps {
+  className?: string
+  trackTitle?: string
+  artist?: string
+  album?: string
+  albumArtUrl?: string
+  currentTime?: string
+  totalTime?: string
+  progress?: number
+  isPlaying?: boolean
+  isLoved?: boolean
+  isShuffle?: boolean
+  isRepeat?: boolean
+  showShuffle?: boolean
+  showRepeat?: boolean
+  showHeart?: boolean
+  backgroundColor?: string
+  borderColor?: string
+  borderRadius?: number
+  glowColor1?: string
+  glowColor2?: string
+  enableImageUpload?: boolean
+  onPlayPause?: (isPlaying: boolean) => void
+  onLove?: (isLoved: boolean) => void
+  onShuffle?: (isShuffle: boolean) => void
+  onRepeat?: (isRepeat: boolean) => void
+  onSkipBack?: () => void
+  onSkipForward?: () => void
+  onImageUpload?: (imageUrl: string) => void
+  onTimeChange?: (currentTime: string, progress: number) => void
+}
+
+const timeToSeconds = (time: string): number => {
+  const parts = time.split(':')
+  if (parts.length === 2) {
+    return parseInt(parts[0]) * 60 + parseInt(parts[1])
+  }
+  return 0
+}
+
+const secondsToTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return \`\${mins}:\${secs.toString().padStart(2, '0')}\`
+}
+
+export const MediaPlayer = ({
+  className,
+  trackTitle = "${props.trackTitle || "Midnight City"}",
+  artist = "${props.artist || "M83"}",
+  album = "${props.album || "Hurry Up, We're Dreaming"}",
+  albumArtUrl: initialAlbumArtUrl = "${props.albumArtUrl || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop"}",
+  currentTime: initialCurrentTime = "${props.currentTime || "2:14"}",
+  totalTime: initialTotalTime = "${props.totalTime || "4:03"}",
+  progress: initialProgress${props.progress !== undefined ? ` = ${props.progress}` : ''},
+  isPlaying: initialIsPlaying = ${props.isPlaying !== undefined ? props.isPlaying : true},
+  isLoved: initialIsLoved = ${props.isLoved !== undefined ? props.isLoved : false},
+  isShuffle: initialIsShuffle = ${props.isShuffle !== undefined ? props.isShuffle : false},
+  isRepeat: initialIsRepeat = ${props.isRepeat !== undefined ? props.isRepeat : false},
+  showShuffle = ${props.showShuffle !== undefined ? props.showShuffle : true},
+  showRepeat = ${props.showRepeat !== undefined ? props.showRepeat : true},
+  showHeart = ${props.showHeart !== undefined ? props.showHeart : true},
+  backgroundColor = "${bgColor}",
+  borderColor = "${borderCol}",
+  borderRadius = ${props.borderRadius !== undefined ? props.borderRadius : 24},
+  glowColor1 = "${glow1}",
+  glowColor2 = "${glow2}",
+  enableImageUpload = ${props.enableImageUpload !== undefined ? props.enableImageUpload : true},
+  onPlayPause,
+  onLove,
+  onShuffle,
+  onRepeat,
+  onSkipBack,
+  onSkipForward,
+  onImageUpload,
+  onTimeChange,
+}: MediaPlayerProps) => {
+  const [isPlaying, setIsPlaying] = useState(initialIsPlaying)
+  const [isLoved, setIsLoved] = useState(initialIsLoved)
+  const [isShuffle, setIsShuffle] = useState(initialIsShuffle)
+  const [isRepeat, setIsRepeat] = useState(initialIsRepeat)
+  const [albumArtUrl, setAlbumArtUrl] = useState(initialAlbumArtUrl)
+  const [currentTime, setCurrentTime] = useState(initialCurrentTime)
+  const [totalTime, setTotalTime] = useState(initialTotalTime)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const calculateProgressFromTimes = (currTime: string, totTime: string): number => {
+    const currentSeconds = timeToSeconds(currTime)
+    const totalSeconds = timeToSeconds(totTime)
+    if (totalSeconds === 0) return 0
+    return (currentSeconds / totalSeconds) * 100
+  }
+
+  const calculateTimeFromProgress = (prog: number, totTime: string): string => {
+    const totalSeconds = timeToSeconds(totTime)
+    const currentSeconds = (prog / 100) * totalSeconds
+    return secondsToTime(currentSeconds)
+  }
+
+  const [progress, setProgress] = useState(
+    initialProgress !== undefined
+      ? initialProgress
+      : calculateProgressFromTimes(initialCurrentTime, initialTotalTime)
+  )
+
+  useEffect(() => {
+    if (initialProgress === undefined) {
+      const newProgress = calculateProgressFromTimes(currentTime, totalTime)
+      setProgress(newProgress)
+      onTimeChange?.(currentTime, newProgress)
+    }
+  }, [currentTime, totalTime])
+
+  useEffect(() => {
+    if (initialProgress !== undefined) {
+      const newCurrentTime = calculateTimeFromProgress(initialProgress, totalTime)
+      setCurrentTime(newCurrentTime)
+      setProgress(initialProgress)
+      onTimeChange?.(newCurrentTime, initialProgress)
+    }
+  }, [initialProgress, totalTime])
+
+  useEffect(() => {
+    setCurrentTime(initialCurrentTime)
+  }, [initialCurrentTime])
+
+  useEffect(() => {
+    setTotalTime(initialTotalTime)
+  }, [initialTotalTime])
+
+  useEffect(() => {
+    if (initialProgress !== undefined) {
+      setProgress(initialProgress)
+    }
+  }, [initialProgress])
+
+  useEffect(() => {
+    setIsPlaying(initialIsPlaying)
+  }, [initialIsPlaying])
+
+  useEffect(() => {
+    setIsLoved(initialIsLoved)
+  }, [initialIsLoved])
+
+  useEffect(() => {
+    setIsShuffle(initialIsShuffle)
+  }, [initialIsShuffle])
+
+  useEffect(() => {
+    setIsRepeat(initialIsRepeat)
+  }, [initialIsRepeat])
+
+  const handlePlayPause = () => {
+    const newState = !isPlaying
+    setIsPlaying(newState)
+    onPlayPause?.(newState)
+  }
+
+  const handleLove = () => {
+    const newState = !isLoved
+    setIsLoved(newState)
+    onLove?.(newState)
+  }
+
+  const handleShuffle = () => {
+    const newState = !isShuffle
+    setIsShuffle(newState)
+    onShuffle?.(newState)
+  }
+
+  const handleRepeat = () => {
+    const newState = !isRepeat
+    setIsRepeat(newState)
+    onRepeat?.(newState)
+  }
+
+  const handleSkipBack = () => {
+    onSkipBack?.()
+  }
+
+  const handleSkipForward = () => {
+    onSkipForward?.()
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const imageUrl = reader.result as string
+        setAlbumArtUrl(imageUrl)
+        onImageUpload?.(imageUrl)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleImageClick = () => {
+    if (enableImageUpload) {
+      fileInputRef.current?.click()
+    }
+  }
+
+  const hexToRgb = (hex: string) => {
+    if (!hex || !hex.startsWith('#')) return hex
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+
+  const bgColor = backgroundColor.startsWith('#') ? hexToRgb(backgroundColor) : backgroundColor
+  const borderCol = borderColor.startsWith('#') ? hexToRgb(borderColor) : borderColor
+  const glow1 = glowColor1.startsWith('#') ? hexToRgb(glowColor1) : glowColor1
+  const glow2 = glowColor2.startsWith('#') ? hexToRgb(glowColor2) : glowColor2
+
+  return (
+    <div
+      className={cn("relative overflow-hidden border p-6 backdrop-blur-xl", className)}
+      style={{
+        backgroundColor: bgColor,
+        borderColor: borderCol,
+        borderRadius: \`\${borderRadius}px\`,
+        borderWidth: '1px',
+        borderStyle: 'solid',
+      }}
+    >
+      <div
+        className="absolute -top-10 -right-10 h-40 w-40 rounded-full blur-3xl"
+        style={{ backgroundColor: glow1 }}
+      />
+      <div
+        className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full blur-3xl"
+        style={{ backgroundColor: glow2 }}
+      />
+
+      <div
+        className={cn(
+          "relative mx-auto mb-6 aspect-square w-full overflow-hidden shadow-2xl shadow-black/50",
+          enableImageUpload && "cursor-pointer group"
+        )}
+        style={{ borderRadius: \`\${Math.max(0, borderRadius - 8)}px\` }}
+        onClick={handleImageClick}
+      >
+        <img
+          src={albumArtUrl}
+          alt="Album Art"
+          className="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-black/10" />
+        {enableImageUpload && (
+          <>
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="flex flex-col items-center gap-2 text-white">
+                <Upload className="h-8 w-8" />
+                <span className="text-sm font-medium">上傳圖片</span>
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+          </>
+        )}
+      </div>
+
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <h3 className="text-lg font-bold text-white">{trackTitle}</h3>
+          <p className="text-sm font-medium text-neutral-400">
+            {artist}{album ? \` • \${album}\` : ''}
+          </p>
+        </div>
+        {showHeart && (
+          <button
+            onClick={handleLove}
+            className={cn("transition-colors hover:scale-110", isLoved ? "text-rose-500" : "text-neutral-500 hover:text-white")}
+          >
+            <Heart className={cn("h-6 w-6", isLoved && "fill-current")} />
+          </button>
+        )}
+      </div>
+
+      <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-neutral-800">
+        <div
+          className="h-full rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+          style={{ width: \`\${Math.min(100, Math.max(0, progress))}%\` }}
+        />
+      </div>
+      <div className="mb-6 flex justify-between text-xs font-medium text-neutral-500">
+        <span>{currentTime}</span>
+        <span>{totalTime}</span>
+      </div>
+
+      <div className="flex items-center justify-between px-2">
+        {showShuffle ? (
+          <button
+            onClick={handleShuffle}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isShuffle
+                ? "bg-white/20 text-white"
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
+          >
+            <Shuffle size={18} className={isShuffle ? "text-white" : ""} />
+          </button>
+        ) : (
+          <div />
+        )}
+
+        <div className="flex items-center gap-6">
+          <button
+            onClick={handleSkipBack}
+            className="text-neutral-300 hover:text-white transition-colors"
+          >
+            <SkipBack size={24} fill="currentColor" />
+          </button>
+          <button
+            onClick={handlePlayPause}
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-black shadow-lg shadow-white/20 transition-transform hover:scale-105 active:scale-95"
+          >
+            {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
+          </button>
+          <button
+            onClick={handleSkipForward}
+            className="text-neutral-300 hover:text-white transition-colors"
+          >
+            <SkipForward size={24} fill="currentColor" />
+          </button>
+        </div>
+
+        {showRepeat ? (
+          <button
+            onClick={handleRepeat}
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isRepeat
+                ? "bg-white/20 text-white"
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
+          >
+            <Repeat size={18} className={isRepeat ? "text-white" : ""} />
+          </button>
+        ) : (
+          <div />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Usage example:
+export function MediaPlayerDemo() {
+  return (
+    <MediaPlayer${propsString} />
+  )
+}`
     }
 
     if (componentName === "UrlInput") {
@@ -822,7 +1431,7 @@ export function UrlInputDemo() {
       {/* Mobile Order: 1. Preview */}
       <div className="order-1 lg:col-span-1">
         <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-          {config.render(props)}
+          {config.render(props, setProps)}
         </Card>
       </div>
 
