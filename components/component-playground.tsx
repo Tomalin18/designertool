@@ -478,11 +478,11 @@ const componentConfigs: Record<string, any> = {
         const b = parseInt(hex.slice(5, 7), 16)
         return `rgb(${r} ${g} ${b})`
       }
-      
+
       return (
         <div className="w-full max-w-2xl">
-          <UrlInput 
-            onGenerate={(url) => console.log('Generated URL:', url)} 
+          <UrlInput
+            onGenerate={(url) => console.log('Generated URL:', url)}
             isLoading={props.isLoading}
             borderRadius={props.borderRadius}
             gradientFrom={props.gradientFrom || undefined}
@@ -579,7 +579,7 @@ const componentConfigs: Record<string, any> = {
 
       return (
         <div className="w-full max-w-sm">
-          <MediaPlayer 
+          <MediaPlayer
             className={props.className || undefined}
             trackTitle={props.trackTitle}
             artist={props.artist}
@@ -687,7 +687,7 @@ const componentConfigs: Record<string, any> = {
     render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
       return (
         <div className="w-full max-w-md h-[600px]">
-          <ChatInterface 
+          <ChatInterface
             className={props.className}
             headerUserName={props.headerUserName}
             headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
@@ -772,6 +772,10 @@ const componentConfigs: Record<string, any> = {
       backgroundColor: { type: "color", default: "" },
       borderColor: { type: "color", default: "" },
       borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
+      gradientFrom: { type: "color", default: "" },
+      gradientTo: { type: "color", default: "" },
+      gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+      gradientAnimated: { type: "boolean", default: false },
     },
     render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
       // Convert hex to rgb if needed
@@ -798,7 +802,7 @@ const componentConfigs: Record<string, any> = {
 
       return (
         <div className="w-full max-w-sm">
-          <SocialProfileCard 
+          <SocialProfileCard
             className={props.className}
             name={props.name}
             username={props.username}
@@ -831,6 +835,10 @@ const componentConfigs: Record<string, any> = {
             backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
             borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
             borderRadius={props.borderRadius}
+            gradientFrom={props.gradientFrom || undefined}
+            gradientTo={props.gradientTo || undefined}
+            gradientWidth={props.gradientWidth}
+            gradientAnimated={props.gradientAnimated}
           />
         </div>
       )
@@ -860,11 +868,11 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       } else if (propConfig.type === "select") {
         // Ensure select always has a value
         initialProps[key] = propConfig.default || propConfig.options?.[0] || ""
-      } else if (propConfig.type === "color" || 
-                 propConfig.type === "color-tailwind-bg" || 
-                 propConfig.type === "color-tailwind-text" || 
-                 propConfig.type === "color-tailwind-border" ||
-                 propConfig.type === "color-tailwind-gradient") {
+      } else if (propConfig.type === "color" ||
+        propConfig.type === "color-tailwind-bg" ||
+        propConfig.type === "color-tailwind-text" ||
+        propConfig.type === "color-tailwind-border" ||
+        propConfig.type === "color-tailwind-gradient") {
         // Ensure color inputs always have a string value (never undefined)
         initialProps[key] = propConfig.default || ""
       } else {
@@ -877,7 +885,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   // Set CSS variable colors as hex for color pickers after mount
   React.useEffect(() => {
     if (!config || componentName !== 'UrlInput') return
-    
+
     // Helper function to get CSS variable value and convert to hex
     const getCssVarAsHex = (varName: string, fallback: string = '#000000'): string => {
       if (typeof window === 'undefined') return fallback
@@ -890,7 +898,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
         document.body.appendChild(tempEl)
         const rgb = getComputedStyle(tempEl).color
         document.body.removeChild(tempEl)
-        
+
         // Convert rgb(r, g, b) or rgba(r, g, b, a) to hex
         const match = rgb.match(/\d+/g)
         if (match && match.length >= 3) {
@@ -908,7 +916,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       }
       return fallback
     }
-    
+
     setProps((prev) => {
       const updated = { ...prev }
       // Only update if the value is empty string (default) or invalid format
@@ -925,12 +933,12 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   const updateProp = (key: string, value: any) => {
     setProps((prev) => {
       const updated = { ...prev, [key]: value }
-      
+
       // If totalTime changes, automatically update progress for MediaPlayer (if progress exists)
       if (componentName === "MediaPlayer" && key === "totalTime" && updated.progress !== undefined) {
         // Progress is already set, no need to recalculate
       }
-      
+
       return updated
     })
   }
@@ -1022,7 +1030,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
         const b = parseInt(hex.slice(5, 7), 16)
         return `rgba(${r}, ${g}, ${b}, ${opacity})`
       }
-      
+
       const propsList = []
       // Always include all props with their current values (including defaults)
       propsList.push(`trackTitle="${props.trackTitle || "Midnight City"}"`)
@@ -1042,37 +1050,37 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       propsList.push(`showShuffle={${props.showShuffle !== undefined ? props.showShuffle : true}}`)
       propsList.push(`showRepeat={${props.showRepeat !== undefined ? props.showRepeat : true}}`)
       propsList.push(`showHeart={${props.showHeart !== undefined ? props.showHeart : true}}`)
-      
+
       // Convert colors
       const bgColor = props.backgroundColor
         ? hexToRgbWithOpacity(props.backgroundColor, 0.6)
         : "rgb(23 23 23 / 0.6)"
       propsList.push(`backgroundColor="${bgColor}"`)
-      
+
       const borderCol = props.borderColor
         ? hexToRgba(props.borderColor, 0.1)
         : "rgba(255, 255, 255, 0.1)"
       propsList.push(`borderColor="${borderCol}"`)
-      
+
       propsList.push(`borderRadius={${props.borderRadius !== undefined ? props.borderRadius : 24}}`)
-      
+
       const glow1 = props.glowColor1
         ? hexToRgbWithOpacity(props.glowColor1, 0.2)
         : "rgb(99 102 241 / 0.2)"
       propsList.push(`glowColor1="${glow1}"`)
-      
+
       const glow2 = props.glowColor2
         ? hexToRgbWithOpacity(props.glowColor2, 0.2)
         : "rgb(168 85 247 / 0.2)"
       propsList.push(`glowColor2="${glow2}"`)
-      
+
       propsList.push(`enableImageUpload={${props.enableImageUpload !== undefined ? props.enableImageUpload : true}}`)
-      
+
       // Format with line breaks for better readability
-      const propsString = propsList.length > 0 
-        ? `\n  ${propsList.join("\n  ")}\n` 
+      const propsString = propsList.length > 0
+        ? `\n  ${propsList.join("\n  ")}\n`
         : ""
-      
+
       return `"use client"
 
 import React, { useState, useEffect, useRef } from "react"
@@ -1494,8 +1502,8 @@ export function MediaPlayerDemo() {
       const footerButtonColor = getColorFromTailwind(props.footerButtonColor || "bg-indigo-600")
       const footerFocusBorderColor = getColorFromTailwind(props.footerFocusBorderColor || "border-indigo-500/50")
 
-      const headerStatus = props.headerUserStatus === "Other" && props.headerUserStatusCustom 
-        ? props.headerUserStatusCustom 
+      const headerStatus = props.headerUserStatus === "Other" && props.headerUserStatusCustom
+        ? props.headerUserStatusCustom
         : (props.headerUserStatus || "Online now")
 
       return `"use client"
@@ -1958,7 +1966,7 @@ export const ChatInterface = ({
         const b = parseInt(hex.slice(5, 7), 16)
         return `rgb(${r} ${g} ${b})`
       }
-      
+
       const propsList = []
       if (props.isLoading) propsList.push("isLoading={true}")
       if (props.borderRadius !== 12) propsList.push(`borderRadius={${props.borderRadius}}`)
@@ -1966,21 +1974,21 @@ export const ChatInterface = ({
       if (props.gradientTo) propsList.push(`gradientTo="${props.gradientTo}"`)
       if (props.gradientWidth !== 2) propsList.push(`gradientWidth={${props.gradientWidth}}`)
       if (props.gradientAnimated) propsList.push("gradientAnimated={true}")
-      const bgColor = props.backgroundColor && props.backgroundColor !== "#0f172a" 
-        ? hexToRgb(props.backgroundColor) 
+      const bgColor = props.backgroundColor && props.backgroundColor !== "#0f172a"
+        ? hexToRgb(props.backgroundColor)
         : null
       if (bgColor) propsList.push(`backgroundColor="${bgColor}"`)
-      const borderCol = props.borderColor && props.borderColor !== "#334155" 
-        ? hexToRgb(props.borderColor) 
+      const borderCol = props.borderColor && props.borderColor !== "#334155"
+        ? hexToRgb(props.borderColor)
         : null
       if (borderCol) propsList.push(`borderColor="${borderCol}"`)
       if (!props.showButton) propsList.push("showButton={false}")
       if (props.buttonText !== "Generate") propsList.push(`buttonText="${props.buttonText}"`)
       if (props.placeholder !== "https://your-shop.com/product/...") propsList.push(`placeholder="${props.placeholder}"`)
       if (!props.showIcon) propsList.push("showIcon={false}")
-      
+
       const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
-      
+
       return `"use client"
 
 import React, { useState } from 'react'
@@ -2205,7 +2213,7 @@ export function UrlInputDemo() {
                 {(() => {
                   const componentDetail = componentDetails[slug]
                   const propsMap = componentDetail?.props || []
-                  
+
                   return Object.entries(config.props).map(([key, propConfig]: [string, any]) => {
                     const propDetail = propsMap.find((p: any) => p.name === key)
                     return (

@@ -44,12 +44,18 @@ interface SocialProfileCardProps {
   onSimilar?: () => void;
   onAvatarChange?: (url: string) => void;
   // Styling
+  // Gradient
+  gradientFrom?: string;
+  gradientTo?: string;
+  gradientWidth?: number;
+  gradientAnimated?: boolean;
+  // Styling
   backgroundColor?: string;
   borderColor?: string;
   borderRadius?: number;
 }
 
-export const SocialProfileCard = ({ 
+export const SocialProfileCard = ({
   className,
   name = "Sarah Jenkins",
   username = "@sarah_des",
@@ -82,6 +88,10 @@ export const SocialProfileCard = ({
   backgroundColor,
   borderColor,
   borderRadius = 24,
+  gradientFrom,
+  gradientTo,
+  gradientWidth = 2,
+  gradientAnimated = false,
 }: SocialProfileCardProps) => {
   const formatNumber = (value: string | number): string => {
     if (typeof value === "number") {
@@ -113,6 +123,8 @@ export const SocialProfileCard = ({
       "bg-yellow-500": "rgb(234 179 8)",
       "bg-red-500": "rgb(239 68 68)",
       "bg-orange-500": "rgb(249 115 22)",
+      "bg-neutral-900": "rgb(23 23 23)",
+      "bg-neutral-800": "rgb(38 38 38)",
       // Gradient colors
       "from-indigo-500": "rgb(99 102 241)",
       "from-purple-500": "rgb(168 85 247)",
@@ -142,166 +154,184 @@ export const SocialProfileCard = ({
     return colorMap[tailwindClass] || undefined
   }
 
+  const gradientFromColor = gradientFrom || 'var(--primary, #a855f7)'
+  const gradientToColor = gradientTo || 'var(--accent, #ec4899)'
+  const gradientInset = `-${gradientWidth}px`
+
   return (
-    <div 
-      className={cn(
-        "group relative overflow-hidden rounded-3xl border shadow-xl",
-        !backgroundColor && "bg-neutral-900/60",
-        !borderColor && "border-neutral-800",
-        className
-      )}
-      style={{
-        ...(backgroundColor && { backgroundColor }),
-        ...(borderColor && { borderColor }),
-        ...(borderRadius && { borderRadius: `${borderRadius}px` }),
-      }}
-    >
-      {/* Banner */}
-      <div 
-        className="h-32 w-full opacity-80 transition-opacity group-hover:opacity-100"
+    <div className={cn("relative group", className)} style={{ borderRadius: `${borderRadius}px` }}>
+      <div
+        className={`absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200`}
         style={{
-          backgroundImage: `linear-gradient(to right, ${
-            getColorFromTailwind(bannerGradientFrom || "from-indigo-500") || "rgb(99 102 241)"
-          }, ${
-            getColorFromTailwind(bannerGradientVia || "via-purple-500") || "rgb(168 85 247)"
-          }, ${
-            getColorFromTailwind(bannerGradientTo || "to-pink-500") || "rgb(236 72 153)"
-          })`,
+          inset: gradientInset,
+          backgroundImage: gradientAnimated
+            ? `linear-gradient(90deg, ${gradientFromColor}, ${gradientToColor}, ${gradientFromColor})`
+            : `linear-gradient(to right, ${gradientFromColor}, ${gradientToColor})`,
+          backgroundSize: gradientAnimated ? '200% 200%' : '100% 100%',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          borderRadius: `${borderRadius + gradientWidth}px`,
+          animation: gradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          zIndex: 0,
+        }}
+      />
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-3xl border shadow-xl w-full h-full",
+          !backgroundColor && "bg-neutral-900/90", // Increased opacity to cover gradient
+          !borderColor && "border-neutral-800",
+        )}
+        style={{
+          ...(backgroundColor && { backgroundColor }),
+          ...(borderColor && { borderColor }),
+          ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+          zIndex: 1,
         }}
       >
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-      </div>
+        {/* Banner */}
+        <div
+          className="h-32 w-full opacity-80 transition-opacity group-hover:opacity-100"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${getColorFromTailwind(bannerGradientFrom || "from-indigo-500") || "rgb(99 102 241)"
+              }, ${getColorFromTailwind(bannerGradientVia || "via-purple-500") || "rgb(168 85 247)"
+              }, ${getColorFromTailwind(bannerGradientTo || "to-pink-500") || "rgb(236 72 153)"
+              })`,
+          }}
+        >
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+        </div>
 
-      {/* Content */}
-      <div className="relative px-6 pb-6">
-        {/* Avatar */}
-        <div className="relative -mt-12 mb-4 inline-block">
-          <div className="relative">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file && onAvatarChange) {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    const result = reader.result as string;
-                    onAvatarChange(result);
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
-              className="hidden"
-              id="avatar-upload"
-            />
-            <label
-              htmlFor="avatar-upload"
-              className={cn(
-                "block cursor-pointer",
-                onAvatarChange && "hover:opacity-80 transition-opacity"
-              )}
-            >
-              <div className="h-24 w-24 rounded-2xl border-4 border-neutral-900 bg-neutral-800 shadow-xl overflow-hidden">
-                <img 
-                  src={avatarUrl} 
-                  alt="Profile" 
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </label>
+        {/* Content */}
+        <div className="relative px-6 pb-6">
+          {/* Avatar */}
+          <div className="relative -mt-12 mb-4 inline-block">
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file && onAvatarChange) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const result = reader.result as string;
+                      onAvatarChange(result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="hidden"
+                id="avatar-upload"
+              />
+              <label
+                htmlFor="avatar-upload"
+                className={cn(
+                  "block cursor-pointer",
+                  onAvatarChange && "hover:opacity-80 transition-opacity"
+                )}
+              >
+                <div className="h-24 w-24 rounded-2xl border-4 border-neutral-900 bg-neutral-800 shadow-xl overflow-hidden">
+                  <img
+                    src={avatarUrl}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </label>
+            </div>
+            {isOnline && (
+              <div
+                className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-neutral-900"
+                style={{
+                  backgroundColor: getColorFromTailwind(statusColor || "bg-green-500"),
+                }}
+              />
+            )}
           </div>
-          {isOnline && (
-            <div 
-              className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-neutral-900"
-              style={{
-                backgroundColor: getColorFromTailwind(statusColor || "bg-green-500"),
-              }}
-            />
+
+          {/* Info */}
+          <div className="mb-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white">{name}</h3>
+                <p className="text-sm text-indigo-400">{username}</p>
+              </div>
+              {showFollowButton && (
+                <ShinyButton
+                  className="h-9 px-4 text-xs"
+                  onClick={onFollow}
+                >
+                  {followButtonText}
+                </ShinyButton>
+              )}
+            </div>
+
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+              {bio}
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-4 text-xs text-neutral-500">
+              {showLocation && location && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <MapPin size={14} />
+                  {location}
+                </div>
+              )}
+              {showWebsite && website && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <LinkIcon size={14} />
+                  {website}
+                </div>
+              )}
+              {showTwitter && twitter && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <Twitter size={14} />
+                  {twitter}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex border-t border-neutral-800 pt-6">
+            <div className="flex-1 text-center border-r border-neutral-800">
+              <div className="text-lg font-bold text-white">{formatNumber(followers)}</div>
+              <div className="text-xs font-medium text-neutral-500">Followers</div>
+            </div>
+            <div className="flex-1 text-center border-r border-neutral-800">
+              <div className="text-lg font-bold text-white">{formatNumber(following)}</div>
+              <div className="text-xs font-medium text-neutral-500">Following</div>
+            </div>
+            <div className="flex-1 text-center">
+              <div className="text-lg font-bold text-white">{formatNumber(projects)}</div>
+              <div className="text-xs font-medium text-neutral-500">Projects</div>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          {(showMessageButton || showSimilarButton) && (
+            <div className="mt-6 flex gap-3">
+              {showMessageButton && (
+                <button
+                  onClick={onMessage}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+                >
+                  <MessageCircle size={16} />
+                  {messageButtonText}
+                </button>
+              )}
+              {showSimilarButton && (
+                <button
+                  onClick={onSimilar}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+                >
+                  <Users size={16} />
+                  {similarButtonText}
+                </button>
+              )}
+            </div>
           )}
         </div>
-
-        {/* Info */}
-        <div className="mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-xl font-bold text-white">{name}</h3>
-              <p className="text-sm text-indigo-400">{username}</p>
-            </div>
-            {showFollowButton && (
-              <ShinyButton 
-                className="h-9 px-4 text-xs"
-                onClick={onFollow}
-              >
-                {followButtonText}
-              </ShinyButton>
-            )}
-          </div>
-          
-          <p className="mt-3 text-sm leading-relaxed text-neutral-400">
-            {bio}
-          </p>
-          
-          <div className="mt-4 flex flex-wrap gap-4 text-xs text-neutral-500">
-            {showLocation && location && (
-              <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
-                <MapPin size={14} />
-                {location}
-              </div>
-            )}
-            {showWebsite && website && (
-              <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
-                <LinkIcon size={14} />
-                {website}
-              </div>
-            )}
-            {showTwitter && twitter && (
-              <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
-                <Twitter size={14} />
-                {twitter}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="flex border-t border-neutral-800 pt-6">
-          <div className="flex-1 text-center border-r border-neutral-800">
-            <div className="text-lg font-bold text-white">{formatNumber(followers)}</div>
-            <div className="text-xs font-medium text-neutral-500">Followers</div>
-          </div>
-          <div className="flex-1 text-center border-r border-neutral-800">
-            <div className="text-lg font-bold text-white">{formatNumber(following)}</div>
-            <div className="text-xs font-medium text-neutral-500">Following</div>
-          </div>
-          <div className="flex-1 text-center">
-            <div className="text-lg font-bold text-white">{formatNumber(projects)}</div>
-            <div className="text-xs font-medium text-neutral-500">Projects</div>
-          </div>
-        </div>
-
-        {/* Action Row */}
-        {(showMessageButton || showSimilarButton) && (
-          <div className="mt-6 flex gap-3">
-            {showMessageButton && (
-              <button 
-                onClick={onMessage}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-              >
-                <MessageCircle size={16} />
-                {messageButtonText}
-              </button>
-            )}
-            {showSimilarButton && (
-              <button 
-                onClick={onSimilar}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-              >
-                <Users size={16} />
-                {similarButtonText}
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

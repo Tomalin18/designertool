@@ -50,15 +50,15 @@ export function CustomizePanel({
 }: CustomizePanelProps) {
   const renderProp = (key: string, propConfig: any, isLast: boolean) => {
     const label = key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()
-    
+
     return (
       <div key={key} className="space-y-2">
         <Label className="capitalize">{label}</Label>
 
         {propConfig.type === "select" && (
           <>
-            <Select 
-              value={props[key] || propConfig.default || ""} 
+            <Select
+              value={props[key] || propConfig.default || ""}
               onValueChange={(value) => {
                 updateProp(key, value)
                 // Special handling for ChatInterface status
@@ -282,12 +282,12 @@ export function CustomizePanel({
     // Default configurations for each component
     if (componentName === "MediaPlayer") {
       const colorRelatedKeys = [
-        'backgroundColor', 'borderColor', 'borderRadius', 
-        'glowColor1', 'glowColor2', 
+        'backgroundColor', 'borderColor', 'borderRadius',
+        'glowColor1', 'glowColor2',
         'gradientFrom', 'gradientTo', 'gradientWidth', 'gradientAnimated'
       ]
       const hiddenProps = ['isPlaying', 'isLoved', 'isShuffle', 'isRepeat']
-      
+
       const generalProps: string[] = []
       const colorProps: string[] = []
 
@@ -314,9 +314,10 @@ export function CustomizePanel({
     if (componentName === "SocialProfileCard") {
       const colorRelatedKeys = [
         'statusColor', 'bannerGradientFrom', 'bannerGradientVia', 'bannerGradientTo',
-        'backgroundColor', 'borderColor', 'borderRadius'
+        'backgroundColor', 'borderColor', 'borderRadius',
+        'gradientFrom', 'gradientTo', 'gradientWidth', 'gradientAnimated'
       ]
-      
+
       const generalProps: string[] = []
       const colorProps: string[] = []
 
@@ -343,7 +344,7 @@ export function CustomizePanel({
         'gradientFrom', 'gradientTo', 'gradientWidth', 'gradientAnimated',
         'backgroundColor', 'borderColor', 'borderRadius'
       ]
-      
+
       const generalProps: string[] = []
       const colorProps: string[] = []
 
@@ -373,7 +374,7 @@ export function CustomizePanel({
         'footerBgColor', 'footerBorderColor', 'footerInputBgColor', 'footerButtonColor', 'footerFocusBorderColor'
       ]
       const hiddenProps = ['headerUserStatusCustom'] // Handled inline with headerUserStatus
-      
+
       const generalProps: string[] = []
       const colorProps: string[] = []
 
