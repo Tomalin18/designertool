@@ -157,12 +157,27 @@ export function ComponentsPageClient() {
                             </div>
                         </div>
 
-                        {/* Custom Components */}
+                        {/* Custom Components - Bento Grid Layout */}
                         {filteredCustomComponents.length > 0 ? (
-                            <div className="flex flex-wrap gap-6 items-start">
-                                {filteredCustomComponents.map((component) => (
-                                    <ComponentPreview key={component.name} {...component} />
-                                ))}
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 [grid-auto-flow:dense]">
+                                {filteredCustomComponents.map((component) => {
+                                    // Bento layout: different sizes for different components
+                                    let gridClass = ""
+                                    if (component.name === "UrlInput") {
+                                        // UrlInput spans full width on mobile, 3 columns on md, 4 columns on lg
+                                        gridClass = "md:col-span-3 lg:col-span-4"
+                                    } else if (component.name === "MediaPlayer") {
+                                        // MediaPlayer spans full width on mobile, 3 columns on md, 2 columns on lg
+                                        gridClass = "md:col-span-3 lg:col-span-2"
+                                    } else if (component.name === "ChatInterface") {
+                                        // ChatInterface spans full width on mobile, 3 columns on md, 4 columns on lg
+                                        gridClass = "md:col-span-3 lg:col-span-4"
+                                    }
+                                    
+                                    return (
+                                        <ComponentPreview key={component.name} {...component} className={gridClass} />
+                                    )
+                                })}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">

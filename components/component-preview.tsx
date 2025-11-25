@@ -25,15 +25,17 @@ import { UrlInput } from "@/components/ui/url-input"
 import { MediaPlayer } from "@/components/ui/media-player"
 import { ChatInterface } from "@/components/ui/chat-interface"
 import { AlertCircle, ChevronDown } from 'lucide-react'
+import { cn } from "@/lib/utils"
 
 interface ComponentPreviewProps {
   name: string
   description: string
   href: string
   category: string
+  className?: string
 }
 
-export function ComponentPreview({ name, href }: ComponentPreviewProps) {
+export function ComponentPreview({ name, href, className }: ComponentPreviewProps) {
   const [selectOpen, setSelectOpen] = useState(false)
 
   const renderPreview = () => {
@@ -254,7 +256,7 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
   }
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 inline-flex flex-col w-auto self-start">
+    <Card className={cn("overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 inline-flex flex-col w-auto self-start", className)}>
       <div className={`p-6 bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-shrink-0`}>
         {renderPreview()}
       </div>
