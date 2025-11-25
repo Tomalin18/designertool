@@ -1,8 +1,11 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { ComponentPlayground } from "@/components/component-playground"
 import { componentDetails } from "@/lib/component-details"
 import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { Button } from "@/components/ui/button"
 
 export function generateStaticParams() {
   return Object.keys(componentDetails).map((slug) => ({
@@ -43,6 +46,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <div className="py-8 md:py-12">
         <div className="mb-6">
+          <Link href="/components">
+            <Button variant="ghost" size="sm" className="mb-4 -ml-2">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Components
+            </Button>
+          </Link>
           <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
             {component.category}
           </div>

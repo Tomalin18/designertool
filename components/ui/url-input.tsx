@@ -45,8 +45,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({
     }
   }
 
-  const gradientFromColor = gradientFrom || 'hsl(var(--primary))'
-  const gradientToColor = gradientTo || 'rgb(79 70 229)' // indigo-600
+  const gradientFromColor = gradientFrom || 'var(--primary)'
+  const gradientToColor = gradientTo || 'var(--accent)'
   const gradientInset = `-${gradientWidth}px`
 
   return (
