@@ -4,6 +4,7 @@ import React from "react"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -120,6 +121,15 @@ export function CustomizePanel({
             value={props[key] || ""}
             onChange={(e) => updateProp(key, e.target.value)}
             placeholder={propConfig.default}
+          />
+        )}
+
+        {propConfig.type === "textarea" && (
+          <Textarea
+            value={props[key] || ""}
+            onChange={(e) => updateProp(key, e.target.value)}
+            placeholder={propConfig.default}
+            className="min-h-[120px]"
           />
         )}
 
@@ -427,6 +437,40 @@ export function CustomizePanel({
         tabs: [
           { name: "general", label: "General", keys: generalProps },
           { name: "color", label: "Color", keys: colorProps },
+        ],
+      }
+    }
+
+    // Generic grouping for Hero sections and other components
+    const contentProps: string[] = []
+    const styleProps: string[] = []
+    
+    Object.keys(config.props).forEach((key) => {
+      const lowerKey = key.toLowerCase()
+      if (
+        lowerKey.includes("color") ||
+        lowerKey.includes("background") ||
+        lowerKey.includes("gradient") ||
+        lowerKey.includes("border") ||
+        lowerKey.includes("shadow") ||
+        lowerKey.includes("opacity") ||
+        lowerKey.includes("blur") ||
+        lowerKey.includes("overlay") ||
+        config.props[key].type === "color" ||
+        config.props[key].type.startsWith("color-")
+      ) {
+        styleProps.push(key)
+      } else {
+        contentProps.push(key)
+      }
+    })
+
+    if (styleProps.length > 0) {
+      return {
+        type: "tabs",
+        tabs: [
+          { name: "content", label: "Content", keys: contentProps },
+          { name: "style", label: "Style", keys: styleProps },
         ],
       }
     }

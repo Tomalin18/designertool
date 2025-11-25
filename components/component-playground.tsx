@@ -28,6 +28,10 @@ import { MediaPlayer } from "@/components/customize/media-player"
 import { ChatInterface } from "@/components/customize/chat-interface"
 import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+import { heroSections } from "@/lib/hero-sections"
+import { heroComponentsByName } from "@/components/customize/heroes"
+import { featureSections } from "@/lib/feature-sections"
+import { featureComponentsByName } from "@/components/customize/features"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -35,7 +39,18 @@ import { CodeBlock } from "@/components/code-block"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { CustomizePanel } from "@/components/component-playground-customize-panel"
 
-const componentConfigs: Record<string, any> = {
+const heroNameToMeta = heroSections.reduce<Record<string, (typeof heroSections)[number]>>((acc, hero) => {
+  acc[hero.name] = hero
+  return acc
+}, {})
+
+const featureNameToMeta = featureSections.reduce<Record<string, (typeof featureSections)[number]>>((acc, feature) => {
+  acc[feature.name] = feature
+  return acc
+}, {})
+
+const componentConfigs: Record<string, any> = (() => {
+  const configs: Record<string, any> = {
   Button: {
     props: {
       variant: { type: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"], default: "default" },
@@ -998,13 +1013,74 @@ const componentConfigs: Record<string, any> = {
   },
 }
 
+  heroSections.forEach((hero) => {
+    const Component = heroComponentsByName[hero.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(hero.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[hero.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
+  // Add feature sections to configs
+  featureSections.forEach((feature) => {
+    const Component = featureComponentsByName[feature.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(feature.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[feature.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
+  return configs
+})()
+
 interface PlaygroundProps {
   componentName: string
   slug: string
+  initialCode?: string
 }
 
-export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
+export function ComponentPlayground({ componentName, slug, initialCode }: PlaygroundProps) {
   const config = componentConfigs[componentName]
+  const heroMeta = heroNameToMeta[componentName]
+  const featureMeta = featureNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
 
   const [props, setProps] = React.useState<Record<string, any>>(() => {
@@ -1014,7 +1090,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       // Ensure boolean defaults are properly set
       if (propConfig.type === "boolean") {
         initialProps[key] = propConfig.default === true || propConfig.default === "true"
-      } else if (propConfig.type === "text") {
+      } else if (propConfig.type === "text" || propConfig.type === "textarea") {
         // Ensure text inputs always have a string value (never undefined)
         initialProps[key] = propConfig.default || ""
       } else if (propConfig.type === "select") {
@@ -3150,6 +3226,133 @@ export const SocialProfileCard = ({
 export function SocialProfileCardDemo() {
   return (
     <SocialProfileCard${propsString}/>
+  )
+}`
+    }
+
+    if (heroMeta && initialCode) {
+      const interfaceName = `${heroMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" : 
+                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = HeroComponentProps<"[^"]+">`),
+        propsInterface
+      )
+      
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+         code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  ArrowRight, CheckCircle2, Command, Heart, Layout, Mail, MapPin, Mic, 
+  Play, PlayCircle, Search, Star, Terminal, Zap, Quote, Shield, CreditCard, Smartphone 
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+`
+      // Helper functions
+      const helpers = `
+const highlightText = (text: string, highlight: string, options?: { className?: string; style?: React.CSSProperties }) => {
+  if (!highlight) return text
+  const index = text.toLowerCase().indexOf(highlight.toLowerCase())
+  if (index === -1) {
+    return (
+      <>
+        {text}{" "}
+        <span className={options?.className} style={options?.style}>
+          {highlight}
+        </span>
+      </>
+    )
+  }
+  const before = text.slice(0, index)
+  const match = text.slice(index, index + highlight.length)
+  const after = text.slice(index + highlight.length)
+  return (
+    <>
+      {before}
+      <span className={options?.className} style={options?.style}>
+        {match}
+      </span>
+      {after}
+    </>
+  )
+}
+
+const iconMap = {
+  layout: Layout,
+  zap: Zap,
+  command: Command,
+}
+`
+
+      return `${imports}\n${helpers}\n${code}\n\n// Usage example:\nexport function ${heroMeta.componentName}Demo() {\n  return (\n    <${heroMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    if (heroMeta) {
+      return `import { ${heroMeta.componentName} } from "@/components/customize/heroes"
+
+export function ${heroMeta.componentName}Demo() {
+  return (
+    <${heroMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
+    // Feature section code generation with initialCode (full component)
+    if (featureMeta && initialCode) {
+      const interfaceName = `${featureMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" : 
+                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = FeatureComponentProps<"[^"]+">`),
+        propsInterface
+      )
+      
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+         code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  Zap, Shield, BarChart, Smartphone, Globe, Code, Terminal, Layout, Lock, Search,
+  Check, ArrowRight, PlayCircle, Cpu, Layers, MessageSquare
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${featureMeta.componentName}Demo() {\n  return (\n    <${featureMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // Feature section code generation (simple import)
+    if (featureMeta) {
+      return `import { ${featureMeta.componentName} } from "@/components/customize/features"
+
+export function ${featureMeta.componentName}Demo() {
+  return (
+    <${featureMeta.componentName}${propsString ? " " + propsString : ""} />
   )
 }`
     }
