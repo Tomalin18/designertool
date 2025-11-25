@@ -32,6 +32,8 @@ import { featureSections } from "@/lib/feature-sections"
 import { featureComponentsByName, featureDefaultProps } from "@/components/customize/features"
 import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName, paymentDefaultProps } from "@/components/customize/payments"
+import { ctaSections } from "@/lib/cta-sections"
+import { ctaComponentsByName, ctaDefaultProps } from "@/components/customize/ctas"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -56,10 +58,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const paymentMeta = paymentSections.find((payment) => payment.name === name)
   const PaymentComponent = paymentMeta ? paymentComponentsByName[paymentMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta
+  const ctaMeta = ctaSections.find((cta) => cta.name === name)
+  const CtaComponent = ctaMeta ? ctaComponentsByName[ctaMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -85,6 +90,15 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="w-full">
           <PaymentComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (ctaMeta && CtaComponent) {
+      const defaultProps = ctaDefaultProps[ctaMeta.slug] || {}
+      return (
+        <div className="w-full">
+          <CtaComponent {...defaultProps} />
         </div>
       )
     }

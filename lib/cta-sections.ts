@@ -122,6 +122,31 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#525252",
         description: "Color of the description text.",
       },
+      primaryButtonBackgroundColor: {
+        control: "color",
+        default: "#000000",
+        description: "Background color of the primary button.",
+      },
+      primaryButtonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the primary button.",
+      },
+      secondaryButtonBorderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the secondary button.",
+      },
+      secondaryButtonTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color of the secondary button.",
+      },
+      secondaryButtonHoverBackgroundColor: {
+        control: "color",
+        default: "#fafafa",
+        description: "Background color of the secondary button on hover.",
+      },
     },
   },
   {
@@ -170,6 +195,36 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#22d3ee",
         description: "Ending color of the text gradient.",
+      },
+      headingColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Color of the heading text (non-highlighted part).",
+      },
+      descriptionColor: {
+        control: "color",
+        default: "#818cf8",
+        description: "Color of the description text.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#0f172a",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      buttonGradientFromColor: {
+        control: "color",
+        default: "#E2CBFF",
+        description: "Starting color of the button's rotating gradient border.",
+      },
+      buttonGradientToColor: {
+        control: "color",
+        default: "#393BB2",
+        description: "Ending color of the button's rotating gradient border.",
       },
     },
   },
@@ -220,6 +275,26 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#a3a3a3",
         description: "Color of the description text.",
       },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#000000",
+        description: "Background color of the app store buttons.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the app store buttons.",
+      },
+      buttonBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Border color of the app store buttons.",
+      },
+      cardBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Border color of the card.",
+      },
     },
   },
   {
@@ -264,6 +339,31 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#c7d2fe",
         description: "Color of the description text.",
       },
+      inputBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the input field.",
+      },
+      inputBorderColor: {
+        control: "color",
+        default: "#e5e7eb",
+        description: "Border color of the input field.",
+      },
+      inputTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color of the input field.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#000000",
+        description: "Background color of the subscribe button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the subscribe button.",
+      },
     },
   },
   {
@@ -298,10 +398,47 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop",
         description: "Background image URL.",
       },
+      cardBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the card.",
+      },
+      headingColor: {
+        control: "color",
+        default: "#171717",
+        description: "Color of the heading text.",
+      },
+      descriptionColor: {
+        control: "color",
+        default: "#525252",
+        description: "Color of the description text.",
+      },
+      footerTextColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the footer text.",
+      },
       buttonBackgroundColor: {
         control: "color",
         default: "#4f46e5",
         description: "Background color of the button.",
+      },
+      overlayColor: {
+        control: "color",
+        default: "#000000",
+        description: "Color of the overlay above the background image.",
+      },
+      overlayOpacity: {
+        control: "slider",
+        default: 50,
+        min: 0,
+        max: 100,
+        description: "Opacity percentage of the overlay (0-100).",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
       },
     },
   },
@@ -357,6 +494,36 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#22c55e",
         description: "Color of the terminal prompt symbol.",
       },
+      commandTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Color of the command text.",
+      },
+      footnoteColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the footnote text.",
+      },
+      linkColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the GitHub and docs links.",
+      },
+      linkHoverColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Color of the links on hover.",
+      },
+      terminalBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Border color of the terminal.",
+      },
+      buttonColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the copy button icon.",
+      },
     },
   },
   {
@@ -400,6 +567,21 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#404040",
         description: "Border color of the preview panel.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#6366f1",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      previewBackgroundColor: {
+        control: "color",
+        default: "#171717",
+        description: "Background color of the preview panel.",
       },
     },
   },
@@ -451,6 +633,16 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#000000",
         description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      avatarBorderColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Border color of the avatar images.",
       },
     },
   },
@@ -505,6 +697,36 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#e11d48",
         description: "Ending color of the gradient.",
+      },
+      badgeBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the badge (with opacity).",
+      },
+      badgeTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the badge.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#dc2626",
+        description: "Text color of the button.",
+      },
+      timeUnitBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the time unit boxes (with opacity).",
+      },
+      timeUnitTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the time unit values.",
       },
     },
   },
@@ -565,6 +787,46 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#4f46e5",
         description: "Accent color for buttons.",
       },
+      headingColor: {
+        control: "color",
+        default: "#171717",
+        description: "Color of the heading text.",
+      },
+      priceTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Color of the price text.",
+      },
+      priceDescriptionColor: {
+        control: "color",
+        default: "#737373",
+        description: "Color of the price description text.",
+      },
+      featureTextColor: {
+        control: "color",
+        default: "#525252",
+        description: "Color of the feature text.",
+      },
+      featureIconColor: {
+        control: "color",
+        default: "#22c55e",
+        description: "Color of the feature check icons.",
+      },
+      secondaryButtonBorderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the secondary button.",
+      },
+      secondaryButtonTextColor: {
+        control: "color",
+        default: "#525252",
+        description: "Text color of the secondary button.",
+      },
+      secondaryButtonHoverBackgroundColor: {
+        control: "color",
+        default: "#fafafa",
+        description: "Background color of the secondary button on hover.",
+      },
     },
   },
   {
@@ -598,6 +860,33 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#ffffff",
         description: "Color of the heading text.",
+      },
+      overlayOpacity: {
+        control: "slider",
+        default: 20,
+        min: 0,
+        max: 100,
+        description: "Opacity percentage of the background image overlay (0-100).",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the button (with opacity).",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      buttonBorderColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Border color of the button (with opacity).",
+      },
+      playIconColor: {
+        control: "color",
+        default: "#312e81",
+        description: "Color of the play icon inside the button.",
       },
     },
   },
@@ -644,6 +933,31 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#c7d2fe",
         description: "Color of the description text.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#5865F2",
+        description: "Text color of the button.",
+      },
+      statCardBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the stat cards (with opacity).",
+      },
+      statCardTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the stat card numbers.",
+      },
+      statCardLabelColor: {
+        control: "color",
+        default: "#c7d2fe",
+        description: "Text color of the stat card labels.",
       },
     },
   },
@@ -693,6 +1007,16 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#ff00ff",
         description: "Button background color.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      buttonBorderColor: {
+        control: "color",
+        default: "#000000",
+        description: "Border color of the button.",
       },
     },
   },
@@ -756,6 +1080,31 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#6366f1",
         description: "Accent color for slider.",
+      },
+      headingColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Color of the heading text.",
+      },
+      sliderLabelColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Color of the slider label text.",
+      },
+      savingsLabelColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the savings label text.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#6366f1",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
       },
     },
   },
@@ -821,6 +1170,26 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#22c55e",
         description: "Color of the check icons.",
       },
+      benefitTextColor: {
+        control: "color",
+        default: "#525252",
+        description: "Color of the benefit item text.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#000000",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      imageOverlayColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Background color for the image placeholder.",
+      },
     },
   },
   {
@@ -865,6 +1234,26 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#000000",
         description: "Background color of the button.",
       },
+      messageTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color of the message.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the button.",
+      },
+      bannerBorderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the banner.",
+      },
+      bannerTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color inside the banner.",
+      },
     },
   },
   {
@@ -908,6 +1297,21 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#facc15",
         description: "Color of the icon.",
+      },
+      buttonBackgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color of the button.",
+      },
+      descriptionColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the description text.",
       },
     },
   },
@@ -963,6 +1367,31 @@ export const ctaSections: CtaSectionMeta[] = [
         default: "#171717",
         description: "Color of the shield icon.",
       },
+      primaryButtonBackgroundColor: {
+        control: "color",
+        default: "#171717",
+        description: "Background color of the primary button.",
+      },
+      primaryButtonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the primary button.",
+      },
+      secondaryButtonBorderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the secondary button.",
+      },
+      secondaryButtonTextColor: {
+        control: "color",
+        default: "#171717",
+        description: "Text color of the secondary button.",
+      },
+      secondaryButtonHoverBackgroundColor: {
+        control: "color",
+        default: "#fafafa",
+        description: "Background color of the secondary button on hover.",
+      },
     },
   },
   {
@@ -1016,6 +1445,31 @@ export const ctaSections: CtaSectionMeta[] = [
         control: "color",
         default: "#737373",
         description: "Color of the description text.",
+      },
+      linkTextColor: {
+        control: "color",
+        default: "#525252",
+        description: "Text color of the referral link.",
+      },
+      linkBorderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the referral link container.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the copy button.",
+      },
+      copyButtonBackgroundColor: {
+        control: "color",
+        default: "#9333ea",
+        description: "Background color of the copy button.",
+      },
+      copyButtonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the copy button.",
       },
     },
   },
