@@ -513,6 +513,54 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
     return initialProps
   })
 
+  // Set CSS variable colors as hex for color pickers after mount
+  React.useEffect(() => {
+    if (!config || componentName !== 'UrlInput') return
+    
+    // Helper function to get CSS variable value and convert to hex
+    const getCssVarAsHex = (varName: string, fallback: string = '#000000'): string => {
+      if (typeof window === 'undefined') return fallback
+      try {
+        const tempEl = document.createElement('div')
+        tempEl.style.color = `var(${varName})`
+        tempEl.style.position = 'absolute'
+        tempEl.style.visibility = 'hidden'
+        tempEl.style.pointerEvents = 'none'
+        document.body.appendChild(tempEl)
+        const rgb = getComputedStyle(tempEl).color
+        document.body.removeChild(tempEl)
+        
+        // Convert rgb(r, g, b) or rgba(r, g, b, a) to hex
+        const match = rgb.match(/\d+/g)
+        if (match && match.length >= 3) {
+          const r = Math.min(255, Math.max(0, parseInt(match[0]))).toString(16).padStart(2, '0')
+          const g = Math.min(255, Math.max(0, parseInt(match[1]))).toString(16).padStart(2, '0')
+          const b = Math.min(255, Math.max(0, parseInt(match[2]))).toString(16).padStart(2, '0')
+          const hex = `#${r}${g}${b}`
+          // Validate hex format
+          if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+            return hex
+          }
+        }
+      } catch (e) {
+        // Fallback on error
+      }
+      return fallback
+    }
+    
+    setProps((prev) => {
+      const updated = { ...prev }
+      // Only update if the value is empty string (default) or invalid format
+      if (!prev.gradientFrom || prev.gradientFrom === '' || !/^#[0-9A-Fa-f]{6}$/.test(prev.gradientFrom)) {
+        updated.gradientFrom = getCssVarAsHex('--primary', '#171717')
+      }
+      if (!prev.gradientTo || prev.gradientTo === '' || !/^#[0-9A-Fa-f]{6}$/.test(prev.gradientTo)) {
+        updated.gradientTo = getCssVarAsHex('--accent', '#f5f5f5')
+      }
+      return updated
+    })
+  }, [config, componentName])
+
   const updateProp = (key: string, value: any) => {
     setProps((prev) => ({ ...prev, [key]: value }))
   }
@@ -666,8 +714,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({
     }
   }
 
-  const gradientFromColor = gradientFrom || 'hsl(var(--primary))'
-  const gradientToColor = gradientTo || 'rgb(79 70 229)'
+  const gradientFromColor = gradientFrom || 'var(--primary)'
+  const gradientToColor = gradientTo || 'var(--accent)'
   const gradientInset = \`-\${gradientWidth}px\`
 
   return (
@@ -841,13 +889,24 @@ export function UrlInputDemo() {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={props[key] || "#000000"}
+                      value={props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key]) ? props[key] : "#000000"}
                       onChange={(e) => updateProp(key, e.target.value)}
                       className="h-10 w-20 rounded border border-input cursor-pointer"
                     />
                     <Input
                       value={props[key] || ""}
-                      onChange={(e) => updateProp(key, e.target.value)}
+                      onChange={(e) => {
+                        let value = e.target.value
+                        // Ensure it starts with # and is valid hex
+                        if (value && !value.startsWith('#')) {
+                          value = '#' + value
+                        }
+                        // Limit to 7 characters (# + 6 hex digits)
+                        if (value.length > 7) {
+                          value = value.slice(0, 7)
+                        }
+                        updateProp(key, value)
+                      }}
                       placeholder={propConfig.default}
                       className="flex-1"
                     />
