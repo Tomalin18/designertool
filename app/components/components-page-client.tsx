@@ -4,6 +4,7 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
@@ -16,7 +17,6 @@ const ComponentPreview = dynamic(() => import("@/components/component-preview").
 export function ComponentsPageClient() {
     const [selectedCategory, setSelectedCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
-    const [customizeCategory, setCustomizeCategory] = useState("All")
     const [customizeSearch, setCustomizeSearch] = useState("")
 
     const filteredComponents = componentsData.filter((component) => {
@@ -71,13 +71,12 @@ export function ComponentsPageClient() {
     )).sort()
 
     const filteredCustomComponents = customComponents.filter((component) => {
-        const matchesCategory = customizeCategory === "All" || component.category === customizeCategory
         const searchLower = customizeSearch.toLowerCase()
         const matchesSearch =
             component.name.toLowerCase().includes(searchLower) ||
             component.description.toLowerCase().includes(searchLower) ||
             (component.tags && component.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-        return matchesCategory && matchesSearch
+        return matchesSearch
     })
 
     const sidebarItems = [
@@ -100,9 +99,9 @@ export function ComponentsPageClient() {
             </aside>
 
             <section className="py-6 md:py-8">
-                <Tabs defaultValue="preview" className="w-full">
+                <Tabs defaultValue="customize" className="w-full">
                     <TabsList className="mb-6">
-                        <TabsTrigger value="preview">Preview</TabsTrigger>
+                        <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
                         <TabsTrigger value="customize">Customize</TabsTrigger>
                     </TabsList>
 
@@ -160,26 +159,36 @@ export function ComponentsPageClient() {
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     type="search"
-                                    placeholder="Search custom components..."
+                                    placeholder="Search custom components by name, description, or tags..."
                                     className="pl-10"
                                     value={customizeSearch}
                                     onChange={(e) => setCustomizeSearch(e.target.value)}
                                 />
                             </div>
 
-                            {/* Category Filter */}
-                            <div className="flex flex-wrap gap-2">
-                                {categories.map((category) => (
-                                    <Button
-                                        key={category}
-                                        variant={customizeCategory === category ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => setCustomizeCategory(category)}
-                                    >
-                                        {category}
-                                    </Button>
-                                ))}
-                            </div>
+                            {/* Tags Filter */}
+                            {allTags.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {allTags.map((tag) => {
+                                        const isSelected = customizeSearch.toLowerCase() === tag.toLowerCase()
+                                        return (
+                                            <Badge
+                                                key={tag}
+                                                variant={isSelected ? "default" : "secondary"}
+                                                asChild
+                                            >
+                                                <button
+                                                    type="button"
+                                                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                                                    onClick={() => setCustomizeSearch(isSelected ? "" : tag)}
+                                                >
+                                                    {tag}
+                                                </button>
+                                            </Badge>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         {/* Custom Components */}
