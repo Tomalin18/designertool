@@ -25,12 +25,11 @@ import { Toggle } from "@/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { UrlInput } from "@/components/ui/url-input"
 import { MediaPlayer } from "@/components/ui/media-player"
+import { ChatInterface } from "@/components/ui/chat-interface"
 import { AlertCircle, Terminal } from 'lucide-react'
-
-interface PlaygroundProps {
-  componentName: string
-  slug: string
-}
+import { componentDetails } from "@/lib/component-details"
+import { CodeBlock } from "@/components/code-block"
+import { ColorPicker } from "@/components/ui/color-picker"
 
 const componentConfigs: Record<string, any> = {
   Button: {
@@ -627,6 +626,113 @@ const componentConfigs: Record<string, any> = {
       )
     },
   },
+  ChatInterface: {
+    props: {
+      className: { type: "text", default: "" },
+      // Header
+      headerUserName: { type: "text", default: "Sarah Jenkins" },
+      headerUserStatus: { type: "select", options: ["Online now", "Offline", "Away", "Busy", "Do not disturb", "Other"], default: "Online now" },
+      headerUserStatusCustom: { type: "text", default: "" },
+      headerUserAvatar: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
+      headerShowPhone: { type: "boolean", default: true },
+      headerShowVideo: { type: "boolean", default: true },
+      headerShowMore: { type: "boolean", default: true },
+      headerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
+      headerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
+      headerTextColor: { type: "color-tailwind-text", default: "text-neutral-100" },
+      headerStatusColor: { type: "text", default: "" },
+      // Body
+      bodyBgColor: { type: "color-tailwind-bg", default: "" },
+      bodyPadding: { type: "slider", min: 2, max: 12, default: 6 },
+      bodyShowDateLabel: { type: "boolean", default: true },
+      bodyDateLabelText: { type: "text", default: "Today, Oct 24" },
+      bodyShowTypingIndicator: { type: "boolean", default: true },
+      bodyShowReadReceipt: { type: "boolean", default: false },
+      message1Text: { type: "text", default: "Hey! Have you had a chance to look at the new design system components?" },
+      message1Time: { type: "text", default: "10:30 AM" },
+      message1IsOwn: { type: "boolean", default: false },
+      message2Text: { type: "text", default: "Yes! I just checked them out. The neon gradients look absolutely stunning 🤩" },
+      message2Time: { type: "text", default: "10:32 AM" },
+      message2IsOwn: { type: "boolean", default: true },
+      message2IsRead: { type: "boolean", default: false },
+      message3Text: { type: "text", default: "Right? I think we should use the SpotlightCard for the feature section." },
+      message3Time: { type: "text", default: "10:32 AM" },
+      message3IsOwn: { type: "boolean", default: true },
+      message3IsRead: { type: "boolean", default: true },
+      message4Text: { type: "text", default: "Agreed. I'm preparing the documentation now. Will send over the draft in a bit!" },
+      message4Time: { type: "text", default: "10:35 AM" },
+      message4IsOwn: { type: "boolean", default: false },
+      ownMessageColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
+      otherMessageColor: { type: "color-tailwind-bg", default: "bg-neutral-800" },
+      messageTextColor: { type: "color-tailwind-text", default: "" },
+      timeTextColor: { type: "color-tailwind-text", default: "text-neutral-500" },
+      // Footer
+      footerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
+      footerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
+      footerInputBgColor: { type: "color-tailwind-bg", default: "bg-neutral-950" },
+      footerInputPlaceholder: { type: "text", default: "Type a message..." },
+      footerShowAttach: { type: "boolean", default: true },
+      footerShowEmoji: { type: "boolean", default: true },
+      footerButtonColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
+      footerFocusBorderColor: { type: "color-tailwind-border", default: "border-indigo-500/50" },
+    },
+    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+      return (
+        <div className="w-full max-w-md h-[600px]">
+          <ChatInterface 
+            className={props.className}
+            headerUserName={props.headerUserName}
+            headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
+            headerUserAvatar={props.headerUserAvatar}
+            headerShowPhone={props.headerShowPhone}
+            headerShowVideo={props.headerShowVideo}
+            headerShowMore={props.headerShowMore}
+            headerBgColor={props.headerBgColor}
+            headerBorderColor={props.headerBorderColor}
+            headerTextColor={props.headerTextColor}
+            headerStatusColor={props.headerStatusColor}
+            bodyBgColor={props.bodyBgColor}
+            bodyPadding={props.bodyPadding}
+            bodyShowDateLabel={props.bodyShowDateLabel}
+            bodyDateLabelText={props.bodyDateLabelText}
+            bodyShowTypingIndicator={props.bodyShowTypingIndicator}
+            bodyShowReadReceipt={props.bodyShowReadReceipt}
+            message1Text={props.message1Text}
+            message1Time={props.message1Time}
+            message1IsOwn={props.message1IsOwn}
+            message2Text={props.message2Text}
+            message2Time={props.message2Time}
+            message2IsOwn={props.message2IsOwn}
+            message2IsRead={props.message2IsRead}
+            message3Text={props.message3Text}
+            message3Time={props.message3Time}
+            message3IsOwn={props.message3IsOwn}
+            message3IsRead={props.message3IsRead}
+            message4Text={props.message4Text}
+            message4Time={props.message4Time}
+            message4IsOwn={props.message4IsOwn}
+            onMessage1TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message1Text: text })) : undefined}
+            onMessage2TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message2Text: text })) : undefined}
+            onMessage3TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message3Text: text })) : undefined}
+            onMessage4TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message4Text: text })) : undefined}
+            editable={true}
+            ownMessageColor={props.ownMessageColor}
+            otherMessageColor={props.otherMessageColor}
+            messageTextColor={props.messageTextColor}
+            timeTextColor={props.timeTextColor}
+            footerBgColor={props.footerBgColor}
+            footerBorderColor={props.footerBorderColor}
+            footerInputBgColor={props.footerInputBgColor}
+            footerInputPlaceholder={props.footerInputPlaceholder}
+            footerShowAttach={props.footerShowAttach}
+            footerShowEmoji={props.footerShowEmoji}
+            footerButtonColor={props.footerButtonColor}
+            footerFocusBorderColor={props.footerFocusBorderColor}
+          />
+        </div>
+      )
+    },
+  },
 }
 
 export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
@@ -637,7 +743,24 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
     if (!config) return {}
     const initialProps: Record<string, any> = {}
     Object.entries(config.props).forEach(([key, propConfig]: [string, any]) => {
-      initialProps[key] = propConfig.default
+      // Ensure boolean defaults are properly set
+      if (propConfig.type === "boolean") {
+        initialProps[key] = propConfig.default === true || propConfig.default === "true"
+      } else if (propConfig.type === "text") {
+        // Ensure text inputs always have a string value (never undefined)
+        initialProps[key] = propConfig.default || ""
+      } else if (propConfig.type === "select") {
+        // Ensure select always has a value
+        initialProps[key] = propConfig.default || propConfig.options?.[0] || ""
+      } else if (propConfig.type === "color" || 
+                 propConfig.type === "color-tailwind-bg" || 
+                 propConfig.type === "color-tailwind-text" || 
+                 propConfig.type === "color-tailwind-border") {
+        // Ensure color inputs always have a string value (never undefined)
+        initialProps[key] = propConfig.default || ""
+      } else {
+        initialProps[key] = propConfig.default
+      }
     })
     return initialProps
   })
@@ -1244,6 +1367,501 @@ export function MediaPlayerDemo() {
 }`
     }
 
+    if (componentName === "ChatInterface") {
+      // Helper function to convert Tailwind class to RGB for inline styles
+      const getColorFromTailwind = (tailwindClass: string): string | undefined => {
+        if (!tailwindClass) return undefined
+        const hexMatch = tailwindClass.match(/\[#([0-9A-Fa-f]{6})\]/)
+        if (hexMatch) {
+          const r = parseInt(hexMatch[1].slice(0, 2), 16)
+          const g = parseInt(hexMatch[1].slice(2, 4), 16)
+          const b = parseInt(hexMatch[1].slice(4, 6), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        const colorMap: Record<string, string> = {
+          "bg-neutral-900/80": "rgb(23 23 23 / 0.8)",
+          "bg-neutral-800": "rgb(38 38 38)",
+          "bg-neutral-950": "rgb(10 10 10)",
+          "bg-indigo-600": "rgb(79 70 229)",
+          "text-neutral-100": "rgb(245 245 245)",
+          "text-neutral-500": "rgb(115 115 115)",
+          "text-white": "rgb(255 255 255)",
+          "text-neutral-200": "rgb(229 229 229)",
+          "border-neutral-800": "rgb(38 38 38)",
+          "border-indigo-500/50": "rgb(99 102 241 / 0.5)",
+        }
+        return colorMap[tailwindClass] || undefined
+      }
+
+      const headerBgColor = getColorFromTailwind(props.headerBgColor || "bg-neutral-900/80")
+      const headerBorderColor = getColorFromTailwind(props.headerBorderColor || "border-neutral-800")
+      const headerTextColor = getColorFromTailwind(props.headerTextColor || "text-neutral-100")
+      const bodyBgColor = props.bodyBgColor ? getColorFromTailwind(props.bodyBgColor) : undefined
+      const ownMessageColor = getColorFromTailwind(props.ownMessageColor || "bg-indigo-600")
+      const otherMessageColor = getColorFromTailwind(props.otherMessageColor || "bg-neutral-800")
+      const messageTextColor = props.messageTextColor ? getColorFromTailwind(props.messageTextColor) : undefined
+      const timeTextColor = getColorFromTailwind(props.timeTextColor || "text-neutral-500")
+      const footerBgColor = getColorFromTailwind(props.footerBgColor || "bg-neutral-900/80")
+      const footerBorderColor = getColorFromTailwind(props.footerBorderColor || "border-neutral-800")
+      const footerInputBgColor = getColorFromTailwind(props.footerInputBgColor || "bg-neutral-950")
+      const footerButtonColor = getColorFromTailwind(props.footerButtonColor || "bg-indigo-600")
+      const footerFocusBorderColor = getColorFromTailwind(props.footerFocusBorderColor || "border-indigo-500/50")
+
+      const headerStatus = props.headerUserStatus === "Other" && props.headerUserStatusCustom 
+        ? props.headerUserStatusCustom 
+        : (props.headerUserStatus || "Online now")
+
+      return `"use client"
+
+import React from "react"
+import { cn } from "@/lib/utils"
+import { Send, Paperclip, Smile, MoreVertical, Phone, Video, Check, CheckCheck } from "lucide-react"
+
+interface MessageProps {
+  text: string
+  isOwn?: boolean
+  time: string
+  isRead?: boolean
+  showReadReceipt?: boolean
+  ownMessageColor?: string
+  otherMessageColor?: string
+  messageTextColor?: string
+  timeTextColor?: string
+}
+
+const getColorFromTailwindForMessage = (tailwindClass: string): string | undefined => {
+  if (!tailwindClass) return undefined
+  const hexMatch = tailwindClass.match(/\[#([0-9A-Fa-f]{6})\]/)
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1].slice(0, 2), 16)
+    const g = parseInt(hexMatch[1].slice(2, 4), 16)
+    const b = parseInt(hexMatch[1].slice(4, 6), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+  const colorMap: Record<string, string> = {
+    "bg-indigo-600": "rgb(79 70 229)",
+    "bg-neutral-800": "rgb(38 38 38)",
+    "text-white": "rgb(255 255 255)",
+    "text-neutral-200": "rgb(229 229 229)",
+    "text-neutral-500": "rgb(115 115 115)",
+  }
+  return colorMap[tailwindClass] || undefined
+}
+
+const Message = ({ 
+  text, 
+  isOwn, 
+  time,
+  isRead = false,
+  showReadReceipt = false,
+  ownMessageColor = "bg-indigo-600",
+  otherMessageColor = "bg-neutral-800",
+  messageTextColor,
+  timeTextColor = "text-neutral-500"
+}: MessageProps) => (
+  <div className={cn("flex w-full flex-col gap-1", isOwn ? "items-end" : "items-start")}>
+    <div 
+      className={cn(
+        "max-w-[80%] rounded-2xl px-4 py-3 text-sm",
+        isOwn ? "rounded-br-none" : "rounded-bl-none"
+      )}
+      style={{
+        backgroundColor: getColorFromTailwindForMessage(isOwn ? ownMessageColor : otherMessageColor),
+        color: getColorFromTailwindForMessage(messageTextColor || (isOwn ? "text-white" : "text-neutral-200")),
+      }}
+    >
+      {text}
+    </div>
+    <div className={cn("flex items-center gap-1", isOwn ? "flex-row-reverse" : "flex-row")}>
+      <span 
+        className={cn("text-[10px]")}
+        style={{
+          color: getColorFromTailwindForMessage(timeTextColor),
+        }}
+      >
+        {time}
+      </span>
+      {showReadReceipt && isOwn && (
+        <div className={cn("flex items-center", isRead ? "text-blue-400" : "text-neutral-500")}>
+          {isRead ? <CheckCheck size={12} /> : <Check size={12} />}
+        </div>
+      )}
+    </div>
+  </div>
+)
+
+interface ChatInterfaceProps {
+  className?: string
+  headerUserName?: string
+  headerUserStatus?: string
+  headerUserAvatar?: string
+  headerShowPhone?: boolean
+  headerShowVideo?: boolean
+  headerShowMore?: boolean
+  headerBgColor?: string
+  headerBorderColor?: string
+  headerTextColor?: string
+  headerStatusColor?: string
+  bodyBgColor?: string
+  bodyPadding?: number
+  bodyShowDateLabel?: boolean
+  bodyDateLabelText?: string
+  bodyShowTypingIndicator?: boolean
+  bodyShowReadReceipt?: boolean
+  message1Text?: string
+  message1Time?: string
+  message1IsOwn?: boolean
+  message2Text?: string
+  message2Time?: string
+  message2IsOwn?: boolean
+  message2IsRead?: boolean
+  message3Text?: string
+  message3Time?: string
+  message3IsOwn?: boolean
+  message3IsRead?: boolean
+  message4Text?: string
+  message4Time?: string
+  message4IsOwn?: boolean
+  ownMessageColor?: string
+  otherMessageColor?: string
+  messageTextColor?: string
+  timeTextColor?: string
+  footerBgColor?: string
+  footerBorderColor?: string
+  footerInputBgColor?: string
+  footerInputPlaceholder?: string
+  footerShowAttach?: boolean
+  footerShowEmoji?: boolean
+  footerButtonColor?: string
+  footerFocusBorderColor?: string
+}
+
+const getStatusColor = (status: string): string => {
+  const statusColorMap: Record<string, string> = {
+    "Online now": "text-green-500",
+    "Offline": "text-neutral-500",
+    "Away": "text-yellow-500",
+    "Busy": "text-red-500",
+    "Do not disturb": "text-orange-500",
+  }
+  return statusColorMap[status] || "text-neutral-500"
+}
+
+const getStatusIndicatorColor = (status: string, customColor?: string): string => {
+  if (customColor && customColor.trim() !== "") {
+    if (customColor.includes("[") && customColor.includes("#")) {
+      return customColor.replace("text-", "bg-")
+    }
+    if (customColor.startsWith("text-")) {
+      return customColor.replace("text-", "bg-")
+    }
+    if (customColor.startsWith("bg-")) {
+      return customColor
+    }
+  }
+  const statusIndicatorMap: Record<string, string> = {
+    "Online now": "bg-green-500",
+    "Offline": "bg-neutral-500",
+    "Away": "bg-yellow-500",
+    "Busy": "bg-red-500",
+    "Do not disturb": "bg-orange-500",
+  }
+  return statusIndicatorMap[status] || "bg-neutral-500"
+}
+
+const getColorFromTailwind = (tailwindClass: string): string | undefined => {
+  if (!tailwindClass) return undefined
+  const hexMatch = tailwindClass.match(/\[#([0-9A-Fa-f]{6})\]/)
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1].slice(0, 2), 16)
+    const g = parseInt(hexMatch[1].slice(2, 4), 16)
+    const b = parseInt(hexMatch[1].slice(4, 6), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+  const colorMap: Record<string, string> = {
+    "bg-neutral-900/80": "rgb(23 23 23 / 0.8)",
+    "bg-neutral-800": "rgb(38 38 38)",
+    "bg-neutral-950": "rgb(10 10 10)",
+    "bg-indigo-600": "rgb(79 70 229)",
+    "text-neutral-100": "rgb(245 245 245)",
+    "text-neutral-500": "rgb(115 115 115)",
+    "border-neutral-800": "rgb(38 38 38)",
+    "border-indigo-500/50": "rgb(99 102 241 / 0.5)",
+  }
+  return colorMap[tailwindClass] || undefined
+}
+
+export const ChatInterface = ({ 
+  className,
+  headerUserName = "${props.headerUserName || "Sarah Jenkins"}",
+  headerUserStatus = "${headerStatus}",
+  headerUserAvatar = "${props.headerUserAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop"}",
+  headerShowPhone = ${props.headerShowPhone !== false},
+  headerShowVideo = ${props.headerShowVideo !== false},
+  headerShowMore = ${props.headerShowMore !== false},
+  headerBgColor = "${props.headerBgColor || "bg-neutral-900/80"}",
+  headerBorderColor = "${props.headerBorderColor || "border-neutral-800"}",
+  headerTextColor = "${props.headerTextColor || "text-neutral-100"}",
+  headerStatusColor${props.headerStatusColor ? ` = "${props.headerStatusColor}"` : ""},
+  bodyBgColor${props.bodyBgColor ? ` = "${props.bodyBgColor}"` : ""},
+  bodyPadding = ${props.bodyPadding || 6},
+  bodyShowDateLabel = ${props.bodyShowDateLabel !== false},
+  bodyDateLabelText = "${props.bodyDateLabelText || "Today, Oct 24"}",
+  bodyShowTypingIndicator = ${props.bodyShowTypingIndicator !== false},
+      bodyShowReadReceipt = ${props.bodyShowReadReceipt || false},
+      message1Text = "${props.message1Text || "Hey! Have you had a chance to look at the new design system components?"}",
+      message1Time = "${props.message1Time || "10:30 AM"}",
+      message1IsOwn = ${props.message1IsOwn || false},
+      message2Text = "${props.message2Text || "Yes! I just checked them out. The neon gradients look absolutely stunning 🤩"}",
+      message2Time = "${props.message2Time || "10:32 AM"}",
+      message2IsOwn = ${props.message2IsOwn !== false},
+      message2IsRead = ${props.message2IsRead || false},
+      message3Text = "${props.message3Text || "Right? I think we should use the SpotlightCard for the feature section."}",
+      message3Time = "${props.message3Time || "10:32 AM"}",
+      message3IsOwn = ${props.message3IsOwn !== false},
+      message3IsRead = ${props.message3IsRead !== false},
+      message4Text = "${props.message4Text || "Agreed. I'm preparing the documentation now. Will send over the draft in a bit!"}",
+      message4Time = "${props.message4Time || "10:35 AM"}",
+      message4IsOwn = ${props.message4IsOwn || false},
+      ownMessageColor = "${props.ownMessageColor || "bg-indigo-600"}",
+      otherMessageColor = "${props.otherMessageColor || "bg-neutral-800"}",
+      messageTextColor${props.messageTextColor ? ` = "${props.messageTextColor}"` : ""},
+      timeTextColor = "${props.timeTextColor || "text-neutral-500"}",
+  footerBgColor = "${props.footerBgColor || "bg-neutral-900/80"}",
+  footerBorderColor = "${props.footerBorderColor || "border-neutral-800"}",
+  footerInputBgColor = "${props.footerInputBgColor || "bg-neutral-950"}",
+  footerInputPlaceholder = "${props.footerInputPlaceholder || "Type a message..."}",
+  footerShowAttach = ${props.footerShowAttach !== false},
+  footerShowEmoji = ${props.footerShowEmoji !== false},
+  footerButtonColor = "${props.footerButtonColor || "bg-indigo-600"}",
+  footerFocusBorderColor = "${props.footerFocusBorderColor || "border-indigo-500/50"}",
+}: ChatInterfaceProps) => {
+  const statusText = headerUserStatus || "Online now"
+  const hasCustomColor = headerStatusColor && headerStatusColor.trim() !== ""
+  
+  const extractHexFromColor = (colorClass: string): string | null => {
+    if (!colorClass) return null
+    const hexMatch = colorClass.match(/\[#([0-9A-Fa-f]{6})\]/)
+    if (hexMatch) {
+      return \`#\${hexMatch[1]}\`
+    }
+    const colorMap: Record<string, string> = {
+      "text-green-500": "#22c55e",
+      "text-blue-500": "#3b82f6",
+      "text-yellow-500": "#eab308",
+      "text-red-500": "#ef4444",
+      "text-orange-500": "#f97316",
+      "text-purple-500": "#a855f7",
+      "text-pink-500": "#ec4899",
+      "text-neutral-500": "#737373",
+    }
+    return colorMap[colorClass] || null
+  }
+  
+  const hexToRgb = (hex: string): string | null => {
+    if (!hex) return null
+    const cleanHex = hex.replace('#', '')
+    if (cleanHex.length !== 6) return null
+    const r = parseInt(cleanHex.slice(0, 2), 16)
+    const g = parseInt(cleanHex.slice(2, 4), 16)
+    const b = parseInt(cleanHex.slice(4, 6), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+  
+  const statusTextColorClass = hasCustomColor ? headerStatusColor : getStatusColor(statusText)
+  const statusIndicatorColorClass = hasCustomColor 
+    ? getStatusIndicatorColor(statusText, headerStatusColor) 
+    : getStatusIndicatorColor(statusText)
+  
+  const statusTextHex = hasCustomColor 
+    ? extractHexFromColor(headerStatusColor) 
+    : extractHexFromColor(getStatusColor(statusText))
+  const statusIndicatorHex = hasCustomColor
+    ? extractHexFromColor(headerStatusColor)?.replace('#', '')
+    : (() => {
+        const statusIndicatorMap: Record<string, string> = {
+          "Online now": "22c55e",
+          "Offline": "737373",
+          "Away": "eab308",
+          "Busy": "ef4444",
+          "Do not disturb": "f97316",
+        }
+        return statusIndicatorMap[statusText] || "737373"
+      })()
+  
+  const statusTextRgb = statusTextHex ? hexToRgb(statusTextHex) : null
+  const statusIndicatorRgb = statusIndicatorHex ? hexToRgb(\`#\${statusIndicatorHex}\`) : null
+
+  return (
+    <div className={cn("flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-800 bg-neutral-900/60 shadow-xl backdrop-blur-md", className)}>
+      <div 
+        className={cn("flex items-center justify-between border-b px-6 py-4", headerBorderColor)}
+        style={{
+          backgroundColor: getColorFromTailwind(headerBgColor),
+          borderColor: getColorFromTailwind(headerBorderColor),
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <img 
+              src={headerUserAvatar} 
+              alt="User" 
+              className="h-10 w-10 rounded-full object-cover ring-2 ring-neutral-800"
+            />
+            <span 
+              className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-neutral-900", statusIndicatorColorClass)}
+              style={statusIndicatorRgb ? { backgroundColor: statusIndicatorRgb } : undefined}
+            />
+          </div>
+          <div>
+            <h4 
+              className={cn("font-semibold", headerTextColor)}
+              style={{
+                color: getColorFromTailwind(headerTextColor),
+              }}
+            >
+              {headerUserName}
+            </h4>
+            <p 
+              className={cn("text-xs", statusTextColorClass)}
+              style={statusTextRgb ? { color: statusTextRgb } : undefined}
+            >
+              {statusText}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 text-neutral-400">
+          {headerShowPhone && (
+            <button className="rounded-full p-2 hover:bg-neutral-800 hover:text-white transition-colors">
+              <Phone size={18} />
+            </button>
+          )}
+          {headerShowVideo && (
+            <button className="rounded-full p-2 hover:bg-neutral-800 hover:text-white transition-colors">
+              <Video size={18} />
+            </button>
+          )}
+          {headerShowMore && (
+            <button className="rounded-full p-2 hover:bg-neutral-800 hover:text-white transition-colors">
+              <MoreVertical size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div 
+        className={cn("flex-1 space-y-6 overflow-y-auto scrollbar-hide")}
+        style={{ 
+          padding: \`\${bodyPadding * 4}px\`,
+          backgroundColor: getColorFromTailwind(bodyBgColor),
+        }}
+      >
+        {bodyShowDateLabel && (
+          <div className="flex justify-center">
+            <span className="rounded-full bg-neutral-800/50 px-3 py-1 text-[10px] font-medium text-neutral-500">
+              {bodyDateLabelText}
+            </span>
+          </div>
+        )}
+        
+        <Message 
+          text={message1Text}
+          time={message1Time}
+          isOwn={message1IsOwn}
+          showReadReceipt={bodyShowReadReceipt}
+          ownMessageColor={ownMessageColor}
+          otherMessageColor={otherMessageColor}
+          messageTextColor={messageTextColor}
+          timeTextColor={timeTextColor}
+        />
+        <Message 
+          text={message2Text}
+          isOwn={message2IsOwn}
+          time={message2Time}
+          isRead={message2IsRead}
+          showReadReceipt={bodyShowReadReceipt}
+          ownMessageColor={ownMessageColor}
+          otherMessageColor={otherMessageColor}
+          messageTextColor={messageTextColor}
+          timeTextColor={timeTextColor}
+        />
+        <Message 
+          text={message3Text}
+          isOwn={message3IsOwn}
+          time={message3Time}
+          isRead={message3IsRead}
+          showReadReceipt={bodyShowReadReceipt}
+          ownMessageColor={ownMessageColor}
+          otherMessageColor={otherMessageColor}
+          messageTextColor={messageTextColor}
+          timeTextColor={timeTextColor}
+        />
+        <Message 
+          text={message4Text}
+          isOwn={message4IsOwn}
+          time={message4Time}
+          showReadReceipt={bodyShowReadReceipt}
+          ownMessageColor={ownMessageColor}
+          otherMessageColor={otherMessageColor}
+          messageTextColor={messageTextColor}
+          timeTextColor={timeTextColor}
+        />
+        
+        {bodyShowTypingIndicator && (
+          <div className="flex items-center gap-1 px-4">
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-600 delay-0" />
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-600 delay-150" />
+            <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-600 delay-300" />
+          </div>
+        )}
+      </div>
+
+      <div 
+        className={cn("p-4")}
+        style={{
+          backgroundColor: getColorFromTailwind(footerBgColor),
+        }}
+      >
+        <div 
+          className={cn(
+            "flex items-center gap-2 rounded-xl border px-4 py-2 transition-all focus-within:ring-1 focus-within:ring-indigo-500/50",
+            footerFocusBorderColor
+          )}
+          style={{
+            borderColor: getColorFromTailwind(footerBorderColor),
+            backgroundColor: getColorFromTailwind(footerInputBgColor),
+          }}
+        >
+          {footerShowAttach && (
+            <button className="text-neutral-500 hover:text-neutral-300">
+              <Paperclip size={20} />
+            </button>
+          )}
+          <input 
+            type="text" 
+            placeholder={footerInputPlaceholder} 
+            className="flex-1 bg-transparent text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none"
+          />
+          {footerShowEmoji && (
+            <button className="text-neutral-500 hover:text-neutral-300">
+              <Smile size={20} />
+            </button>
+          )}
+          <button 
+            className={cn("rounded-lg p-2 text-white shadow-lg shadow-indigo-500/20 hover:opacity-90 transition-colors")}
+            style={{
+              backgroundColor: getColorFromTailwind(footerButtonColor),
+            }}
+          >
+            <Send size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}`
+    }
+
     if (componentName === "UrlInput") {
       // Convert hex to rgb for backgroundColor and borderColor in generated code
       const hexToRgb = (hex: string) => {
@@ -1437,45 +2055,155 @@ export function UrlInputDemo() {
 
       {/* Mobile Order: 2. Customize (Desktop: Right Column) */}
       <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3">
-        <Card className="p-6 sticky top-20">
+        <Card className="p-6 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
           <h3 className="font-semibold mb-4">Customize</h3>
-          <div className="space-y-4">
-            {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
+          
+          {(() => {
+            // Group props by section (header, body, footer)
+            const headerProps: [string, any][] = []
+            const bodyProps: [string, any][] = []
+            const footerProps: [string, any][] = []
+            const otherProps: [string, any][] = []
+
+            Object.entries(config.props).forEach(([key, propConfig]) => {
+              if (key.startsWith('header')) {
+                headerProps.push([key, propConfig])
+              } else if (key.startsWith('body')) {
+                bodyProps.push([key, propConfig])
+              } else if (key.startsWith('footer')) {
+                footerProps.push([key, propConfig])
+              } else {
+                otherProps.push([key, propConfig])
+              }
+            })
+
+            const renderProp = (key: string, propConfig: any, isLast: boolean) => (
               <div key={key} className="space-y-2">
-                <Label className="capitalize">{key}</Label>
+                <Label className="capitalize">{key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()}</Label>
 
                 {propConfig.type === "select" && (
-                  <Select value={props[key]} onValueChange={(value) => updateProp(key, value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {propConfig.options.map((option: string) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <Select value={props[key] || propConfig.default || ""} onValueChange={(value) => {
+                      updateProp(key, value)
+                      // When switching away from "Other", clear custom status and color
+                      if (key === "headerUserStatus" && value !== "Other") {
+                        updateProp("headerUserStatusCustom", "")
+                        updateProp("headerStatusColor", "")
+                      }
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {propConfig.options.map((option: string) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {key === "headerUserStatus" && props[key] === "Other" && (
+                      <>
+                        <Input
+                          value={props.headerUserStatusCustom || ""}
+                          onChange={(e) => updateProp("headerUserStatusCustom", e.target.value)}
+                          placeholder="Enter custom status..."
+                          className="mt-2"
+                        />
+                        <div className="mt-2 space-y-2">
+                          <Label className="text-xs text-muted-foreground">Custom Status Color</Label>
+                          <ColorPicker
+                            value={props.headerStatusColor || ""}
+                            onChange={(value) => updateProp("headerStatusColor", value)}
+                            placeholder="#32814f"
+                            outputFormat="tailwind-text"
+                            defaultColor="#22c55e"
+                          />
+                          <p className="text-xs text-muted-foreground">Use color picker or enter hex color code (e.g., #22c55e)</p>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
 
                 {propConfig.type === "boolean" && (
                   <div className="flex items-center space-x-2">
                     <Switch
-                      checked={props[key]}
+                      checked={props[key] === true || props[key] === "true"}
                       onCheckedChange={(checked) => updateProp(key, checked)}
                     />
                     <span className="text-sm text-muted-foreground">
-                      {props[key] ? "Enabled" : "Disabled"}
+                      {props[key] === true || props[key] === "true" ? "Enabled" : "Disabled"}
                     </span>
                   </div>
                 )}
 
                 {propConfig.type === "text" && (
                   <Input
-                    value={props[key]}
+                    value={props[key] || ""}
                     onChange={(e) => updateProp(key, e.target.value)}
                     placeholder={propConfig.default}
+                  />
+                )}
+
+                {propConfig.type === "color-tailwind-bg" && (
+                  <ColorPicker
+                    value={props[key] || ""}
+                    onChange={(value) => updateProp(key, value)}
+                    placeholder={propConfig.default || "#000000"}
+                    outputFormat="tailwind-bg"
+                    defaultColor={(() => {
+                      const colorValue = propConfig.default || ""
+                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+                      if (hexMatch) return `#${hexMatch[1]}`
+                      const colorMap: Record<string, string> = {
+                        "bg-indigo-600": "#4f46e5",
+                        "bg-neutral-800": "#262626",
+                        "bg-neutral-900": "#171717",
+                      }
+                      return colorMap[colorValue] || "#000000"
+                    })()}
+                  />
+                )}
+
+                {propConfig.type === "color-tailwind-text" && (
+                  <ColorPicker
+                    value={props[key] || ""}
+                    onChange={(value) => updateProp(key, value)}
+                    placeholder={propConfig.default || "#000000"}
+                    outputFormat="tailwind-text"
+                    defaultColor={(() => {
+                      const colorValue = propConfig.default || ""
+                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+                      if (hexMatch) return `#${hexMatch[1]}`
+                      const colorMap: Record<string, string> = {
+                        "text-neutral-500": "#737373",
+                        "text-neutral-200": "#e5e5e5",
+                        "text-white": "#ffffff",
+                        "text-neutral-100": "#f5f5f5",
+                      }
+                      return colorMap[colorValue] || "#000000"
+                    })()}
+                  />
+                )}
+
+                {propConfig.type === "color-tailwind-border" && (
+                  <ColorPicker
+                    value={props[key] || ""}
+                    onChange={(value) => updateProp(key, value)}
+                    placeholder={propConfig.default || "#000000"}
+                    outputFormat="tailwind-border"
+                    defaultColor={(() => {
+                      const colorValue = propConfig.default || ""
+                      const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+                      if (hexMatch) return `#${hexMatch[1]}`
+                      const colorMap: Record<string, string> = {
+                        "border-indigo-500/50": "#6366f1",
+                        "border-neutral-800": "#262626",
+                        "border-neutral-500": "#737373",
+                      }
+                      return colorMap[colorValue] || "#000000"
+                    })()}
                   />
                 )}
 
@@ -1495,39 +2223,85 @@ export function UrlInputDemo() {
                 )}
 
                 {propConfig.type === "color" && (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key]) ? props[key] : "#000000"}
-                      onChange={(e) => updateProp(key, e.target.value)}
-                      className="h-10 w-20 rounded border border-input cursor-pointer"
-                    />
-                    <Input
-                      value={props[key] || ""}
-                      onChange={(e) => {
-                        let value = e.target.value
-                        // Ensure it starts with # and is valid hex
-                        if (value && !value.startsWith('#')) {
-                          value = '#' + value
-                        }
-                        // Limit to 7 characters (# + 6 hex digits)
-                        if (value.length > 7) {
-                          value = value.slice(0, 7)
-                        }
-                        updateProp(key, value)
-                      }}
-                      placeholder={propConfig.default}
-                      className="flex-1"
-                    />
+                  <ColorPicker
+                    value={props[key] || ""}
+                    onChange={(value) => updateProp(key, value)}
+                    placeholder={propConfig.default || "#000000"}
+                    outputFormat="hex"
+                    defaultColor={propConfig.default || "#000000"}
+                  />
+                )}
+
+                {!isLast && <Separator className="!mt-4" />}
+              </div>
+            )
+
+            return (
+              <div className="space-y-6">
+                {/* Header Section */}
+                {headerProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Header</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {headerProps.map(([key, propConfig], index) => {
+                      // Skip headerUserStatusCustom - it's handled inline with headerUserStatus
+                      if (key === "headerUserStatusCustom") {
+                        return null
+                      }
+                      // Skip headerStatusColor - it's handled inline with headerUserStatus when "Other" is selected
+                      if (key === "headerStatusColor") {
+                        return null
+                      }
+                      return renderProp(key, propConfig, index === headerProps.length - 1)
+                    })}
                   </div>
                 )}
 
-                {key !== Object.keys(config.props)[Object.keys(config.props).length - 1] && (
-                  <Separator className="!mt-4" />
+                {/* Body Section */}
+                {bodyProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Body</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {bodyProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === bodyProps.length - 1)
+                    )}
+                  </div>
+                )}
+
+                {/* Footer Section */}
+                {footerProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Footer</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {footerProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === footerProps.length - 1)
+                    )}
+                  </div>
+                )}
+
+                {/* Other Props */}
+                {otherProps.length > 0 && (
+                  <div className="space-y-4">
+                    {otherProps.length > 0 && headerProps.length + bodyProps.length + footerProps.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-sm text-muted-foreground">General</h4>
+                        <Separator className="flex-1" />
+                      </div>
+                    )}
+                    {otherProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === otherProps.length - 1)
+                    )}
+                  </div>
                 )}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </Card>
       </div>
 
@@ -1564,7 +2338,7 @@ export function UrlInputDemo() {
       </div>
 
       {/* Mobile Order: 4. Properties */}
-      <div className="order-4 lg:col-span-1">
+      <div className="order-4 lg:col-span-2">
         <Card className="p-6">
           <h3 className="font-semibold mb-4">Properties</h3>
           <div className="border rounded-lg overflow-hidden">
@@ -1574,25 +2348,89 @@ export function UrlInputDemo() {
                   <th className="text-left p-3 font-medium">Name</th>
                   <th className="text-left p-3 font-medium">Type</th>
                   <th className="text-left p-3 font-medium">Default</th>
+                  <th className="text-left p-3 font-medium">Description</th>
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
-                  <tr key={key} className="border-t">
-                    <td className="p-3 font-mono text-xs">{key}</td>
-                    <td className="p-3">
-                      <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
-                    </td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground">
-                      {String(propConfig.default)}
-                    </td>
-                  </tr>
-                ))}
+                {(() => {
+                  const componentDetail = componentDetails[slug]
+                  const propsMap = componentDetail?.props || []
+                  
+                  return Object.entries(config.props).map(([key, propConfig]: [string, any]) => {
+                    const propDetail = propsMap.find((p: any) => p.name === key)
+                    return (
+                      <tr key={key} className="border-t">
+                        <td className="p-3 font-mono text-xs">{key}</td>
+                        <td className="p-3">
+                          <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
+                        </td>
+                        <td className="p-3 font-mono text-xs text-muted-foreground">
+                          {String(propConfig.default || "-")}
+                        </td>
+                        <td className="p-3 text-xs text-muted-foreground">
+                          {propDetail?.description || "-"}
+                        </td>
+                      </tr>
+                    )
+                  })
+                })()}
               </tbody>
             </table>
           </div>
         </Card>
       </div>
+
+      {/* Variants and Examples */}
+      {(() => {
+        const componentDetail = componentDetails[slug]
+        if (!componentDetail || (!componentDetail.variants?.length && !componentDetail.examples?.length)) {
+          return null
+        }
+
+        return (
+          <>
+            {/* Variants */}
+            {componentDetail.variants && componentDetail.variants.length > 0 && (
+              <div className="order-5 lg:col-span-2">
+                <Card className="p-6">
+                  <h3 className="font-semibold mb-4">Variants</h3>
+                  <div className="space-y-6">
+                    {componentDetail.variants.map((variant, index) => (
+                      <div key={index} className="space-y-3">
+                        <div>
+                          <h4 className="font-medium text-sm mb-1">{variant.name}</h4>
+                          <p className="text-sm text-muted-foreground">{variant.description}</p>
+                        </div>
+                        <CodeBlock code={variant.code} />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Examples */}
+            {componentDetail.examples && componentDetail.examples.length > 0 && (
+              <div className="order-6 lg:col-span-2">
+                <Card className="p-6">
+                  <h3 className="font-semibold mb-4">Examples</h3>
+                  <div className="space-y-8">
+                    {componentDetail.examples.map((example, index) => (
+                      <div key={index} className="space-y-3">
+                        <div>
+                          <h4 className="font-medium text-base mb-1">{example.title}</h4>
+                          <p className="text-sm text-muted-foreground">{example.description}</p>
+                        </div>
+                        <CodeBlock code={example.code} />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            )}
+          </>
+        )
+      })()}
     </div>
   )
 }
