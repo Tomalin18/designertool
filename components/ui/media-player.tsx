@@ -25,6 +25,10 @@ interface MediaPlayerProps {
   borderRadius?: number;
   glowColor1?: string;
   glowColor2?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+  gradientWidth?: number;
+  gradientAnimated?: boolean;
   enableImageUpload?: boolean;
   onPlayPause?: (isPlaying: boolean) => void;
   onLove?: (isLoved: boolean) => void;
@@ -72,6 +76,10 @@ export const MediaPlayer = ({
   borderRadius = 24, // rounded-3xl
   glowColor1 = "rgb(99 102 241 / 0.2)", // indigo-500/20
   glowColor2 = "rgb(168 85 247 / 0.2)", // purple-500/20
+  gradientFrom,
+  gradientTo,
+  gradientWidth = 2,
+  gradientAnimated = false,
   enableImageUpload = false,
   onPlayPause,
   onLove,
@@ -244,10 +252,15 @@ export const MediaPlayer = ({
   const borderCol = borderColor.startsWith('#') ? hexToRgb(borderColor) : borderColor;
   const glow1 = glowColor1.startsWith('#') ? hexToRgb(glowColor1) : glowColor1;
   const glow2 = glowColor2.startsWith('#') ? hexToRgb(glowColor2) : glowColor2;
+  
+  // Gradient colors
+  const gradientFromColor = gradientFrom || 'var(--primary)';
+  const gradientToColor = gradientTo || 'var(--accent)';
+  const gradientInset = `-${gradientWidth}px`;
 
   return (
     <div 
-      className={cn("relative overflow-hidden border p-6 backdrop-blur-xl", className)}
+      className={cn("relative group overflow-hidden border p-6 backdrop-blur-xl", className)}
       style={{
         backgroundColor: bgColor,
         borderColor: borderCol,
@@ -256,6 +269,23 @@ export const MediaPlayer = ({
         borderStyle: 'solid',
       }}
     >
+      {/* Gradient Border Effect */}
+      {(gradientFrom || gradientTo) && (
+        <div 
+          className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 pointer-events-none z-0"
+          style={{
+            inset: gradientInset,
+            backgroundImage: gradientAnimated 
+              ? `linear-gradient(90deg, ${gradientFromColor}, ${gradientToColor}, ${gradientFromColor})`
+              : `linear-gradient(to right, ${gradientFromColor}, ${gradientToColor})`,
+            backgroundSize: gradientAnimated ? '200% 200%' : '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            borderRadius: `${borderRadius + gradientWidth}px`,
+            animation: gradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          }}
+        />
+      )}
       {/* Background Glow */}
       <div 
         className="absolute -top-10 -right-10 h-40 w-40 rounded-full blur-3xl pointer-events-none" 
