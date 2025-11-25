@@ -1886,4 +1886,317 @@ export function UploadableAvatarCard() {
       },
     ],
   },
+  "glass-auth-form": {
+    name: "GlassAuthForm",
+    description: "A beautiful glassmorphism authentication form component with floating label inputs, social login buttons, and customizable colors. Perfect for login pages, sign-up forms, or any authentication interface.",
+    category: "Forms",
+    hasPlayground: true,
+    tags: ["auth", "form", "login", "signin", "glass", "floating", "input", "button", "social", "gradient", "backdrop"],
+    installation: "Copy the component from the code example below.",
+    usage: `import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+
+export function GlassAuthFormDemo() {
+  return (
+    <GlassAuthForm />
+  )
+}`,
+    props: [
+      {
+        name: "className",
+        type: "string",
+        description: "Additional CSS classes to apply to the form container.",
+      },
+      {
+        name: "title",
+        type: "string",
+        default: '"Welcome Back"',
+        description: "The main title displayed at the top of the form.",
+      },
+      {
+        name: "subtitle",
+        type: "string",
+        default: '"Enter your credentials to access the workspace."',
+        description: "The subtitle text displayed below the title.",
+      },
+      {
+        name: "emailLabel",
+        type: "string",
+        default: '"Email address"',
+        description: "Label text for the email input field.",
+      },
+      {
+        name: "passwordLabel",
+        type: "string",
+        default: '"Password"',
+        description: "Label text for the password input field.",
+      },
+      {
+        name: "rememberText",
+        type: "string",
+        default: '"Remember me"',
+        description: "Text displayed next to the remember me checkbox.",
+      },
+      {
+        name: "forgotPasswordText",
+        type: "string",
+        default: '"Forgot password?"',
+        description: "Text for the forgot password link.",
+      },
+      {
+        name: "signInText",
+        type: "string",
+        default: '"Sign In"',
+        description: "Text displayed on the main sign in button.",
+      },
+      {
+        name: "continueWithText",
+        type: "string",
+        default: '"Or continue with"',
+        description: "Text displayed above the social login buttons.",
+      },
+      {
+        name: "githubText",
+        type: "string",
+        default: '"GitHub"',
+        description: "Text displayed on the GitHub login button.",
+      },
+      {
+        name: "googleText",
+        type: "string",
+        default: '"Google"',
+        description: "Text displayed on the Google login button.",
+      },
+      {
+        name: "showRememberMe",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the remember me checkbox.",
+      },
+      {
+        name: "showForgotPassword",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the forgot password link.",
+      },
+      {
+        name: "showSocialButtons",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the social login buttons section.",
+      },
+      {
+        name: "showGithub",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the GitHub login button.",
+      },
+      {
+        name: "showGoogle",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the Google login button.",
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        description: "Background color of the form container. Accepts hex color or RGB value.",
+      },
+      {
+        name: "borderColor",
+        type: "string",
+        description: "Border color of the form container. Accepts hex color or RGB value.",
+      },
+      {
+        name: "textColor",
+        type: "string",
+        description: "Text color for the title and main text. Accepts Tailwind text class or hex color.",
+      },
+      {
+        name: "iconGradientFrom",
+        type: "string",
+        description: "Starting color for the icon gradient. Accepts hex color or RGB value.",
+      },
+      {
+        name: "iconGradientTo",
+        type: "string",
+        description: "Ending color for the icon gradient. Accepts hex color or RGB value.",
+      },
+      {
+        name: "orb1Color",
+        type: "string",
+        description: "Color of the first background orb. Accepts hex color or RGB value.",
+      },
+      {
+        name: "orb2Color",
+        type: "string",
+        description: "Color of the second background orb. Accepts hex color or RGB value.",
+      },
+      {
+        name: "buttonColor",
+        type: "string",
+        description: "Background color of the sign in button. Accepts hex color or RGB value.",
+      },
+      {
+        name: "socialButtonBgColor",
+        type: "string",
+        description: "Background color of the social login buttons. Accepts hex color or RGB value.",
+      },
+      {
+        name: "socialButtonBorderColor",
+        type: "string",
+        description: "Border color of the social login buttons. Accepts hex color or RGB value.",
+      },
+      {
+        name: "inputLabelColor",
+        type: "string",
+        description: "Color of the input field labels. Accepts Tailwind text class or hex color.",
+      },
+      {
+        name: "inputBgColor",
+        type: "string",
+        description: "Background color of the input fields. Accepts Tailwind bg class or hex color.",
+      },
+      {
+        name: "inputBorderColor",
+        type: "string",
+        description: "Border color of the input fields. Accepts Tailwind border class or hex color.",
+      },
+      {
+        name: "inputTextColor",
+        type: "string",
+        description: "Text color of the input fields. Accepts Tailwind text class or hex color.",
+      },
+      {
+        name: "focusBorderColor",
+        type: "string",
+        description: "Border color when input fields are focused. Accepts Tailwind border class or hex color.",
+      },
+      {
+        name: "cardGradientFrom",
+        type: "string",
+        description: "Starting color for the card gradient border effect. Accepts hex color or RGB value.",
+      },
+      {
+        name: "cardGradientTo",
+        type: "string",
+        description: "Ending color for the card gradient border effect. Accepts hex color or RGB value.",
+      },
+      {
+        name: "cardGradientWidth",
+        type: "number",
+        default: "2",
+        description: "Width of the card gradient border in pixels.",
+      },
+      {
+        name: "cardGradientAnimated",
+        type: "boolean",
+        default: "false",
+        description: "Whether the card gradient should be animated.",
+      },
+      {
+        name: "outerGradientFrom",
+        type: "string",
+        description: "Starting color for the outer gradient border effect. Accepts hex color or RGB value.",
+      },
+      {
+        name: "outerGradientTo",
+        type: "string",
+        description: "Ending color for the outer gradient border effect. Accepts hex color or RGB value.",
+      },
+      {
+        name: "outerGradientWidth",
+        type: "number",
+        default: "2",
+        description: "Width of the outer gradient border in pixels.",
+      },
+      {
+        name: "outerGradientAnimated",
+        type: "boolean",
+        default: "false",
+        description: "Whether the outer gradient should be animated.",
+      },
+      {
+        name: "borderRadius",
+        type: "number",
+        default: "24",
+        description: "Border radius of the form container in pixels.",
+      },
+      {
+        name: "padding",
+        type: "number",
+        default: "8",
+        description: "Padding of the form container (multiplied by 4px).",
+      },
+      {
+        name: "backdropBlur",
+        type: "number",
+        default: "12",
+        description: "Backdrop blur amount in pixels for the glassmorphism effect.",
+      },
+    ],
+    variants: [
+      {
+        name: "Default",
+        description: "The default glassmorphism authentication form.",
+        code: `<GlassAuthForm />`,
+      },
+      {
+        name: "Custom Colors",
+        description: "Authentication form with custom color scheme.",
+        code: `<GlassAuthForm 
+  backgroundColor="rgb(15 23 42 / 0.8)"
+  iconGradientFrom="rgb(139 92 246)"
+  iconGradientTo="rgb(236 72 153)"
+  orb1Color="rgb(139 92 246 / 0.2)"
+  orb2Color="rgb(236 72 153 / 0.2)"
+/>`,
+      },
+    ],
+    examples: [
+      {
+        title: "Basic Usage",
+        description: "A simple authentication form with default settings.",
+        code: `import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+
+export function BasicAuthForm() {
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <GlassAuthForm />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "Custom Text",
+        description: "Authentication form with custom text content.",
+        code: `import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+
+export function CustomTextAuthForm() {
+  return (
+    <GlassAuthForm 
+      title="Sign In to Your Account"
+      subtitle="Welcome back! Please enter your details."
+      signInText="Log In"
+      continueWithText="Or sign in with"
+    />
+  )
+}`,
+      },
+      {
+        title: "Minimal Form",
+        description: "Authentication form without social buttons and remember me.",
+        code: `import { GlassAuthForm } from "@/components/customize/glass-auth-form"
+
+export function MinimalAuthForm() {
+  return (
+    <GlassAuthForm 
+      showRememberMe={false}
+      showForgotPassword={false}
+      showSocialButtons={false}
+    />
+  )
+}`,
+      },
+    ],
+  },
 }

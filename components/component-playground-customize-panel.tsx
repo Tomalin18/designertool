@@ -397,6 +397,40 @@ export function CustomizePanel({
       }
     }
 
+    // For GlassAuthForm, group props into General and Color tabs
+    if (componentName === "GlassAuthForm") {
+      const colorRelatedKeys = [
+        'backgroundColor', 'borderColor', 'textColor',
+        'iconGradientFrom', 'iconGradientTo',
+        'orb1Color', 'orb2Color',
+        'buttonColor',
+        'socialButtonBgColor', 'socialButtonBorderColor',
+        'inputLabelColor', 'inputBgColor', 'inputBorderColor', 'inputTextColor', 'focusBorderColor',
+        'cardGradientFrom', 'cardGradientTo', 'cardGradientWidth', 'cardGradientAnimated',
+        'outerGradientFrom', 'outerGradientTo', 'outerGradientWidth', 'outerGradientAnimated',
+        'borderRadius', 'padding', 'backdropBlur'
+      ]
+
+      const generalProps: string[] = []
+      const colorProps: string[] = []
+
+      Object.entries(config.props).forEach(([key]) => {
+        if (colorRelatedKeys.includes(key)) {
+          colorProps.push(key)
+        } else {
+          generalProps.push(key)
+        }
+      })
+
+      return {
+        type: "tabs",
+        tabs: [
+          { name: "general", label: "General", keys: generalProps },
+          { name: "color", label: "Color", keys: colorProps },
+        ],
+      }
+    }
+
     // Default: show all props in General section
     return {
       type: "sections",

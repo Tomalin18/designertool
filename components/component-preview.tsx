@@ -25,6 +25,7 @@ import { UrlInput } from "@/components/customize/url-input"
 import { MediaPlayer } from "@/components/customize/media-player"
 import { ChatInterface } from "@/components/customize/chat-interface"
 import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+import { GlassAuthForm } from "@/components/customize/glass-auth-form"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -251,6 +252,12 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
         return (
           <div className="w-full max-w-sm">
             <SocialProfileCard />
+          </div>
+        )
+      case "GlassAuthForm":
+        return (
+          <div className="w-full max-w-sm">
+            <GlassAuthForm />
           </div>
         )
       default:

@@ -27,6 +27,7 @@ import { UrlInput } from "@/components/customize/url-input"
 import { MediaPlayer } from "@/components/customize/media-player"
 import { ChatInterface } from "@/components/customize/chat-interface"
 import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
+import { GlassAuthForm } from "@/components/customize/glass-auth-form"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
 import { CodeBlock } from "@/components/code-block"
@@ -839,6 +840,151 @@ const componentConfigs: Record<string, any> = {
             gradientTo={props.gradientTo || undefined}
             gradientWidth={props.gradientWidth}
             gradientAnimated={props.gradientAnimated}
+          />
+        </div>
+      )
+    },
+  },
+  GlassAuthForm: {
+    props: {
+      className: { type: "text", default: "" },
+      // Text content
+      title: { type: "text", default: "Welcome Back" },
+      subtitle: { type: "text", default: "Enter your credentials to access the workspace." },
+      emailLabel: { type: "text", default: "Email address" },
+      passwordLabel: { type: "text", default: "Password" },
+      rememberText: { type: "text", default: "Remember me" },
+      forgotPasswordText: { type: "text", default: "Forgot password?" },
+      signInText: { type: "text", default: "Sign In" },
+      continueWithText: { type: "text", default: "Or continue with" },
+      githubText: { type: "text", default: "GitHub" },
+      googleText: { type: "text", default: "Google" },
+      // Display options
+      showRememberMe: { type: "boolean", default: true },
+      showForgotPassword: { type: "boolean", default: true },
+      showSocialButtons: { type: "boolean", default: true },
+      showGithub: { type: "boolean", default: true },
+      showGoogle: { type: "boolean", default: true },
+      // Colors
+      backgroundColor: { type: "color", default: "" },
+      borderColor: { type: "color", default: "" },
+      textColor: { type: "color-tailwind-text", default: "" },
+      iconGradientFrom: { type: "color", default: "" },
+      iconGradientTo: { type: "color", default: "" },
+      orb1Color: { type: "color", default: "" },
+      orb2Color: { type: "color", default: "" },
+      buttonColor: { type: "color", default: "" },
+      socialButtonBgColor: { type: "color", default: "" },
+      socialButtonBorderColor: { type: "color", default: "" },
+      inputLabelColor: { type: "color-tailwind-text", default: "" },
+      inputBgColor: { type: "color-tailwind-bg", default: "" },
+      inputBorderColor: { type: "color-tailwind-border", default: "" },
+      inputTextColor: { type: "color-tailwind-text", default: "" },
+      focusBorderColor: { type: "color-tailwind-border", default: "" },
+      // Card gradient
+      cardGradientFrom: { type: "color", default: "" },
+      cardGradientTo: { type: "color", default: "" },
+      cardGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+      cardGradientAnimated: { type: "boolean", default: false },
+      // Outer gradient
+      outerGradientFrom: { type: "color", default: "" },
+      outerGradientTo: { type: "color", default: "" },
+      outerGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+      outerGradientAnimated: { type: "boolean", default: false },
+      // Style
+      borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
+      padding: { type: "slider", min: 4, max: 16, default: 8 },
+      backdropBlur: { type: "slider", min: 0, max: 24, default: 12 },
+    },
+    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+      // Helper to convert hex or Tailwind class to rgb
+      const getColorFromTailwind = (colorValue: string): string | undefined => {
+        if (!colorValue) return undefined
+        // Extract hex from bg-[#hex] or text-[#hex] format
+        const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+        if (hexMatch) {
+          const r = parseInt(hexMatch[1].slice(0, 2), 16)
+          const g = parseInt(hexMatch[1].slice(2, 4), 16)
+          const b = parseInt(hexMatch[1].slice(4, 6), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        // If it's already a hex value
+        if (colorValue.startsWith('#')) {
+          const r = parseInt(colorValue.slice(1, 3), 16)
+          const g = parseInt(colorValue.slice(3, 5), 16)
+          const b = parseInt(colorValue.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        // Try color map for Tailwind classes
+        const colorMap: Record<string, string> = {
+          "text-white": "rgb(255 255 255)",
+          "text-neutral-400": "rgb(163 163 163)",
+          "text-neutral-500": "rgb(115 115 115)",
+          "bg-neutral-800": "rgb(38 38 38)",
+          "bg-neutral-900": "rgb(23 23 23)",
+          "border-neutral-700": "rgb(64 64 64)",
+          "border-indigo-500": "rgb(99 102 241)",
+        }
+        return colorMap[colorValue] || undefined
+      }
+
+      // Helper to convert hex to rgb (for color type props)
+      const hexToRgb = (hex: string) => {
+        if (!hex) return undefined
+        if (hex.startsWith('#')) {
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        return hex
+      }
+
+      return (
+        <div className="w-full max-w-sm">
+          <GlassAuthForm
+            className={props.className}
+            title={props.title}
+            subtitle={props.subtitle}
+            emailLabel={props.emailLabel}
+            passwordLabel={props.passwordLabel}
+            rememberText={props.rememberText}
+            forgotPasswordText={props.forgotPasswordText}
+            signInText={props.signInText}
+            continueWithText={props.continueWithText}
+            githubText={props.githubText}
+            googleText={props.googleText}
+            showRememberMe={props.showRememberMe}
+            showForgotPassword={props.showForgotPassword}
+            showSocialButtons={props.showSocialButtons}
+            showGithub={props.showGithub}
+            showGoogle={props.showGoogle}
+            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+            textColor={props.textColor ? getColorFromTailwind(props.textColor) : undefined}
+            iconGradientFrom={props.iconGradientFrom ? hexToRgb(props.iconGradientFrom) : undefined}
+            iconGradientTo={props.iconGradientTo ? hexToRgb(props.iconGradientTo) : undefined}
+            orb1Color={props.orb1Color ? hexToRgb(props.orb1Color) : undefined}
+            orb2Color={props.orb2Color ? hexToRgb(props.orb2Color) : undefined}
+            buttonColor={props.buttonColor ? hexToRgb(props.buttonColor) : undefined}
+            socialButtonBgColor={props.socialButtonBgColor ? hexToRgb(props.socialButtonBgColor) : undefined}
+            socialButtonBorderColor={props.socialButtonBorderColor ? hexToRgb(props.socialButtonBorderColor) : undefined}
+            inputLabelColor={props.inputLabelColor ? getColorFromTailwind(props.inputLabelColor) : undefined}
+            inputBgColor={props.inputBgColor ? getColorFromTailwind(props.inputBgColor) : undefined}
+            inputBorderColor={props.inputBorderColor ? getColorFromTailwind(props.inputBorderColor) : undefined}
+            inputTextColor={props.inputTextColor ? getColorFromTailwind(props.inputTextColor) : undefined}
+            focusBorderColor={props.focusBorderColor ? getColorFromTailwind(props.focusBorderColor) : undefined}
+            cardGradientFrom={props.cardGradientFrom ? hexToRgb(props.cardGradientFrom) : undefined}
+            cardGradientTo={props.cardGradientTo ? hexToRgb(props.cardGradientTo) : undefined}
+            cardGradientWidth={props.cardGradientWidth}
+            cardGradientAnimated={props.cardGradientAnimated}
+            outerGradientFrom={props.outerGradientFrom ? hexToRgb(props.outerGradientFrom) : undefined}
+            outerGradientTo={props.outerGradientTo ? hexToRgb(props.outerGradientTo) : undefined}
+            outerGradientWidth={props.outerGradientWidth}
+            outerGradientAnimated={props.outerGradientAnimated}
+            borderRadius={props.borderRadius}
+            padding={props.padding}
+            backdropBlur={props.backdropBlur}
           />
         </div>
       )
@@ -2114,6 +2260,489 @@ export function UrlInputDemo() {
 
   return (
     <UrlInput${propsString} onGenerate={handleGenerate} />
+  )
+}`
+    }
+
+    if (componentName === "GlassAuthForm") {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string) => {
+        if (!hex) return hex
+        // Extract hex from Tailwind format or from hex value
+        const hexMatch = hex.match(/\[#([0-9A-Fa-f]{6})\]/)
+        if (hexMatch) {
+          const r = parseInt(hexMatch[1].slice(0, 2), 16)
+          const g = parseInt(hexMatch[1].slice(2, 4), 16)
+          const b = parseInt(hexMatch[1].slice(4, 6), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        // If it's already a hex value
+        if (hex.startsWith('#')) {
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+        return hex
+      }
+
+      const propsList = []
+      // Always include all props with their current values (including defaults)
+      if (props.className) propsList.push(`className="${props.className}"`)
+      if (props.title !== "Welcome Back") propsList.push(`title="${props.title}"`)
+      if (props.subtitle !== "Enter your credentials to access the workspace.") propsList.push(`subtitle="${props.subtitle}"`)
+      if (props.emailLabel !== "Email address") propsList.push(`emailLabel="${props.emailLabel}"`)
+      if (props.passwordLabel !== "Password") propsList.push(`passwordLabel="${props.passwordLabel}"`)
+      if (props.rememberText !== "Remember me") propsList.push(`rememberText="${props.rememberText}"`)
+      if (props.forgotPasswordText !== "Forgot password?") propsList.push(`forgotPasswordText="${props.forgotPasswordText}"`)
+      if (props.signInText !== "Sign In") propsList.push(`signInText="${props.signInText}"`)
+      if (props.continueWithText !== "Or continue with") propsList.push(`continueWithText="${props.continueWithText}"`)
+      if (props.githubText !== "GitHub") propsList.push(`githubText="${props.githubText}"`)
+      if (props.googleText !== "Google") propsList.push(`googleText="${props.googleText}"`)
+      if (!props.showRememberMe) propsList.push("showRememberMe={false}")
+      if (!props.showForgotPassword) propsList.push("showForgotPassword={false}")
+      if (!props.showSocialButtons) propsList.push("showSocialButtons={false}")
+      if (!props.showGithub) propsList.push("showGithub={false}")
+      if (!props.showGoogle) propsList.push("showGoogle={false}")
+
+      if (props.backgroundColor) {
+        const bgColor = hexToRgb(props.backgroundColor)
+        propsList.push(`backgroundColor="${bgColor}"`)
+      }
+      if (props.borderColor) {
+        const borderCol = hexToRgb(props.borderColor)
+        propsList.push(`borderColor="${borderCol}"`)
+      }
+      if (props.textColor) propsList.push(`textColor="${props.textColor}"`)
+      if (props.iconGradientFrom) {
+        const iconFrom = hexToRgb(props.iconGradientFrom)
+        propsList.push(`iconGradientFrom="${iconFrom}"`)
+      }
+      if (props.iconGradientTo) {
+        const iconTo = hexToRgb(props.iconGradientTo)
+        propsList.push(`iconGradientTo="${iconTo}"`)
+      }
+      if (props.orb1Color) {
+        const orb1 = hexToRgb(props.orb1Color)
+        propsList.push(`orb1Color="${orb1}"`)
+      }
+      if (props.orb2Color) {
+        const orb2 = hexToRgb(props.orb2Color)
+        propsList.push(`orb2Color="${orb2}"`)
+      }
+      if (props.buttonColor) {
+        const btnColor = hexToRgb(props.buttonColor)
+        propsList.push(`buttonColor="${btnColor}"`)
+      }
+      if (props.socialButtonBgColor) {
+        const socialBg = hexToRgb(props.socialButtonBgColor)
+        propsList.push(`socialButtonBgColor="${socialBg}"`)
+      }
+      if (props.socialButtonBorderColor) {
+        const socialBorder = hexToRgb(props.socialButtonBorderColor)
+        propsList.push(`socialButtonBorderColor="${socialBorder}"`)
+      }
+      if (props.inputLabelColor) propsList.push(`inputLabelColor="${props.inputLabelColor}"`)
+      if (props.inputBgColor) propsList.push(`inputBgColor="${props.inputBgColor}"`)
+      if (props.inputBorderColor) propsList.push(`inputBorderColor="${props.inputBorderColor}"`)
+      if (props.inputTextColor) propsList.push(`inputTextColor="${props.inputTextColor}"`)
+      if (props.focusBorderColor) propsList.push(`focusBorderColor="${props.focusBorderColor}"`)
+      if (props.cardGradientFrom) {
+        const cardFrom = hexToRgb(props.cardGradientFrom)
+        propsList.push(`cardGradientFrom="${cardFrom}"`)
+      }
+      if (props.cardGradientTo) {
+        const cardTo = hexToRgb(props.cardGradientTo)
+        propsList.push(`cardGradientTo="${cardTo}"`)
+      }
+      if (props.cardGradientWidth !== 2) propsList.push(`cardGradientWidth={${props.cardGradientWidth}}`)
+      if (props.cardGradientAnimated) propsList.push("cardGradientAnimated={true}")
+      if (props.outerGradientFrom) {
+        const outerFrom = hexToRgb(props.outerGradientFrom)
+        propsList.push(`outerGradientFrom="${outerFrom}"`)
+      }
+      if (props.outerGradientTo) {
+        const outerTo = hexToRgb(props.outerGradientTo)
+        propsList.push(`outerGradientTo="${outerTo}"`)
+      }
+      if (props.outerGradientWidth !== 2) propsList.push(`outerGradientWidth={${props.outerGradientWidth}}`)
+      if (props.outerGradientAnimated) propsList.push("outerGradientAnimated={true}")
+      if (props.borderRadius !== 24) propsList.push(`borderRadius={${props.borderRadius}}`)
+      if (props.padding !== 8) propsList.push(`padding={${props.padding}}`)
+      if (props.backdropBlur !== 12) propsList.push(`backdropBlur={${props.backdropBlur}}`)
+
+      // Format with line breaks for better readability
+      const propsString = propsList.length > 0
+        ? `\n  ${propsList.join("\n  ")}\n`
+        : ""
+
+      return `"use client"
+
+import React from "react"
+import { cn } from "@/lib/utils"
+import { Mail, Lock, Github, Chrome } from "lucide-react"
+import { FloatingLabelInput } from "@/components/customize/FloatingLabelInput"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+
+interface GlassAuthFormProps {
+  className?: string
+  // Text content
+  title?: string
+  subtitle?: string
+  emailLabel?: string
+  passwordLabel?: string
+  rememberText?: string
+  forgotPasswordText?: string
+  signInText?: string
+  continueWithText?: string
+  githubText?: string
+  googleText?: string
+  // Display options
+  showRememberMe?: boolean
+  showForgotPassword?: boolean
+  showSocialButtons?: boolean
+  showGithub?: boolean
+  showGoogle?: boolean
+  // Colors
+  backgroundColor?: string
+  borderColor?: string
+  textColor?: string
+  iconGradientFrom?: string
+  iconGradientTo?: string
+  orb1Color?: string
+  orb2Color?: string
+  buttonColor?: string
+  socialButtonBgColor?: string
+  socialButtonBorderColor?: string
+  inputLabelColor?: string
+  inputBgColor?: string
+  inputBorderColor?: string
+  inputTextColor?: string
+  focusBorderColor?: string
+  // Card gradient
+  cardGradientFrom?: string
+  cardGradientTo?: string
+  cardGradientWidth?: number
+  cardGradientAnimated?: boolean
+  // Outer gradient
+  outerGradientFrom?: string
+  outerGradientTo?: string
+  outerGradientWidth?: number
+  outerGradientAnimated?: boolean
+  // Style
+  borderRadius?: number
+  padding?: number
+  backdropBlur?: number
+}
+
+// Helper function to extract hex from Tailwind class or hex and convert to RGB
+const getColorFromTailwind = (colorValue: string): string | undefined => {
+  if (!colorValue) return undefined
+  // Extract hex from bg-[#hex] or text-[#hex] format
+  const hexMatch = colorValue.match(/\\[#([0-9A-Fa-f]{6})\\]/)
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1].slice(0, 2), 16)
+    const g = parseInt(hexMatch[1].slice(2, 4), 16)
+    const b = parseInt(hexMatch[1].slice(4, 6), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+  // If it's already a hex value
+  if (colorValue.startsWith('#')) {
+    const r = parseInt(colorValue.slice(1, 3), 16)
+    const g = parseInt(colorValue.slice(3, 5), 16)
+    const b = parseInt(colorValue.slice(5, 7), 16)
+    return \`rgb(\${r} \${g} \${b})\`
+  }
+  // Try color map
+  const colorMap: Record<string, string> = {
+    "bg-neutral-900/60": "rgb(23 23 23 / 0.6)",
+    "bg-neutral-900": "rgb(23 23 23)",
+    "border-neutral-800": "rgb(38 38 38)",
+    "text-white": "rgb(255 255 255)",
+    "text-neutral-400": "rgb(163 163 163)",
+    "bg-indigo-500/20": "rgb(99 102 241 / 0.2)",
+    "bg-purple-500/20": "rgb(168 85 247 / 0.2)",
+    "from-indigo-500": "rgb(99 102 241)",
+    "to-purple-500": "rgb(168 85 247)",
+    "bg-indigo-600": "rgb(79 70 229)",
+    "border-neutral-700": "rgb(64 64 64)",
+    "bg-neutral-800": "rgb(38 38 38)",
+  }
+  return colorMap[colorValue] || undefined
+}
+
+export const GlassAuthForm: React.FC<GlassAuthFormProps> = ({
+  className,
+  title = "Welcome Back",
+  subtitle = "Enter your credentials to access the workspace.",
+  emailLabel = "Email address",
+  passwordLabel = "Password",
+  rememberText = "Remember me",
+  forgotPasswordText = "Forgot password?",
+  signInText = "Sign In",
+  continueWithText = "Or continue with",
+  githubText = "GitHub",
+  googleText = "Google",
+  showRememberMe = true,
+  showForgotPassword = true,
+  showSocialButtons = true,
+  showGithub = true,
+  showGoogle = true,
+  backgroundColor,
+  borderColor,
+  textColor,
+  iconGradientFrom,
+  iconGradientTo,
+  orb1Color,
+  orb2Color,
+  buttonColor,
+  socialButtonBgColor,
+  socialButtonBorderColor,
+  inputLabelColor,
+  inputBgColor,
+  inputBorderColor,
+  inputTextColor,
+  focusBorderColor,
+  cardGradientFrom,
+  cardGradientTo,
+  cardGradientWidth = 2,
+  cardGradientAnimated = false,
+  outerGradientFrom,
+  outerGradientTo,
+  outerGradientWidth = 2,
+  outerGradientAnimated = false,
+  borderRadius = 24,
+  padding = 8,
+  backdropBlur = 12,
+}) => {
+  const bgColor = backgroundColor ? getColorFromTailwind(backgroundColor) : "rgb(23 23 23 / 0.6)"
+  const borderCol = borderColor ? getColorFromTailwind(borderColor) : "rgb(38 38 38)"
+  const txtColor = textColor ? getColorFromTailwind(textColor) : "rgb(255 255 255)"
+  const subTxtColor = textColor ? getColorFromTailwind(textColor) : "rgb(163 163 163)"
+  const orb1Col = orb1Color ? getColorFromTailwind(orb1Color) : "rgb(99 102 241 / 0.2)"
+  const orb2Col = orb2Color ? getColorFromTailwind(orb2Color) : "rgb(168 85 247 / 0.2)"
+  const iconFrom = iconGradientFrom ? getColorFromTailwind(iconGradientFrom) : "rgb(99 102 241)"
+  const iconTo = iconGradientTo ? getColorFromTailwind(iconGradientTo) : "rgb(168 85 247)"
+  const socialBg = socialButtonBgColor ? getColorFromTailwind(socialButtonBgColor) : "rgb(38 38 38)"
+  const socialBorder = socialButtonBorderColor ? getColorFromTailwind(socialButtonBorderColor) : "rgb(64 64 64)"
+  
+  // Card gradient colors
+  const cardGradFrom = cardGradientFrom ? getColorFromTailwind(cardGradientFrom) : undefined
+  const cardGradTo = cardGradientTo ? getColorFromTailwind(cardGradientTo) : undefined
+  const cardGradInset = \`-\${cardGradientWidth}px\`
+  
+  // Outer gradient colors
+  const outerGradFrom = outerGradientFrom ? getColorFromTailwind(outerGradientFrom) : undefined
+  const outerGradTo = outerGradientTo ? getColorFromTailwind(outerGradientTo) : undefined
+  const outerGradInset = \`-\${outerGradientWidth}px\`
+
+  return (
+    <div className={cn("relative group", className)} style={{ borderRadius: \`\${borderRadius}px\` }}>
+      {/* Outer gradient */}
+      {(outerGradFrom || outerGradTo) && (
+        <div
+          className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 pointer-events-none z-0"
+          style={{
+            inset: outerGradInset,
+            backgroundImage: outerGradientAnimated
+              ? \`linear-gradient(90deg, \${outerGradFrom || 'var(--primary)'}, \${outerGradTo || 'var(--accent)'}, \${outerGradFrom || 'var(--primary)'})\`
+              : \`linear-gradient(to right, \${outerGradFrom || 'var(--primary)'}, \${outerGradTo || 'var(--accent)'})\`,
+            backgroundSize: outerGradientAnimated ? '200% 200%' : '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            borderRadius: \`\${borderRadius + outerGradientWidth}px\`,
+            animation: outerGradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          }}
+        />
+      )}
+      
+      {/* Card gradient */}
+      {(cardGradFrom || cardGradTo) && (
+        <div
+          className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 pointer-events-none z-[1]"
+          style={{
+            inset: cardGradInset,
+            backgroundImage: cardGradientAnimated
+              ? \`linear-gradient(90deg, \${cardGradFrom || 'var(--primary)'}, \${cardGradTo || 'var(--accent)'}, \${cardGradFrom || 'var(--primary)'})\`
+              : \`linear-gradient(to right, \${cardGradFrom || 'var(--primary)'}, \${cardGradTo || 'var(--accent)'})\`,
+            backgroundSize: cardGradientAnimated ? '200% 200%' : '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            borderRadius: \`\${borderRadius + cardGradientWidth}px\`,
+            animation: cardGradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          }}
+        />
+      )}
+      
+      <div
+        className={cn("relative flex flex-col items-center overflow-hidden rounded-3xl border text-center z-10", className)}
+        style={{
+          backgroundColor: bgColor,
+          borderColor: borderCol,
+          borderRadius: \`\${borderRadius}px\`,
+          padding: \`\${padding * 4}px\`,
+          backdropFilter: \`blur(\${backdropBlur}px)\`,
+        }}
+      >
+      {/* Background Orbs */}
+      <div
+        className="absolute -left-10 -top-10 h-32 w-32 rounded-full blur-3xl"
+        style={{
+          backgroundColor: orb1Col,
+        }}
+      />
+      <div
+        className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full blur-3xl"
+        style={{
+          backgroundColor: orb2Col,
+        }}
+      />
+
+      <div className="relative z-10 w-full">
+        <div className="mb-6 flex flex-col items-center">
+          <div
+            className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl shadow-lg"
+            style={{
+              backgroundImage: \`linear-gradient(to top right, \${iconFrom}, \${iconTo})\`,
+              boxShadow: \`\${iconFrom}30 0px 0px 20px\`,
+            }}
+          >
+            <Lock className="h-6 w-6 text-white" />
+          </div>
+          <h3 className="text-xl font-bold" style={{ color: txtColor }}>
+            {title}
+          </h3>
+          <p className="text-sm" style={{ color: subTxtColor }}>
+            {subtitle}
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <FloatingLabelInput
+            label={emailLabel}
+            type="email"
+            icon={<Mail size={16} />}
+            labelColor={inputLabelColor}
+            inputBgColor={inputBgColor}
+            inputBorderColor={inputBorderColor}
+            inputTextColor={inputTextColor}
+            focusBorderColor={focusBorderColor}
+          />
+          <FloatingLabelInput
+            label={passwordLabel}
+            type="password"
+            icon={<Lock size={16} />}
+            labelColor={inputLabelColor}
+            inputBgColor={inputBgColor}
+            inputBorderColor={inputBorderColor}
+            inputTextColor={inputTextColor}
+            focusBorderColor={focusBorderColor}
+          />
+        </div>
+
+        {showRememberMe && (
+          <div className="mb-6 mt-2 flex items-center justify-between">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-3 w-3 rounded border-neutral-700 bg-neutral-800 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                style={{
+                  borderColor: socialBorder,
+                  backgroundColor: socialBg,
+                }}
+              />
+              <span className="text-xs" style={{ color: subTxtColor }}>
+                {rememberText}
+              </span>
+            </label>
+            {showForgotPassword && (
+              <a
+                href="#"
+                className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+                style={{
+                  color: iconFrom || "rgb(99 102 241)",
+                }}
+              >
+                {forgotPasswordText}
+              </a>
+            )}
+          </div>
+        )}
+
+        <ShinyButton
+          className="w-full"
+          style={{
+            ...(buttonColor && {
+              backgroundColor: getColorFromTailwind(buttonColor),
+            }),
+          }}
+        >
+          {signInText}
+        </ShinyButton>
+
+        {showSocialButtons && (showGithub || showGoogle) && (
+          <>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span
+                  className="w-full border-t"
+                  style={{
+                    borderColor: borderCol,
+                  }}
+                />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span
+                  className="px-2"
+                  style={{
+                    backgroundColor: bgColor,
+                    color: subTxtColor,
+                  }}
+                >
+                  {continueWithText}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {showGithub && (
+                <button
+                  className="flex items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
+                  style={{
+                    backgroundColor: socialBg,
+                    borderColor: socialBorder,
+                    color: subTxtColor,
+                  }}
+                >
+                  <Github size={16} />
+                  {githubText}
+                </button>
+              )}
+              {showGoogle && (
+                <button
+                  className="flex items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-700 hover:text-white"
+                  style={{
+                    backgroundColor: socialBg,
+                    borderColor: socialBorder,
+                    color: subTxtColor,
+                  }}
+                >
+                  <Chrome size={16} />
+                  {googleText}
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Usage example:
+export function GlassAuthFormDemo() {
+  return (
+    <GlassAuthForm${propsString}/>
   )
 }`
     }
