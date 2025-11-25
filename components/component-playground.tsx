@@ -511,6 +511,8 @@ const componentConfigs: Record<string, any> = {
       progress: { type: "slider", min: 0, max: 100, default: 66.67 },
       isPlaying: { type: "boolean", default: true },
       isLoved: { type: "boolean", default: false },
+      isShuffle: { type: "boolean", default: false },
+      isRepeat: { type: "boolean", default: false },
       showShuffle: { type: "boolean", default: true },
       showRepeat: { type: "boolean", default: true },
       showHeart: { type: "boolean", default: true },
@@ -521,7 +523,7 @@ const componentConfigs: Record<string, any> = {
       glowColor2: { type: "color", default: "#a855f7" },
       enableImageUpload: { type: "boolean", default: true },
     },
-    render: (props: any) => {
+    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
       // Convert hex to rgb with opacity if needed
       const hexToRgbWithOpacity = (hex: string, opacity: number = 0.6) => {
         if (!hex || !hex.startsWith('#')) return hex;
@@ -584,6 +586,8 @@ const componentConfigs: Record<string, any> = {
             progress={props.progress}
             isPlaying={props.isPlaying}
             isLoved={props.isLoved}
+            isShuffle={props.isShuffle}
+            isRepeat={props.isRepeat}
             showShuffle={props.showShuffle}
             showRepeat={props.showRepeat}
             showHeart={props.showHeart}
@@ -593,13 +597,31 @@ const componentConfigs: Record<string, any> = {
             glowColor1={props.glowColor1 ? hexToRgbWithOpacity(props.glowColor1, 0.2) : undefined}
             glowColor2={props.glowColor2 ? hexToRgbWithOpacity(props.glowColor2, 0.2) : undefined}
             enableImageUpload={props.enableImageUpload}
+            onShuffle={setProps ? (isShuffle) => {
+              // Update Playground props when shuffle state changes
+              setProps((prev: any) => ({ ...prev, isShuffle }));
+            } : undefined}
+            onRepeat={setProps ? (isRepeat) => {
+              // Update Playground props when repeat state changes
+              setProps((prev: any) => ({ ...prev, isRepeat }));
+            } : undefined}
+            onPlayPause={setProps ? (isPlaying) => {
+              // Update Playground props when play/pause state changes
+              setProps((prev: any) => ({ ...prev, isPlaying }));
+            } : undefined}
+            onLove={setProps ? (isLoved) => {
+              // Update Playground props when love state changes
+              setProps((prev: any) => ({ ...prev, isLoved }));
+            } : undefined}
             onTimeChange={(currentTime, progress) => {
               // Progress and time are automatically synced in the component
               console.log('Time changed:', currentTime, 'Progress:', progress);
             }}
-            onImageUpload={(imageUrl) => {
+            onImageUpload={setProps ? (imageUrl) => {
               console.log('Image uploaded:', imageUrl.substring(0, 50) + '...');
-            }}
+              // Update Playground props when image is uploaded
+              setProps((prev: any) => ({ ...prev, albumArtUrl: imageUrl }));
+            } : undefined}
           />
         </div>
       )
@@ -817,6 +839,8 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       }
       propsList.push(`isPlaying={${props.isPlaying !== undefined ? props.isPlaying : true}}`)
       propsList.push(`isLoved={${props.isLoved !== undefined ? props.isLoved : false}}`)
+      propsList.push(`isShuffle={${props.isShuffle !== undefined ? props.isShuffle : false}}`)
+      propsList.push(`isRepeat={${props.isRepeat !== undefined ? props.isRepeat : false}}`)
       propsList.push(`showShuffle={${props.showShuffle !== undefined ? props.showShuffle : true}}`)
       propsList.push(`showRepeat={${props.showRepeat !== undefined ? props.showRepeat : true}}`)
       propsList.push(`showHeart={${props.showHeart !== undefined ? props.showHeart : true}}`)
@@ -868,6 +892,8 @@ interface MediaPlayerProps {
   progress?: number
   isPlaying?: boolean
   isLoved?: boolean
+  isShuffle?: boolean
+  isRepeat?: boolean
   showShuffle?: boolean
   showRepeat?: boolean
   showHeart?: boolean
@@ -879,8 +905,8 @@ interface MediaPlayerProps {
   enableImageUpload?: boolean
   onPlayPause?: (isPlaying: boolean) => void
   onLove?: (isLoved: boolean) => void
-  onShuffle?: () => void
-  onRepeat?: () => void
+  onShuffle?: (isShuffle: boolean) => void
+  onRepeat?: (isRepeat: boolean) => void
   onSkipBack?: () => void
   onSkipForward?: () => void
   onImageUpload?: (imageUrl: string) => void
@@ -912,6 +938,8 @@ export const MediaPlayer = ({
   progress: initialProgress${props.progress !== undefined ? ` = ${props.progress}` : ''},
   isPlaying: initialIsPlaying = ${props.isPlaying !== undefined ? props.isPlaying : true},
   isLoved: initialIsLoved = ${props.isLoved !== undefined ? props.isLoved : false},
+  isShuffle: initialIsShuffle = ${props.isShuffle !== undefined ? props.isShuffle : false},
+  isRepeat: initialIsRepeat = ${props.isRepeat !== undefined ? props.isRepeat : false},
   showShuffle = ${props.showShuffle !== undefined ? props.showShuffle : true},
   showRepeat = ${props.showRepeat !== undefined ? props.showRepeat : true},
   showHeart = ${props.showHeart !== undefined ? props.showHeart : true},
@@ -932,6 +960,8 @@ export const MediaPlayer = ({
 }: MediaPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(initialIsPlaying)
   const [isLoved, setIsLoved] = useState(initialIsLoved)
+  const [isShuffle, setIsShuffle] = useState(initialIsShuffle)
+  const [isRepeat, setIsRepeat] = useState(initialIsRepeat)
   const [albumArtUrl, setAlbumArtUrl] = useState(initialAlbumArtUrl)
   const [currentTime, setCurrentTime] = useState(initialCurrentTime)
   const [totalTime, setTotalTime] = useState(initialTotalTime)
@@ -987,6 +1017,22 @@ export const MediaPlayer = ({
     }
   }, [initialProgress])
 
+  useEffect(() => {
+    setIsPlaying(initialIsPlaying)
+  }, [initialIsPlaying])
+
+  useEffect(() => {
+    setIsLoved(initialIsLoved)
+  }, [initialIsLoved])
+
+  useEffect(() => {
+    setIsShuffle(initialIsShuffle)
+  }, [initialIsShuffle])
+
+  useEffect(() => {
+    setIsRepeat(initialIsRepeat)
+  }, [initialIsRepeat])
+
   const handlePlayPause = () => {
     const newState = !isPlaying
     setIsPlaying(newState)
@@ -1000,11 +1046,15 @@ export const MediaPlayer = ({
   }
 
   const handleShuffle = () => {
-    onShuffle?.()
+    const newState = !isShuffle
+    setIsShuffle(newState)
+    onShuffle?.(newState)
   }
 
   const handleRepeat = () => {
-    onRepeat?.()
+    const newState = !isRepeat
+    setIsRepeat(newState)
+    onRepeat?.(newState)
   }
 
   const handleSkipBack = () => {
@@ -1132,9 +1182,14 @@ export const MediaPlayer = ({
         {showShuffle ? (
           <button
             onClick={handleShuffle}
-            className="text-neutral-500 hover:text-white transition-colors"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isShuffle
+                ? "bg-white/20 text-white"
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
           >
-            <Shuffle size={18} />
+            <Shuffle size={18} className={isShuffle ? "text-white" : ""} />
           </button>
         ) : (
           <div />
@@ -1164,9 +1219,14 @@ export const MediaPlayer = ({
         {showRepeat ? (
           <button
             onClick={handleRepeat}
-            className="text-neutral-500 hover:text-white transition-colors"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isRepeat
+                ? "bg-white/20 text-white"
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
           >
-            <Repeat size={18} />
+            <Repeat size={18} className={isRepeat ? "text-white" : ""} />
           </button>
         ) : (
           <div />
@@ -1371,7 +1431,7 @@ export function UrlInputDemo() {
       {/* Mobile Order: 1. Preview */}
       <div className="order-1 lg:col-span-1">
         <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-          {config.render(props)}
+          {config.render(props, setProps)}
         </Card>
       </div>
 

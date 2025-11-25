@@ -1048,6 +1048,18 @@ export function MediaPlayerDemo() {
         description: "Initial loved/favorited state.",
       },
       {
+        name: "isShuffle",
+        type: "boolean",
+        default: "false",
+        description: "Initial shuffle state (whether shuffle is active).",
+      },
+      {
+        name: "isRepeat",
+        type: "boolean",
+        default: "false",
+        description: "Initial repeat state (whether repeat is active).",
+      },
+      {
         name: "showShuffle",
         type: "boolean",
         default: "true",
@@ -1107,13 +1119,13 @@ export function MediaPlayerDemo() {
       },
       {
         name: "onShuffle",
-        type: "() => void",
-        description: "Callback function called when shuffle button is clicked.",
+        type: "(isShuffle: boolean) => void",
+        description: "Callback function called when shuffle button is clicked (returns new shuffle state).",
       },
       {
         name: "onRepeat",
-        type: "() => void",
-        description: "Callback function called when repeat button is clicked.",
+        type: "(isRepeat: boolean) => void",
+        description: "Callback function called when repeat button is clicked (returns new repeat state).",
       },
       {
         name: "onSkipBack",

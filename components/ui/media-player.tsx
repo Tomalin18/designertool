@@ -15,6 +15,8 @@ interface MediaPlayerProps {
   progress?: number; // 0-100
   isPlaying?: boolean;
   isLoved?: boolean;
+  isShuffle?: boolean;
+  isRepeat?: boolean;
   showShuffle?: boolean;
   showRepeat?: boolean;
   showHeart?: boolean;
@@ -26,8 +28,8 @@ interface MediaPlayerProps {
   enableImageUpload?: boolean;
   onPlayPause?: (isPlaying: boolean) => void;
   onLove?: (isLoved: boolean) => void;
-  onShuffle?: () => void;
-  onRepeat?: () => void;
+  onShuffle?: (isShuffle: boolean) => void;
+  onRepeat?: (isRepeat: boolean) => void;
   onSkipBack?: () => void;
   onSkipForward?: () => void;
   onImageUpload?: (imageUrl: string) => void;
@@ -60,6 +62,8 @@ export const MediaPlayer = ({
   progress: initialProgress,
   isPlaying: initialIsPlaying = true,
   isLoved: initialIsLoved = false,
+  isShuffle: initialIsShuffle = false,
+  isRepeat: initialIsRepeat = false,
   showShuffle = true,
   showRepeat = true,
   showHeart = true,
@@ -80,10 +84,16 @@ export const MediaPlayer = ({
 }: MediaPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(initialIsPlaying);
   const [isLoved, setIsLoved] = useState(initialIsLoved);
+  const [isShuffle, setIsShuffle] = useState(initialIsShuffle);
+  const [isRepeat, setIsRepeat] = useState(initialIsRepeat);
   const [albumArtUrl, setAlbumArtUrl] = useState(initialAlbumArtUrl);
   const [currentTime, setCurrentTime] = useState(initialCurrentTime);
   const [totalTime, setTotalTime] = useState(initialTotalTime);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const prevIsShuffleRef = useRef(initialIsShuffle);
+  const prevIsRepeatRef = useRef(initialIsRepeat);
+  const prevIsPlayingRef = useRef(initialIsPlaying);
+  const prevIsLovedRef = useRef(initialIsLoved);
 
   // Calculate progress from times
   const calculateProgressFromTimes = (currTime: string, totTime: string): number => {
@@ -141,6 +151,35 @@ export const MediaPlayer = ({
     }
   }, [initialProgress]);
 
+  // Update local state when props change (only if prop value actually changed)
+  useEffect(() => {
+    if (prevIsPlayingRef.current !== initialIsPlaying) {
+      setIsPlaying(initialIsPlaying);
+      prevIsPlayingRef.current = initialIsPlaying;
+    }
+  }, [initialIsPlaying]);
+
+  useEffect(() => {
+    if (prevIsLovedRef.current !== initialIsLoved) {
+      setIsLoved(initialIsLoved);
+      prevIsLovedRef.current = initialIsLoved;
+    }
+  }, [initialIsLoved]);
+
+  useEffect(() => {
+    if (prevIsShuffleRef.current !== initialIsShuffle) {
+      setIsShuffle(initialIsShuffle);
+      prevIsShuffleRef.current = initialIsShuffle;
+    }
+  }, [initialIsShuffle]);
+
+  useEffect(() => {
+    if (prevIsRepeatRef.current !== initialIsRepeat) {
+      setIsRepeat(initialIsRepeat);
+      prevIsRepeatRef.current = initialIsRepeat;
+    }
+  }, [initialIsRepeat]);
+
   const handlePlayPause = () => {
     const newState = !isPlaying;
     setIsPlaying(newState);
@@ -154,11 +193,15 @@ export const MediaPlayer = ({
   };
 
   const handleShuffle = () => {
-    onShuffle?.();
+    const newState = !isShuffle;
+    setIsShuffle(newState);
+    onShuffle?.(newState);
   };
 
   const handleRepeat = () => {
-    onRepeat?.();
+    const newState = !isRepeat;
+    setIsRepeat(newState);
+    onRepeat?.(newState);
   };
 
   const handleSkipBack = () => {
@@ -215,11 +258,11 @@ export const MediaPlayer = ({
     >
       {/* Background Glow */}
       <div 
-        className="absolute -top-10 -right-10 h-40 w-40 rounded-full blur-3xl" 
+        className="absolute -top-10 -right-10 h-40 w-40 rounded-full blur-3xl pointer-events-none" 
         style={{ backgroundColor: glow1 }}
       />
       <div 
-        className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full blur-3xl" 
+        className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full blur-3xl pointer-events-none" 
         style={{ backgroundColor: glow2 }}
       />
 
@@ -288,13 +331,18 @@ export const MediaPlayer = ({
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between px-2">
+      <div className="relative z-10 flex items-center justify-between px-2">
         {showShuffle ? (
           <button 
             onClick={handleShuffle}
-            className="text-neutral-500 hover:text-white transition-colors"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isShuffle 
+                ? "bg-white/20 text-white" 
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
           >
-            <Shuffle size={18} />
+            <Shuffle size={18} className={isShuffle ? "text-white" : "text-current"} />
           </button>
         ) : (
           <div />
@@ -324,9 +372,14 @@ export const MediaPlayer = ({
         {showRepeat ? (
           <button 
             onClick={handleRepeat}
-            className="text-neutral-500 hover:text-white transition-colors"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-full transition-all",
+              isRepeat 
+                ? "bg-white/20 text-white" 
+                : "text-neutral-500 hover:text-white hover:bg-white/10"
+            )}
           >
-            <Repeat size={18} />
+            <Repeat size={18} className={isRepeat ? "text-white" : "text-current"} />
           </button>
         ) : (
           <div />
