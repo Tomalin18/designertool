@@ -505,7 +505,6 @@ const componentConfigs: Record<string, any> = {
       artist: { type: "text", default: "M83" },
       album: { type: "text", default: "Hurry Up, We're Dreaming" },
       albumArtUrl: { type: "text", default: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop" },
-      currentTime: { type: "text", default: "2:14" },
       totalTime: { type: "text", default: "4:03" },
       progress: { type: "slider", min: 0, max: 100, default: 66.67 },
       isPlaying: { type: "boolean", default: true },
@@ -520,6 +519,10 @@ const componentConfigs: Record<string, any> = {
       borderRadius: { type: "slider", min: 0, max: 48, default: 24 },
       glowColor1: { type: "color", default: "#6366f1" },
       glowColor2: { type: "color", default: "#a855f7" },
+      gradientFrom: { type: "color", default: "" },
+      gradientTo: { type: "color", default: "" },
+      gradientWidth: { type: "slider", min: 0, max: 10, default: 2 },
+      gradientAnimated: { type: "boolean", default: false },
       enableImageUpload: { type: "boolean", default: true },
     },
     render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
@@ -564,8 +567,8 @@ const componentConfigs: Record<string, any> = {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
       };
 
-      // Calculate current time from progress if progress is set
-      let displayCurrentTime = props.currentTime;
+      // Calculate current time from progress
+      let displayCurrentTime = "0:00";
       if (props.progress !== undefined && props.totalTime) {
         const totalSeconds = timeToSeconds(props.totalTime);
         const currentSeconds = (props.progress / 100) * totalSeconds;
@@ -580,7 +583,6 @@ const componentConfigs: Record<string, any> = {
             artist={props.artist}
             album={props.album}
             albumArtUrl={props.albumArtUrl}
-            currentTime={displayCurrentTime}
             totalTime={props.totalTime}
             progress={props.progress}
             isPlaying={props.isPlaying}
@@ -595,6 +597,10 @@ const componentConfigs: Record<string, any> = {
             borderRadius={props.borderRadius}
             glowColor1={props.glowColor1 ? hexToRgbWithOpacity(props.glowColor1, 0.2) : undefined}
             glowColor2={props.glowColor2 ? hexToRgbWithOpacity(props.glowColor2, 0.2) : undefined}
+            gradientFrom={props.gradientFrom || undefined}
+            gradientTo={props.gradientTo || undefined}
+            gradientWidth={props.gradientWidth}
+            gradientAnimated={props.gradientAnimated}
             enableImageUpload={props.enableImageUpload}
             onShuffle={setProps ? (isShuffle) => {
               // Update Playground props when shuffle state changes
@@ -736,6 +742,11 @@ const componentConfigs: Record<string, any> = {
   },
 }
 
+interface PlaygroundProps {
+  componentName: string
+  slug: string
+}
+
 export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   const config = componentConfigs[componentName]
   const [copied, setCopied] = React.useState(false)
@@ -818,42 +829,9 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
     setProps((prev) => {
       const updated = { ...prev, [key]: value }
       
-      // If progress changes, automatically update currentTime for MediaPlayer
-      if (componentName === "MediaPlayer" && key === "progress") {
-        const totalTime = updated.totalTime || "4:03"
-        const timeToSeconds = (time: string): number => {
-          const parts = time.split(':')
-          if (parts.length === 2) {
-            return parseInt(parts[0]) * 60 + parseInt(parts[1])
-          }
-          return 0
-        }
-        const secondsToTime = (seconds: number): string => {
-          const mins = Math.floor(seconds / 60)
-          const secs = Math.floor(seconds % 60)
-          return `${mins}:${secs.toString().padStart(2, '0')}`
-        }
-        const totalSeconds = timeToSeconds(totalTime)
-        const currentSeconds = (value / 100) * totalSeconds
-        updated.currentTime = secondsToTime(currentSeconds)
-      }
-      
-      // If currentTime or totalTime changes, automatically update progress for MediaPlayer
-      if (componentName === "MediaPlayer" && (key === "currentTime" || key === "totalTime")) {
-        const currentTime = updated.currentTime || "2:14"
-        const totalTime = updated.totalTime || "4:03"
-        const timeToSeconds = (time: string): number => {
-          const parts = time.split(':')
-          if (parts.length === 2) {
-            return parseInt(parts[0]) * 60 + parseInt(parts[1])
-          }
-          return 0
-        }
-        const currentSeconds = timeToSeconds(currentTime)
-        const totalSeconds = timeToSeconds(totalTime)
-        if (totalSeconds > 0) {
-          updated.progress = (currentSeconds / totalSeconds) * 100
-        }
+      // If totalTime changes, automatically update progress for MediaPlayer (if progress exists)
+      if (componentName === "MediaPlayer" && key === "totalTime" && updated.progress !== undefined) {
+        // Progress is already set, no need to recalculate
       }
       
       return updated
@@ -956,7 +934,6 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       if (props.albumArtUrl) {
         propsList.push(`albumArtUrl="${props.albumArtUrl}"`)
       }
-      propsList.push(`currentTime="${props.currentTime || "2:14"}"`)
       propsList.push(`totalTime="${props.totalTime || "4:03"}"`)
       if (props.progress !== undefined) {
         propsList.push(`progress={${props.progress}}`)
@@ -1026,6 +1003,10 @@ interface MediaPlayerProps {
   borderRadius?: number
   glowColor1?: string
   glowColor2?: string
+  gradientFrom?: string
+  gradientTo?: string
+  gradientWidth?: number
+  gradientAnimated?: boolean
   enableImageUpload?: boolean
   onPlayPause?: (isPlaying: boolean) => void
   onLove?: (isLoved: boolean) => void
@@ -1057,7 +1038,6 @@ export const MediaPlayer = ({
   artist = "${props.artist || "M83"}",
   album = "${props.album || "Hurry Up, We're Dreaming"}",
   albumArtUrl: initialAlbumArtUrl = "${props.albumArtUrl || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop"}",
-  currentTime: initialCurrentTime = "${props.currentTime || "2:14"}",
   totalTime: initialTotalTime = "${props.totalTime || "4:03"}",
   progress: initialProgress${props.progress !== undefined ? ` = ${props.progress}` : ''},
   isPlaying: initialIsPlaying = ${props.isPlaying !== undefined ? props.isPlaying : true},
@@ -1072,6 +1052,10 @@ export const MediaPlayer = ({
   borderRadius = ${props.borderRadius !== undefined ? props.borderRadius : 24},
   glowColor1 = "${glow1}",
   glowColor2 = "${glow2}",
+  gradientFrom${props.gradientFrom ? ` = "${props.gradientFrom}"` : ''},
+  gradientTo${props.gradientTo ? ` = "${props.gradientTo}"` : ''},
+  gradientWidth = ${props.gradientWidth !== undefined ? props.gradientWidth : 2},
+  gradientAnimated = ${props.gradientAnimated !== undefined ? props.gradientAnimated : false},
   enableImageUpload = ${props.enableImageUpload !== undefined ? props.enableImageUpload : true},
   onPlayPause,
   onLove,
@@ -1087,16 +1071,8 @@ export const MediaPlayer = ({
   const [isShuffle, setIsShuffle] = useState(initialIsShuffle)
   const [isRepeat, setIsRepeat] = useState(initialIsRepeat)
   const [albumArtUrl, setAlbumArtUrl] = useState(initialAlbumArtUrl)
-  const [currentTime, setCurrentTime] = useState(initialCurrentTime)
   const [totalTime, setTotalTime] = useState(initialTotalTime)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const calculateProgressFromTimes = (currTime: string, totTime: string): number => {
-    const currentSeconds = timeToSeconds(currTime)
-    const totalSeconds = timeToSeconds(totTime)
-    if (totalSeconds === 0) return 0
-    return (currentSeconds / totalSeconds) * 100
-  }
 
   const calculateTimeFromProgress = (prog: number, totTime: string): string => {
     const totalSeconds = timeToSeconds(totTime)
@@ -1105,18 +1081,15 @@ export const MediaPlayer = ({
   }
 
   const [progress, setProgress] = useState(
-    initialProgress !== undefined
-      ? initialProgress
-      : calculateProgressFromTimes(initialCurrentTime, initialTotalTime)
+    initialProgress !== undefined ? initialProgress : 0
   )
 
-  useEffect(() => {
-    if (initialProgress === undefined) {
-      const newProgress = calculateProgressFromTimes(currentTime, totalTime)
-      setProgress(newProgress)
-      onTimeChange?.(currentTime, newProgress)
+  const [currentTime, setCurrentTime] = useState(() => {
+    if (initialProgress !== undefined) {
+      return calculateTimeFromProgress(initialProgress, initialTotalTime)
     }
-  }, [currentTime, totalTime])
+    return "0:00"
+  })
 
   useEffect(() => {
     if (initialProgress !== undefined) {
@@ -1126,10 +1099,6 @@ export const MediaPlayer = ({
       onTimeChange?.(newCurrentTime, initialProgress)
     }
   }, [initialProgress, totalTime])
-
-  useEffect(() => {
-    setCurrentTime(initialCurrentTime)
-  }, [initialCurrentTime])
 
   useEffect(() => {
     setTotalTime(initialTotalTime)
@@ -1220,10 +1189,14 @@ export const MediaPlayer = ({
   const borderCol = borderColor.startsWith('#') ? hexToRgb(borderColor) : borderColor
   const glow1 = glowColor1.startsWith('#') ? hexToRgb(glowColor1) : glowColor1
   const glow2 = glowColor2.startsWith('#') ? hexToRgb(glowColor2) : glowColor2
+  
+  const gradientFromColor = gradientFrom || 'var(--primary)'
+  const gradientToColor = gradientTo || 'var(--accent)'
+  const gradientInset = \`-\${gradientWidth}px\`
 
   return (
     <div
-      className={cn("relative overflow-hidden border p-6 backdrop-blur-xl", className)}
+      className={cn("relative group overflow-hidden border p-6 backdrop-blur-xl", className)}
       style={{
         backgroundColor: bgColor,
         borderColor: borderCol,
@@ -1232,6 +1205,22 @@ export const MediaPlayer = ({
         borderStyle: 'solid',
       }}
     >
+      {(gradientFrom || gradientTo) && (
+        <div
+          className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 pointer-events-none z-0"
+          style={{
+            inset: gradientInset,
+            backgroundImage: gradientAnimated
+              ? \`linear-gradient(90deg, \${gradientFromColor}, \${gradientToColor}, \${gradientFromColor})\`
+              : \`linear-gradient(to right, \${gradientFromColor}, \${gradientToColor})\`,
+            backgroundSize: gradientAnimated ? '200% 200%' : '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            borderRadius: \`\${borderRadius + gradientWidth}px\`,
+            animation: gradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          }}
+        />
+      )}
       <div
         className="absolute -top-10 -right-10 h-40 w-40 rounded-full blur-3xl"
         style={{ backgroundColor: glow1 }}
@@ -2060,7 +2049,125 @@ export function UrlInputDemo() {
           <h3 className="font-semibold mb-4">Customize</h3>
           
           {(() => {
-            // Group props by section (header, body, footer)
+            // For MediaPlayer, group props into General and Color tabs
+            if (componentName === "MediaPlayer") {
+              const generalProps: [string, any][] = []
+              const colorProps: [string, any][] = []
+              
+              const colorRelatedKeys = [
+                'backgroundColor', 'borderColor', 'borderRadius', 
+                'glowColor1', 'glowColor2', 
+                'gradientFrom', 'gradientTo', 'gradientWidth', 'gradientAnimated'
+              ]
+
+              // Props that should not be shown in customize panel (only adjustable in playground)
+              const hiddenProps = ['isPlaying', 'isLoved', 'isShuffle', 'isRepeat']
+
+              Object.entries(config.props).forEach(([key, propConfig]) => {
+                // Skip hidden props (these are only adjustable in playground)
+                if (hiddenProps.includes(key)) {
+                  return
+                }
+                if (colorRelatedKeys.includes(key)) {
+                  colorProps.push([key, propConfig])
+                } else {
+                  generalProps.push([key, propConfig])
+                }
+              })
+
+              const renderProp = (key: string, propConfig: any, isLast: boolean) => (
+                <div key={key} className="space-y-2">
+                  <Label className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
+
+                  {propConfig.type === "select" && (
+                    <>
+                      <Select value={props[key] || propConfig.default || ""} onValueChange={(value) => {
+                        updateProp(key, value)
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {propConfig.options.map((option: string) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+
+                  {propConfig.type === "boolean" && (
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={props[key] === true || props[key] === "true"}
+                        onCheckedChange={(checked) => updateProp(key, checked)}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {props[key] === true || props[key] === "true" ? "Enabled" : "Disabled"}
+                      </span>
+                    </div>
+                  )}
+
+                  {propConfig.type === "text" && (
+                    <Input
+                      value={props[key] || ""}
+                      onChange={(e) => updateProp(key, e.target.value)}
+                      placeholder={propConfig.default}
+                    />
+                  )}
+
+                  {propConfig.type === "slider" && (
+                    <div className="space-y-2">
+                      <Slider
+                        value={[props[key] !== undefined ? props[key] : propConfig.default]}
+                        onValueChange={([value]) => updateProp(key, value)}
+                        min={propConfig.min}
+                        max={propConfig.max}
+                        step={1}
+                      />
+                      <div className="text-xs text-muted-foreground text-right">
+                        {props[key] !== undefined ? props[key] : propConfig.default}
+                      </div>
+                    </div>
+                  )}
+
+                  {propConfig.type === "color" && (
+                    <ColorPicker
+                      value={props[key] || ""}
+                      onChange={(value) => updateProp(key, value)}
+                      placeholder={propConfig.default || "#000000"}
+                      outputFormat="hex"
+                      defaultColor={propConfig.default || "#000000"}
+                    />
+                  )}
+
+                  {!isLast && <Separator className="!mt-4" />}
+                </div>
+              )
+
+              return (
+                <Tabs defaultValue="general" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="general">General</TabsTrigger>
+                    <TabsTrigger value="color">Color</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="general" className="space-y-4 mt-4">
+                    {generalProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === generalProps.length - 1)
+                    )}
+                  </TabsContent>
+                  <TabsContent value="color" className="space-y-4 mt-4">
+                    {colorProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === colorProps.length - 1)
+                    )}
+                  </TabsContent>
+                </Tabs>
+              )
+            }
+
+            // Group props by section (header, body, footer) for other components
             const headerProps: [string, any][] = []
             const bodyProps: [string, any][] = []
             const footerProps: [string, any][] = []
