@@ -458,6 +458,8 @@ const componentConfigs: Record<string, any> = {
       borderRadius: { type: "slider", min: 0, max: 32, default: 12 },
       gradientFrom: { type: "color", default: "" },
       gradientTo: { type: "color", default: "" },
+      gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+      gradientAnimated: { type: "boolean", default: false },
       backgroundColor: { type: "color", default: "#0f172a" },
       borderColor: { type: "color", default: "#334155" },
       showButton: { type: "boolean", default: true },
@@ -483,6 +485,8 @@ const componentConfigs: Record<string, any> = {
             borderRadius={props.borderRadius}
             gradientFrom={props.gradientFrom || undefined}
             gradientTo={props.gradientTo || undefined}
+            gradientWidth={props.gradientWidth}
+            gradientAnimated={props.gradientAnimated}
             backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
             borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
             showButton={props.showButton}
@@ -598,6 +602,8 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       if (props.borderRadius !== 12) propsList.push(`borderRadius={${props.borderRadius}}`)
       if (props.gradientFrom) propsList.push(`gradientFrom="${props.gradientFrom}"`)
       if (props.gradientTo) propsList.push(`gradientTo="${props.gradientTo}"`)
+      if (props.gradientWidth !== 2) propsList.push(`gradientWidth={${props.gradientWidth}}`)
+      if (props.gradientAnimated) propsList.push("gradientAnimated={true}")
       const bgColor = props.backgroundColor && props.backgroundColor !== "#0f172a" 
         ? hexToRgb(props.backgroundColor) 
         : null
@@ -624,6 +630,8 @@ interface UrlInputProps {
   borderRadius?: number
   gradientFrom?: string
   gradientTo?: string
+  gradientWidth?: number
+  gradientAnimated?: boolean
   backgroundColor?: string
   borderColor?: string
   showButton?: boolean
@@ -639,6 +647,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({
   borderRadius = 12,
   gradientFrom,
   gradientTo,
+  gradientWidth = 2,
+  gradientAnimated = false,
   backgroundColor = 'rgb(15 23 42)',
   borderColor = 'rgb(51 65 85)',
   showButton = true,
@@ -658,14 +668,22 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   const gradientFromColor = gradientFrom || 'hsl(var(--primary))'
   const gradientToColor = gradientTo || 'rgb(79 70 229)'
+  const gradientInset = \`-\${gradientWidth}px\`
 
   return (
-    <form onSubmit={handleSubmit} className={\`relative group \${className}\`}>
+    <form onSubmit={handleSubmit} className={\`relative group w-full \${className}\`} style={{ minWidth: 0 }}>
       <div 
-        className="absolute -inset-0.5 blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+        className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
         style={{
-          background: \`linear-gradient(to right, \${gradientFromColor}, \${gradientToColor})\`,
-          borderRadius: \`\${borderRadius}px\`,
+          inset: gradientInset,
+          backgroundImage: gradientAnimated 
+            ? \`linear-gradient(90deg, \${gradientFromColor}, \${gradientToColor}, \${gradientFromColor})\`
+            : \`linear-gradient(to right, \${gradientFromColor}, \${gradientToColor})\`,
+          backgroundSize: gradientAnimated ? '200% 200%' : '100% 100%',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          borderRadius: \`\${borderRadius + gradientWidth}px\`,
+          animation: gradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
         }}
       ></div>
       <div 
