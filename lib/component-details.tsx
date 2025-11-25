@@ -805,4 +805,169 @@ export function TooltipDemo() {
       },
     ],
   },
+  "url-input": {
+    name: "UrlInput",
+    description: "A URL input component with gradient border effect and generate button.",
+    category: "Forms",
+    hasPlayground: true,
+    installation: "Copy the component from the code example below.",
+    usage: `import { UrlInput } from "@/components/ui/url-input"
+
+export function UrlInputDemo() {
+  const handleGenerate = (url: string) => {
+    console.log('Generated URL:', url)
+    // Your logic here
+  }
+
+  return (
+    <UrlInput 
+      onGenerate={handleGenerate}
+      isLoading={false}
+    />
+  )
+}`,
+    props: [
+      {
+        name: "onGenerate",
+        type: "(url: string) => void",
+        description: "Callback function called when the form is submitted with a valid URL.",
+      },
+      {
+        name: "isLoading",
+        type: "boolean",
+        default: "false",
+        description: "Whether the component is in a loading state.",
+      },
+      {
+        name: "borderRadius",
+        type: "number",
+        default: "12",
+        description: "Border radius in pixels for the input container.",
+      },
+      {
+        name: "gradientFrom",
+        type: "string",
+        description: "Starting color for the gradient border effect. Defaults to primary color if not provided.",
+      },
+      {
+        name: "gradientTo",
+        type: "string",
+        description: "Ending color for the gradient border effect. Defaults to indigo-600 if not provided.",
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        default: "rgb(15 23 42)",
+        description: "Background color of the input container.",
+      },
+      {
+        name: "borderColor",
+        type: "string",
+        default: "rgb(51 65 85)",
+        description: "Border color of the input container.",
+      },
+      {
+        name: "showButton",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the submit button.",
+      },
+      {
+        name: "buttonText",
+        type: "string",
+        default: "Generate",
+        description: "Text displayed on the submit button.",
+      },
+      {
+        name: "placeholder",
+        type: "string",
+        default: "https://your-shop.com/product/...",
+        description: "Placeholder text for the input field.",
+      },
+      {
+        name: "showIcon",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the search icon.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Additional CSS classes to apply to the form element.",
+      },
+    ],
+    variants: [
+      {
+        name: "Default",
+        description: "The default URL input with gradient border effect.",
+        code: `<UrlInput 
+  onGenerate={(url) => console.log('Generated URL:', url)} 
+  isLoading={false}
+/>`,
+      },
+      {
+        name: "Loading",
+        description: "URL input in loading state.",
+        code: `<UrlInput 
+  onGenerate={(url) => console.log('Generated URL:', url)} 
+  isLoading={true}
+/>`,
+      },
+    ],
+    examples: [
+      {
+        title: "Basic Usage",
+        description: "A simple URL input with submit handler.",
+        code: `import { UrlInput } from "@/components/ui/url-input"
+import { useState } from "react"
+
+export function BasicUrlInput() {
+  const [url, setUrl] = useState("")
+
+  const handleGenerate = (inputUrl: string) => {
+    setUrl(inputUrl)
+    // Process the URL
+    console.log('Processing URL:', inputUrl)
+  }
+
+  return (
+    <div className="space-y-4">
+      <UrlInput onGenerate={handleGenerate} />
+      {url && <p className="text-sm text-muted-foreground">Last URL: {url}</p>}
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Loading State",
+        description: "URL input with async processing and loading state.",
+        code: `import { UrlInput } from "@/components/ui/url-input"
+import { useState } from "react"
+
+export function AsyncUrlInput() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleGenerate = async (url: string) => {
+    setIsLoading(true)
+    try {
+      // Simulate API call
+      await fetch('/api/process-url', {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <UrlInput 
+      onGenerate={handleGenerate}
+      isLoading={isLoading}
+    />
+  )
+}`,
+      },
+    ],
+  },
 }

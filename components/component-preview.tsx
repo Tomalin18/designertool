@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { UrlInput } from "@/components/ui/url-input"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 
 interface ComponentPreviewProps {
@@ -220,6 +221,15 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
               </SheetHeader>
             </SheetContent>
           </Sheet>
+        )
+      case "UrlInput":
+        return (
+          <div className="w-full max-w-2xl">
+            <UrlInput 
+              onGenerate={(url) => console.log('Generated URL:', url)} 
+              isLoading={false}
+            />
+          </div>
         )
       default:
         return (

@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import { Toggle } from "@/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { UrlInput } from "@/components/ui/url-input"
 import { AlertCircle, Terminal } from 'lucide-react'
 
 interface PlaygroundProps {
@@ -451,6 +452,48 @@ const componentConfigs: Record<string, any> = {
       </TooltipProvider>
     ),
   },
+  UrlInput: {
+    props: {
+      isLoading: { type: "boolean", default: false },
+      borderRadius: { type: "slider", min: 0, max: 32, default: 12 },
+      gradientFrom: { type: "color", default: "" },
+      gradientTo: { type: "color", default: "" },
+      backgroundColor: { type: "color", default: "#0f172a" },
+      borderColor: { type: "color", default: "#334155" },
+      showButton: { type: "boolean", default: true },
+      buttonText: { type: "text", default: "Generate" },
+      placeholder: { type: "text", default: "https://your-shop.com/product/..." },
+      showIcon: { type: "boolean", default: true },
+    },
+    render: (props: any) => {
+      // Convert hex to rgb if needed for backgroundColor and borderColor
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+      
+      return (
+        <div className="w-full max-w-2xl">
+          <UrlInput 
+            onGenerate={(url) => console.log('Generated URL:', url)} 
+            isLoading={props.isLoading}
+            borderRadius={props.borderRadius}
+            gradientFrom={props.gradientFrom || undefined}
+            gradientTo={props.gradientTo || undefined}
+            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+            showButton={props.showButton}
+            buttonText={props.buttonText}
+            placeholder={props.placeholder}
+            showIcon={props.showIcon}
+          />
+        </div>
+      )
+    },
+  },
 }
 
 export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
@@ -540,6 +583,153 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       return `<TooltipProvider>\n  <Tooltip>\n    <TooltipTrigger asChild>\n      <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>\n    </TooltipTrigger>\n    <TooltipContent side="${props.side}" className="text-lg p-4">\n      <p>${props.text}</p>\n    </TooltipContent>\n  </Tooltip>\n</TooltipProvider>`
     }
 
+    if (componentName === "UrlInput") {
+      // Convert hex to rgb for backgroundColor and borderColor in generated code
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+      
+      const propsList = []
+      if (props.isLoading) propsList.push("isLoading={true}")
+      if (props.borderRadius !== 12) propsList.push(`borderRadius={${props.borderRadius}}`)
+      if (props.gradientFrom) propsList.push(`gradientFrom="${props.gradientFrom}"`)
+      if (props.gradientTo) propsList.push(`gradientTo="${props.gradientTo}"`)
+      const bgColor = props.backgroundColor && props.backgroundColor !== "#0f172a" 
+        ? hexToRgb(props.backgroundColor) 
+        : null
+      if (bgColor) propsList.push(`backgroundColor="${bgColor}"`)
+      const borderCol = props.borderColor && props.borderColor !== "#334155" 
+        ? hexToRgb(props.borderColor) 
+        : null
+      if (borderCol) propsList.push(`borderColor="${borderCol}"`)
+      if (!props.showButton) propsList.push("showButton={false}")
+      if (props.buttonText !== "Generate") propsList.push(`buttonText="${props.buttonText}"`)
+      if (props.placeholder !== "https://your-shop.com/product/...") propsList.push(`placeholder="${props.placeholder}"`)
+      if (!props.showIcon) propsList.push("showIcon={false}")
+      
+      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
+      
+      return `"use client"
+
+import React, { useState } from 'react'
+import { Search, ArrowRight, Loader2 } from 'lucide-react'
+
+interface UrlInputProps {
+  onGenerate: (url: string) => void
+  isLoading?: boolean
+  borderRadius?: number
+  gradientFrom?: string
+  gradientTo?: string
+  backgroundColor?: string
+  borderColor?: string
+  showButton?: boolean
+  buttonText?: string
+  placeholder?: string
+  showIcon?: boolean
+  className?: string
+}
+
+export const UrlInput: React.FC<UrlInputProps> = ({ 
+  onGenerate, 
+  isLoading = false,
+  borderRadius = 12,
+  gradientFrom,
+  gradientTo,
+  backgroundColor = 'rgb(15 23 42)',
+  borderColor = 'rgb(51 65 85)',
+  showButton = true,
+  buttonText = 'Generate',
+  placeholder = 'https://your-shop.com/product/...',
+  showIcon = true,
+  className = '',
+}) => {
+  const [url, setUrl] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (url.trim()) {
+      onGenerate(url)
+    }
+  }
+
+  const gradientFromColor = gradientFrom || 'hsl(var(--primary))'
+  const gradientToColor = gradientTo || 'rgb(79 70 229)'
+
+  return (
+    <form onSubmit={handleSubmit} className={\`relative group \${className}\`}>
+      <div 
+        className="absolute -inset-0.5 blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+        style={{
+          background: \`linear-gradient(to right, \${gradientFromColor}, \${gradientToColor})\`,
+          borderRadius: \`\${borderRadius}px\`,
+        }}
+      ></div>
+      <div 
+        className="relative flex items-center p-2 shadow-2xl"
+        style={{
+          backgroundColor,
+          borderColor,
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderRadius: \`\${borderRadius}px\`,
+        }}
+      >
+        {showIcon && (
+          <div className="pl-4 text-slate-400">
+            <Search className="w-5 h-5" />
+          </div>
+        )}
+        <input
+          type="url"
+          className="flex-1 bg-transparent border-none outline-none text-white px-4 py-3 placeholder:text-slate-500 font-medium truncate"
+          placeholder={placeholder}
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          disabled={isLoading}
+          required
+        />
+        {showButton && (
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              borderRadius: \`\${Math.max(0, borderRadius - 4)}px\`,
+            }}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" /> Processing
+              </>
+            ) : (
+              <>
+                {buttonText} <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </form>
+  )
+}
+
+// Usage example:
+export function UrlInputDemo() {
+  const handleGenerate = (url: string) => {
+    console.log('Generated URL:', url)
+    // Your logic here
+  }
+
+  return (
+    <UrlInput${propsString} onGenerate={handleGenerate} />
+  )
+}`
+    }
+
     if (children) {
       return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
     }
@@ -562,7 +752,7 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
   }
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-6">
+    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-6 min-w-0 w-full">
       {/* Mobile Order: 1. Preview */}
       <div className="order-1 lg:col-span-1">
         <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
@@ -629,6 +819,23 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
                   </div>
                 )}
 
+                {propConfig.type === "color" && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={props[key] || "#000000"}
+                      onChange={(e) => updateProp(key, e.target.value)}
+                      className="h-10 w-20 rounded border border-input cursor-pointer"
+                    />
+                    <Input
+                      value={props[key] || ""}
+                      onChange={(e) => updateProp(key, e.target.value)}
+                      placeholder={propConfig.default}
+                      className="flex-1"
+                    />
+                  </div>
+                )}
+
                 {key !== Object.keys(config.props)[Object.keys(config.props).length - 1] && (
                   <Separator className="!mt-4" />
                 )}
@@ -639,8 +846,8 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
       </div>
 
       {/* Mobile Order: 3. Code */}
-      <div className="order-3 lg:col-span-1">
-        <Card className="p-6">
+      <div className="order-3 lg:col-span-1 min-w-0">
+        <Card className="p-6 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Code</h3>
             <Button
@@ -662,9 +869,11 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
               )}
             </Button>
           </div>
-          <pre className="bg-muted p-4 rounded-lg overflow-x-auto overflow-y-auto text-sm max-h-[400px] scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground transition-colors">
-            <code>{generateCode()}</code>
-          </pre>
+          <div className="w-full min-w-0 overflow-hidden">
+            <pre className="bg-muted p-4 rounded-lg overflow-x-auto overflow-y-auto text-sm max-h-[400px] w-full min-w-0 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground transition-colors">
+              <code className="block whitespace-pre">{generateCode()}</code>
+            </pre>
+          </div>
         </Card>
       </div>
 
