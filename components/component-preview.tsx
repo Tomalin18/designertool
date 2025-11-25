@@ -48,7 +48,11 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
       const defaultProps = heroDefaultProps[heroMeta.slug] || {}
-      return <HeroComponent {...defaultProps} />
+      return (
+        <div className="w-full">
+          <HeroComponent {...defaultProps} />
+        </div>
+      )
     }
 
     switch (name) {
@@ -279,12 +283,17 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
     }
   }
 
+  const isHero = !!heroMeta
+
   return (
     <Card className={cn(
       "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
       className
     )}>
-      <div className={`p-6 bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden`}>
+      <div className={cn(
+        "bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden",
+        isHero ? "p-0" : "p-6"
+      )}>
         {renderPreview()}
       </div>
       <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0">
