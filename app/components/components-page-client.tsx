@@ -6,20 +6,11 @@ import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { componentsData, categories } from "@/lib/components-data"
+import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
-// Placeholder components for code and properties (could be replaced with actual implementations)
-const CodeView = dynamic(() => import("@/components/code-view"), {
-    ssr: false,
-    loading: () => <p className="text-muted-foreground">Loading code...</p>,
-})
-const PropertiesView = dynamic(() => import("@/components/properties-view"), {
-    ssr: false,
-    loading: () => <p className="text-muted-foreground">Loading properties...</p>,
-})
 
 export function ComponentsPageClient() {
     const [selectedCategory, setSelectedCategory] = useState("All")
@@ -35,7 +26,14 @@ export function ComponentsPageClient() {
         return matchesCategory && matchesSearch
     })
 
-    const customComponents: any[] = []
+    const customComponents: ComponentInfo[] = [
+      {
+        name: "UrlInput",
+        description: "A URL input component with gradient border effect and generate button.",
+        href: "/components/url-input",
+        category: "Forms",
+      },
+    ]
 
     const filteredCustomComponents = customComponents.filter((component) => {
         const matchesCategory = customizeCategory === "All" || component.category === customizeCategory
@@ -69,8 +67,6 @@ export function ComponentsPageClient() {
                     <TabsList className="mb-6">
                         <TabsTrigger value="preview">Preview</TabsTrigger>
                         <TabsTrigger value="customize">Customize</TabsTrigger>
-                        <TabsTrigger value="code">Code</TabsTrigger>
-                        <TabsTrigger value="properties">Properties</TabsTrigger>
                     </TabsList>
 
                     {/* Preview Tab */}
@@ -162,16 +158,6 @@ export function ComponentsPageClient() {
                                 <p className="text-sm text-muted-foreground">Custom components you create will appear here</p>
                             </div>
                         )}
-                    </TabsContent>
-
-                    {/* Code Tab */}
-                    <TabsContent value="code" className="mt-0">
-                        <CodeView />
-                    </TabsContent>
-
-                    {/* Properties Tab */}
-                    <TabsContent value="properties" className="mt-0">
-                        <PropertiesView />
                     </TabsContent>
                 </Tabs>
             </section>
