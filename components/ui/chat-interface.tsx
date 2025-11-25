@@ -208,6 +208,7 @@ interface ChatInterfaceProps {
   onMessage3TextChange?: (text: string) => void
   onMessage4TextChange?: (text: string) => void
   editable?: boolean
+  onAvatarChange?: (url: string) => void
   ownMessageColor?: string
   otherMessageColor?: string
   messageTextColor?: string
@@ -303,6 +304,7 @@ export const ChatInterface = ({
   onMessage3TextChange,
   onMessage4TextChange,
   editable = false,
+  onAvatarChange,
   ownMessageColor = "bg-indigo-600",
   otherMessageColor = "bg-neutral-800",
   messageTextColor,
@@ -417,15 +419,43 @@ export const ChatInterface = ({
         >
             <div className="flex items-center gap-3">
                 <div className="relative">
-                    <img 
-                        src={headerUserAvatar} 
-                        alt="User" 
-                        className="h-10 w-10 rounded-full object-cover ring-2 ring-neutral-800"
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file && onAvatarChange) {
+                                const reader = new FileReader()
+                                reader.onloadend = () => {
+                                    const result = reader.result as string
+                                    onAvatarChange(result)
+                                }
+                                reader.readAsDataURL(file)
+                            }
+                        }}
+                        className="hidden"
+                        id="avatar-upload"
                     />
-                    <span 
-                      className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-neutral-900", statusIndicatorColorClass)}
-                      style={statusIndicatorRgb ? { backgroundColor: statusIndicatorRgb } : undefined}
-                    />
+                    <label
+                        htmlFor="avatar-upload"
+                        className={cn(
+                            "cursor-pointer relative block",
+                            onAvatarChange && "hover:opacity-80 transition-opacity"
+                        )}
+                    >
+                        <img 
+                            src={headerUserAvatar} 
+                            alt="User" 
+                            className={cn(
+                                "h-10 w-10 rounded-full object-cover ring-2 ring-neutral-800",
+                                onAvatarChange && "hover:ring-blue-500 transition-all"
+                            )}
+                        />
+                        <span 
+                          className={cn("absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-neutral-900", statusIndicatorColorClass)}
+                          style={statusIndicatorRgb ? { backgroundColor: statusIndicatorRgb } : undefined}
+                        />
+                    </label>
                 </div>
                 <div>
                     <h4 

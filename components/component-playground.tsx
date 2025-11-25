@@ -684,6 +684,7 @@ const componentConfigs: Record<string, any> = {
             headerUserName={props.headerUserName}
             headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
             headerUserAvatar={props.headerUserAvatar}
+            onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, headerUserAvatar: url })) : undefined}
             headerShowPhone={props.headerShowPhone}
             headerShowVideo={props.headerShowVideo}
             headerShowMore={props.headerShowMore}
