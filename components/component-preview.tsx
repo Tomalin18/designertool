@@ -21,9 +21,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { UrlInput } from "@/components/ui/url-input"
-import { MediaPlayer } from "@/components/ui/media-player"
-import { ChatInterface } from "@/components/ui/chat-interface"
+import { UrlInput } from "@/components/customize/url-input"
+import { MediaPlayer } from "@/components/customize/media-player"
+import { ChatInterface } from "@/components/customize/chat-interface"
+import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -244,6 +245,12 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
         return (
           <div className="w-full max-w-md h-[400px]">
             <ChatInterface />
+          </div>
+        )
+      case "SocialProfileCard":
+        return (
+          <div className="w-full max-w-sm">
+            <SocialProfileCard />
           </div>
         )
       default:

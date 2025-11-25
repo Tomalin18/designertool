@@ -45,6 +45,12 @@ export function ComponentsPageClient() {
         href: "/components/chat-interface",
         category: "Display",
       },
+      {
+        name: "SocialProfileCard",
+        description: "A beautiful social profile card component with avatar, stats, and action buttons.",
+        href: "/components/social-profile-card",
+        category: "Display",
+      },
     ]
 
     const filteredCustomComponents = customComponents.filter((component) => {
@@ -172,6 +178,9 @@ export function ComponentsPageClient() {
                                     } else if (component.name === "ChatInterface") {
                                         // ChatInterface spans full width on mobile, 3 columns on md, 4 columns on lg
                                         gridClass = "md:col-span-3 lg:col-span-4"
+                                    } else if (component.name === "SocialProfileCard") {
+                                        // SocialProfileCard spans full width on mobile, 3 columns on md, 2 columns on lg
+                                        gridClass = "md:col-span-3 lg:col-span-2"
                                     }
                                     
                                     return (

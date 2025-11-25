@@ -7,7 +7,8 @@ interface ColorPickerProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  outputFormat?: "hex" | "tailwind-text" | "tailwind-bg" | "tailwind-border"
+  outputFormat?: "hex" | "tailwind-text" | "tailwind-bg" | "tailwind-border" | "tailwind-gradient"
+  gradientPrefix?: "from" | "via" | "to"
   defaultColor?: string
   className?: string
 }
@@ -41,12 +42,28 @@ const colorMap: Record<string, string> = {
   "border-neutral-800": "#262626",
   "border-neutral-500": "#737373",
   "border-indigo-500/50": "#6366f1",
+  // Gradient classes
+  "from-indigo-500": "#6366f1",
+  "from-purple-500": "#a855f7",
+  "from-pink-500": "#ec4899",
+  "from-blue-500": "#3b82f6",
+  "from-green-500": "#22c55e",
+  "via-indigo-500": "#6366f1",
+  "via-purple-500": "#a855f7",
+  "via-pink-500": "#ec4899",
+  "via-blue-500": "#3b82f6",
+  "via-green-500": "#22c55e",
+  "to-indigo-500": "#6366f1",
+  "to-purple-500": "#a855f7",
+  "to-pink-500": "#ec4899",
+  "to-blue-500": "#3b82f6",
+  "to-green-500": "#22c55e",
 }
 
 // Extract hex from Tailwind class (e.g., "text-[#22c55e]" -> "#22c55e")
 const extractHexFromTailwind = (value: string): string | null => {
   if (!value) return null
-  // Try to extract from custom hex format first (e.g., "bg-[#22c55e]")
+  // Try to extract from custom hex format first (e.g., "bg-[#22c55e]" or "from-[#22c55e]")
   const hexMatch = value.match(/\[#([0-9A-Fa-f]{6})\]/)
   if (hexMatch) {
     return `#${hexMatch[1]}`
@@ -75,7 +92,7 @@ const getHexValue = (value: string, defaultColor: string = "#000000"): string =>
 }
 
 // Format output based on outputFormat
-const formatOutput = (hex: string, format: "hex" | "tailwind-text" | "tailwind-bg" | "tailwind-border"): string => {
+const formatOutput = (hex: string, format: "hex" | "tailwind-text" | "tailwind-bg" | "tailwind-border" | "tailwind-gradient", gradientPrefix?: "from" | "via" | "to"): string => {
   if (!hex || !hex.startsWith('#')) return ""
   
   switch (format) {
@@ -87,6 +104,9 @@ const formatOutput = (hex: string, format: "hex" | "tailwind-text" | "tailwind-b
       return `bg-[${hex}]`
     case "tailwind-border":
       return `border-[${hex}]`
+    case "tailwind-gradient":
+      const prefix = gradientPrefix || "from"
+      return `${prefix}-[${hex}]`
     default:
       return hex
   }
@@ -97,6 +117,7 @@ export function ColorPicker({
   onChange,
   placeholder = "#000000",
   outputFormat = "hex",
+  gradientPrefix,
   defaultColor = "#000000",
   className = "",
 }: ColorPickerProps) {
@@ -104,7 +125,7 @@ export function ColorPicker({
   
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value
-    onChange(formatOutput(newHex, outputFormat))
+    onChange(formatOutput(newHex, outputFormat, gradientPrefix))
   }
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,17 +148,15 @@ export function ColorPicker({
     
     // Convert to output format
     if (inputValue.length === 7 && /^#[0-9A-Fa-f]{6}$/.test(inputValue)) {
-      onChange(formatOutput(inputValue, outputFormat))
+      onChange(formatOutput(inputValue, outputFormat, gradientPrefix))
     } else if (inputValue.length > 1 && inputValue.length < 7) {
       // Don't update while user is still typing (wait for complete hex)
       return
     } else if (inputValue === "#") {
       // Don't update while user is just typing #
       return
-    } else {
-      // Clear if empty
-      onChange("")
     }
+    // Don't clear if empty - keep current value to avoid resetting to black
   }
   
   return (
