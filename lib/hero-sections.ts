@@ -31,7 +31,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Simple Centered Hero",
     componentName: "SimpleCenteredHero",
     description: "Centered SaaS hero with pill badge, headline, and dual CTAs.",
-    tags: ["hero", "startup", "cta"],
+    tags: ["hero", "startup", "cta", "button", "badge", "centered", "dark"],
     props: {
       pillText: {
         control: "text",
@@ -120,7 +120,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "SaaS Dashboard Hero",
     componentName: "SaaSDashboardHero",
     description: "Two-column product hero highlighting analytics features.",
-    tags: ["hero", "product", "dashboard"],
+    tags: ["hero", "product", "dashboard", "analytics", "saas", "split-layout", "dark"],
     props: {
       heading: {
         control: "text",
@@ -204,7 +204,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Dev / Code Hero",
     componentName: "DevCodeHero",
     description: "Developer-focused hero with terminal-style callout.",
-    tags: ["hero", "developer", "terminal"],
+    tags: ["hero", "developer", "terminal", "code", "dark", "tech", "button"],
     props: {
       heading: {
         control: "text",
@@ -268,7 +268,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Modern Ecommerce Hero",
     componentName: "ModernEcommerceHero",
     description: "Fashion-forward hero with background image overlay.",
-    tags: ["hero", "ecommerce", "fashion"],
+    tags: ["hero", "ecommerce", "fashion", "image", "shop", "button", "overlay"],
     props: {
       collectionLabel: {
         control: "text",
@@ -324,7 +324,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "App Showcase Hero",
     componentName: "AppShowcaseHero",
     description: "App marketing hero with mobile mockup and store buttons.",
-    tags: ["hero", "app", "mobile"],
+    tags: ["hero", "app", "mobile", "download", "button", "store", "centered"],
     props: {
       heading: {
         control: "text",
@@ -413,7 +413,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Email Capture Hero",
     componentName: "EmailCaptureHero",
     description: "Newsletter focused hero with email input and CTA.",
-    tags: ["hero", "email", "newsletter"],
+    tags: ["hero", "email", "newsletter", "input", "form", "subscribe", "centered"],
     props: {
       heading: {
         control: "text",
@@ -502,7 +502,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Video Background Hero",
     componentName: "VideoBackgroundHero",
     description: "Hero with simulated video background and play button.",
-    tags: ["hero", "video", "media"],
+    tags: ["hero", "video", "media", "background", "fullscreen", "play", "dark"],
     props: {
       title: {
         control: "text",
@@ -554,7 +554,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Split Screen Hero",
     componentName: "SplitScreenHero",
     description: "Two-column personal hero with copy and portrait.",
-    tags: ["hero", "portfolio", "split"],
+    tags: ["hero", "portfolio", "split", "personal", "image", "two-column", "link"],
     props: {
       heading: {
         control: "text",
@@ -630,7 +630,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Web3 Crypto Hero",
     componentName: "Web3CryptoHero",
     description: "Gradient neon hero for DeFi or crypto projects.",
-    tags: ["hero", "web3", "gradient"],
+    tags: ["hero", "web3", "gradient", "crypto", "wallet", "button", "dark", "blockchain"],
     props: {
       heading: {
         control: "text",
@@ -694,7 +694,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Search Focused Hero",
     componentName: "SearchFocusedHero",
     description: "Travel search hero with pill-shaped input.",
-    tags: ["hero", "search", "travel"],
+    tags: ["hero", "search", "travel", "input", "icon", "booking", "centered"],
     props: {
       heading: {
         control: "text",
@@ -760,7 +760,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Event Conference Hero",
     componentName: "EventConferenceHero",
     description: "Conference promo hero with date badge and CTA.",
-    tags: ["hero", "event", "conference"],
+    tags: ["hero", "event", "conference", "ticket", "date", "button", "badge"],
     props: {
       badgeText: {
         control: "text",
@@ -834,7 +834,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Social Proof Hero",
     componentName: "SocialProofHero",
     description: "Testimonial hero with avatars and star rating.",
-    tags: ["hero", "testimonial", "social"],
+    tags: ["hero", "testimonial", "social", "avatar", "rating", "quote", "trust"],
     props: {
       heading: {
         control: "text",
@@ -893,7 +893,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Modern Brutalist Hero",
     componentName: "ModernBrutalistHero",
     description: "Bold brutalist hero with thick borders and typography.",
-    tags: ["hero", "brutalist", "bold"],
+    tags: ["hero", "brutalist", "bold", "typography", "creative", "dark", "fashion"],
     props: {
       badgeText: {
         control: "text",
@@ -962,7 +962,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Podcast / Media Hero",
     componentName: "PodcastMediaHero",
     description: "Podcast feature card with episode info and play CTA.",
-    tags: ["hero", "podcast", "media"],
+    tags: ["hero", "podcast", "media", "audio", "play", "image", "card", "episode"],
     props: {
       badgeText: {
         control: "text",
@@ -1051,7 +1051,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Gradient Mesh Hero",
     componentName: "GradientMeshHero",
     description: "Minimal hero with gradient mesh background.",
-    tags: ["hero", "gradient", "minimal"],
+    tags: ["hero", "gradient", "minimal", "mesh", "abstract", "centered", "light"],
     props: {
       title: {
         control: "text",
@@ -1105,7 +1105,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Feature Grid Background Hero",
     componentName: "FeatureGridBackgroundHero",
     description: "Hero with grid icon background and centered copy.",
-    tags: ["hero", "grid", "feature"],
+    tags: ["hero", "grid", "feature", "background", "pattern", "icon", "centered"],
     props: {
       heading: {
         control: "text",
@@ -1173,7 +1173,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Kinetic Typography Hero",
     componentName: "KineticTypeHero",
     description: "Animated text hero with kinetic typography rows.",
-    tags: ["hero", "typography", "motion"],
+    tags: ["hero", "typography", "motion", "animation", "kinetic", "text", "creative"],
     props: {
       lineOne: {
         control: "text",
@@ -1212,7 +1212,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Interactive Toggle Hero",
     componentName: "InteractiveToggleHero",
     description: "Role-based hero that toggles between developer and designer messaging.",
-    tags: ["hero", "toggle", "interactive"],
+    tags: ["hero", "toggle", "interactive", "tabs", "button", "developer", "designer"],
     props: {
       devHeading: {
         control: "text",
@@ -1266,7 +1266,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Code IDE Hero",
     componentName: "CodeIdeHero",
     description: "VS Code inspired hero with numbered lines and command hint.",
-    tags: ["hero", "developer", "code"],
+    tags: ["hero", "developer", "code", "ide", "syntax", "dark", "tech", "editor"],
     props: {
       fileName: {
         control: "text",
@@ -1320,7 +1320,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Vertical Columns Hero",
     componentName: "VerticalSplitHero",
     description: "Three-column editorial hero with centered CTA.",
-    tags: ["hero", "editorial", "grid"],
+    tags: ["hero", "editorial", "grid", "column", "fashion", "image", "vertical"],
     props: {
       collectionLabel: {
         control: "text",
@@ -1379,7 +1379,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Cyberpunk Glitch Hero",
     componentName: "CyberpunkGlitchHero",
     description: "Glitchy neon hero with monospace typography and CTA.",
-    tags: ["hero", "cyberpunk", "glitch"],
+    tags: ["hero", "cyberpunk", "glitch", "animation", "neon", "dark", "futuristic"],
     props: {
       headline: {
         control: "text",
@@ -1438,7 +1438,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Minimal Data Hero",
     componentName: "MinimalDataHero",
     description: "Monospace hero with stats, references, and data rows.",
-    tags: ["hero", "data", "minimal"],
+    tags: ["hero", "data", "minimal", "stats", "metrics", "dashboard", "light"],
     props: {
       referenceCode: {
         control: "text",
@@ -1502,7 +1502,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Restaurant Luxury Hero",
     componentName: "RestaurantLuxuryHero",
     description: "Serif restaurant hero with layered borders and CTA.",
-    tags: ["hero", "restaurant", "luxury"],
+    tags: ["hero", "restaurant", "luxury", "food", "image", "button", "elegant"],
     props: {
       establishedText: {
         control: "text",
@@ -1563,7 +1563,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Real Estate Hero",
     componentName: "RealEstateHero",
     description: "Property search hero with layered form inputs.",
-    tags: ["hero", "real-estate", "form"],
+    tags: ["hero", "real-estate", "form", "search", "input", "select", "image"],
     props: {
       heading: {
         control: "text",
@@ -1617,7 +1617,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Course Creator Hero",
     componentName: "CourseCreatorHero",
     description: "Course promo hero with instructor highlight and curriculum list.",
-    tags: ["hero", "course", "education"],
+    tags: ["hero", "course", "education", "card", "list", "button", "avatar", "dark"],
     props: {
       badgeText: {
         control: "text",
@@ -1701,7 +1701,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Newsletter Stack Hero",
     componentName: "NewsletterStackHero",
     description: "Stacked newsletter cards with CTA and issue highlight.",
-    tags: ["hero", "newsletter", "editorial"],
+    tags: ["hero", "newsletter", "editorial", "card", "input", "stack", "content"],
     props: {
       title: {
         control: "text",
@@ -1770,7 +1770,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Mobile Fan Hero",
     componentName: "MobileFanHero",
     description: "Layered phone hero with vibrant gradient background.",
-    tags: ["hero", "mobile", "app"],
+    tags: ["hero", "mobile", "app", "phone", "mockup", "fintech", "centered"],
     props: {
       heading: {
         control: "text",
@@ -1804,7 +1804,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Nonprofit Impact Hero",
     componentName: "NonprofitHero",
     description: "Split hero encouraging donations with progress indicator.",
-    tags: ["hero", "nonprofit", "impact"],
+    tags: ["hero", "nonprofit", "impact", "progress", "donation", "button", "icon"],
     props: {
       heading: {
         control: "text",
@@ -1873,7 +1873,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Travel Search Hero",
     componentName: "TravelSearchHero",
     description: "Travel hero with glass pill inputs for destination and dates.",
-    tags: ["hero", "travel", "search"],
+    tags: ["hero", "travel", "search", "booking", "date", "input", "card", "image"],
     props: {
       heading: {
         control: "text",
@@ -1927,7 +1927,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Agency Reel Hero",
     componentName: "AgencyReelHero",
     description: "Video showcase hero with CTA overlay and caption.",
-    tags: ["hero", "agency", "video"],
+    tags: ["hero", "agency", "video", "reel", "play", "thumbnail", "creative"],
     props: {
       heading: {
         control: "text",
@@ -1973,7 +1973,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Review Focused Hero",
     componentName: "ReviewFocusedHero",
     description: "Quote driven hero with avatar and supporting logos.",
-    tags: ["hero", "review", "quote"],
+    tags: ["hero", "review", "quote", "testimonial", "avatar", "rating", "centered"],
     props: {
       quote: {
         control: "text",
@@ -2023,7 +2023,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Waitlist Viral Hero",
     componentName: "WaitlistViralHero",
     description: "Waitlist hero with badge, form, and live count.",
-    tags: ["hero", "waitlist", "startup"],
+    tags: ["hero", "waitlist", "startup", "input", "form", "badge", "counter"],
     props: {
       badgeText: {
         control: "text",
@@ -2092,7 +2092,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Gradient Border Hero",
     componentName: "GradientBorderHero",
     description: "Conic gradient hero highlighting compliance badges.",
-    tags: ["hero", "gradient", "security"],
+    tags: ["hero", "gradient", "security", "border", "badge", "enterprise", "dark"],
     props: {
       heading: {
         control: "text",
@@ -2151,7 +2151,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Bento Grid Hero",
     componentName: "BentoGridHero",
     description: "Bento style hero grid combining imagery, stats, and CTAs.",
-    tags: ["hero", "bento", "grid"],
+    tags: ["hero", "bento", "grid", "card", "stats", "dark", "modern"],
     props: {
       titleLeft: {
         control: "text",
@@ -2220,7 +2220,7 @@ export const heroSections: HeroSectionMeta[] = [
     name: "Comparison Hero",
     componentName: "ComparisonHero",
     description: "Side-by-side hero comparing your product to competitors.",
-    tags: ["hero", "comparison", "product"],
+    tags: ["hero", "comparison", "product", "list", "check", "pricing", "two-column"],
     props: {
       heading: {
         control: "text",

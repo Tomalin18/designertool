@@ -28,22 +28,33 @@ import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 import { GlassAuthForm } from "@/components/customize/glass-auth-form"
 import { heroSections } from "@/lib/hero-sections"
 import { heroComponentsByName, heroDefaultProps } from "@/components/customize/heroes"
+import { featureSections } from "@/lib/feature-sections"
+import { featureComponentsByName, featureDefaultProps } from "@/components/customize/features"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 interface ComponentPreviewProps {
   name: string
-  description: string
+  description?: string
   href: string
-  category: string
+  category?: string
+  tags?: string[]
   className?: string
 }
 
-export function ComponentPreview({ name, href, className }: ComponentPreviewProps) {
+export function ComponentPreview({ name, href, tags, className }: ComponentPreviewProps) {
   const [selectOpen, setSelectOpen] = useState(false)
 
   const heroMeta = heroSections.find((hero) => hero.name === name)
   const HeroComponent = heroMeta ? heroComponentsByName[heroMeta.componentName] : null
+
+  const featureMeta = featureSections.find((feature) => feature.name === name)
+  const FeatureComponent = featureMeta ? featureComponentsByName[featureMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta
+
+  // Get tags from props or from section metadata
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -51,6 +62,15 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
       return (
         <div className="w-full">
           <HeroComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (featureMeta && FeatureComponent) {
+      const defaultProps = featureDefaultProps[featureMeta.slug] || {}
+      return (
+        <div className="w-full">
+          <FeatureComponent {...defaultProps} />
         </div>
       )
     }
@@ -283,8 +303,6 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
     }
   }
 
-  const isHero = !!heroMeta
-
   return (
     <Card className={cn(
       "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
@@ -292,12 +310,26 @@ export function ComponentPreview({ name, href, className }: ComponentPreviewProp
     )}>
       <div className={cn(
         "bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden",
-        isHero ? "p-0" : "p-6"
+        isSection ? "p-0" : "p-6"
       )}>
         {renderPreview()}
       </div>
       <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0">
         <h3 className="font-semibold group-hover:text-primary transition-colors text-xl">{name}</h3>
+        {displayTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {displayTags.slice(0, 4).map((tag) => (
+              <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
+                {tag}
+              </Badge>
+            ))}
+            {displayTags.length > 4 && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5">
+                +{displayTags.length - 4}
+              </Badge>
+            )}
+          </div>
+        )}
       </Link>
     </Card>
   )

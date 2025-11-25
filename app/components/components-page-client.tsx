@@ -1,8 +1,8 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useState } from "react"
-import { Search } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Search, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,8 @@ import { componentsData, categories, ComponentInfo } from "@/lib/components-data
 import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { heroSections } from "@/lib/hero-sections"
+import { featureSections } from "@/lib/feature-sections"
+import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
@@ -90,6 +92,37 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredFeatureSections = featureSections.filter((feature) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            feature.name.toLowerCase().includes(searchLower) ||
+            feature.description.toLowerCase().includes(searchLower) ||
+            feature.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
+    // Combine all sections for display
+    const allFilteredSections = [
+        ...filteredHeroSections.map(hero => ({
+            slug: hero.slug,
+            name: hero.name,
+            description: hero.description,
+            type: 'hero' as const,
+        })),
+        ...filteredFeatureSections.map(feature => ({
+            slug: feature.slug,
+            name: feature.name,
+            description: feature.description,
+            type: 'feature' as const,
+        })),
+    ]
+
+    // Get all unique tags from sections
+    const allSectionTags = Array.from(new Set([
+        ...heroSections.flatMap(hero => hero.tags),
+        ...featureSections.flatMap(feature => feature.tags),
+    ])).sort()
+
     const sidebarItems = [
         {
             title: "Components",
@@ -100,6 +133,45 @@ export function ComponentsPageClient() {
             })),
         },
     ]
+
+    // Section TOC state
+    const [activeSection, setActiveSection] = useState<string | null>(null)
+    const [showToc, setShowToc] = useState(false)
+    const heroRef = useRef<HTMLDivElement>(null)
+    const featureRef = useRef<HTMLDivElement>(null)
+
+    // Section categories for TOC
+    const sectionCategories = [
+        { id: 'hero', label: 'Hero', count: filteredHeroSections.length, ref: heroRef },
+        { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
+    ]
+
+    // Scroll to section
+    const scrollToSection = (sectionId: string) => {
+        const category = sectionCategories.find(c => c.id === sectionId)
+        if (category?.ref.current) {
+            category.ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+    }
+
+    // Update active section on scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            const heroTop = heroRef.current?.getBoundingClientRect().top ?? Infinity
+            const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
+            
+            if (featureTop <= 200) {
+                setActiveSection('feature')
+            } else if (heroTop <= 200) {
+                setActiveSection('hero')
+            } else {
+                setActiveSection(null)
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     return (
         <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
@@ -232,23 +304,100 @@ export function ComponentsPageClient() {
                                     onChange={(e) => setSectionSearch(e.target.value)}
                                 />
                             </div>
+
+                            {/* Section Tags Filter */}
+                            {allSectionTags.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {allSectionTags.map((tag) => {
+                                        const isSelected = sectionSearch.toLowerCase() === tag.toLowerCase()
+                                        return (
+                                            <Badge
+                                                key={tag}
+                                                variant={isSelected ? "default" : "secondary"}
+                                                asChild
+                                            >
+                                                <button
+                                                    type="button"
+                                                    className="cursor-pointer hover:opacity-80 transition-opacity text-xs"
+                                                    onClick={() => setSectionSearch(isSelected ? "" : tag)}
+                                                >
+                                                    {tag}
+                                                </button>
+                                            </Badge>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
 
-                        {filteredHeroSections.length > 0 ? (
-                            <div className="grid gap-6 grid-cols-1">
-                                {filteredHeroSections.map((hero) => (
-                                    <ComponentPreview
-                                        key={hero.slug}
-                                        name={hero.name}
-                                        description={hero.description}
-                                        href={`/components/${hero.slug}`}
-                                        category="Sections"
-                                    />
-                                ))}
+                        {/* Table of Contents - Fixed on the right */}
+                        <div className="hidden lg:block fixed right-8 top-24 z-40">
+                            <div className="bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg p-4 w-40">
+                                <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                                    <List className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-semibold">Section</span>
+                                </div>
+                                <nav className="flex flex-col gap-1">
+                                    {sectionCategories.map((category) => (
+                                        <button
+                                            key={category.id}
+                                            onClick={() => scrollToSection(category.id)}
+                                            className={cn(
+                                                "flex items-center justify-between px-2 py-1.5 rounded-md text-sm transition-colors text-left",
+                                                activeSection === category.id
+                                                    ? "bg-primary/10 text-primary font-medium"
+                                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                            )}
+                                        >
+                                            <span>{category.label}</span>
+                                            <span className="text-xs opacity-60">{category.count}</span>
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
+                        </div>
+
+                        {allFilteredSections.length > 0 ? (
+                            <div className="relative">
+                                {/* Hero Sections */}
+                                {filteredHeroSections.length > 0 && (
+                                    <div ref={heroRef} className="scroll-mt-20">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredHeroSections.map((hero, index) => (
+                                                <div key={hero.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={hero.name}
+                                                        description={hero.description}
+                                                        href={`/components/${hero.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Features Sections */}
+                                {filteredFeatureSections.length > 0 && (
+                                    <div ref={featureRef} className="scroll-mt-20 mt-6">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredFeatureSections.map((feature, index) => (
+                                                <div key={feature.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={feature.name}
+                                                        description={feature.description}
+                                                        href={`/components/${feature.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-12 text-center text-muted-foreground">
-                                <p className="text-lg font-medium">No hero sections found</p>
+                                <p className="text-lg font-medium">No sections found</p>
                                 <p className="text-sm">Try adjusting your search.</p>
                             </div>
                         )}

@@ -1,4 +1,5 @@
 import { heroSections } from "./hero-sections"
+import { featureSections } from "./feature-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2219,6 +2220,31 @@ export function ${hero.componentName}Demo() {
     props: Object.entries(hero.props).map(([propName, prop]) => ({
       name: propName,
       type: prop.docType ?? (prop.control === "boolean" ? "boolean" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})
+
+featureSections.forEach((feature) => {
+  componentDetails[feature.slug] = {
+    name: feature.name,
+    description: feature.description,
+    category: "Sections",
+    hasPlayground: true,
+    installation: "Copy the feature component from the code example below.",
+    usage: `import { ${feature.componentName} } from "@/components/customize/features"
+
+export function ${feature.componentName}Demo() {
+  return <${feature.componentName} />
+}`,
+    tags: feature.tags,
+    props: Object.entries(feature.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
       default:
         typeof prop.default === "string"
           ? JSON.stringify(prop.default)
