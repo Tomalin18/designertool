@@ -13,6 +13,7 @@ import { SidebarNav } from "@/components/sidebar-nav"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
+import { ctaSections } from "@/lib/cta-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -111,6 +112,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredCtaSections = ctaSections.filter((cta) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            cta.name.toLowerCase().includes(searchLower) ||
+            cta.description.toLowerCase().includes(searchLower) ||
+            cta.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     // Combine all sections for display
     const allFilteredSections = [
         ...filteredHeroSections.map(hero => ({
@@ -131,6 +141,12 @@ export function ComponentsPageClient() {
             description: payment.description,
             type: 'payment' as const,
         })),
+        ...filteredCtaSections.map(cta => ({
+            slug: cta.slug,
+            name: cta.name,
+            description: cta.description,
+            type: 'cta' as const,
+        })),
     ]
 
     // Get all unique tags from sections
@@ -138,6 +154,7 @@ export function ComponentsPageClient() {
         ...heroSections.flatMap(hero => hero.tags),
         ...featureSections.flatMap(feature => feature.tags),
         ...paymentSections.flatMap(payment => payment.tags),
+        ...ctaSections.flatMap(cta => cta.tags),
     ])).sort()
 
     const sidebarItems = [
@@ -157,12 +174,14 @@ export function ComponentsPageClient() {
     const heroRef = useRef<HTMLDivElement>(null)
     const featureRef = useRef<HTMLDivElement>(null)
     const paymentRef = useRef<HTMLDivElement>(null)
+    const ctaRef = useRef<HTMLDivElement>(null)
 
     // Section categories for TOC
     const sectionCategories = [
         { id: 'hero', label: 'Hero', count: filteredHeroSections.length, ref: heroRef },
         { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
         { id: 'payment', label: 'Payment', count: filteredPaymentSections.length, ref: paymentRef },
+        { id: 'cta', label: 'CTA', count: filteredCtaSections.length, ref: ctaRef },
     ]
 
     // Scroll to section
@@ -179,8 +198,11 @@ export function ComponentsPageClient() {
             const heroTop = heroRef.current?.getBoundingClientRect().top ?? Infinity
             const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
             const paymentTop = paymentRef.current?.getBoundingClientRect().top ?? Infinity
+            const ctaTop = ctaRef.current?.getBoundingClientRect().top ?? Infinity
             
-            if (paymentTop <= 200) {
+            if (ctaTop <= 200) {
+                setActiveSection('cta')
+            } else if (paymentTop <= 200) {
                 setActiveSection('payment')
             } else if (featureTop <= 200) {
                 setActiveSection('feature')
@@ -427,6 +449,24 @@ export function ComponentsPageClient() {
                                                         name={payment.name}
                                                         description={payment.description}
                                                         href={`/components/${payment.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* CTA Sections */}
+                                {filteredCtaSections.length > 0 && (
+                                    <div ref={ctaRef} className="scroll-mt-20 mt-6">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredCtaSections.map((cta, index) => (
+                                                <div key={cta.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={cta.name}
+                                                        description={cta.description}
+                                                        href={`/components/${cta.slug}`}
                                                         category="Sections"
                                                     />
                                                 </div>

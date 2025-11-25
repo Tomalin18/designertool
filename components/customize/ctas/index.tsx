@@ -80,6 +80,11 @@ export interface SplitImageCtaProps {
   backgroundColor?: string
   headingColor?: string
   descriptionColor?: string
+  primaryButtonBackgroundColor?: string
+  primaryButtonTextColor?: string
+  secondaryButtonBorderColor?: string
+  secondaryButtonTextColor?: string
+  secondaryButtonHoverBackgroundColor?: string
 }
 export function SplitImageCta({
   heading = "Transform your workflow.",
@@ -90,6 +95,11 @@ export function SplitImageCta({
   backgroundColor = "#ffffff",
   headingColor = "#171717",
   descriptionColor = "#525252",
+  primaryButtonBackgroundColor = "#000000",
+  primaryButtonTextColor = "#ffffff",
+  secondaryButtonBorderColor = "#e5e5e5",
+  secondaryButtonTextColor = "#171717",
+  secondaryButtonHoverBackgroundColor = "#fafafa",
 }: SplitImageCtaProps) {
   return (
     <div style={{ backgroundColor }}>
@@ -103,13 +113,24 @@ export function SplitImageCta({
           </p>
           <div className="flex gap-4">
             <button
-              className="rounded-full bg-black px-8 py-3 font-bold text-white hover:bg-neutral-800"
+              className="rounded-full px-8 py-3 font-bold hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: primaryButtonBackgroundColor, color: primaryButtonTextColor }}
             >
               {primaryButtonText}
             </button>
             <button
-              className="rounded-full border border-neutral-200 px-8 py-3 font-bold hover:bg-neutral-50"
-              style={{ color: headingColor }}
+              className="rounded-full border px-8 py-3 font-bold transition-colors"
+              style={{ 
+                borderColor: secondaryButtonBorderColor,
+                color: secondaryButtonTextColor,
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = secondaryButtonHoverBackgroundColor
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
             >
               {secondaryButtonText}
             </button>
@@ -134,6 +155,12 @@ export interface GlowGradientCtaProps {
   glowColor?: string
   gradientFromColor?: string
   gradientToColor?: string
+  headingColor?: string
+  descriptionColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  buttonGradientFromColor?: string
+  buttonGradientToColor?: string
 }
 export function GlowGradientCta({
   heading = "Unleash the Power.",
@@ -144,24 +171,30 @@ export function GlowGradientCta({
   glowColor = "#4f46e5",
   gradientFromColor = "#818cf8",
   gradientToColor = "#22d3ee",
+  headingColor = "#ffffff",
+  descriptionColor = "#818cf8",
+  buttonBackgroundColor = "#0f172a",
+  buttonTextColor = "#ffffff",
+  buttonGradientFromColor = "#E2CBFF",
+  buttonGradientToColor = "#393BB2",
 }: GlowGradientCtaProps) {
   const renderHeading = () => {
-    if (!highlightText) return heading
+    if (!highlightText) return <span style={{ color: headingColor }}>{heading}</span>
     const index = heading.toLowerCase().indexOf(highlightText.toLowerCase())
-    if (index === -1) return heading
+    if (index === -1) return <span style={{ color: headingColor }}>{heading}</span>
     const before = heading.slice(0, index)
     const match = heading.slice(index, index + highlightText.length)
     const after = heading.slice(index + highlightText.length)
     return (
       <>
-        {before}
+        <span style={{ color: headingColor }}>{before}</span>
         <span
           className="text-transparent bg-clip-text"
           style={{ backgroundImage: `linear-gradient(to right, ${gradientFromColor}, ${gradientToColor})` }}
         >
           {match}
         </span>
-        {after}
+        <span style={{ color: headingColor }}>{after}</span>
       </>
     )
   }
@@ -173,15 +206,23 @@ export function GlowGradientCta({
         style={{ backgroundColor: `${glowColor}4d` }}
       />
       <div className="relative z-10">
-        <h2 className="text-5xl font-black text-white mb-6 tracking-tight">
+        <h2 className="text-5xl font-black mb-6 tracking-tight">
           {renderHeading()}
         </h2>
-        <p className="text-xl mb-10" style={{ color: `${gradientFromColor}` }}>
+        <p className="text-xl mb-10" style={{ color: descriptionColor }}>
           {description}
         </p>
         <button className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-8 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+          <span 
+            className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite]"
+            style={{ 
+              background: `conic-gradient(from 90deg at 50% 50%, ${buttonGradientFromColor} 0%, ${buttonGradientToColor} 50%, ${buttonGradientFromColor} 100%)`
+            }}
+          />
+          <span 
+            className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full px-8 py-1 text-sm font-medium backdrop-blur-3xl"
+            style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+          >
             {buttonText}
           </span>
         </button>
@@ -200,6 +241,10 @@ export interface AppStoreCtaProps {
   cardBackgroundColor?: string
   headingColor?: string
   descriptionColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  buttonBorderColor?: string
+  cardBorderColor?: string
 }
 export function AppStoreCta({
   heading = "Take it with you.",
@@ -210,12 +255,16 @@ export function AppStoreCta({
   cardBackgroundColor = "#262626",
   headingColor = "#ffffff",
   descriptionColor = "#a3a3a3",
+  buttonBackgroundColor = "#000000",
+  buttonTextColor = "#ffffff",
+  buttonBorderColor = "#404040",
+  cardBorderColor = "#404040",
 }: AppStoreCtaProps) {
   return (
     <div className="py-20 px-6" style={{ backgroundColor }}>
       <div
-        className="mx-auto max-w-4xl rounded-3xl p-12 text-center md:text-left md:flex md:items-center md:justify-between border border-neutral-800"
-        style={{ backgroundColor: cardBackgroundColor }}
+        className="mx-auto max-w-4xl rounded-3xl p-12 text-center md:text-left md:flex md:items-center md:justify-between border"
+        style={{ backgroundColor: cardBackgroundColor, borderColor: cardBorderColor }}
       >
         <div>
           <h2 className="text-3xl font-bold mb-2" style={{ color: headingColor }}>
@@ -227,7 +276,14 @@ export function AppStoreCta({
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           {showAppStore && (
-            <button className="flex items-center gap-3 rounded-xl bg-black px-4 py-2 text-white border border-neutral-800 hover:bg-neutral-900 transition-colors">
+            <button 
+              className="flex items-center gap-3 rounded-xl px-4 py-2 border transition-colors hover:opacity-90"
+              style={{ 
+                backgroundColor: buttonBackgroundColor, 
+                color: buttonTextColor,
+                borderColor: buttonBorderColor
+              }}
+            >
               <Smartphone size={24} />
               <div className="text-left">
                 <div className="text-[10px] uppercase">Download on the</div>
@@ -236,8 +292,15 @@ export function AppStoreCta({
             </button>
           )}
           {showGooglePlay && (
-            <button className="flex items-center gap-3 rounded-xl bg-black px-4 py-2 text-white border border-neutral-800 hover:bg-neutral-900 transition-colors">
-              <Play size={24} className="fill-white" />
+            <button 
+              className="flex items-center gap-3 rounded-xl px-4 py-2 border transition-colors hover:opacity-90"
+              style={{ 
+                backgroundColor: buttonBackgroundColor, 
+                color: buttonTextColor,
+                borderColor: buttonBorderColor
+              }}
+            >
+              <Play size={24} className="fill-current" />
               <div className="text-left">
                 <div className="text-[10px] uppercase">Get it on</div>
                 <div className="text-sm font-bold leading-none">Google Play</div>
@@ -259,6 +322,11 @@ export interface NewsletterBarCtaProps {
   backgroundColor?: string
   headingColor?: string
   descriptionColor?: string
+  inputBackgroundColor?: string
+  inputBorderColor?: string
+  inputTextColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
 }
 export function NewsletterBarCta({
   heading = "Stay in the loop",
@@ -268,6 +336,11 @@ export function NewsletterBarCta({
   backgroundColor = "#4f46e5",
   headingColor = "#ffffff",
   descriptionColor = "#c7d2fe",
+  inputBackgroundColor = "#ffffff",
+  inputBorderColor = "#e5e7eb",
+  inputTextColor = "#171717",
+  buttonBackgroundColor = "#000000",
+  buttonTextColor = "#ffffff",
 }: NewsletterBarCtaProps) {
   return (
     <div className="py-16 px-6" style={{ backgroundColor }}>
@@ -283,8 +356,18 @@ export function NewsletterBarCta({
             type="email"
             placeholder={placeholder}
             className="w-full md:w-64 rounded-lg px-4 py-3 text-sm outline-none shadow-lg"
+            style={{ 
+              backgroundColor: inputBackgroundColor,
+              borderColor: inputBorderColor,
+              color: inputTextColor,
+              borderWidth: '1px',
+              borderStyle: 'solid'
+            }}
           />
-          <button className="rounded-lg bg-black px-6 py-3 font-bold text-white hover:bg-neutral-900 shadow-lg whitespace-nowrap">
+          <button 
+            className="rounded-lg px-6 py-3 font-bold hover:opacity-90 shadow-lg whitespace-nowrap transition-opacity"
+            style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+          >
             {buttonText}
           </button>
         </div>
@@ -300,7 +383,14 @@ export interface CardOverlayCtaProps {
   buttonText?: string
   footerText?: string
   backgroundImage?: string
+  cardBackgroundColor?: string
+  headingColor?: string
+  descriptionColor?: string
+  footerTextColor?: string
   buttonBackgroundColor?: string
+  overlayColor?: string
+  overlayOpacity?: number
+  buttonTextColor?: string
 }
 export function CardOverlayCta({
   heading = "Start your free trial today",
@@ -308,24 +398,36 @@ export function CardOverlayCta({
   buttonText = "Create Account",
   footerText = "By signing up, you agree to our Terms.",
   backgroundImage = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop",
+  cardBackgroundColor = "#ffffff",
+  headingColor = "#171717",
+  descriptionColor = "#525252",
+  footerTextColor = "#a3a3a3",
   buttonBackgroundColor = "#4f46e5",
+  overlayColor = "#000000",
+  overlayOpacity = 50,
+  buttonTextColor = "#ffffff",
 }: CardOverlayCtaProps) {
+  const overlayOpacityHex = Math.round((overlayOpacity / 100) * 255).toString(16).padStart(2, '0')
+  
   return (
     <div
       className="relative h-[400px] flex items-center justify-center bg-cover bg-center px-6"
       style={{ backgroundImage: `url('${backgroundImage}')` }}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div className="relative z-10 max-w-lg w-full rounded-2xl bg-white p-8 text-center shadow-2xl">
-        <h2 className="text-2xl font-bold text-neutral-900 mb-4">{heading}</h2>
-        <p className="text-neutral-600 mb-8">{description}</p>
+      <div 
+        className="absolute inset-0 backdrop-blur-sm" 
+        style={{ backgroundColor: `${overlayColor}${overlayOpacityHex}` }}
+      />
+      <div className="relative z-10 max-w-lg w-full rounded-2xl p-8 text-center shadow-2xl" style={{ backgroundColor: cardBackgroundColor }}>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: headingColor }}>{heading}</h2>
+        <p className="mb-8" style={{ color: descriptionColor }}>{description}</p>
         <button
-          className="w-full rounded-lg py-3 font-bold text-white hover:opacity-90"
-          style={{ backgroundColor: buttonBackgroundColor }}
+          className="w-full rounded-lg py-3 font-bold hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
         >
           {buttonText}
         </button>
-        <p className="mt-4 text-xs text-neutral-400">{footerText}</p>
+        <p className="mt-4 text-xs" style={{ color: footerTextColor }}>{footerText}</p>
       </div>
     </div>
   )
@@ -342,6 +444,12 @@ export interface DeveloperTerminalCtaProps {
   terminalBackgroundColor?: string
   headingColor?: string
   promptColor?: string
+  commandTextColor?: string
+  footnoteColor?: string
+  linkColor?: string
+  linkHoverColor?: string
+  terminalBorderColor?: string
+  buttonColor?: string
 }
 export function DeveloperTerminalCta({
   heading = "Install in seconds",
@@ -353,6 +461,12 @@ export function DeveloperTerminalCta({
   terminalBackgroundColor = "#0d1117",
   headingColor = "#ffffff",
   promptColor = "#22c55e",
+  commandTextColor = "#ffffff",
+  footnoteColor = "#a3a3a3",
+  linkColor = "#a3a3a3",
+  linkHoverColor = "#ffffff",
+  terminalBorderColor = "#404040",
+  buttonColor = "#a3a3a3",
 }: DeveloperTerminalCtaProps) {
   return (
     <div className="py-24 px-6 font-mono" style={{ backgroundColor }}>
@@ -361,32 +475,44 @@ export function DeveloperTerminalCta({
           {heading}
         </h2>
         <div
-          className="mx-auto max-w-lg rounded-xl border border-neutral-800 p-6 text-left shadow-2xl"
-          style={{ backgroundColor: terminalBackgroundColor }}
+          className="mx-auto max-w-lg rounded-xl border p-6 text-left shadow-2xl"
+          style={{ backgroundColor: terminalBackgroundColor, borderColor: terminalBorderColor }}
         >
           <div className="flex gap-2 mb-4">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
             <div className="h-3 w-3 rounded-full bg-green-500" />
           </div>
-          <div className="flex items-center justify-between bg-neutral-900 p-3 rounded-lg border border-neutral-800">
-            <code className="text-sm text-white">
+          <div className="flex items-center justify-between bg-neutral-900 p-3 rounded-lg border" style={{ borderColor: terminalBorderColor }}>
+            <code className="text-sm" style={{ color: commandTextColor }}>
               <span style={{ color: promptColor }}>$</span> {command}
             </code>
-            <button className="text-neutral-500 hover:text-white transition-colors">
+            <button className="transition-colors" style={{ color: buttonColor }}>
               <CheckCircle2 size={16} />
             </button>
           </div>
-          <div className="mt-4 text-xs text-neutral-500 text-center">{footnote}</div>
+          <div className="mt-4 text-xs text-center" style={{ color: footnoteColor }}>{footnote}</div>
         </div>
         <div className="mt-8 flex justify-center gap-6">
           {showGithubLink && (
-            <a href="#" className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+            <a 
+              href="#" 
+              className="flex items-center gap-2 transition-colors"
+              style={{ color: linkColor }}
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+            >
               <Github size={18} /> View on GitHub
             </a>
           )}
           {showDocsLink && (
-            <a href="#" className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+            <a 
+              href="#" 
+              className="flex items-center gap-2 transition-colors"
+              style={{ color: linkColor }}
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+            >
               <MessageCircle size={18} /> Read Docs
             </a>
           )}
@@ -405,6 +531,9 @@ export interface SaasPeekCtaProps {
   headingColor?: string
   descriptionColor?: string
   previewBorderColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  previewBackgroundColor?: string
 }
 export function SaasPeekCta({
   heading = "Master your analytics.",
@@ -414,6 +543,9 @@ export function SaasPeekCta({
   headingColor = "#ffffff",
   descriptionColor = "#a3a3a3",
   previewBorderColor = "#404040",
+  buttonBackgroundColor = "#6366f1",
+  buttonTextColor = "#ffffff",
+  previewBackgroundColor = "#171717",
 }: SaasPeekCtaProps) {
   return (
     <div className="pt-24 px-6 overflow-hidden" style={{ backgroundColor }}>
@@ -424,14 +556,15 @@ export function SaasPeekCta({
         <p className="text-lg mb-10 max-w-2xl mx-auto" style={{ color: descriptionColor }}>
           {description}
         </p>
-        <ShinyButton className="mb-12">{buttonText}</ShinyButton>
+        <ShinyButton className="mb-12" style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}>{buttonText}</ShinyButton>
 
         <div
-          className="relative mx-auto max-w-3xl rounded-t-2xl border-x border-t bg-neutral-800 p-2 shadow-2xl"
-          style={{ borderColor: previewBorderColor }}
+          className="relative mx-auto max-w-3xl rounded-t-2xl border-x border-t p-2 shadow-2xl"
+          style={{ borderColor: previewBorderColor, backgroundColor: previewBackgroundColor }}
         >
           <div
-            className="h-64 w-full rounded-t-xl bg-neutral-900 border border-neutral-700/50"
+            className="h-64 w-full rounded-t-xl border"
+            style={{ backgroundColor: previewBackgroundColor, borderColor: `${previewBorderColor}80` }}
           />
         </div>
       </div>
@@ -449,6 +582,8 @@ export interface SocialProofCtaProps {
   headingColor?: string
   descriptionColor?: string
   buttonBackgroundColor?: string
+  buttonTextColor?: string
+  avatarBorderColor?: string
 }
 export function SocialProofCta({
   heading = "Join 10,000+ designers",
@@ -459,6 +594,8 @@ export function SocialProofCta({
   headingColor = "#171717",
   descriptionColor = "#525252",
   buttonBackgroundColor = "#000000",
+  buttonTextColor = "#ffffff",
+  avatarBorderColor = "#ffffff",
 }: SocialProofCtaProps) {
   return (
     <div className="py-24 px-6 text-center" style={{ backgroundColor }}>
@@ -467,7 +604,8 @@ export function SocialProofCta({
           <img
             key={i}
             src={`https://i.pravatar.cc/100?img=${i + 20}`}
-            className="h-12 w-12 rounded-full border-4 border-white"
+            className="h-12 w-12 rounded-full border-4"
+            style={{ borderColor: avatarBorderColor }}
             alt="User"
           />
         ))}
@@ -479,8 +617,8 @@ export function SocialProofCta({
         {description}
       </p>
       <button
-        className="rounded-full px-8 py-3 font-bold text-white shadow-lg hover:-translate-y-1 transition-transform"
-        style={{ backgroundColor: buttonBackgroundColor }}
+        className="rounded-full px-8 py-3 font-bold shadow-lg hover:-translate-y-1 transition-transform"
+        style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
       >
         {buttonText}
       </button>
@@ -499,6 +637,12 @@ export interface CountdownCtaProps {
   seconds?: string
   gradientFromColor?: string
   gradientToColor?: string
+  badgeBackgroundColor?: string
+  badgeTextColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  timeUnitBackgroundColor?: string
+  timeUnitTextColor?: string
 }
 export function CountdownCta({
   badgeText = "Limited Time Offer",
@@ -510,6 +654,12 @@ export function CountdownCta({
   seconds = "12",
   gradientFromColor = "#dc2626",
   gradientToColor = "#e11d48",
+  badgeBackgroundColor = "#ffffff",
+  badgeTextColor = "#ffffff",
+  buttonBackgroundColor = "#ffffff",
+  buttonTextColor = "#dc2626",
+  timeUnitBackgroundColor = "#ffffff",
+  timeUnitTextColor = "#ffffff",
 }: CountdownCtaProps) {
   const timeUnits = [
     { val: days, label: "Days" },
@@ -523,7 +673,10 @@ export function CountdownCta({
       className="py-16 px-6 text-white text-center"
       style={{ backgroundImage: `linear-gradient(to right, ${gradientFromColor}, ${gradientToColor})` }}
     >
-      <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-6">
+      <div 
+        className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider mb-6"
+        style={{ backgroundColor: `${badgeBackgroundColor}33`, color: badgeTextColor }}
+      >
         <Clock size={14} /> {badgeText}
       </div>
       <h2 className="text-4xl font-black mb-8 uppercase italic">{heading}</h2>
@@ -531,7 +684,10 @@ export function CountdownCta({
       <div className="flex justify-center gap-4 mb-10">
         {timeUnits.map((t, i) => (
           <div key={i} className="flex flex-col items-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white/20 text-2xl font-bold backdrop-blur-sm">
+            <div 
+              className="flex h-16 w-16 items-center justify-center rounded-lg text-2xl font-bold backdrop-blur-sm"
+              style={{ backgroundColor: `${timeUnitBackgroundColor}33`, color: timeUnitTextColor }}
+            >
               {t.val}
             </div>
             <span className="mt-2 text-xs font-medium opacity-80">{t.label}</span>
@@ -539,7 +695,10 @@ export function CountdownCta({
         ))}
       </div>
 
-      <button className="bg-white px-8 py-3 rounded-lg font-bold hover:bg-neutral-100 shadow-xl" style={{ color: gradientFromColor }}>
+      <button 
+        className="px-8 py-3 rounded-lg font-bold hover:opacity-90 shadow-xl transition-opacity" 
+        style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+      >
         {buttonText}
       </button>
     </div>
@@ -558,6 +717,14 @@ export interface PricingTeaserCtaProps {
   backgroundColor?: string
   cardBackgroundColor?: string
   accentColor?: string
+  headingColor?: string
+  priceTextColor?: string
+  priceDescriptionColor?: string
+  featureTextColor?: string
+  featureIconColor?: string
+  secondaryButtonBorderColor?: string
+  secondaryButtonTextColor?: string
+  secondaryButtonHoverBackgroundColor?: string
 }
 export function PricingTeaserCta({
   heading = "Simple, transparent pricing.",
@@ -570,6 +737,14 @@ export function PricingTeaserCta({
   backgroundColor = "#fafafa",
   cardBackgroundColor = "#ffffff",
   accentColor = "#4f46e5",
+  headingColor = "#171717",
+  priceTextColor = "#171717",
+  priceDescriptionColor = "#737373",
+  featureTextColor = "#525252",
+  featureIconColor = "#22c55e",
+  secondaryButtonBorderColor = "#e5e5e5",
+  secondaryButtonTextColor = "#525252",
+  secondaryButtonHoverBackgroundColor = "#fafafa",
 }: PricingTeaserCtaProps) {
   return (
     <div className="py-20 px-6" style={{ backgroundColor }}>
@@ -578,27 +753,40 @@ export function PricingTeaserCta({
         style={{ backgroundColor: cardBackgroundColor }}
       >
         <div>
-          <h2 className="text-3xl font-bold text-neutral-900 mb-2">{heading}</h2>
-          <p className="text-neutral-500 text-lg">
-            {priceDescription} <span className="font-bold text-neutral-900">{priceText}</span>. Cancel anytime.
+          <h2 className="text-3xl font-bold mb-2" style={{ color: headingColor }}>{heading}</h2>
+          <p className="text-lg" style={{ color: priceDescriptionColor }}>
+            {priceDescription} <span className="font-bold" style={{ color: priceTextColor }}>{priceText}</span>. Cancel anytime.
           </p>
-          <div className="mt-6 flex gap-4 text-sm text-neutral-600">
+          <div className="mt-6 flex gap-4 text-sm" style={{ color: featureTextColor }}>
             <span className="flex items-center gap-1">
-              <CheckCircle2 size={16} className="text-green-500" /> {feature1}
+              <CheckCircle2 size={16} style={{ color: featureIconColor }} /> {feature1}
             </span>
             <span className="flex items-center gap-1">
-              <CheckCircle2 size={16} className="text-green-500" /> {feature2}
+              <CheckCircle2 size={16} style={{ color: featureIconColor }} /> {feature2}
             </span>
           </div>
         </div>
         <div className="flex flex-col gap-3 w-full md:w-auto">
           <button
-            className="rounded-xl px-8 py-4 font-bold text-white shadow-lg hover:opacity-90"
+            className="rounded-xl px-8 py-4 font-bold text-white shadow-lg hover:opacity-90 transition-opacity"
             style={{ backgroundColor: accentColor, boxShadow: `0 10px 25px -5px ${accentColor}40` }}
           >
             {primaryButtonText}
           </button>
-          <button className="rounded-xl border border-neutral-200 px-8 py-4 font-bold text-neutral-600 hover:bg-neutral-50">
+          <button 
+            className="rounded-xl border px-8 py-4 font-bold transition-colors"
+            style={{ 
+              borderColor: secondaryButtonBorderColor,
+              color: secondaryButtonTextColor,
+              backgroundColor: 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = secondaryButtonHoverBackgroundColor
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+          >
             {secondaryButtonText}
           </button>
         </div>
@@ -614,6 +802,11 @@ export interface VideoBackgroundCtaProps {
   backgroundImage?: string
   overlayColor?: string
   headingColor?: string
+  overlayOpacity?: number
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  buttonBorderColor?: string
+  playIconColor?: string
 }
 export function VideoBackgroundCta({
   heading = "See it in action.",
@@ -621,21 +814,41 @@ export function VideoBackgroundCta({
   backgroundImage = "https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif",
   overlayColor = "#312e81",
   headingColor = "#ffffff",
+  overlayOpacity = 20,
+  buttonBackgroundColor = "#ffffff",
+  buttonTextColor = "#ffffff",
+  buttonBorderColor = "#ffffff",
+  playIconColor = "#312e81",
 }: VideoBackgroundCtaProps) {
+  const overlayOpacityHex = Math.round((overlayOpacity / 100) * 255).toString(16).padStart(2, '0')
+  
   return (
     <div className="relative py-32 px-6 text-center overflow-hidden">
       <div className="absolute inset-0" style={{ backgroundColor: overlayColor }}>
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-overlay"
-          style={{ backgroundImage: `url('${backgroundImage}')` }}
+          className="absolute inset-0 bg-cover bg-center mix-blend-overlay"
+          style={{ 
+            backgroundImage: `url('${backgroundImage}')`,
+            opacity: overlayOpacity / 100
+          }}
         />
       </div>
       <div className="relative z-10 max-w-2xl mx-auto">
         <h2 className="text-4xl font-bold mb-6" style={{ color: headingColor }}>
           {heading}
         </h2>
-        <button className="group relative flex items-center justify-center gap-4 bg-white/10 backdrop-blur-md rounded-full px-8 py-4 text-white hover:bg-white/20 transition-all border border-white/20 mx-auto">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-indigo-900 group-hover:scale-110 transition-transform">
+        <button 
+          className="group relative flex items-center justify-center gap-4 backdrop-blur-md rounded-full px-8 py-4 hover:opacity-90 transition-all border mx-auto"
+          style={{ 
+            backgroundColor: `${buttonBackgroundColor}1a`,
+            color: buttonTextColor,
+            borderColor: `${buttonBorderColor}33`
+          }}
+        >
+          <div 
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white group-hover:scale-110 transition-transform"
+            style={{ color: playIconColor }}
+          >
             <Play size={16} fill="currentColor" className="ml-0.5" />
           </div>
           <span className="font-bold">{buttonText}</span>
@@ -654,6 +867,11 @@ export interface CommunityCtaProps {
   backgroundColor?: string
   headingColor?: string
   descriptionColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  statCardBackgroundColor?: string
+  statCardTextColor?: string
+  statCardLabelColor?: string
 }
 export function CommunityCta({
   heading = "Join the Community",
@@ -663,6 +881,11 @@ export function CommunityCta({
   backgroundColor = "#5865F2",
   headingColor = "#ffffff",
   descriptionColor = "#c7d2fe",
+  buttonBackgroundColor = "#ffffff",
+  buttonTextColor = "#5865F2",
+  statCardBackgroundColor = "#ffffff",
+  statCardTextColor = "#ffffff",
+  statCardLabelColor = "#c7d2fe",
 }: CommunityCtaProps) {
   return (
     <div className="py-20 px-6 text-center" style={{ backgroundColor, color: headingColor }}>
@@ -672,9 +895,13 @@ export function CommunityCta({
       </p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-10">
         {[...Array(statCount)].map((_, i) => (
-          <div key={i} className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-            <div className="text-2xl font-bold">{12 + i}k</div>
-            <div className="text-xs opacity-80" style={{ color: descriptionColor }}>
+          <div 
+            key={i} 
+            className="rounded-xl p-4 backdrop-blur-sm"
+            style={{ backgroundColor: `${statCardBackgroundColor}1a` }}
+          >
+            <div className="text-2xl font-bold" style={{ color: statCardTextColor }}>{12 + i}k</div>
+            <div className="text-xs opacity-80" style={{ color: statCardLabelColor }}>
               Online Now
             </div>
           </div>
@@ -682,7 +909,7 @@ export function CommunityCta({
       </div>
       <button
         className="px-8 py-3 rounded-full font-bold hover:shadow-xl hover:-translate-y-1 transition-all"
-        style={{ backgroundColor: headingColor, color: backgroundColor }}
+        style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
       >
         {buttonText}
       </button>
@@ -700,6 +927,8 @@ export interface BrutalistCtaProps {
   borderColor?: string
   textColor?: string
   buttonColor?: string
+  buttonTextColor?: string
+  buttonBorderColor?: string
 }
 export function BrutalistCta({
   line1 = "Ship",
@@ -710,6 +939,8 @@ export function BrutalistCta({
   borderColor = "#000000",
   textColor = "#000000",
   buttonColor = "#ff00ff",
+  buttonTextColor = "#ffffff",
+  buttonBorderColor = "#000000",
 }: BrutalistCtaProps) {
   return (
     <div
@@ -724,8 +955,12 @@ export function BrutalistCta({
         {line3}
       </h2>
       <button
-        className="border-4 px-12 py-4 text-xl font-bold uppercase text-white shadow-[8px_8px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-[6px] active:translate-y-[6px] active:shadow-[2px_2px_0px_0px_#000] transition-all"
-        style={{ backgroundColor: buttonColor, borderColor }}
+        className="border-4 px-12 py-4 text-xl font-bold uppercase shadow-[8px_8px_0px_0px_#000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[6px_6px_0px_0px_#000] active:translate-x-[6px] active:translate-y-[6px] active:shadow-[2px_2px_0px_0px_#000] transition-all"
+        style={{ 
+          backgroundColor: buttonColor, 
+          borderColor: buttonBorderColor,
+          color: buttonTextColor
+        }}
       >
         {buttonText}
       </button>
@@ -745,6 +980,11 @@ export interface InteractiveSliderCtaProps {
   cardBackgroundColor?: string
   accentColor?: string
   sliderAccentColor?: string
+  headingColor?: string
+  sliderLabelColor?: string
+  savingsLabelColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
 }
 export function InteractiveSliderCta({
   heading = "See how much you save",
@@ -757,25 +997,30 @@ export function InteractiveSliderCta({
   cardBackgroundColor = "#171717",
   accentColor = "#22c55e",
   sliderAccentColor = "#6366f1",
+  headingColor = "#ffffff",
+  sliderLabelColor = "#ffffff",
+  savingsLabelColor = "#a3a3a3",
+  buttonBackgroundColor = "#6366f1",
+  buttonTextColor = "#ffffff",
 }: InteractiveSliderCtaProps) {
   const [hours, setHours] = useState(10)
 
   return (
     <div className="py-24 px-6" style={{ backgroundColor }}>
       <div
-        className="mx-auto max-w-4xl rounded-3xl p-12 text-center text-white shadow-2xl"
+        className="mx-auto max-w-4xl rounded-3xl p-12 text-center shadow-2xl"
         style={{ backgroundColor: cardBackgroundColor }}
       >
-        <h2 className="text-2xl font-bold mb-8">{heading}</h2>
+        <h2 className="text-2xl font-bold mb-8" style={{ color: headingColor }}>{heading}</h2>
 
         <div className="mb-12">
           <div className="text-5xl font-bold mb-2" style={{ color: accentColor }}>
             ${hours * multiplier}
           </div>
-          <div className="text-neutral-400">{savingsLabel}</div>
+          <div style={{ color: savingsLabelColor }}>{savingsLabel}</div>
         </div>
         <div className="max-w-md mx-auto mb-10">
-          <div className="flex justify-between text-sm font-medium mb-4">
+          <div className="flex justify-between text-sm font-medium mb-4" style={{ color: sliderLabelColor }}>
             <span>{sliderLabel}</span>
             <span style={{ color: sliderAccentColor }}>{hours} hrs</span>
           </div>
@@ -789,7 +1034,7 @@ export function InteractiveSliderCta({
             style={{ accentColor: sliderAccentColor }}
           />
         </div>
-        <ShinyButton className="w-full md:w-auto px-8">{buttonText}</ShinyButton>
+        <ShinyButton className="w-full md:w-auto px-8" style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}>{buttonText}</ShinyButton>
       </div>
     </div>
   )
@@ -808,6 +1053,10 @@ export interface TwoColumnBenefitsCtaProps {
   backgroundColor?: string
   headingColor?: string
   checkColor?: string
+  benefitTextColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  imageOverlayColor?: string
 }
 export function TwoColumnBenefitsCta({
   heading = "Everything you need to succeed.",
@@ -821,6 +1070,10 @@ export function TwoColumnBenefitsCta({
   backgroundColor = "#fafafa",
   headingColor = "#171717",
   checkColor = "#22c55e",
+  benefitTextColor = "#525252",
+  buttonBackgroundColor = "#000000",
+  buttonTextColor = "#ffffff",
+  imageOverlayColor = "#e5e5e5",
 }: TwoColumnBenefitsCtaProps) {
   const benefits = [benefit1, benefit2, benefit3, benefit4, benefit5].filter(Boolean)
 
@@ -833,7 +1086,7 @@ export function TwoColumnBenefitsCta({
           </h2>
           <div className="space-y-4 mb-8">
             {benefits.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-neutral-600">
+              <div key={i} className="flex items-center gap-3" style={{ color: benefitTextColor }}>
                 <div
                   className="flex h-6 w-6 items-center justify-center rounded-full"
                   style={{ backgroundColor: `${checkColor}20`, color: checkColor }}
@@ -844,13 +1097,19 @@ export function TwoColumnBenefitsCta({
               </div>
             ))}
           </div>
-          <button className="rounded-lg bg-black px-6 py-3 font-bold text-white hover:bg-neutral-800">
+          <button 
+            className="rounded-lg px-6 py-3 font-bold hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+          >
             {buttonText}
           </button>
         </div>
         <div
-          className="h-full min-h-[300px] rounded-2xl bg-neutral-200 bg-cover bg-center"
-          style={{ backgroundImage: `url('${imageUrl}')` }}
+          className="h-full min-h-[300px] rounded-2xl bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url('${imageUrl}')`,
+            backgroundColor: imageOverlayColor
+          }}
         />
       </div>
     </div>
@@ -866,6 +1125,10 @@ export interface FloatingBannerCtaProps {
   bannerBackgroundColor?: string
   indicatorColor?: string
   buttonBackgroundColor?: string
+  messageTextColor?: string
+  buttonTextColor?: string
+  bannerBorderColor?: string
+  bannerTextColor?: string
 }
 export function FloatingBannerCta({
   message = "Get 20% off your first month",
@@ -875,6 +1138,10 @@ export function FloatingBannerCta({
   bannerBackgroundColor = "#ffffff",
   indicatorColor = "#22c55e",
   buttonBackgroundColor = "#000000",
+  messageTextColor = "#171717",
+  buttonTextColor = "#ffffff",
+  bannerBorderColor = "#e5e5e5",
+  bannerTextColor = "#171717",
 }: FloatingBannerCtaProps) {
   return (
     <div
@@ -885,8 +1152,11 @@ export function FloatingBannerCta({
 
       {/* The Banner */}
       <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl rounded-full border border-neutral-200 p-2 shadow-2xl backdrop-blur-lg flex items-center justify-between pl-6 pr-2"
-        style={{ backgroundColor: `${bannerBackgroundColor}cc` }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl rounded-full border p-2 shadow-2xl backdrop-blur-lg flex items-center justify-between pl-6 pr-2"
+        style={{ 
+          backgroundColor: `${bannerBackgroundColor}cc`,
+          borderColor: bannerBorderColor
+        }}
       >
         <div className="flex items-center gap-3">
           {showIndicator && (
@@ -895,11 +1165,11 @@ export function FloatingBannerCta({
               style={{ backgroundColor: indicatorColor }}
             />
           )}
-          <span className="text-sm font-medium text-neutral-900">{message}</span>
+          <span className="text-sm font-medium" style={{ color: messageTextColor || bannerTextColor }}>{message}</span>
         </div>
         <button
-          className="rounded-full px-6 py-2.5 text-sm font-bold text-white hover:opacity-90 transition-colors"
-          style={{ backgroundColor: buttonBackgroundColor }}
+          className="rounded-full px-6 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
         >
           {buttonText}
         </button>
@@ -917,6 +1187,9 @@ export interface Abstract3dCtaProps {
   glowColor1?: string
   glowColor2?: string
   iconColor?: string
+  buttonBackgroundColor?: string
+  buttonTextColor?: string
+  descriptionColor?: string
 }
 export function Abstract3dCta({
   heading = "Supercharge your workflow.",
@@ -926,6 +1199,9 @@ export function Abstract3dCta({
   glowColor1 = "#9333ea",
   glowColor2 = "#2563eb",
   iconColor = "#facc15",
+  buttonBackgroundColor = "#ffffff",
+  buttonTextColor = "#000000",
+  descriptionColor = "#a3a3a3",
 }: Abstract3dCtaProps) {
   return (
     <div className="relative overflow-hidden py-24 px-6 text-center" style={{ backgroundColor }}>
@@ -945,7 +1221,10 @@ export function Abstract3dCta({
         <h2 className="text-4xl font-bold mb-6" style={{ color: headingColor }}>
           {heading}
         </h2>
-        <button className="bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-neutral-200">
+        <button 
+          className="px-8 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+        >
           {buttonText}
         </button>
       </div>
@@ -964,6 +1243,11 @@ export interface EnterpriseTrustCtaProps {
   headingColor?: string
   descriptionColor?: string
   iconColor?: string
+  primaryButtonBackgroundColor?: string
+  primaryButtonTextColor?: string
+  secondaryButtonBorderColor?: string
+  secondaryButtonTextColor?: string
+  secondaryButtonHoverBackgroundColor?: string
 }
 export function EnterpriseTrustCta({
   heading = "Trusted by the Fortune 500",
@@ -975,6 +1259,11 @@ export function EnterpriseTrustCta({
   headingColor = "#171717",
   descriptionColor = "#737373",
   iconColor = "#171717",
+  primaryButtonBackgroundColor = "#171717",
+  primaryButtonTextColor = "#ffffff",
+  secondaryButtonBorderColor = "#e5e5e5",
+  secondaryButtonTextColor = "#171717",
+  secondaryButtonHoverBackgroundColor = "#fafafa",
 }: EnterpriseTrustCtaProps) {
   return (
     <div className="py-20 px-6 border-t border-neutral-100" style={{ backgroundColor }}>
@@ -988,15 +1277,25 @@ export function EnterpriseTrustCta({
         </p>
         <div className="flex justify-center gap-4">
           <button
-            className="rounded-lg px-6 py-3 font-bold text-white hover:opacity-90"
-            style={{ backgroundColor: headingColor }}
+            className="rounded-lg px-6 py-3 font-bold hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: primaryButtonBackgroundColor, color: primaryButtonTextColor }}
           >
             {primaryButtonText}
           </button>
           {showSecondaryButton && (
             <button
-              className="rounded-lg px-6 py-3 font-bold hover:bg-neutral-50"
-              style={{ color: headingColor }}
+              className="rounded-lg border px-6 py-3 font-bold transition-colors"
+              style={{ 
+                borderColor: secondaryButtonBorderColor,
+                color: secondaryButtonTextColor,
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = secondaryButtonHoverBackgroundColor
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
             >
               {secondaryButtonText}
             </button>

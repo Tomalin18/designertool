@@ -1,6 +1,7 @@
 import { heroSections } from "./hero-sections"
 import { featureSections } from "./feature-sections"
 import { paymentSections } from "./payment-sections"
+import { ctaSections } from "./cta-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2269,6 +2270,31 @@ export function ${payment.componentName}Demo() {
 }`,
     tags: payment.tags,
     props: Object.entries(payment.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})
+
+ctaSections.forEach((cta) => {
+  componentDetails[cta.slug] = {
+    name: cta.name,
+    description: cta.description,
+    category: "Sections",
+    hasPlayground: true,
+    installation: "Copy the CTA component from the code example below.",
+    usage: `import { ${cta.componentName} } from "@/components/customize/ctas"
+
+export function ${cta.componentName}Demo() {
+  return <${cta.componentName} />
+}`,
+    tags: cta.tags,
+    props: Object.entries(cta.props).map(([propName, prop]) => ({
       name: propName,
       type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
       default:
