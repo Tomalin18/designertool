@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
+import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { Badge } from "@/components/ui/badge"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
@@ -17,6 +19,7 @@ export function ComponentsPageClient() {
     const [searchQuery, setSearchQuery] = useState("")
     const [customizeCategory, setCustomizeCategory] = useState("All")
     const [customizeSearch, setCustomizeSearch] = useState("")
+    const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
     const filteredComponents = componentsData.filter((component) => {
         const matchesCategory = selectedCategory === "All" || component.category === selectedCategory
@@ -32,33 +35,45 @@ export function ComponentsPageClient() {
         description: "A URL input component with gradient border effect and generate button.",
         href: "/components/url-input",
         category: "Forms",
+        tags: componentDetails["url-input"]?.tags || [],
       },
       {
         name: "MediaPlayer",
         description: "A beautiful media player component with album art, playback controls, and progress bar.",
         href: "/components/media-player",
         category: "Display",
+        tags: componentDetails["media-player"]?.tags || [],
       },
       {
         name: "ChatInterface",
         description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
         href: "/components/chat-interface",
         category: "Display",
+        tags: componentDetails["chat-interface"]?.tags || [],
       },
       {
         name: "SocialProfileCard",
         description: "A beautiful social profile card component with avatar, stats, and action buttons.",
         href: "/components/social-profile-card",
         category: "Display",
+        tags: componentDetails["social-profile-card"]?.tags || [],
       },
     ]
 
+    // Get all unique tags from custom components
+    const allTags = Array.from(new Set(
+        customComponents.flatMap(component => component.tags || [])
+    )).sort()
+
     const filteredCustomComponents = customComponents.filter((component) => {
         const matchesCategory = customizeCategory === "All" || component.category === customizeCategory
+        const searchLower = customizeSearch.toLowerCase()
         const matchesSearch =
-            component.name.toLowerCase().includes(customizeSearch.toLowerCase()) ||
-            component.description.toLowerCase().includes(customizeSearch.toLowerCase())
-        return matchesCategory && matchesSearch
+            component.name.toLowerCase().includes(searchLower) ||
+            component.description.toLowerCase().includes(searchLower) ||
+            (component.tags && component.tags.some(tag => tag.toLowerCase().includes(searchLower)))
+        const matchesTag = !selectedTag || (component.tags && component.tags.includes(selectedTag))
+        return matchesCategory && matchesSearch && matchesTag
     })
 
     const sidebarItems = [
@@ -155,12 +170,34 @@ export function ComponentsPageClient() {
                                         key={category}
                                         variant={customizeCategory === category ? "default" : "outline"}
                                         size="sm"
-                                        onClick={() => setCustomizeCategory(category)}
+                                        onClick={() => {
+                                            setCustomizeCategory(category)
+                                            setSelectedTag(null) // Reset tag filter when changing category
+                                        }}
                                     >
                                         {category}
                                     </Button>
                                 ))}
                             </div>
+
+                            {/* Tags Filter */}
+                            {allTags.length > 0 && (
+                                <div className="flex flex-col gap-2">
+                                    <div className="text-sm font-medium text-muted-foreground">Filter by tags:</div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {allTags.map((tag) => (
+                                            <Badge
+                                                key={tag}
+                                                variant={selectedTag === tag ? "default" : "secondary"}
+                                                className="cursor-pointer hover:bg-primary/80 transition-colors"
+                                                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                                            >
+                                                {tag}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Custom Components - Bento Grid Layout */}

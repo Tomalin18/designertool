@@ -5,6 +5,7 @@ export interface ComponentDetail {
   hasPlayground: boolean
   installation: string
   usage: string
+  tags?: string[]
   props: Array<{
     name: string
     type: string
@@ -810,6 +811,7 @@ export function TooltipDemo() {
     description: "A URL input component with gradient border effect and generate button.",
     category: "Forms",
     hasPlayground: true,
+    tags: ["input", "url", "gradient", "form", "button", "search", "submit", "loading", "icon"],
     installation: "Copy the component from the code example below.",
     usage: `import { UrlInput } from "@/components/customize/url-input"
 
@@ -975,6 +977,7 @@ export function AsyncUrlInput() {
     description: "A beautiful media player component with album art, playback controls, and progress bar.",
     category: "Display",
     hasPlayground: true,
+    tags: ["audio", "music", "player", "media", "playback", "controls", "progress", "slider", "button", "upload", "image"],
     installation: "Copy the component from the code example below.",
     usage: `import { MediaPlayer } from "@/components/customize/media-player"
 
@@ -1270,6 +1273,7 @@ export function CustomColorPlayer() {
     description: "A modern chat interface component with message bubbles, typing indicator, and input area. Perfect for messaging applications, customer support chats, or any real-time communication interface.",
     category: "Display",
     hasPlayground: true,
+    tags: ["chat", "messaging", "message", "conversation", "communication", "input", "button", "avatar", "badge", "indicator", "bubble"],
     installation: "Copy the component from the code example below.",
     usage: `import { ChatInterface } from "@/components/customize/chat-interface"
 
@@ -1544,6 +1548,7 @@ export function ChatInCard() {
     description: "A beautiful social profile card component with avatar, stats, and action buttons. Perfect for user profiles, team member showcases, or social media interfaces.",
     category: "Display",
     hasPlayground: true,
+    tags: ["profile", "social", "card", "user", "avatar", "stats", "button", "banner", "gradient", "follow", "link"],
     installation: "Copy the component from the code example below.",
     usage: `import { SocialProfileCard } from "@/components/customize/SocialProfileCard"
 

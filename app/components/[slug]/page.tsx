@@ -6,6 +6,7 @@ import { componentDetails } from "@/lib/component-details"
 import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 export function generateStaticParams() {
   return Object.keys(componentDetails).map((slug) => ({
@@ -56,7 +57,16 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             {component.category}
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">{component.name}</h1>
-          <p className="text-muted-foreground">{component.description}</p>
+          <p className="text-muted-foreground mb-4">{component.description}</p>
+          {component.tags && component.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {component.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         <ComponentPlayground

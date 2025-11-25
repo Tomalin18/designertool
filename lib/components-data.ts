@@ -3,6 +3,7 @@ export interface ComponentInfo {
   description: string
   href: string
   category: string
+  tags?: string[]
 }
 
 export const componentsData: ComponentInfo[] = [
