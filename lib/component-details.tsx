@@ -1265,4 +1265,272 @@ export function CustomColorPlayer() {
       },
     ],
   },
+  "chat-interface": {
+    name: "ChatInterface",
+    description: "A modern chat interface component with message bubbles, typing indicator, and input area. Perfect for messaging applications, customer support chats, or any real-time communication interface.",
+    category: "Display",
+    hasPlayground: true,
+    installation: "Copy the component from the code example below.",
+    usage: `import { ChatInterface } from "@/components/ui/chat-interface"
+
+export function ChatInterfaceDemo() {
+  return (
+    <div className="h-[600px] w-full max-w-md">
+      <ChatInterface />
+    </div>
+  )
+}`,
+    props: [
+      {
+        name: "className",
+        type: "string",
+        description: "Additional CSS classes to apply to the chat interface container. Use this to customize the appearance, size, or add custom styling.",
+      },
+      // Header props
+      {
+        name: "headerUserName",
+        type: "string",
+        default: '"Sarah Jenkins"',
+        description: "The name displayed in the header.",
+      },
+      {
+        name: "headerUserStatus",
+        type: "string",
+        default: '"Online now"',
+        description: "The status displayed below the user name. Options: 'Online now' (green), 'Offline' (gray), 'Away' (yellow), 'Busy' (red), 'Do not disturb' (orange), or 'Other' for custom status.",
+      },
+      {
+        name: "headerUserStatusCustom",
+        type: "string",
+        description: "Custom status text when 'Other' is selected. Only visible when headerUserStatus is set to 'Other'.",
+      },
+      {
+        name: "headerUserAvatar",
+        type: "string",
+        default: "Unsplash image URL",
+        description: "URL of the user avatar image.",
+      },
+      {
+        name: "headerShowPhone",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the phone call button in the header.",
+      },
+      {
+        name: "headerShowVideo",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the video call button in the header.",
+      },
+      {
+        name: "headerShowMore",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the more options button in the header.",
+      },
+      {
+        name: "headerBgColor",
+        type: "string",
+        default: '"bg-neutral-900/80"',
+        description: "Background color class for the header section.",
+      },
+      {
+        name: "headerBorderColor",
+        type: "string",
+        default: '"border-neutral-800"',
+        description: "Border color class for the header section.",
+      },
+      {
+        name: "headerTextColor",
+        type: "string",
+        default: '"text-neutral-100"',
+        description: "Text color class for the header user name.",
+      },
+      {
+        name: "headerStatusColor",
+        type: "string",
+        description: "Text color class for the header status. If not set, colors are automatically assigned: Online now (green), Offline (gray), Away (yellow), Busy (red), Do not disturb (orange). Leave empty to use default colors, or set a custom color class to override.",
+      },
+      // Body props
+      {
+        name: "bodyBgColor",
+        type: "string",
+        description: "Background color class for the message area. Leave empty for default.",
+      },
+      {
+        name: "bodyPadding",
+        type: "number",
+        default: "6",
+        description: "Padding value for the message area (in Tailwind spacing units, 1 = 4px).",
+      },
+      {
+        name: "bodyShowDateLabel",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the date label above messages.",
+      },
+      {
+        name: "bodyDateLabelText",
+        type: "string",
+        default: '"Today, Oct 24"',
+        description: "Text displayed in the date label.",
+      },
+      {
+        name: "bodyShowTypingIndicator",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the typing indicator animation.",
+      },
+      {
+        name: "ownMessageColor",
+        type: "string",
+        default: '"bg-indigo-600"',
+        description: "Background color class for messages sent by the current user.",
+      },
+      {
+        name: "otherMessageColor",
+        type: "string",
+        default: '"bg-neutral-800"',
+        description: "Background color class for messages received from others.",
+      },
+      {
+        name: "messageTextColor",
+        type: "string",
+        description: "Text color class for message content. Leave empty for default colors.",
+      },
+      {
+        name: "timeTextColor",
+        type: "string",
+        default: '"text-neutral-500"',
+        description: "Text color class for message timestamps.",
+      },
+      // Footer props
+      {
+        name: "footerBgColor",
+        type: "string",
+        default: '"bg-neutral-900/80"',
+        description: "Background color class for the footer/input area.",
+      },
+      {
+        name: "footerBorderColor",
+        type: "string",
+        default: '"border-neutral-800"',
+        description: "Border color class for the input container.",
+      },
+      {
+        name: "footerInputBgColor",
+        type: "string",
+        default: '"bg-neutral-950"',
+        description: "Background color class for the input field container.",
+      },
+      {
+        name: "footerInputPlaceholder",
+        type: "string",
+        default: '"Type a message..."',
+        description: "Placeholder text for the message input field.",
+      },
+      {
+        name: "footerShowAttach",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the attachment button.",
+      },
+      {
+        name: "footerShowEmoji",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the emoji picker button.",
+      },
+      {
+        name: "footerButtonColor",
+        type: "string",
+        default: '"bg-indigo-600"',
+        description: "Background color class for the send button.",
+      },
+      {
+        name: "footerFocusBorderColor",
+        type: "string",
+        default: '"border-indigo-500/50"',
+        description: "Border color class when the input is focused.",
+      },
+    ],
+    variants: [
+      {
+        name: "Default",
+        description: "The default chat interface with sample messages, header with user info, and input area.",
+        code: `<ChatInterface />`,
+      },
+      {
+        name: "Compact Size",
+        description: "A more compact version suitable for smaller screens or sidebars.",
+        code: `<div className="h-[400px] w-full max-w-sm">
+  <ChatInterface className="rounded-2xl" />
+</div>`,
+      },
+      {
+        name: "Full Width",
+        description: "Chat interface that spans the full width of its container.",
+        code: `<div className="h-[700px] w-full">
+  <ChatInterface className="rounded-3xl shadow-2xl" />
+</div>`,
+      },
+    ],
+    examples: [
+      {
+        title: "Basic Usage",
+        description: "A simple chat interface component with default settings. Perfect for getting started quickly.",
+        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+
+export function BasicChatInterface() {
+  return (
+    <div className="h-[600px] w-full max-w-md">
+      <ChatInterface />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Custom Styling",
+        description: "Chat interface with custom className for additional styling and enhanced visual effects.",
+        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+
+export function CustomStyledChat() {
+  return (
+    <div className="h-[600px] w-full max-w-lg">
+      <ChatInterface className="shadow-2xl border-2 border-indigo-500/20" />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "Responsive Layout",
+        description: "Chat interface that adapts to different screen sizes using responsive classes.",
+        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+
+export function ResponsiveChat() {
+  return (
+    <div className="h-[500px] md:h-[600px] lg:h-[700px] w-full max-w-sm md:max-w-md lg:max-w-lg">
+      <ChatInterface />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "In a Card Container",
+        description: "Chat interface embedded within a card component for better integration with your design system.",
+        code: `import { ChatInterface } from "@/components/ui/chat-interface"
+import { Card } from "@/components/ui/card"
+
+export function ChatInCard() {
+  return (
+    <Card className="p-4">
+      <div className="h-[600px] w-full">
+        <ChatInterface />
+      </div>
+    </Card>
+  )
+}`,
+      },
+    ],
+  },
 }

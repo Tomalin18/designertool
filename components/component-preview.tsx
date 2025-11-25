@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { UrlInput } from "@/components/ui/url-input"
 import { MediaPlayer } from "@/components/ui/media-player"
+import { ChatInterface } from "@/components/ui/chat-interface"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 
 interface ComponentPreviewProps {
@@ -235,6 +236,12 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
         return (
           <div className="w-full max-w-sm">
             <MediaPlayer />
+          </div>
+        )
+      case "ChatInterface":
+        return (
+          <div className="w-full max-w-md h-[400px]">
+            <ChatInterface />
           </div>
         )
       default:

@@ -25,12 +25,10 @@ import { Toggle } from "@/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { UrlInput } from "@/components/ui/url-input"
 import { MediaPlayer } from "@/components/ui/media-player"
+import { ChatInterface } from "@/components/ui/chat-interface"
 import { AlertCircle, Terminal } from 'lucide-react'
-
-interface PlaygroundProps {
-  componentName: string
-  slug: string
-}
+import { componentDetails } from "@/lib/component-details"
+import { CodeBlock } from "@/components/code-block"
 
 const componentConfigs: Record<string, any> = {
   Button: {
@@ -627,6 +625,78 @@ const componentConfigs: Record<string, any> = {
       )
     },
   },
+  ChatInterface: {
+    props: {
+      className: { type: "text", default: "" },
+      // Header
+      headerUserName: { type: "text", default: "Sarah Jenkins" },
+      headerUserStatus: { type: "select", options: ["Online now", "Offline", "Away", "Busy", "Do not disturb", "Other"], default: "Online now" },
+      headerUserStatusCustom: { type: "text", default: "" },
+      headerUserAvatar: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
+      headerShowPhone: { type: "boolean", default: true },
+      headerShowVideo: { type: "boolean", default: true },
+      headerShowMore: { type: "boolean", default: true },
+      headerBgColor: { type: "text", default: "bg-neutral-900/80" },
+      headerBorderColor: { type: "text", default: "border-neutral-800" },
+      headerTextColor: { type: "text", default: "text-neutral-100" },
+      headerStatusColor: { type: "text", default: "" },
+      // Body
+      bodyBgColor: { type: "text", default: "" },
+      bodyPadding: { type: "slider", min: 2, max: 12, default: 6 },
+      bodyShowDateLabel: { type: "boolean", default: true },
+      bodyDateLabelText: { type: "text", default: "Today, Oct 24" },
+      bodyShowTypingIndicator: { type: "boolean", default: true },
+      ownMessageColor: { type: "text", default: "bg-indigo-600" },
+      otherMessageColor: { type: "text", default: "bg-neutral-800" },
+      messageTextColor: { type: "text", default: "" },
+      timeTextColor: { type: "text", default: "text-neutral-500" },
+      // Footer
+      footerBgColor: { type: "text", default: "bg-neutral-900/80" },
+      footerBorderColor: { type: "text", default: "border-neutral-800" },
+      footerInputBgColor: { type: "text", default: "bg-neutral-950" },
+      footerInputPlaceholder: { type: "text", default: "Type a message..." },
+      footerShowAttach: { type: "boolean", default: true },
+      footerShowEmoji: { type: "boolean", default: true },
+      footerButtonColor: { type: "text", default: "bg-indigo-600" },
+      footerFocusBorderColor: { type: "text", default: "border-indigo-500/50" },
+    },
+    render: (props: any) => {
+      return (
+        <div className="w-full max-w-md h-[600px]">
+          <ChatInterface 
+            className={props.className}
+            headerUserName={props.headerUserName}
+            headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
+            headerUserAvatar={props.headerUserAvatar}
+            headerShowPhone={props.headerShowPhone}
+            headerShowVideo={props.headerShowVideo}
+            headerShowMore={props.headerShowMore}
+            headerBgColor={props.headerBgColor}
+            headerBorderColor={props.headerBorderColor}
+            headerTextColor={props.headerTextColor}
+            headerStatusColor={props.headerStatusColor}
+            bodyBgColor={props.bodyBgColor}
+            bodyPadding={props.bodyPadding}
+            bodyShowDateLabel={props.bodyShowDateLabel}
+            bodyDateLabelText={props.bodyDateLabelText}
+            bodyShowTypingIndicator={props.bodyShowTypingIndicator}
+            ownMessageColor={props.ownMessageColor}
+            otherMessageColor={props.otherMessageColor}
+            messageTextColor={props.messageTextColor}
+            timeTextColor={props.timeTextColor}
+            footerBgColor={props.footerBgColor}
+            footerBorderColor={props.footerBorderColor}
+            footerInputBgColor={props.footerInputBgColor}
+            footerInputPlaceholder={props.footerInputPlaceholder}
+            footerShowAttach={props.footerShowAttach}
+            footerShowEmoji={props.footerShowEmoji}
+            footerButtonColor={props.footerButtonColor}
+            footerFocusBorderColor={props.footerFocusBorderColor}
+          />
+        </div>
+      )
+    },
+  },
 }
 
 export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
@@ -637,7 +707,18 @@ export function ComponentPlayground({ componentName, slug }: PlaygroundProps) {
     if (!config) return {}
     const initialProps: Record<string, any> = {}
     Object.entries(config.props).forEach(([key, propConfig]: [string, any]) => {
-      initialProps[key] = propConfig.default
+      // Ensure boolean defaults are properly set
+      if (propConfig.type === "boolean") {
+        initialProps[key] = propConfig.default === true || propConfig.default === "true"
+      } else if (propConfig.type === "text") {
+        // Ensure text inputs always have a string value (never undefined)
+        initialProps[key] = propConfig.default || ""
+      } else if (propConfig.type === "select") {
+        // Ensure select always has a value
+        initialProps[key] = propConfig.default || propConfig.options?.[0] || ""
+      } else {
+        initialProps[key] = propConfig.default
+      }
     })
     return initialProps
   })
@@ -1437,43 +1518,169 @@ export function UrlInputDemo() {
 
       {/* Mobile Order: 2. Customize (Desktop: Right Column) */}
       <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3">
-        <Card className="p-6 sticky top-20">
+        <Card className="p-6 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
           <h3 className="font-semibold mb-4">Customize</h3>
-          <div className="space-y-4">
-            {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
+          
+          {(() => {
+            // Group props by section (header, body, footer)
+            const headerProps: [string, any][] = []
+            const bodyProps: [string, any][] = []
+            const footerProps: [string, any][] = []
+            const otherProps: [string, any][] = []
+
+            Object.entries(config.props).forEach(([key, propConfig]) => {
+              if (key.startsWith('header')) {
+                headerProps.push([key, propConfig])
+              } else if (key.startsWith('body')) {
+                bodyProps.push([key, propConfig])
+              } else if (key.startsWith('footer')) {
+                footerProps.push([key, propConfig])
+              } else {
+                otherProps.push([key, propConfig])
+              }
+            })
+
+            const renderProp = (key: string, propConfig: any, isLast: boolean) => (
               <div key={key} className="space-y-2">
-                <Label className="capitalize">{key}</Label>
+                <Label className="capitalize">{key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()}</Label>
 
                 {propConfig.type === "select" && (
-                  <Select value={props[key]} onValueChange={(value) => updateProp(key, value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {propConfig.options.map((option: string) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <Select value={props[key] || propConfig.default || ""} onValueChange={(value) => {
+                      updateProp(key, value)
+                      // When switching away from "Other", clear custom status and color
+                      if (key === "headerUserStatus" && value !== "Other") {
+                        updateProp("headerUserStatusCustom", "")
+                        updateProp("headerStatusColor", "")
+                      }
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {propConfig.options.map((option: string) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {key === "headerUserStatus" && props[key] === "Other" && (
+                      <>
+                        <Input
+                          value={props.headerUserStatusCustom || ""}
+                          onChange={(e) => updateProp("headerUserStatusCustom", e.target.value)}
+                          placeholder="Enter custom status..."
+                          className="mt-2"
+                        />
+                        <div className="mt-2 space-y-2">
+                          <Label className="text-xs text-muted-foreground">Custom Status Color</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={(() => {
+                                // Extract hex from Tailwind class or use default
+                                const colorValue = props.headerStatusColor || ""
+                                // Try to extract hex from text-[#hex] format
+                                const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+                                if (hexMatch) {
+                                  return `#${hexMatch[1]}`
+                                }
+                                // Try to get hex from common Tailwind colors
+                                const colorMap: Record<string, string> = {
+                                  "text-green-500": "#22c55e",
+                                  "text-blue-500": "#3b82f6",
+                                  "text-yellow-500": "#eab308",
+                                  "text-red-500": "#ef4444",
+                                  "text-orange-500": "#f97316",
+                                  "text-purple-500": "#a855f7",
+                                  "text-pink-500": "#ec4899",
+                                  "text-neutral-500": "#737373",
+                                }
+                                return colorMap[colorValue] || "#22c55e"
+                              })()}
+                              onChange={(e) => {
+                                // Convert hex to Tailwind text-[#hex] format
+                                updateProp("headerStatusColor", `text-[${e.target.value}]`)
+                              }}
+                              className="h-10 w-20 rounded border border-input cursor-pointer"
+                            />
+                            <Input
+                              value={(() => {
+                                // Extract hex from Tailwind class to show hex value with #
+                                const colorValue = props.headerStatusColor || ""
+                                const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+                                if (hexMatch) {
+                                  return `#${hexMatch[1]}`
+                                }
+                                // If it's a standard Tailwind class, try to get hex
+                                const colorMap: Record<string, string> = {
+                                  "text-green-500": "#22c55e",
+                                  "text-blue-500": "#3b82f6",
+                                  "text-yellow-500": "#eab308",
+                                  "text-red-500": "#ef4444",
+                                  "text-orange-500": "#f97316",
+                                  "text-purple-500": "#a855f7",
+                                  "text-pink-500": "#ec4899",
+                                  "text-neutral-500": "#737373",
+                                }
+                                return colorMap[colorValue] || ""
+                              })()}
+                              onChange={(e) => {
+                                let value = e.target.value
+                                // Ensure it starts with #
+                                if (value && !value.startsWith('#')) {
+                                  value = '#' + value
+                                }
+                                // Limit to 7 characters (# + 6 hex digits)
+                                if (value.length > 7) {
+                                  value = value.slice(0, 7)
+                                }
+                                // Only allow hex characters after #
+                                if (value.length > 1) {
+                                  value = value.slice(0, 1) + value.slice(1).replace(/[^0-9A-Fa-f]/g, "")
+                                }
+                                // Convert to Tailwind text-[#hex] format
+                                if (value.length === 7 && /^#[0-9A-Fa-f]{6}$/.test(value)) {
+                                  updateProp("headerStatusColor", `text-[${value}]`)
+                                } else if (value.length > 1) {
+                                  // Update with partial value (user is still typing)
+                                  const hexPart = value.slice(1).padEnd(6, '0')
+                                  updateProp("headerStatusColor", `text-[#${hexPart}]`)
+                                } else if (value === "#") {
+                                  // Keep # while user is typing
+                                  updateProp("headerStatusColor", `text-[#000000]`)
+                                } else {
+                                  // Clear if empty
+                                  updateProp("headerStatusColor", "")
+                                }
+                              }}
+                              placeholder="#32814f"
+                              className="flex-1 text-xs font-mono"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground">Use color picker or enter hex color code (e.g., 22c55e)</p>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
 
                 {propConfig.type === "boolean" && (
                   <div className="flex items-center space-x-2">
                     <Switch
-                      checked={props[key]}
+                      checked={props[key] === true || props[key] === "true"}
                       onCheckedChange={(checked) => updateProp(key, checked)}
                     />
                     <span className="text-sm text-muted-foreground">
-                      {props[key] ? "Enabled" : "Disabled"}
+                      {props[key] === true || props[key] === "true" ? "Enabled" : "Disabled"}
                     </span>
                   </div>
                 )}
 
                 {propConfig.type === "text" && (
                   <Input
-                    value={props[key]}
+                    value={props[key] || ""}
                     onChange={(e) => updateProp(key, e.target.value)}
                     placeholder={propConfig.default}
                   />
@@ -1522,12 +1729,76 @@ export function UrlInputDemo() {
                   </div>
                 )}
 
-                {key !== Object.keys(config.props)[Object.keys(config.props).length - 1] && (
-                  <Separator className="!mt-4" />
+                {!isLast && <Separator className="!mt-4" />}
+              </div>
+            )
+
+            return (
+              <div className="space-y-6">
+                {/* Header Section */}
+                {headerProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Header</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {headerProps.map(([key, propConfig], index) => {
+                      // Skip headerUserStatusCustom - it's handled inline with headerUserStatus
+                      if (key === "headerUserStatusCustom") {
+                        return null
+                      }
+                      // Skip headerStatusColor - it's handled inline with headerUserStatus when "Other" is selected
+                      if (key === "headerStatusColor") {
+                        return null
+                      }
+                      return renderProp(key, propConfig, index === headerProps.length - 1)
+                    })}
+                  </div>
+                )}
+
+                {/* Body Section */}
+                {bodyProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Body</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {bodyProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === bodyProps.length - 1)
+                    )}
+                  </div>
+                )}
+
+                {/* Footer Section */}
+                {footerProps.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-sm text-muted-foreground">Footer</h4>
+                      <Separator className="flex-1" />
+                    </div>
+                    {footerProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === footerProps.length - 1)
+                    )}
+                  </div>
+                )}
+
+                {/* Other Props */}
+                {otherProps.length > 0 && (
+                  <div className="space-y-4">
+                    {otherProps.length > 0 && headerProps.length + bodyProps.length + footerProps.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-sm text-muted-foreground">General</h4>
+                        <Separator className="flex-1" />
+                      </div>
+                    )}
+                    {otherProps.map(([key, propConfig], index) => 
+                      renderProp(key, propConfig, index === otherProps.length - 1)
+                    )}
+                  </div>
                 )}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </Card>
       </div>
 
@@ -1564,7 +1835,7 @@ export function UrlInputDemo() {
       </div>
 
       {/* Mobile Order: 4. Properties */}
-      <div className="order-4 lg:col-span-1">
+      <div className="order-4 lg:col-span-2">
         <Card className="p-6">
           <h3 className="font-semibold mb-4">Properties</h3>
           <div className="border rounded-lg overflow-hidden">
@@ -1574,25 +1845,89 @@ export function UrlInputDemo() {
                   <th className="text-left p-3 font-medium">Name</th>
                   <th className="text-left p-3 font-medium">Type</th>
                   <th className="text-left p-3 font-medium">Default</th>
+                  <th className="text-left p-3 font-medium">Description</th>
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(config.props).map(([key, propConfig]: [string, any]) => (
-                  <tr key={key} className="border-t">
-                    <td className="p-3 font-mono text-xs">{key}</td>
-                    <td className="p-3">
-                      <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
-                    </td>
-                    <td className="p-3 font-mono text-xs text-muted-foreground">
-                      {String(propConfig.default)}
-                    </td>
-                  </tr>
-                ))}
+                {(() => {
+                  const componentDetail = componentDetails[slug]
+                  const propsMap = componentDetail?.props || []
+                  
+                  return Object.entries(config.props).map(([key, propConfig]: [string, any]) => {
+                    const propDetail = propsMap.find((p: any) => p.name === key)
+                    return (
+                      <tr key={key} className="border-t">
+                        <td className="p-3 font-mono text-xs">{key}</td>
+                        <td className="p-3">
+                          <Badge variant="secondary">{propConfig.type === "slider" ? "number" : propConfig.type}</Badge>
+                        </td>
+                        <td className="p-3 font-mono text-xs text-muted-foreground">
+                          {String(propConfig.default || "-")}
+                        </td>
+                        <td className="p-3 text-xs text-muted-foreground">
+                          {propDetail?.description || "-"}
+                        </td>
+                      </tr>
+                    )
+                  })
+                })()}
               </tbody>
             </table>
           </div>
         </Card>
       </div>
+
+      {/* Variants and Examples */}
+      {(() => {
+        const componentDetail = componentDetails[slug]
+        if (!componentDetail || (!componentDetail.variants?.length && !componentDetail.examples?.length)) {
+          return null
+        }
+
+        return (
+          <>
+            {/* Variants */}
+            {componentDetail.variants && componentDetail.variants.length > 0 && (
+              <div className="order-5 lg:col-span-2">
+                <Card className="p-6">
+                  <h3 className="font-semibold mb-4">Variants</h3>
+                  <div className="space-y-6">
+                    {componentDetail.variants.map((variant, index) => (
+                      <div key={index} className="space-y-3">
+                        <div>
+                          <h4 className="font-medium text-sm mb-1">{variant.name}</h4>
+                          <p className="text-sm text-muted-foreground">{variant.description}</p>
+                        </div>
+                        <CodeBlock code={variant.code} />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Examples */}
+            {componentDetail.examples && componentDetail.examples.length > 0 && (
+              <div className="order-6 lg:col-span-2">
+                <Card className="p-6">
+                  <h3 className="font-semibold mb-4">Examples</h3>
+                  <div className="space-y-8">
+                    {componentDetail.examples.map((example, index) => (
+                      <div key={index} className="space-y-3">
+                        <div>
+                          <h4 className="font-medium text-base mb-1">{example.title}</h4>
+                          <p className="text-sm text-muted-foreground">{example.description}</p>
+                        </div>
+                        <CodeBlock code={example.code} />
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
+            )}
+          </>
+        )
+      })()}
     </div>
   )
 }

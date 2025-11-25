@@ -39,6 +39,12 @@ export function ComponentsPageClient() {
         href: "/components/media-player",
         category: "Display",
       },
+      {
+        name: "ChatInterface",
+        description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
+        href: "/components/chat-interface",
+        category: "Display",
+      },
     ]
 
     const filteredCustomComponents = customComponents.filter((component) => {
