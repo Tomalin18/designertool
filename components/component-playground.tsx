@@ -2118,6 +2118,406 @@ export function UrlInputDemo() {
 }`
     }
 
+    if (componentName === "SocialProfileCard") {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      const propsList = []
+      // Build props list for usage example
+      propsList.push(`name="${props.name || "Sarah Jenkins"}"`)
+      propsList.push(`username="${props.username || "@sarah_des"}"`)
+      propsList.push(`bio="${props.bio || "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers."}"`)
+      propsList.push(`avatarUrl="${props.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop"}"`)
+      propsList.push(`location="${props.location || "San Francisco, CA"}"`)
+      propsList.push(`website="${props.website || "sarah.design"}"`)
+      propsList.push(`twitter="${props.twitter || "@sarah_des"}"`)
+      propsList.push(`showLocation={${props.showLocation !== false}}`)
+      propsList.push(`showWebsite={${props.showWebsite !== false}}`)
+      propsList.push(`showTwitter={${props.showTwitter !== false}}`)
+      propsList.push(`followers="${props.followers || "12.5k"}"`)
+      propsList.push(`following="${props.following || "842"}"`)
+      propsList.push(`projects="${props.projects || "142"}"`)
+      propsList.push(`isOnline={${props.isOnline !== false}}`)
+      propsList.push(`statusColor="${props.statusColor || "bg-green-500"}"`)
+      propsList.push(`bannerGradientFrom="${props.bannerGradientFrom || "from-indigo-500"}"`)
+      propsList.push(`bannerGradientVia="${props.bannerGradientVia || "via-purple-500"}"`)
+      propsList.push(`bannerGradientTo="${props.bannerGradientTo || "to-pink-500"}"`)
+      propsList.push(`followButtonText="${props.followButtonText || "Follow"}"`)
+      propsList.push(`showFollowButton={${props.showFollowButton !== false}}`)
+      propsList.push(`showMessageButton={${props.showMessageButton !== false}}`)
+      propsList.push(`showSimilarButton={${props.showSimilarButton !== false}}`)
+      propsList.push(`messageButtonText="${props.messageButtonText || "Message"}"`)
+      propsList.push(`similarButtonText="${props.similarButtonText || "Similar"}"`)
+
+      if (props.backgroundColor) {
+        const bgColor = hexToRgb(props.backgroundColor)
+        propsList.push(`backgroundColor="${bgColor}"`)
+      }
+
+      if (props.borderColor) {
+        const borderCol = hexToRgb(props.borderColor)
+        propsList.push(`borderColor="${borderCol}"`)
+      }
+
+      propsList.push(`borderRadius={${props.borderRadius !== undefined ? props.borderRadius : 24}}`)
+
+      if (props.gradientFrom) {
+        propsList.push(`gradientFrom="${props.gradientFrom}"`)
+      }
+
+      if (props.gradientTo) {
+        propsList.push(`gradientTo="${props.gradientTo}"`)
+      }
+
+      propsList.push(`gradientWidth={${props.gradientWidth !== undefined ? props.gradientWidth : 2}}`)
+      propsList.push(`gradientAnimated={${props.gradientAnimated || false}}`)
+
+      // Format with line breaks for better readability
+      const propsString = propsList.length > 0
+        ? `\n  ${propsList.join("\n  ")}\n`
+        : ""
+
+      return `import React from "react"
+import { cn } from "@/lib/utils"
+import { MapPin, Link as LinkIcon, Twitter, Users, MessageCircle } from "lucide-react"
+import { ShinyButton } from "./ShinyButton"
+
+interface SocialProfileCardProps {
+  className?: string
+  // User Info
+  name?: string
+  username?: string
+  bio?: string
+  avatarUrl?: string
+  // Social Links
+  location?: string
+  website?: string
+  twitter?: string
+  showLocation?: boolean
+  showWebsite?: boolean
+  showTwitter?: boolean
+  // Stats
+  followers?: string | number
+  following?: string | number
+  projects?: string | number
+  // Status
+  isOnline?: boolean
+  statusColor?: string
+  // Banner
+  bannerGradientFrom?: string
+  bannerGradientVia?: string
+  bannerGradientTo?: string
+  // Buttons
+  followButtonText?: string
+  showFollowButton?: boolean
+  showMessageButton?: boolean
+  showSimilarButton?: boolean
+  messageButtonText?: string
+  similarButtonText?: string
+  // Callbacks
+  onFollow?: () => void
+  onMessage?: () => void
+  onSimilar?: () => void
+  onAvatarChange?: (url: string) => void
+  // Styling
+  backgroundColor?: string
+  borderColor?: string
+  borderRadius?: number
+  gradientFrom?: string
+  gradientTo?: string
+  gradientWidth?: number
+  gradientAnimated?: boolean
+}
+
+export const SocialProfileCard = ({ 
+  className,
+  name = "${props.name || "Sarah Jenkins"}",
+  username = "${props.username || "@sarah_des"}",
+  bio = "${props.bio || "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers."}",
+  avatarUrl = "${props.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop"}",
+  location = "${props.location || "San Francisco, CA"}",
+  website = "${props.website || "sarah.design"}",
+  twitter = "${props.twitter || "@sarah_des"}",
+  showLocation = ${props.showLocation !== false},
+  showWebsite = ${props.showWebsite !== false},
+  showTwitter = ${props.showTwitter !== false},
+  followers = "${props.followers || "12.5k"}",
+  following = "${props.following || "842"}",
+  projects = "${props.projects || "142"}",
+  isOnline = ${props.isOnline !== false},
+  statusColor = "${props.statusColor || "bg-green-500"}",
+  bannerGradientFrom = "${props.bannerGradientFrom || "from-indigo-500"}",
+  bannerGradientVia = "${props.bannerGradientVia || "via-purple-500"}",
+  bannerGradientTo = "${props.bannerGradientTo || "to-pink-500"}",
+  followButtonText = "${props.followButtonText || "Follow"}",
+  showFollowButton = ${props.showFollowButton !== false},
+  showMessageButton = ${props.showMessageButton !== false},
+  showSimilarButton = ${props.showSimilarButton !== false},
+  messageButtonText = "${props.messageButtonText || "Message"}",
+  similarButtonText = "${props.similarButtonText || "Similar"}",
+  onFollow,
+  onMessage,
+  onSimilar,
+  onAvatarChange,
+  backgroundColor${props.backgroundColor ? ` = "${hexToRgb(props.backgroundColor)}"` : ""},
+  borderColor${props.borderColor ? ` = "${hexToRgb(props.borderColor)}"` : ""},
+  borderRadius = ${props.borderRadius !== undefined ? props.borderRadius : 24},
+  gradientFrom${props.gradientFrom ? ` = "${props.gradientFrom}"` : ""},
+  gradientTo${props.gradientTo ? ` = "${props.gradientTo}"` : ""},
+  gradientWidth = ${props.gradientWidth !== undefined ? props.gradientWidth : 2},
+  gradientAnimated = ${props.gradientAnimated || false},
+}: SocialProfileCardProps) => {
+  const formatNumber = (value: string | number): string => {
+    if (typeof value === "number") {
+      if (value >= 1000) {
+        return \`\${(value / 1000).toFixed(1)}k\`
+      }
+      return value.toString()
+    }
+    return value
+  }
+
+  const getColorFromTailwind = (tailwindClass: string): string | undefined => {
+    if (!tailwindClass) return undefined
+    const hexMatch = tailwindClass.match(/\\[#([0-9A-Fa-f]{6})\\]/)
+    if (hexMatch) {
+      const r = parseInt(hexMatch[1].slice(0, 2), 16)
+      const g = parseInt(hexMatch[1].slice(2, 4), 16)
+      const b = parseInt(hexMatch[1].slice(4, 6), 16)
+      return \`rgb(\${r} \${g} \${b})\`
+    }
+    const colorMap: Record<string, string> = {
+      "bg-green-500": "rgb(34 197 94)",
+      "bg-blue-500": "rgb(59 130 246)",
+      "bg-purple-500": "rgb(168 85 247)",
+      "bg-pink-500": "rgb(236 72 153)",
+      "bg-yellow-500": "rgb(234 179 8)",
+      "bg-red-500": "rgb(239 68 68)",
+      "bg-orange-500": "rgb(249 115 22)",
+      "bg-neutral-900": "rgb(23 23 23)",
+      "bg-neutral-800": "rgb(38 38 38)",
+      "from-indigo-500": "rgb(99 102 241)",
+      "from-purple-500": "rgb(168 85 247)",
+      "from-pink-500": "rgb(236 72 153)",
+      "from-blue-500": "rgb(59 130 246)",
+      "from-green-500": "rgb(34 197 94)",
+      "from-yellow-500": "rgb(234 179 8)",
+      "from-red-500": "rgb(239 68 68)",
+      "from-orange-500": "rgb(249 115 22)",
+      "via-indigo-500": "rgb(99 102 241)",
+      "via-purple-500": "rgb(168 85 247)",
+      "via-pink-500": "rgb(236 72 153)",
+      "via-blue-500": "rgb(59 130 246)",
+      "via-green-500": "rgb(34 197 94)",
+      "via-yellow-500": "rgb(234 179 8)",
+      "via-red-500": "rgb(239 68 68)",
+      "via-orange-500": "rgb(249 115 22)",
+      "to-indigo-500": "rgb(99 102 241)",
+      "to-purple-500": "rgb(168 85 247)",
+      "to-pink-500": "rgb(236 72 153)",
+      "to-blue-500": "rgb(59 130 246)",
+      "to-green-500": "rgb(34 197 94)",
+      "to-yellow-500": "rgb(234 179 8)",
+      "to-red-500": "rgb(239 68 68)",
+      "to-orange-500": "rgb(249 115 22)",
+    }
+    return colorMap[tailwindClass] || undefined
+  }
+
+  const gradientFromColor = gradientFrom || 'var(--primary, #a855f7)'
+  const gradientToColor = gradientTo || 'var(--accent, #ec4899)'
+  const gradientInset = \`-\${gradientWidth}px\`
+
+  return (
+    <div className={cn("relative group", className)} style={{ borderRadius: \`\${borderRadius}px\` }}>
+      <div 
+        className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+        style={{
+          inset: gradientInset,
+          backgroundImage: gradientAnimated 
+            ? \`linear-gradient(90deg, \${gradientFromColor}, \${gradientToColor}, \${gradientFromColor})\`
+            : \`linear-gradient(to right, \${gradientFromColor}, \${gradientToColor})\`,
+          backgroundSize: gradientAnimated ? '200% 200%' : '100% 100%',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          borderRadius: \`\${borderRadius + gradientWidth}px\`,
+          animation: gradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          zIndex: 0,
+        }}
+      />
+      <div 
+        className={cn(
+          "relative overflow-hidden rounded-3xl border shadow-xl w-full h-full",
+          !backgroundColor && "bg-neutral-900/90",
+          !borderColor && "border-neutral-800",
+        )}
+        style={{
+          ...(backgroundColor && { backgroundColor }),
+          ...(borderColor && { borderColor }),
+          borderRadius: \`\${borderRadius}px\`,
+          zIndex: 1,
+        }}
+      >
+        <div 
+          className="h-32 w-full opacity-80 transition-opacity group-hover:opacity-100"
+          style={{
+            backgroundImage: \`linear-gradient(to right, \${
+              getColorFromTailwind(bannerGradientFrom) || "rgb(99 102 241)"
+            }, \${
+              getColorFromTailwind(bannerGradientVia) || "rgb(168 85 247)"
+            }, \${
+              getColorFromTailwind(bannerGradientTo) || "rgb(236 72 153)"
+            })\`,
+          }}
+        >
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+        </div>
+
+        <div className="relative px-6 pb-6">
+          <div className="relative -mt-12 mb-4 inline-block">
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file && onAvatarChange) {
+                    const reader = new FileReader()
+                    reader.onloadend = () => {
+                      const result = reader.result as string
+                      onAvatarChange(result)
+                    }
+                    reader.readAsDataURL(file)
+                  }
+                }}
+                className="hidden"
+                id="avatar-upload"
+              />
+              <label
+                htmlFor="avatar-upload"
+                className={cn(
+                  "block cursor-pointer",
+                  onAvatarChange && "hover:opacity-80 transition-opacity"
+                )}
+              >
+                <div className="h-24 w-24 rounded-2xl border-4 border-neutral-900 bg-neutral-800 shadow-xl overflow-hidden">
+                  <img 
+                    src={avatarUrl} 
+                    alt="Profile" 
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </label>
+            </div>
+            {isOnline && (
+              <div 
+                className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-neutral-900"
+                style={{
+                  backgroundColor: getColorFromTailwind(statusColor),
+                }}
+              />
+            )}
+          </div>
+
+          <div className="mb-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white">{name}</h3>
+                <p className="text-sm text-indigo-400">{username}</p>
+              </div>
+              {showFollowButton && (
+                <ShinyButton 
+                  className="h-9 px-4 text-xs"
+                  onClick={onFollow}
+                >
+                  {followButtonText}
+                </ShinyButton>
+              )}
+            </div>
+            
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+              {bio}
+            </p>
+            
+            <div className="mt-4 flex flex-wrap gap-4 text-xs text-neutral-500">
+              {showLocation && location && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <MapPin size={14} />
+                  {location}
+                </div>
+              )}
+              {showWebsite && website && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <LinkIcon size={14} />
+                  {website}
+                </div>
+              )}
+              {showTwitter && twitter && (
+                <div className="flex items-center gap-1 hover:text-neutral-300 transition-colors">
+                  <Twitter size={14} />
+                  {twitter}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex border-t border-neutral-800 pt-6">
+            <div className="flex-1 text-center border-r border-neutral-800">
+              <div className="text-lg font-bold text-white">{formatNumber(followers)}</div>
+              <div className="text-xs font-medium text-neutral-500">Followers</div>
+            </div>
+            <div className="flex-1 text-center border-r border-neutral-800">
+              <div className="text-lg font-bold text-white">{formatNumber(following)}</div>
+              <div className="text-xs font-medium text-neutral-500">Following</div>
+            </div>
+            <div className="flex-1 text-center">
+              <div className="text-lg font-bold text-white">{formatNumber(projects)}</div>
+              <div className="text-xs font-medium text-neutral-500">Projects</div>
+            </div>
+          </div>
+
+          {(showMessageButton || showSimilarButton) && (
+            <div className="mt-6 flex gap-3">
+              {showMessageButton && (
+                <button 
+                  onClick={onMessage}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+                >
+                  <MessageCircle size={16} />
+                  {messageButtonText}
+                </button>
+              )}
+              {showSimilarButton && (
+                <button 
+                  onClick={onSimilar}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900/50 py-2.5 text-sm font-medium text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
+                >
+                  <Users size={16} />
+                  {similarButtonText}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Usage example:
+export function SocialProfileCardDemo() {
+  return (
+    <SocialProfileCard${propsString}/>
+  )
+}`
+    }
+
     if (children) {
       return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
     }
