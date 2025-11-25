@@ -970,4 +970,287 @@ export function AsyncUrlInput() {
       },
     ],
   },
+  "media-player": {
+    name: "MediaPlayer",
+    description: "A beautiful media player component with album art, playback controls, and progress bar.",
+    category: "Display",
+    hasPlayground: true,
+    installation: "Copy the component from the code example below.",
+    usage: `import { MediaPlayer } from "@/components/ui/media-player"
+
+export function MediaPlayerDemo() {
+  return (
+    <MediaPlayer 
+      trackTitle="Midnight City"
+      artist="M83"
+      album="Hurry Up, We're Dreaming"
+    />
+  )
+}`,
+    props: [
+      {
+        name: "className",
+        type: "string",
+        description: "Additional CSS classes to apply to the media player container.",
+      },
+      {
+        name: "trackTitle",
+        type: "string",
+        default: '"Midnight City"',
+        description: "The title of the current track.",
+      },
+      {
+        name: "artist",
+        type: "string",
+        default: '"M83"',
+        description: "The artist name.",
+      },
+      {
+        name: "album",
+        type: "string",
+        default: "\"Hurry Up, We're Dreaming\"",
+        description: "The album name (optional, displayed after artist).",
+      },
+      {
+        name: "albumArtUrl",
+        type: "string",
+        default: "Unsplash image URL",
+        description: "URL of the album art image.",
+      },
+      {
+        name: "currentTime",
+        type: "string",
+        default: '"2:14"',
+        description: "Current playback time in MM:SS format.",
+      },
+      {
+        name: "totalTime",
+        type: "string",
+        default: '"4:03"',
+        description: "Total track duration in MM:SS format.",
+      },
+      {
+        name: "progress",
+        type: "number",
+        default: "66.67",
+        description: "Playback progress percentage (0-100).",
+      },
+      {
+        name: "isPlaying",
+        type: "boolean",
+        default: "true",
+        description: "Initial playing state.",
+      },
+      {
+        name: "isLoved",
+        type: "boolean",
+        default: "false",
+        description: "Initial loved/favorited state.",
+      },
+      {
+        name: "showShuffle",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the shuffle button.",
+      },
+      {
+        name: "showRepeat",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the repeat button.",
+      },
+      {
+        name: "showHeart",
+        type: "boolean",
+        default: "true",
+        description: "Whether to show the heart/favorite button.",
+      },
+      {
+        name: "backgroundColor",
+        type: "string",
+        default: "rgb(23 23 23 / 0.6)",
+        description: "Background color of the player (supports hex or rgb).",
+      },
+      {
+        name: "borderColor",
+        type: "string",
+        default: "rgba(255, 255, 255, 0.1)",
+        description: "Border color of the player (supports hex or rgb).",
+      },
+      {
+        name: "borderRadius",
+        type: "number",
+        default: "24",
+        description: "Border radius in pixels.",
+      },
+      {
+        name: "glowColor1",
+        type: "string",
+        default: "rgb(99 102 241 / 0.2)",
+        description: "First background glow color (top-right, supports hex or rgb).",
+      },
+      {
+        name: "glowColor2",
+        type: "string",
+        default: "rgb(168 85 247 / 0.2)",
+        description: "Second background glow color (bottom-left, supports hex or rgb).",
+      },
+      {
+        name: "onPlayPause",
+        type: "(isPlaying: boolean) => void",
+        description: "Callback function called when play/pause button is clicked.",
+      },
+      {
+        name: "onLove",
+        type: "(isLoved: boolean) => void",
+        description: "Callback function called when heart button is clicked.",
+      },
+      {
+        name: "onShuffle",
+        type: "() => void",
+        description: "Callback function called when shuffle button is clicked.",
+      },
+      {
+        name: "onRepeat",
+        type: "() => void",
+        description: "Callback function called when repeat button is clicked.",
+      },
+      {
+        name: "onSkipBack",
+        type: "() => void",
+        description: "Callback function called when skip back button is clicked.",
+      },
+      {
+        name: "onSkipForward",
+        type: "() => void",
+        description: "Callback function called when skip forward button is clicked.",
+      },
+      {
+        name: "enableImageUpload",
+        type: "boolean",
+        default: "false",
+        description: "Whether to enable image upload functionality for album art.",
+      },
+      {
+        name: "onImageUpload",
+        type: "(imageUrl: string) => void",
+        description: "Callback function called when an image is uploaded (returns base64 data URL).",
+      },
+      {
+        name: "onTimeChange",
+        type: "(currentTime: string, progress: number) => void",
+        description: "Callback function called when time or progress changes (automatically synced).",
+      },
+    ],
+    variants: [
+      {
+        name: "Default",
+        description: "The default media player with all features enabled.",
+        code: `<MediaPlayer />`,
+      },
+      {
+        name: "Custom Track",
+        description: "Media player with custom track information.",
+        code: `<MediaPlayer 
+  trackTitle="Blinding Lights"
+  artist="The Weeknd"
+  album="After Hours"
+  albumArtUrl="https://example.com/album.jpg"
+/>`,
+      },
+      {
+        name: "Minimal Controls",
+        description: "Media player with only essential controls.",
+        code: `<MediaPlayer 
+  showShuffle={false}
+  showRepeat={false}
+  showHeart={false}
+/>`,
+      },
+    ],
+    examples: [
+      {
+        title: "Basic Usage",
+        description: "A simple media player component with default settings.",
+        code: `import { MediaPlayer } from "@/components/ui/media-player"
+
+export function BasicMediaPlayer() {
+  return (
+    <div className="max-w-sm">
+      <MediaPlayer />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Custom Track Info",
+        description: "Media player with custom track, artist, and album information.",
+        code: `import { MediaPlayer } from "@/components/ui/media-player"
+
+export function CustomTrackPlayer() {
+  return (
+    <div className="max-w-sm">
+      <MediaPlayer 
+        trackTitle="Blinding Lights"
+        artist="The Weeknd"
+        album="After Hours"
+        currentTime="3:15"
+        totalTime="3:21"
+        progress={92}
+      />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Event Handlers",
+        description: "Media player with custom event handlers for user interactions.",
+        code: `import { MediaPlayer } from "@/components/ui/media-player"
+import { useState } from "react"
+
+export function InteractivePlayer() {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isLoved, setIsLoved] = useState(false)
+
+  return (
+    <div className="max-w-sm">
+      <MediaPlayer 
+        isPlaying={isPlaying}
+        isLoved={isLoved}
+        onPlayPause={(playing) => {
+          setIsPlaying(playing)
+          console.log('Playing:', playing)
+        }}
+        onLove={(loved) => {
+          setIsLoved(loved)
+          console.log('Loved:', loved)
+        }}
+        onSkipBack={() => console.log('Skip back')}
+        onSkipForward={() => console.log('Skip forward')}
+      />
+    </div>
+  )
+}`,
+      },
+      {
+        title: "With Custom Colors",
+        description: "Media player with custom background, border, and glow colors.",
+        code: `import { MediaPlayer } from "@/components/ui/media-player"
+
+export function CustomColorPlayer() {
+  return (
+    <div className="max-w-sm">
+      <MediaPlayer 
+        backgroundColor="rgb(15 23 42 / 0.8)"
+        borderColor="rgba(59, 130, 246, 0.3)"
+        glowColor1="rgb(59 130 246 / 0.3)"
+        glowColor2="rgb(147 51 234 / 0.3)"
+        borderRadius={32}
+      />
+    </div>
+  )
+}`,
+      },
+    ],
+  },
 }

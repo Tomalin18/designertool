@@ -33,6 +33,12 @@ export function ComponentsPageClient() {
         href: "/components/url-input",
         category: "Forms",
       },
+      {
+        name: "MediaPlayer",
+        description: "A beautiful media player component with album art, playback controls, and progress bar.",
+        href: "/components/media-player",
+        category: "Display",
+      },
     ]
 
     const filteredCustomComponents = customComponents.filter((component) => {
@@ -145,9 +151,9 @@ export function ComponentsPageClient() {
                             </div>
                         </div>
 
-                        {/* Custom Components Grid */}
+                        {/* Custom Components */}
                         {filteredCustomComponents.length > 0 ? (
-                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                            <div className="flex flex-wrap gap-6 items-start">
                                 {filteredCustomComponents.map((component) => (
                                     <ComponentPreview key={component.name} {...component} />
                                 ))}

@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { UrlInput } from "@/components/ui/url-input"
+import { MediaPlayer } from "@/components/ui/media-player"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 
 interface ComponentPreviewProps {
@@ -230,6 +231,12 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
             className="w-full max-w-2xl"
           />
         )
+      case "MediaPlayer":
+        return (
+          <div className="w-full max-w-sm">
+            <MediaPlayer />
+          </div>
+        )
       default:
         return (
           <div className="flex items-center justify-center p-8 text-muted-foreground">
@@ -240,11 +247,11 @@ export function ComponentPreview({ name, href }: ComponentPreviewProps) {
   }
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0">
-      <div className={`p-6 min-h-[200px] bg-gradient-to-br from-background to-muted/20 ${name === "UrlInput" ? "flex items-center justify-center" : "flex items-center justify-center"}`}>
+    <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 inline-flex flex-col w-auto self-start">
+      <div className={`p-6 bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-shrink-0`}>
         {renderPreview()}
       </div>
-      <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors">
+      <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0">
         <h3 className="font-semibold group-hover:text-primary transition-colors text-xl">{name}</h3>
       </Link>
     </Card>
