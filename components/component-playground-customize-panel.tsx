@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ColorPicker } from "@/components/ui/color-picker"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Plus, Trash2, GripVertical } from "lucide-react"
 
 interface CustomizePanelProps {
   componentName: string
@@ -47,6 +50,122 @@ interface CustomizePanelProps {
   }
 }
 
+const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  let items: any[] = []
+  try {
+    items = JSON.parse(value)
+  } catch (e) {
+    items = []
+  }
+
+  const updateItems = (newItems: any[]) => {
+    onChange(JSON.stringify(newItems, null, 2))
+  }
+
+  const addItem = () => {
+    updateItems([...items, { title: "New Item" }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: string, val: any) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: val }
+    updateItems(newItems)
+  }
+
+  const updateSubitem = (itemIndex: number, subIndex: number, val: string) => {
+    const newItems = [...items]
+    if (!newItems[itemIndex].items) newItems[itemIndex].items = []
+    newItems[itemIndex].items[subIndex] = val
+    
+    // Auto-add empty item if filling the last one and it's not empty
+    if (subIndex === newItems[itemIndex].items.length - 1 && val !== "") {
+       newItems[itemIndex].items.push("")
+    }
+    // If we clear an item and it's not the only one, maybe remove it? 
+    // Let's keep it simple: only add. Users can't easily delete subitems except by clearing?
+    // I'll add a delete button for subitems or just rely on "clearing + blur"? 
+    // User requested "fill one then appear next".
+    // I'll stick to that. Empty items at the end are fine (filter them in display if needed, but here we save them).
+    // Actually, the display component might render empty strings. I should filter them before saving?
+    // No, keep state consistent. The component rendering `navItems.map` should handle empty.
+    
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+           <div className="flex items-center gap-2">
+             <Input 
+               value={item.title} 
+               onChange={(e) => updateItem(index, 'title', e.target.value)}
+               placeholder="Item Title"
+               className="h-8"
+             />
+             <Button variant="ghost" size="icon" onClick={() => removeItem(index)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+               <Trash2 size={14} />
+             </Button>
+           </div>
+           <div className="flex items-center space-x-2">
+             <Checkbox 
+               id={`submenu-${index}`} 
+               checked={!!item.items}
+               onCheckedChange={(checked) => {
+                 if (checked) {
+                   updateItem(index, 'items', [""])
+                 } else {
+                   const newItems = [...items]
+                   delete newItems[index].items
+                   updateItems(newItems)
+                 }
+               }}
+             />
+             <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
+           </div>
+           {item.items && (
+             <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
+               {item.items.map((subItem: string, subIndex: number) => (
+                 <div key={subIndex} className="flex gap-2">
+                   <Input
+                     value={subItem}
+                     onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
+                     placeholder={subIndex === item.items.length - 1 ? "Add subitem..." : "Subitem Title"}
+                     className="h-7 text-xs"
+                   />
+                   {item.items.length > 1 && subIndex !== item.items.length - 1 && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7"
+                        onClick={() => {
+                          const newItems = [...items]
+                          newItems[index].items.splice(subIndex, 1)
+                          updateItems(newItems)
+                        }}
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                   )}
+                 </div>
+               ))}
+             </div>
+           )}
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Item
+      </Button>
+    </div>
+  )
+}
+
 export function CustomizePanel({
   componentName,
   props,
@@ -56,6 +175,19 @@ export function CustomizePanel({
 }: CustomizePanelProps) {
   const renderProp = (key: string, propConfig: any, isLast: boolean) => {
     const label = key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()
+
+    if (key === "navigationConfig") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <NavigationConfigEditor 
+            value={props[key] || "[]"} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
 
     return (
       <div key={key} className="space-y-2">
