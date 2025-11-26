@@ -150,14 +150,14 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'footers', 'index.tsx')
       const fileContent = fs.readFileSync(filePath, 'utf-8')
 
-      // Extract the specific component function (footer components use arrow functions)
-      const functionStartRegex = new RegExp(`export const ${footerMeta.componentName}\\s*=`, 'm')
+      // Extract the specific component function (footer components use function declarations)
+      const functionStartRegex = new RegExp(`export function ${footerMeta.componentName}\\s*\\(`, 'm')
       const match = fileContent.match(functionStartRegex)
 
       if (match && match.index !== undefined) {
         const startIndex = match.index
-        // Find the end of this arrow function component
-        // Look for the closing of the arrow function by finding the next export statement
+        // Find the end of this function component
+        // Look for the closing of the function by finding the next export statement
         const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
         const endIndex = nextExportMatch && nextExportMatch.index
           ? startIndex + 1 + nextExportMatch.index
