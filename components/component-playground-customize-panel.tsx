@@ -457,6 +457,28 @@ export function CustomizePanel({
 
     // Generic grouping for Hero sections and other components
     const contentProps: string[] = []
+    const elementsPropsMap: Record<string, string[]> = {}
+    
+    // Sub-component prefixes to identify properties belonging to specific elements
+    const elementPrefixes = [
+      { prefix: 'button', group: 'Button' },
+      { prefix: 'cta', group: 'Button' },
+      { prefix: 'primaryCta', group: 'Button' },
+      { prefix: 'secondaryCta', group: 'Button' },
+      { prefix: 'primaryStore', group: 'Button' },
+      { prefix: 'secondaryStore', group: 'Button' },
+      { prefix: 'playButton', group: 'Button' },
+      { prefix: 'pill', group: 'Badge' },
+      { prefix: 'badge', group: 'Badge' },
+      { prefix: 'tag', group: 'Badge' },
+      { prefix: 'input', group: 'Input' },
+      { prefix: 'placeholder', group: 'Input' },
+      { prefix: 'card', group: 'Card' },
+      { prefix: 'preview', group: 'Card' },
+      { prefix: 'terminal', group: 'Card' },
+      { prefix: 'phone', group: 'Mockup' },
+      { prefix: 'icon', group: 'Icon' },
+    ]
     
     // Style subcategories
     const stylePropsMap: Record<string, string[]> = {
@@ -471,6 +493,21 @@ export function CustomizePanel({
 
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
+      
+      // 1. Check for Elements first
+      // But exclude some common content keys that might accidentally match like 'icon' in 'showIcon' if we are not careful
+      // We should check if it STARTS with the prefix.
+      const elementMatch = elementPrefixes.find(item => key.startsWith(item.prefix))
+      
+      // Special case: don't capture "show..." props into elements unless it's style related? 
+      // Actually "showPill" usually goes to Content. 
+      // Let's exclude "show" prefixes from elements grouping to keep them in Content.
+      if (elementMatch && !key.startsWith('show')) {
+        const groupName = elementMatch.group
+        if (!elementsPropsMap[groupName]) elementsPropsMap[groupName] = []
+        elementsPropsMap[groupName].push(key)
+        return
+      }
       
       // Helper to check containment
       const matches = (keywords: string[]) => keywords.some(k => lowerKey.includes(k))
@@ -542,21 +579,44 @@ export function CustomizePanel({
       { name: "other", label: "Other", keys: stylePropsMap.other },
     ].filter(sub => sub.keys.length > 0)
 
-    // Calculate if we have any style props
-    const hasStyleProps = styleSubcategories.length > 0
+    // Create element subcategories
+    const elementSubcategories = Object.entries(elementsPropsMap).map(([name, keys]) => ({
+      name: name.toLowerCase(),
+      label: name,
+      keys
+    }))
 
+    // Calculate states
+    const hasStyleProps = styleSubcategories.length > 0
+    const hasElementProps = elementSubcategories.length > 0
+
+    const tabs = []
+    if (contentProps.length > 0) {
+      tabs.push({ name: "content", label: "Content", keys: contentProps })
+    }
+    
     if (hasStyleProps) {
+      tabs.push({ 
+        name: "style", 
+        label: "Style", 
+        keys: [], 
+        subcategories: styleSubcategories
+      })
+    }
+
+    if (hasElementProps) {
+      tabs.push({
+        name: "elements",
+        label: "Elements",
+        keys: [],
+        subcategories: elementSubcategories
+      })
+    }
+
+    if (tabs.length > 0) {
       return {
         type: "tabs",
-        tabs: [
-          { name: "content", label: "Content", keys: contentProps },
-          { 
-            name: "style", 
-            label: "Style", 
-            keys: [], // Keys are distributed in subcategories
-            subcategories: styleSubcategories
-          },
-        ],
+        tabs
       }
     }
 
@@ -597,7 +657,7 @@ export function CustomizePanel({
   if (grouping.type === "tabs" && grouping.tabs) {
     return (
       <Tabs defaultValue={grouping.tabs[0]?.name || "general"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className={`grid w-full ${grouping.tabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {grouping.tabs.map((tab) => (
             <TabsTrigger key={tab.name} value={tab.name}>
               {tab.label}
