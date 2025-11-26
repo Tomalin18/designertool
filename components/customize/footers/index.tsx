@@ -46,9 +46,7 @@ type FooterPropValue<T extends FooterPropDefinition> = T["default"] extends bool
   ? number
   : string
 
-export type FooterComponentProps<Slug extends FooterSlug> = {
-  [K in keyof ExtractFooterProps<Slug>]: any
-}
+export type FooterComponentProps<Slug extends FooterSlug> = Record<string, any>;
 
 export const footerDefaultProps: Record<FooterSlug, Record<string, string | number | boolean>> =
   footerSections.reduce((acc, footer) => {
@@ -63,28 +61,111 @@ export type SimpleCenteredFooterProps = FooterComponentProps<"simple-centered-fo
 export function SimpleCenteredFooter({
   companyName = "Lumina UI Inc.",
   copyrightYear = "2024",
+  link1Text = "About",
+  link1Url = "#",
+  link2Text = "Blog",
+  link2Url = "#",
+  link3Text = "Jobs",
+  link3Url = "#",
+  link4Text = "Press",
+  link4Url = "#",
+  link5Text = "Accessibility",
+  link5Url = "#",
   showSocialIcons = true,
+  showTwitter = true,
+  showInstagram = true,
+  showGithub = true,
+  twitterUrl = "#",
+  instagramUrl = "#",
+  githubUrl = "#",
   backgroundColor = "#ffffff",
   textColor = "#737373",
+  linkHoverColor = "#000000",
   copyrightTextColor = "#737373",
   iconColor = "#a3a3a3",
+  iconHoverColor = "#000000",
   borderColor = "#f5f5f5",
 }: SimpleCenteredFooterProps) {
   return (
     <footer className="py-12 px-6 border-t" style={{ backgroundColor, borderColor }}>
       <div className="mx-auto max-w-2xl text-center">
         <div className="mb-6 flex justify-center gap-6" style={{ color: textColor }}>
-          <a href="#" className="hover:text-black transition-colors">About</a>
-          <a href="#" className="hover:text-black transition-colors">Blog</a>
-          <a href="#" className="hover:text-black transition-colors">Jobs</a>
-          <a href="#" className="hover:text-black transition-colors">Press</a>
-          <a href="#" className="hover:text-black transition-colors">Accessibility</a>
+          <a
+            href={link1Url}
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+          >
+            {link1Text}
+          </a>
+          <a
+            href={link2Url}
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+          >
+            {link2Text}
+          </a>
+          <a
+            href={link3Url}
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+          >
+            {link3Text}
+          </a>
+          <a
+            href={link4Url}
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+          >
+            {link4Text}
+          </a>
+          <a
+            href={link5Url}
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+          >
+            {link5Text}
+          </a>
         </div>
         {showSocialIcons && (
-          <div className="flex justify-center gap-6 mb-8" style={{ color: iconColor }}>
-            <a href="#" className="hover:text-black"><Twitter size={20} /></a>
-            <a href="#" className="hover:text-black"><Instagram size={20} /></a>
-            <a href="#" className="hover:text-black"><Github size={20} /></a>
+          <div className="flex justify-center gap-6 mb-8">
+            {showTwitter && (
+              <a
+                href={twitterUrl}
+                className="transition-colors"
+                style={{ color: iconColor }}
+                onMouseEnter={(e) => e.currentTarget.style.color = iconHoverColor}
+                onMouseLeave={(e) => e.currentTarget.style.color = iconColor}
+              >
+                <Twitter size={20} />
+              </a>
+            )}
+            {showInstagram && (
+              <a
+                href={instagramUrl}
+                className="transition-colors"
+                style={{ color: iconColor }}
+                onMouseEnter={(e) => e.currentTarget.style.color = iconHoverColor}
+                onMouseLeave={(e) => e.currentTarget.style.color = iconColor}
+              >
+                <Instagram size={20} />
+              </a>
+            )}
+            {showGithub && (
+              <a
+                href={githubUrl}
+                className="transition-colors"
+                style={{ color: iconColor }}
+                onMouseEnter={(e) => e.currentTarget.style.color = iconHoverColor}
+                onMouseLeave={(e) => e.currentTarget.style.color = iconColor}
+              >
+                <Github size={20} />
+              </a>
+            )}
           </div>
         )}
         <p className="text-sm" style={{ color: copyrightTextColor }}>
@@ -101,8 +182,29 @@ export function MultiColumnLargeFooter({
   companyName = "Lumina",
   tagline = "Making the world a better place through constructing elegant hierarchies.",
   copyrightYear = "2024",
+  solutionsTitle = "Solutions",
+  solutionsLink1 = "Marketing",
+  solutionsLink2 = "Analytics",
+  solutionsLink3 = "Commerce",
+  solutionsLink4 = "Insights",
+  supportTitle = "Support",
+  supportLink1 = "Pricing",
+  supportLink2 = "Documentation",
+  supportLink3 = "Guides",
+  supportLink4 = "API Status",
+  companyTitle = "Company",
+  companyLink1 = "About",
+  companyLink2 = "Blog",
+  companyLink3 = "Jobs",
+  companyLink4 = "Press",
+  showTwitter = true,
+  showGithub = true,
+  showLinkedin = true,
+  privacyLinkText = "Privacy Policy",
+  termsLinkText = "Terms of Service",
   backgroundColor = "#0a0a0a",
   textColor = "#a3a3a3",
+  linkHoverColor = "#ffffff",
   headingColor = "#ffffff",
   logoAccentColor = "#6366f1",
   borderColor = "#262626",
@@ -118,44 +220,56 @@ export function MultiColumnLargeFooter({
             {tagline}
           </p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-white"><Twitter size={20} /></a>
-            <a href="#" className="hover:text-white"><Github size={20} /></a>
-            <a href="#" className="hover:text-white"><Linkedin size={20} /></a>
+            {showTwitter && (
+              <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>
+                <Twitter size={20} />
+              </a>
+            )}
+            {showGithub && (
+              <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>
+                <Github size={20} />
+              </a>
+            )}
+            {showLinkedin && (
+              <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>
+                <Linkedin size={20} />
+              </a>
+            )}
           </div>
         </div>
         <div>
-          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>Solutions</h3>
+          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>{solutionsTitle}</h3>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-white">Marketing</a></li>
-            <li><a href="#" className="hover:text-white">Analytics</a></li>
-            <li><a href="#" className="hover:text-white">Commerce</a></li>
-            <li><a href="#" className="hover:text-white">Insights</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{solutionsLink1}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{solutionsLink2}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{solutionsLink3}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{solutionsLink4}</a></li>
           </ul>
         </div>
         <div>
-          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>Support</h3>
+          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>{supportTitle}</h3>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-white">Pricing</a></li>
-            <li><a href="#" className="hover:text-white">Documentation</a></li>
-            <li><a href="#" className="hover:text-white">Guides</a></li>
-            <li><a href="#" className="hover:text-white">API Status</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{supportLink1}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{supportLink2}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{supportLink3}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{supportLink4}</a></li>
           </ul>
         </div>
         <div>
-          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>Company</h3>
+          <h3 className="mb-4 font-bold" style={{ color: headingColor }}>{companyTitle}</h3>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-white">About</a></li>
-            <li><a href="#" className="hover:text-white">Blog</a></li>
-            <li><a href="#" className="hover:text-white">Jobs</a></li>
-            <li><a href="#" className="hover:text-white">Press</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{companyLink1}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{companyLink2}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{companyLink3}</a></li>
+            <li><a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{companyLink4}</a></li>
           </ul>
         </div>
       </div>
       <div className="mx-auto mt-12 max-w-6xl border-t pt-8 text-sm flex flex-col md:flex-row justify-between gap-4" style={{ borderColor }}>
         <p>&copy; {copyrightYear} {companyName} Inc. All rights reserved.</p>
         <div className="flex gap-6">
-          <a href="#" className="hover:text-white">Privacy Policy</a>
-          <a href="#" className="hover:text-white">Terms of Service</a>
+          <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{privacyLinkText}</a>
+          <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{termsLinkText}</a>
         </div>
       </div>
     </footer>
@@ -168,12 +282,18 @@ export type NewsletterFooterProps = FooterComponentProps<"newsletter-footer">
 export function NewsletterFooter({
   heading = "Subscribe to our newsletter",
   description = "The latest news, articles, and resources, sent to your inbox weekly.",
+  placeholder = "Enter your email",
   buttonText = "Subscribe",
   copyrightYear = "2024",
   backgroundColor = "#4338ca",
   headingColor = "#ffffff",
   descriptionColor = "#c7d2fe",
+  inputBackgroundColor = "rgba(255, 255, 255, 0.1)",
+  inputBorderColor = "rgba(255, 255, 255, 0.2)",
+  inputTextColor = "#ffffff",
+  inputPlaceholderColor = "rgba(255, 255, 255, 0.6)",
   buttonColor = "#5145cd",
+  buttonTextColor = "#ffffff",
   borderColor = "#5145cd",
 }: NewsletterFooterProps) {
   return (
@@ -190,12 +310,25 @@ export function NewsletterFooter({
         <div className="flex gap-2 max-w-md mx-auto mb-8">
           <input
             type="email"
-            placeholder="Enter your email"
-            className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40"
+            placeholder={placeholder}
+            className="flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-white/40"
+            style={{
+              backgroundColor: inputBackgroundColor,
+              borderColor: inputBorderColor,
+              color: inputTextColor,
+            }}
+            onFocus={(e) => {
+              e.target.style.setProperty('--placeholder-color', inputPlaceholderColor)
+            }}
           />
+          <style jsx>{`
+            input::placeholder {
+              color: ${inputPlaceholderColor};
+            }
+          `}</style>
           <button
-            className="px-6 py-2 rounded-lg font-medium text-white"
-            style={{ backgroundColor: buttonColor }}
+            className="px-6 py-2 rounded-lg font-medium"
+            style={{ backgroundColor: buttonColor, color: buttonTextColor }}
           >
             {buttonText}
           </button>
@@ -212,12 +345,33 @@ export function NewsletterFooter({
 export type SocialHeavyFooterProps = FooterComponentProps<"social-heavy-footer">
 export function SocialHeavyFooter({
   heading = "Follow our journey",
+  link1Text = "About",
+  link2Text = "Blog",
+  link3Text = "Careers",
+  link4Text = "Contact",
+  showTwitter = true,
+  showFacebook = true,
+  showInstagram = true,
+  showLinkedin = true,
+  showYoutube = true,
+  showGithub = true,
   backgroundColor = "#ffffff",
   headingColor = "#171717",
   iconBackgroundColor = "#f5f5f5",
   iconColor = "#737373",
+  iconHoverColor = "#000000",
   linkColor = "#737373",
+  linkHoverColor = "#000000",
 }: SocialHeavyFooterProps) {
+  const socialIcons = [
+    { show: showTwitter, Icon: Twitter },
+    { show: showFacebook, Icon: Facebook },
+    { show: showInstagram, Icon: Instagram },
+    { show: showLinkedin, Icon: Linkedin },
+    { show: showYoutube, Icon: Youtube },
+    { show: showGithub, Icon: Github },
+  ].filter(item => item.show)
+
   return (
     <footer className="py-16 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-4xl text-center">
@@ -225,22 +379,58 @@ export function SocialHeavyFooter({
           {heading}
         </h2>
         <div className="flex justify-center gap-6 mb-12">
-          {[Twitter, Facebook, Instagram, Linkedin, Youtube, Github].map((Icon, i) => (
+          {socialIcons.map(({ Icon }, i) => (
             <a
               key={i}
               href="#"
-              className="flex items-center justify-center w-14 h-14 rounded-full hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center w-14 h-14 rounded-full transition-colors"
               style={{ backgroundColor: iconBackgroundColor, color: iconColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = iconHoverColor
+                e.currentTarget.style.backgroundColor = iconHoverColor === "#000000" ? "#f5f5f5" : iconBackgroundColor
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = iconColor
+                e.currentTarget.style.backgroundColor = iconBackgroundColor
+              }}
             >
               <Icon size={24} />
             </a>
           ))}
         </div>
         <div className="flex justify-center gap-8 text-sm" style={{ color: linkColor }}>
-          <a href="#" className="hover:opacity-70">About</a>
-          <a href="#" className="hover:opacity-70">Blog</a>
-          <a href="#" className="hover:opacity-70">Careers</a>
-          <a href="#" className="hover:opacity-70">Contact</a>
+          <a
+            href="#"
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link1Text}
+          </a>
+          <a
+            href="#"
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link2Text}
+          </a>
+          <a
+            href="#"
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link3Text}
+          </a>
+          <a
+            href="#"
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link4Text}
+          </a>
         </div>
       </div>
     </footer>
@@ -252,10 +442,15 @@ export type AppDownloadFooterProps = FooterComponentProps<"app-download-footer">
 export function AppDownloadFooter({
   heading = "Get the app",
   description = "Download our mobile app to manage your projects on the go. Available for iOS and Android devices.",
+  appStoreButtonText = "App Store",
+  googlePlayButtonText = "Google Play",
+  showAppStore = true,
+  showGooglePlay = true,
   backgroundColor = "#fafafa",
   headingColor = "#171717",
   descriptionColor = "#525252",
   buttonBackgroundColor = "#000000",
+  buttonTextColor = "#ffffff",
   borderColor = "#e5e5e5",
 }: AppDownloadFooterProps) {
   return (
@@ -270,20 +465,24 @@ export function AppDownloadFooter({
           </p>
         </div>
         <div className="flex justify-center gap-4">
-          <button
-            className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium"
-            style={{ backgroundColor: buttonBackgroundColor }}
-          >
-            <Smartphone size={20} />
-            App Store
-          </button>
-          <button
-            className="flex items-center gap-2 px-6 py-3 rounded-lg text-white font-medium"
-            style={{ backgroundColor: buttonBackgroundColor }}
-          >
-            <Smartphone size={20} />
-            Google Play
-          </button>
+          {showAppStore && (
+            <button
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium"
+              style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+            >
+              <Smartphone size={20} />
+              {appStoreButtonText}
+            </button>
+          )}
+          {showGooglePlay && (
+            <button
+              className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium"
+              style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
+            >
+              <Smartphone size={20} />
+              {googlePlayButtonText}
+            </button>
+          )}
         </div>
       </div>
     </footer>
@@ -295,12 +494,18 @@ export function AppDownloadFooter({
 export type DarkModeToggleFooterProps = FooterComponentProps<"dark-mode-toggle-footer">
 export function DarkModeToggleFooter({
   companyName = "CMD+UI",
+  link1Text = "Product",
+  link2Text = "Features",
+  link3Text = "Pricing",
+  link4Text = "Docs",
   copyrightYear = "2024",
   copyrightText = "Command UI Labs. Built with precision.",
   backgroundColor = "#171717",
   textColor = "#a3a3a3",
+  linkHoverColor = "#ffffff",
   logoColor = "#ffffff",
   toggleBackgroundColor = "#262626",
+  toggleTextColor = "#a3a3a3",
   borderColor = "#262626",
 }: DarkModeToggleFooterProps) {
   const [isDark, setIsDark] = useState(true)
@@ -313,15 +518,43 @@ export function DarkModeToggleFooter({
             {companyName}
           </div>
           <div className="flex gap-6" style={{ color: textColor }}>
-            <a href="#" className="hover:text-white">Product</a>
-            <a href="#" className="hover:text-white">Features</a>
-            <a href="#" className="hover:text-white">Pricing</a>
-            <a href="#" className="hover:text-white">Docs</a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link1Text}
+            </a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link2Text}
+            </a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link3Text}
+            </a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link4Text}
+            </a>
           </div>
           <button
             onClick={() => setIsDark(!isDark)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg"
-            style={{ backgroundColor: toggleBackgroundColor, color: textColor }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+            style={{ backgroundColor: toggleBackgroundColor, color: toggleTextColor }}
           >
             {isDark ? <Moon size={16} /> : <Sun size={16} />}
             <span className="text-sm">{isDark ? "Dark" : "Light"}</span>
@@ -341,11 +574,21 @@ export function BrutalistFooter({
   email = "hello@studio.com",
   location = "NEW YORK, NY",
   establishedYear = "2024",
+  showTwitter = true,
+  showInstagram = true,
+  showLinkedin = true,
   backgroundColor = "#ffde59",
   textColor = "#000000",
   borderColor = "#000000",
   accentColor = "#fbbf24",
+  iconHoverColor = "#000000",
 }: BrutalistFooterProps) {
+  const socialIcons = [
+    { show: showTwitter, Icon: Twitter },
+    { show: showInstagram, Icon: Instagram },
+    { show: showLinkedin, Icon: Linkedin },
+  ].filter(item => item.show)
+
   return (
     <footer className="py-12 px-6 border-4" style={{ backgroundColor, borderColor }}>
       <div className="mx-auto max-w-6xl">
@@ -356,7 +599,7 @@ export function BrutalistFooter({
             </h3>
             <a
               href={`mailto:${email}`}
-              className="text-2xl font-bold underline decoration-4 hover:opacity-70"
+              className="text-2xl font-bold underline decoration-4 transition-opacity hover:opacity-70"
               style={{ color: textColor, textDecorationColor: accentColor }}
             >
               {email}
@@ -381,8 +624,15 @@ export function BrutalistFooter({
         </div>
         <div className="border-t-4 pt-6 flex justify-between items-center" style={{ borderColor }}>
           <div className="flex gap-4">
-            {[Twitter, Instagram, Linkedin].map((Icon, i) => (
-              <a key={i} href="#" className="hover:opacity-70" style={{ color: textColor }}>
+            {socialIcons.map(({ Icon }, i) => (
+              <a
+                key={i}
+                href="#"
+                className="transition-colors"
+                style={{ color: textColor }}
+                onMouseEnter={(e) => e.currentTarget.style.color = iconHoverColor}
+                onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+              >
                 <Icon size={24} strokeWidth={3} />
               </a>
             ))}
@@ -399,22 +649,36 @@ export function BrutalistFooter({
 // --- 8. Sitemap Footer ---
 export type SitemapFooterProps = FooterComponentProps<"sitemap-footer">
 export function SitemapFooter({
+  section1Title = "Product",
+  section2Title = "Features",
+  section3Title = "Resources",
+  section4Title = "Company",
+  section5Title = "Legal",
+  section6Title = "Support",
+  link1Text = "Overview",
+  link2Text = "Features",
+  link3Text = "Tutorials",
+  link4Text = "Pricing",
+  link5Text = "Releases",
   backgroundColor = "#fafafa",
   headingColor = "#171717",
   linkColor = "#525252",
   linkHoverColor = "#6366f1",
 }: SitemapFooterProps) {
+  const sections = [section1Title, section2Title, section3Title, section4Title, section5Title, section6Title]
+  const links = [link1Text, link2Text, link3Text, link4Text, link5Text]
+
   return (
     <footer className="py-16 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
-          {["Product", "Features", "Resources", "Company", "Legal", "Support"].map((section) => (
+          {sections.map((section) => (
             <div key={section}>
               <h3 className="font-bold mb-4 text-sm" style={{ color: headingColor }}>
                 {section}
               </h3>
               <ul className="space-y-2 text-sm">
-                {["Overview", "Features", "Tutorials", "Pricing", "Releases"].map((item) => (
+                {links.map((item) => (
                   <li key={item}>
                     <a
                       href="#"
@@ -441,9 +705,13 @@ export type LogoShowcaseFooterProps = FooterComponentProps<"logo-showcase-footer
 export function LogoShowcaseFooter({
   heading = "Trusted by market leaders",
   copyrightYear = "2024",
+  link1Text = "Privacy",
+  link2Text = "Terms",
+  link3Text = "Cookies",
   backgroundColor = "#0a0a0a",
   headingColor = "#737373",
   textColor = "#737373",
+  linkHoverColor = "#ffffff",
   dividerColor = "#262626",
 }: LogoShowcaseFooterProps) {
   return (
@@ -465,9 +733,30 @@ export function LogoShowcaseFooter({
             &copy; {copyrightYear} All rights reserved.
           </p>
           <div className="flex gap-6 text-sm" style={{ color: textColor }}>
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Cookies</a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link1Text}
+            </a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link2Text}
+            </a>
+            <a
+              href="#"
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link3Text}
+            </a>
           </div>
         </div>
       </div>
@@ -480,18 +769,42 @@ export type LegalComplianceFooterProps = FooterComponentProps<"legal-compliance-
 export function LegalComplianceFooter({
   companyName = "Apple Inc.",
   copyrightYear = "2024",
+  link1Text = "Privacy Policy",
+  link2Text = "Terms of Use",
+  link3Text = "Sales Policy",
+  link4Text = "Legal",
+  link5Text = "Site Map",
+  link6Text = "Cookie Settings",
+  link7Text = "Accessibility",
+  showShield = true,
+  showCreditCard = true,
+  showCheckCircle = true,
   backgroundColor = "#ffffff",
   linkColor = "#171717",
+  linkHoverColor = "#000000",
   textColor = "#737373",
   badgeColor = "#a3a3a3",
   borderColor = "#e5e5e5",
 }: LegalComplianceFooterProps) {
+  const links = [link1Text, link2Text, link3Text, link4Text, link5Text, link6Text, link7Text]
+  const badges = [
+    { show: showShield, Icon: Shield },
+    { show: showCreditCard, Icon: CreditCard },
+    { show: showCheckCircle, Icon: CheckCircle2 },
+  ].filter(item => item.show)
+
   return (
     <footer className="py-8 px-6 border-t" style={{ backgroundColor, borderColor }}>
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap justify-center gap-4 mb-6 text-xs" style={{ color: linkColor }}>
-          {["Privacy Policy", "Terms of Use", "Sales Policy", "Legal", "Site Map", "Cookie Settings", "Accessibility"].map((link) => (
-            <a key={link} href="#" className="hover:underline">
+          {links.map((link) => (
+            <a
+              key={link}
+              href="#"
+              className="transition-colors hover:underline"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+            >
               {link}
             </a>
           ))}
@@ -501,7 +814,7 @@ export function LegalComplianceFooter({
             &copy; {copyrightYear} {companyName}. All rights reserved.
           </p>
           <div className="flex gap-4">
-            {[Shield, CreditCard, CheckCircle2].map((Icon, i) => (
+            {badges.map(({ Icon }, i) => (
               <Icon key={i} size={20} style={{ color: badgeColor }} />
             ))}
           </div>
@@ -515,6 +828,10 @@ export function LegalComplianceFooter({
 // --- 11. Interactive Hover Footer ---
 export type InteractiveHoverFooterProps = FooterComponentProps<"interactive-hover-footer">
 export function InteractiveHoverFooter({
+  link1Text = "Work",
+  link2Text = "Services",
+  link3Text = "About",
+  link4Text = "Contact",
   location = "Based in Berlin",
   copyrightYear = "2024",
   backgroundColor = "#000000",
@@ -522,11 +839,13 @@ export function InteractiveHoverFooter({
   linkHoverColor = "#ffffff",
   textColor = "#737373",
 }: InteractiveHoverFooterProps) {
+  const links = [link1Text, link2Text, link3Text, link4Text]
+
   return (
     <footer className="py-16 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {["Work", "Services", "About", "Contact"].map((item) => (
+          {links.map((item) => (
             <a
               key={item}
               href="#"
