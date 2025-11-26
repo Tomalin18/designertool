@@ -2,6 +2,7 @@ import { heroSections } from "./hero-sections"
 import { featureSections } from "./feature-sections"
 import { paymentSections } from "./payment-sections"
 import { ctaSections } from "./cta-sections"
+import { headerSections } from "./header-sections"
 
 export interface ComponentInfo {
   name: string
@@ -167,6 +168,14 @@ const ctaComponentEntries: ComponentInfo[] = ctaSections.map((cta) => ({
   tags: cta.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries]
+const headerComponentEntries: ComponentInfo[] = headerSections.map((header) => ({
+  name: header.name,
+  description: header.description,
+  href: `/components/${header.slug}`,
+  category: "Sections",
+  tags: header.tags,
+}))
+
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries]
 
 export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections"] as const

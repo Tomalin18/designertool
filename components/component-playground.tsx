@@ -38,6 +38,8 @@ import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName } from "@/components/customize/payments"
 import { ctaSections } from "@/lib/cta-sections"
 import { ctaComponentsByName } from "@/components/customize/ctas"
+import { headerSections } from "@/lib/header-sections"
+import { headerComponentsByName } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName } from "@/components/customize/footers"
 import { ThreeDCard } from "@/components/three-d-card"
@@ -69,6 +71,11 @@ const ctaNameToMeta = ctaSections.reduce<Record<string, (typeof ctaSections)[num
 
 const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSections)[number]>>((acc, footer) => {
   acc[footer.name] = footer
+  return acc
+}, {})
+
+const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
+  acc[header.name] = header
   return acc
 }, {})
 
@@ -1054,6 +1061,34 @@ const componentConfigs: Record<string, any> = (() => {
     )
 
     configs[hero.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
+  // Add header sections to configs
+  headerSections.forEach((header) => {
+    const Component = headerComponentsByName[header.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(header.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[header.name] = {
       props: propConfig,
       render: (props: any) => (
         <div className="w-full">
