@@ -19,6 +19,14 @@ const commonHeaderProps = {
   fontSize: { control: "select", options: ["sm", "base", "lg", "xl"], default: "base", description: "Base font size" },
   fontWeight: { control: "select", options: ["normal", "medium", "semibold", "bold"], default: "medium", description: "Base font weight" },
   borderBottomWidth: { control: "slider", default: 1, min: 0, max: 4, description: "Bottom border width" },
+  // Submenu style props
+  submenuBackgroundColor: { control: "color", default: "#ffffff", description: "Background color of the submenu dropdown." },
+  submenuBorderColor: { control: "color", default: "#e5e7eb", description: "Border color of the submenu dropdown." },
+  submenuTextColor: { control: "color", default: "#374151", description: "Text color of submenu items." },
+  submenuHoverColor: { control: "color", default: "#f3f4f6", description: "Background color on hover for submenu items." },
+  submenuBorderRadius: { control: "slider", default: 8, min: 0, max: 32, description: "Border radius of the submenu dropdown." },
+  submenuWidth: { control: "slider", default: 160, min: 120, max: 320, description: "Width of the submenu dropdown in pixels." },
+  submenuPadding: { control: "slider", default: 8, min: 4, max: 16, description: "Padding inside the submenu dropdown." },
 } as const satisfies Record<string, HeaderPropDefinition>
 
 export const headerSections = [
@@ -77,6 +85,22 @@ export const headerSections = [
       buttonBackgroundColor: { control: "color", default: "#ffffff", description: "Background color of the CTA button." },
       buttonTextColor: { control: "color", default: "#000000", description: "Text color of the CTA button." },
       glowColor: { control: "color", default: "rgba(99, 102, 241, 0.2)", description: "Color of the background glow." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Home" },
+          { title: "Features" },
+          { title: "Pricing" },
+          { title: "About" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -129,6 +153,22 @@ export const headerSections = [
       borderColor: { control: "color", default: "#262626", description: "Border color." },
       accentColor: { control: "color", default: "#6366f1", description: "Accent color for focus and highlights." },
       notificationColor: { control: "color", default: "#ef4444", description: "Notification dot color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Dashboard" },
+          { title: "Projects", items: ["Active", "Archived"] },
+          { title: "Team" },
+          { title: "Settings" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -146,6 +186,21 @@ export const headerSections = [
       secondaryColor: { control: "color", default: "#FF5757", description: "Secondary accent color (Red)." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       borderColor: { control: "color", default: "#ffffff", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Manifesto" },
+          { title: "Works" },
+          { title: "Contact" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -163,6 +218,23 @@ export const headerSections = [
       topBarColor: { control: "color", default: "#171717", description: "Top bar background color." },
       textColor: { control: "color", default: "#ffffff", description: "Main text color." },
       accentColor: { control: "color", default: "#ef4444", description: "Accent color (e.g. for Sale items)." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "New In" },
+          { title: "Clothing", items: ["Men", "Women", "Kids"] },
+          { title: "Shoes" },
+          { title: "Accessories" },
+          { title: "Sale" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -179,6 +251,22 @@ export const headerSections = [
       borderColor: { control: "color", default: "#262626", description: "Border color." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       secondaryTextColor: { control: "color", default: "#a3a3a3", description: "Secondary text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Documentation" },
+          { title: "API Reference", items: ["v2.4", "v2.3", "v2.2"] },
+          { title: "Showcase" },
+          { title: "Guides" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -195,6 +283,22 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       accentColor: { control: "color", default: "#ffffff", description: "Hover underline color." },
       secondaryTextColor: { control: "color", default: "#737373", description: "Secondary text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Work" },
+          { title: "About" },
+          { title: "Playground" },
+          { title: "Contact" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -211,6 +315,22 @@ export const headerSections = [
       accentColor: { control: "color", default: "#22d3ee", description: "Primary accent color (Cyan)." },
       secondaryAccentColor: { control: "color", default: "#2563eb", description: "Secondary accent color (Blue)." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Games" },
+          { title: "Esports" },
+          { title: "Community" },
+          { title: "Store" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -228,6 +348,26 @@ export const headerSections = [
       topBarColor: { control: "color", default: "#fafafa", description: "Top bar background color." },
       textColor: { control: "color", default: "#000000", description: "Main text color." },
       accentColor: { control: "color", default: "#dc2626", description: "Accent color (Red)." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "World" },
+          { title: "Politics" },
+          { title: "Business" },
+          { title: "Tech" },
+          { title: "Science" },
+          { title: "Health" },
+          { title: "Sports" },
+          { title: "Opinion" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -244,6 +384,26 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       accentColor: { control: "color", default: "#dc2626", description: "Accent color (Red)." },
       searchBarColor: { control: "color", default: "#121212", description: "Search bar background color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "All" },
+          { title: "Gaming" },
+          { title: "Live" },
+          { title: "Music" },
+          { title: "Mixes" },
+          { title: "Computers" },
+          { title: "Programming" },
+          { title: "Podcasts" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -261,6 +421,22 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       upColor: { control: "color", default: "#22c55e", description: "Color for positive trends." },
       downColor: { control: "color", default: "#ef4444", description: "Color for negative trends." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Markets" },
+          { title: "Trade" },
+          { title: "Futures" },
+          { title: "Earn" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -278,6 +454,22 @@ export const headerSections = [
       textColor: { control: "color", default: "#171717", description: "Text color." },
       accentColor: { control: "color", default: "#2563eb", description: "Accent color (Blue)." },
       secondaryBackgroundColor: { control: "color", default: "#f9fafb", description: "Hero background color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Getting Started" },
+          { title: "Account", items: ["Billing", "Settings", "Security"] },
+          { title: "Billing" },
+          { title: "API" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -294,6 +486,22 @@ export const headerSections = [
       iconColor: { control: "color", default: "#a3a3a3", description: "Inactive icon color." },
       activeIconColor: { control: "color", default: "#3b82f6", description: "Active icon color." },
       buttonBackgroundColor: { control: "color", default: "#3a3b3c", description: "Action button background color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Home" },
+          { title: "Watch" },
+          { title: "Groups" },
+          { title: "Gaming" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -311,6 +519,22 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       secondaryTextColor: { control: "color", default: "#a3a3a3", description: "Secondary text color." },
       buttonBorderColor: { control: "color", default: "#262626", description: "Button border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Work" },
+          { title: "Agency" },
+          { title: "Expertise" },
+          { title: "Insights" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -328,6 +552,26 @@ export const headerSections = [
       topBarTextColor: { control: "color", default: "#ffffff", description: "Top bar text color." },
       textColor: { control: "color", default: "#1a1a1a", description: "Main text color." },
       borderColor: { control: "color", default: "#e5e5e5", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "World" },
+          { title: "U.S." },
+          { title: "Politics" },
+          { title: "N.Y." },
+          { title: "Business" },
+          { title: "Opinion" },
+          { title: "Tech" },
+          { title: "Science" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -343,6 +587,22 @@ export const headerSections = [
       borderColor: { control: "color", default: "#262626", description: "Grid border color." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       secondaryTextColor: { control: "color", default: "#737373", description: "Secondary text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Projects" },
+          { title: "Studio" },
+          { title: "News" },
+          { title: "Contact" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -357,6 +617,22 @@ export const headerSections = [
       imageUrl: { control: "text", default: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop", description: "Background image URL." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       overlayColor: { control: "color", default: "rgba(0, 0, 0, 0.2)", description: "Image overlay color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Fashion" },
+          { title: "Beauty" },
+          { title: "Culture" },
+          { title: "Living" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -373,6 +649,25 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       accentColor: { control: "color", default: "#2563eb", description: "Accent color (Blue)." },
       borderColor: { control: "color", default: "#262626", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Discover" },
+          { title: "Arcade" },
+          { title: "Create" },
+          { title: "Work" },
+          { title: "Play" },
+          { title: "Develop" },
+          { title: "Categories" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -389,6 +684,23 @@ export const headerSections = [
       primaryColor: { control: "color", default: "#8B1E3F", description: "Primary brand color (Burgundy)." },
       textColor: { control: "color", default: "#262626", description: "Text color." },
       borderColor: { control: "color", default: "#e5e5e5", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Admissions" },
+          { title: "Academics", items: ["Programs", "Departments", "Research"] },
+          { title: "Research" },
+          { title: "Campus Life" },
+          { title: "About" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -405,6 +717,21 @@ export const headerSections = [
       backgroundColor: { control: "color", default: "#2D2D2D", description: "Background color." },
       textColor: { control: "color", default: "#E0D0C1", description: "Text color." },
       accentColor: { control: "color", default: "#E0D0C1", description: "Accent color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Menu" },
+          { title: "Wines" },
+          { title: "Private Dining" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -420,6 +747,22 @@ export const headerSections = [
       marqueeBackgroundColor: { control: "color", default: "#dc2626", description: "Marquee strip background color." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       marqueeTextColor: { control: "color", default: "#000000", description: "Marquee text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Music" },
+          { title: "Tour Dates" },
+          { title: "Merch" },
+          { title: "About" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -437,6 +780,22 @@ export const headerSections = [
       primaryColor: { control: "color", default: "#ef4444", description: "Primary color (Red)." },
       textColor: { control: "color", default: "#262626", description: "Text color." },
       secondaryBackgroundColor: { control: "color", default: "#f5f5f5", description: "Message bar background color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Our Work" },
+          { title: "Stories" },
+          { title: "Financials" },
+          { title: "About Us" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -453,6 +812,22 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       accentColor: { control: "color", default: "#ec4899", description: "Accent color (Pink)." },
       borderColor: { control: "color", default: "#262626", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Swap" },
+          { title: "Tokens" },
+          { title: "NFTs" },
+          { title: "Pools" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -468,6 +843,21 @@ export const headerSections = [
       backgroundColor: { control: "color", default: "#000000", description: "Background color." },
       primaryColor: { control: "color", default: "#22c55e", description: "Primary color (Green)." },
       borderColor: { control: "color", default: "rgba(20, 83, 45, 0.3)", description: "Border color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Services" },
+          { title: "Intelligence" },
+          { title: "About" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -485,6 +875,22 @@ export const headerSections = [
       secondaryBackgroundColor: { control: "color", default: "#262626", description: "Secondary background color." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       accentColor: { control: "color", default: "#a855f7", description: "Accent color (Purple)." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Categories" },
+          { title: "My Learning" },
+          { title: "Wishlist" },
+          { title: "Instructor" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -501,6 +907,22 @@ export const headerSections = [
       backgroundColor: { control: "color", default: "#ffffff", description: "Background color." },
       textColor: { control: "color", default: "#000000", description: "Text color." },
       accentColor: { control: "color", default: "#dc2626", description: "Accent color (Red)." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Technology" },
+          { title: "Design" },
+          { title: "Business" },
+          { title: "Culture" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -516,6 +938,21 @@ export const headerSections = [
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
       searchBoxColor: { control: "color", default: "#febb02", description: "Search box background color." },
       searchButtonColor: { control: "color", default: "#003580", description: "Search button color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Stays" },
+          { title: "Flights" },
+          { title: "Flight + Hotel" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {
@@ -531,6 +968,22 @@ export const headerSections = [
       navBackgroundColor: { control: "color", default: "rgba(255, 255, 255, 0.3)", description: "Nav background color." },
       textColor: { control: "color", default: "#000000", description: "Text color." },
       accentColor: { control: "color", default: "#9333ea", description: "Accent color (Purple)." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Product" },
+          { title: "Solutions" },
+          { title: "Resources" },
+          { title: "Pricing" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
 ] as const satisfies HeaderSectionMeta[]

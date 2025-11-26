@@ -82,6 +82,13 @@ export function SimpleHeader({
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
+  submenuBackgroundColor = "#ffffff",
+  submenuBorderColor = "#e5e7eb",
+  submenuTextColor = "#374151",
+  submenuHoverColor = "#f3f4f6",
+  submenuBorderRadius = 8,
+  submenuWidth = 160,
+  submenuPadding = 8,
 }: SimpleHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
@@ -136,13 +143,19 @@ export function SimpleHeader({
               <div
                 key={index}
                 className="relative group"
-                onMouseEnter={() => handleMouseEnter(index)}
-                onMouseLeave={handleMouseLeave}
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
               >
                 <button
                   className="flex items-center gap-1 transition-colors hover:opacity-80"
                   style={{ color: linkColor }}
-                  onClick={() => navInteractionMode === 'click' && setActiveDropdown(activeDropdown === index ? null : index)}
+                  onClick={() => {
+                    if (navInteractionMode === 'click' && item.items && item.items.length > 0) {
+                      setActiveDropdown(activeDropdown === index ? null : index)
+                    }
+                  }}
                 >
                   {item.title}
                   {item.items && item.items.length > 0 && (
@@ -153,18 +166,29 @@ export function SimpleHeader({
                 {/* Dropdown */}
                 {item.items && item.items.length > 0 && activeDropdown === index && (
                   <div 
-                    className="absolute top-full left-0 mt-2 w-48 rounded-xl border p-2 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200"
+                    className="absolute top-full left-0 mt-2 border shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
                     style={{ 
-                      backgroundColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#171717' : '#ffffff',
-                      borderColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#262626' : '#e5e7eb'
+                      backgroundColor: submenuBackgroundColor,
+                      borderColor: submenuBorderColor,
+                      borderRadius: `${submenuBorderRadius}px`,
+                      width: `${submenuWidth}px`,
+                      padding: `${submenuPadding}px`,
                     }}
                   >
                     {item.items.map((subItem: string, subIndex: number) => (
                       <a 
                         key={subIndex} 
                         href="#" 
-                        className="block rounded-lg px-4 py-2 text-sm transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                        style={{ color: linkColor }}
+                        className="block rounded-md px-3 py-2 text-sm transition-colors"
+                        style={{ 
+                          color: submenuTextColor,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = submenuHoverColor
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
                       >
                         {subItem}
                       </a>
@@ -250,9 +274,39 @@ export function FloatingNav({
   paddingX = 24,
   fontSize = "base",
   fontWeight = "medium",
+  navigationConfig = '[{"title":"Home"},{"title":"Features"},{"title":"Pricing"},{"title":"About"}]',
+  navInteractionMode = "hover",
+  submenuBackgroundColor = "rgba(23, 23, 23, 0.6)",
+  submenuBorderColor = "rgba(255, 255, 255, 0.1)",
+  submenuTextColor = "#a3a3a3",
+  submenuHoverColor = "rgba(255, 255, 255, 0.1)",
+  submenuBorderRadius = 16,
+  submenuWidth = 192,
+  submenuPadding = 8,
 }: FloatingNavProps) {
   const [active, setActive] = useState("Home")
-  const navItems = ["Home", "Features", "Pricing", "About"]
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+  
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Home" }, { title: "Features" }, { title: "Pricing" }, { title: "About" }]
+  }
 
   return (
     <div 
@@ -272,29 +326,82 @@ export function FloatingNav({
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
       <div className="absolute top-0 h-[200px] w-[200px] rounded-full blur-[60px]" style={{ backgroundColor: glowColor }} />
       <nav
-        className="relative flex items-center gap-0 rounded-full border border-white/10 p-2 px-2 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20 z-10"
+        className="relative flex items-center gap-0 rounded-full border border-white/10 p-2 px-2 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20 z-20"
         style={{ backgroundColor: navBackgroundColor, boxShadow: `0 25px 50px -12px ${glowColor}` }}
       >
         <div className="mr-0 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 font-bold text-white">
           {logoText}
         </div>
         <div className="hidden md:flex items-center">
-          {navItems.map((item) => (
-            <button
-              key={item}
-              onClick={() => setActive(item)}
-              className={cn(
-                "relative rounded-full px-4 py-2 font-medium transition-colors hover:text-white",
-                fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
-              )}
-              style={{ color: active === item ? activeItemColor : itemColor }}
-            >
-              {active === item && (
-                <span className="absolute inset-0 -z-10 rounded-full bg-neutral-800 transition-all duration-300" />
-              )}
-              {item}
-            </button>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative z-30"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => {
+                    if (!hasSubmenu) setActive(title)
+                    if (navInteractionMode === 'click' && hasSubmenu) {
+                      setActiveDropdown(activeDropdown === index ? null : index)
+                    }
+                  }}
+                  className={cn(
+                    "relative flex items-center gap-1 rounded-full px-4 py-2 font-medium transition-colors hover:text-white",
+                    fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+                  )}
+                  style={{ color: active === title ? activeItemColor : itemColor }}
+                >
+                  {active === title && (
+                    <span className="absolute inset-0 -z-10 rounded-full bg-neutral-800 transition-all duration-300" />
+                  )}
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 rounded-full border shadow-2xl backdrop-blur-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                    style={{ 
+                      backgroundColor: submenuBackgroundColor,
+                      borderColor: submenuBorderColor,
+                      borderRadius: `${submenuBorderRadius}px`,
+                      width: `${submenuWidth}px`,
+                      padding: `${submenuPadding}px`,
+                      boxShadow: `0 25px 50px -12px ${glowColor}`
+                    }}
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-full px-4 py-2 text-sm transition-colors"
+                        style={{ 
+                          color: submenuTextColor,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = submenuHoverColor
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                        onClick={() => setActive(subItem)}
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
         <div className="mx-0 hidden md:block h-4 w-px bg-neutral-800" />
         <button
@@ -304,7 +411,7 @@ export function FloatingNav({
           {buttonText}
         </button>
       </nav>
-      <div className="mt-12 text-center space-y-2 relative z-10 px-4">
+      <div className="mt-12 text-center space-y-2 relative z-0 px-4">
         <h2 className="text-3xl font-bold text-white">{heading}</h2>
         <p className="text-neutral-500">{subHeading}</p>
       </div>
@@ -333,6 +440,13 @@ export function SaaSHeader({
   borderBottomWidth = 1,
   navigationConfig = '[{"title":"Products","items":["Analytics","Automation","Security"]},{"title":"Customers","items":["Case Studies","Reviews"]},{"title":"Pricing"}]',
   navInteractionMode = "hover",
+  submenuBackgroundColor = "#ffffff",
+  submenuBorderColor = "#e5e7eb",
+  submenuTextColor = "#374151",
+  submenuHoverColor = "#f3f4f6",
+  submenuBorderRadius = 8,
+  submenuWidth = 160,
+  submenuPadding = 8,
 }: SaaSHeaderProps) {
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -419,8 +533,10 @@ export function SaaSHeader({
                 <div 
                   key={index} 
                   className="relative group"
-                  onMouseEnter={() => handleMouseEnter(index)}
-                  onMouseLeave={handleMouseLeave}
+                  {...(navInteractionMode === 'hover' ? {
+                    onMouseEnter: () => handleMouseEnter(index),
+                    onMouseLeave: handleMouseLeave
+                  } : {})}
                 >
                   <button 
                     className={cn(
@@ -428,7 +544,11 @@ export function SaaSHeader({
                       fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
                     )}
                     style={{ color: linkColor }}
-                    onClick={() => navInteractionMode === 'click' && setActiveDropdown(activeDropdown === index ? null : index)}
+                    onClick={() => {
+                      if (navInteractionMode === 'click' && item.items && item.items.length > 0) {
+                        setActiveDropdown(activeDropdown === index ? null : index)
+                      }
+                    }}
                   >
                     {item.title} {(item.items && item.items.length > 0) && <ChevronDown size={14} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />}
                   </button>
@@ -436,18 +556,29 @@ export function SaaSHeader({
                   {/* Dropdown Menu */}
                   {(item.items && item.items.length > 0 && activeDropdown === index) && (
                     <div 
-                      className="absolute top-full left-0 mt-2 w-48 rounded-xl border p-2 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+                      className="absolute top-full left-0 mt-2 border shadow-xl animate-in fade-in zoom-in-95 duration-200 z-[9999]"
                       style={{ 
-                        backgroundColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#171717' : '#ffffff',
-                        borderColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#262626' : '#e5e7eb'
+                        backgroundColor: submenuBackgroundColor,
+                        borderColor: submenuBorderColor,
+                        borderRadius: `${submenuBorderRadius}px`,
+                        width: `${submenuWidth}px`,
+                        padding: `${submenuPadding}px`,
                       }}
                     >
                       {item.items.map((subItem: string, subIndex: number) => (
                         <a 
                           key={subIndex} 
                           href="#" 
-                          className="block rounded-lg px-4 py-2 text-sm transition-colors hover:bg-white/10"
-                          style={{ color: linkColor }}
+                          className="block rounded-md px-3 py-2 text-sm transition-colors"
+                          style={{ 
+                            color: submenuTextColor,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = submenuHoverColor
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
                         >
                           {subItem}
                         </a>
@@ -489,7 +620,39 @@ export function DashboardHeader({
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Dashboard"},{"title":"Projects","items":["Active","Archived"]},{"title":"Team"},{"title":"Settings"}]',
+  navInteractionMode = "hover",
+  submenuBackgroundColor = "#171717",
+  submenuBorderColor = "#262626",
+  submenuTextColor = "#d1d5db",
+  submenuHoverColor = "#262626",
+  submenuBorderRadius = 8,
+  submenuWidth = 160,
+  submenuPadding = 8,
 }: DashboardHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Dashboard" }, { title: "Projects", items: ["Active", "Archived"] }, { title: "Team" }, { title: "Settings" }]
+  }
+
   return (
     <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header
@@ -511,12 +674,77 @@ export function DashboardHeader({
             <LayoutGrid size={20} />
           </button>
           <div className="h-6 w-px bg-neutral-800" />
-          <nav className="flex items-center">
+          <nav className="flex items-center gap-4">
             <span className="text-neutral-400 hover:text-neutral-200 cursor-pointer">Team</span>
             <span className="mx-2 text-neutral-600">/</span>
             <span 
               className={cn("text-white", fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium")}
             >{teamName}</span>
+            <div className="h-6 w-px bg-neutral-800" />
+            <div className="hidden md:flex items-center gap-2">
+              {navItems.map((item: any, index: number) => {
+                const title = item.title || item
+                const hasSubmenu = item.items && item.items.length > 0
+                return (
+                  <div
+                    key={title}
+                    className="relative"
+                    {...(navInteractionMode === 'hover' ? {
+                      onMouseEnter: () => handleMouseEnter(index),
+                      onMouseLeave: handleMouseLeave
+                    } : {})}
+                  >
+                    <button
+                      onClick={() => {
+                        if (navInteractionMode === 'click' && hasSubmenu) {
+                          setActiveDropdown(activeDropdown === index ? null : index)
+                        }
+                      }}
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-neutral-400 hover:text-white transition-colors rounded-lg",
+                        fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+                      )}
+                    >
+                      {title}
+                      {hasSubmenu && (
+                        <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                      )}
+                    </button>
+                    {hasSubmenu && activeDropdown === index && (
+                      <div 
+                        className="absolute top-full left-0 mt-2 border shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                        style={{
+                          backgroundColor: submenuBackgroundColor,
+                          borderColor: submenuBorderColor,
+                          borderRadius: `${submenuBorderRadius}px`,
+                          width: `${submenuWidth}px`,
+                          padding: `${submenuPadding}px`,
+                        }}
+                      >
+                        {item.items.map((subItem: string, subIndex: number) => (
+                          <a 
+                            key={subIndex} 
+                            href="#" 
+                            className="block rounded-md px-3 py-2 text-sm transition-colors"
+                            style={{ 
+                              color: submenuTextColor,
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = submenuHoverColor
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent'
+                            }}
+                          >
+                            {subItem}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </nav>
         </div>
         <div className="mx-4 hidden max-w-md flex-1 md:block">
@@ -576,7 +804,39 @@ export function NeoBrutalistHeader({
   fontSize = "base",
   fontWeight = "bold",
   borderBottomWidth = 4,
+  navigationConfig = '[{"title":"Manifesto"},{"title":"Works"},{"title":"Contact"}]',
+  navInteractionMode = "hover",
+  submenuBackgroundColor = "#ffffff",
+  submenuBorderColor = "#000000",
+  submenuTextColor = "#000000",
+  submenuHoverColor = "#f0f0f0",
+  submenuBorderRadius = 0,
+  submenuWidth = 160,
+  submenuPadding = 8,
 }: NeoBrutalistHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Manifesto" }, { title: "Works" }, { title: "Contact" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header
@@ -603,19 +863,73 @@ export function NeoBrutalistHeader({
           </span>
         </div>
         <nav className="hidden items-center gap-8 md:flex">
-          {["Manifesto", "Works", "Contact"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className={cn(
-                "uppercase hover:underline decoration-4 underline-offset-4",
-                fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-black"
-              )}
-              style={{ color: textColor, textDecorationColor: primaryColor }}
-            >
-              {item}
-            </a>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className={cn(
+                    "flex items-center gap-1 uppercase hover:underline decoration-4 underline-offset-4",
+                    fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-black"
+                  )}
+                  style={{ color: textColor, textDecorationColor: primaryColor }}
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={14} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 border-2 z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                    style={{ 
+                      borderColor: submenuBorderColor,
+                      backgroundColor: submenuBackgroundColor,
+                      borderRadius: `${submenuBorderRadius}px`,
+                      width: `${submenuWidth}px`,
+                      padding: `${submenuPadding}px`,
+                      boxShadow: `4px 4px 0px 0px ${submenuBorderColor}`
+                    }}
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block border-2 px-4 py-2 mb-2 last:mb-0 uppercase font-bold transition-transform hover:-translate-y-1 active:translate-x-[2px] active:translate-y-[2px]"
+                        style={{ 
+                          borderColor: submenuBorderColor,
+                          backgroundColor: submenuHoverColor === submenuBackgroundColor ? primaryColor : 'transparent',
+                          color: submenuTextColor,
+                          boxShadow: `2px 2px 0px 0px ${submenuBorderColor}`
+                        }}
+                        onMouseEnter={(e) => {
+                          if (submenuHoverColor !== submenuBackgroundColor) {
+                            e.currentTarget.style.backgroundColor = submenuHoverColor
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (submenuHoverColor !== submenuBackgroundColor) {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }
+                        }}
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <button
           className="border-2 px-6 py-2 font-bold uppercase transition-transform active:translate-x-[2px] active:translate-y-[2px] hover:-translate-y-1"
@@ -650,7 +964,38 @@ export function EcommerceMegaHeader({
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"New In"},{"title":"Clothing","items":["Men","Women","Kids"]},{"title":"Shoes"},{"title":"Accessories"},{"title":"Sale"}]',
+  navInteractionMode = "hover",
+  submenuBackgroundColor = "#171717",
+  submenuBorderColor = "#262626",
+  submenuTextColor = "#e5e5e5",
+  submenuHoverColor = "#262626",
+  submenuBorderRadius = 12,
+  submenuWidth = 256,
+  submenuPadding = 24,
 }: EcommerceMegaHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "New In" }, { title: "Clothing" }, { title: "Shoes" }, { title: "Accessories" }, { title: "Sale" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="flex h-8 items-center justify-between px-6 text-[10px] font-medium text-neutral-400" style={{ backgroundColor: topBarColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -694,22 +1039,70 @@ export function EcommerceMegaHeader({
       </div>
       <div 
         className={cn(
-          "flex h-12 items-center justify-center gap-8 border-b border-neutral-800 text-neutral-400",
+          "relative flex h-12 items-center justify-center gap-8 border-b border-neutral-800 text-neutral-400",
           fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
           fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
         )}
         style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px`, borderBottomWidth: `${borderBottomWidth}px` }}
       >
-        {["New In", "Clothing", "Shoes", "Accessories", "Sale"].map((item) => (
-          <a
-            key={item}
-            href="#"
-            className="transition-colors hover:text-white"
-            style={item === "Sale" ? { color: accentColor } : {}}
-          >
-            {item}
-          </a>
-        ))}
+        {navItems.map((item: any, index: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          return (
+            <div
+              key={title}
+              className="relative"
+              {...(navInteractionMode === 'hover' ? {
+                onMouseEnter: () => handleMouseEnter(index),
+                onMouseLeave: handleMouseLeave
+              } : {})}
+            >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                className="flex items-center gap-1 transition-colors hover:text-white"
+                style={title === "Sale" ? { color: accentColor } : {}}
+              >
+                {title}
+                {hasSubmenu && (
+                  <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === index && (
+                <div 
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 border shadow-2xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  style={{
+                    backgroundColor: submenuBackgroundColor,
+                    borderColor: submenuBorderColor,
+                    borderRadius: `${submenuBorderRadius}px`,
+                    width: `${submenuWidth}px`,
+                    padding: `${submenuPadding}px`,
+                  }}
+                >
+                  <div className="grid grid-cols-1 gap-2">
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-lg px-4 py-3 text-sm transition-colors"
+                        style={{ 
+                          color: submenuTextColor,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = submenuHoverColor
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -730,7 +1123,32 @@ export function DeveloperDocsHeader({
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Documentation"},{"title":"API Reference","items":["v2.4","v2.3","v2.2"]},{"title":"Showcase"},{"title":"Guides"}]',
+  navInteractionMode = "hover",
 }: DeveloperDocsHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Documentation" }, { title: "API Reference" }, { title: "Showcase" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header 
@@ -757,9 +1175,44 @@ export function DeveloperDocsHeader({
             )}
             style={{ color: secondaryTextColor }}
           >
-            <span style={{ color: textColor }}>Documentation</span>
-            <span className="cursor-pointer hover:text-white">API Reference</span>
-            <span className="cursor-pointer hover:text-white">Showcase</span>
+            {navItems.map((item: any, index: number) => {
+              const title = item.title || item
+              const hasSubmenu = item.items && item.items.length > 0
+              return (
+                <div
+                  key={title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                    className={cn("flex items-center gap-1 cursor-pointer hover:text-white", index === 0 && "text-white")}
+                    style={index === 0 ? { color: textColor } : {}}
+                  >
+                    {title}
+                    {hasSubmenu && (
+                      <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                    )}
+                  </button>
+                  {hasSubmenu && activeDropdown === index && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-700 bg-neutral-800/95 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-700 hover:text-white transition-colors"
+                        >
+                          {subItem}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
         </div>
         <div className="flex items-center gap-3">
@@ -812,7 +1265,32 @@ export function CreativePortfolioHeader({
   paddingX = 32,
   fontSize = "base",
   fontWeight = "medium",
+  navigationConfig = '[{"title":"Work"},{"title":"About"},{"title":"Playground"},{"title":"Contact"}]',
+  navInteractionMode = "hover",
 }: CreativePortfolioHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Work" }, { title: "About" }, { title: "Playground" }, { title: "Contact" }]
+  }
+
   return (
     <div 
       className="flex h-[200px] w-full flex-col" 
@@ -836,12 +1314,47 @@ export function CreativePortfolioHeader({
             fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
           )}
         >
-          {["Work", "About", "Playground", "Contact"].map(item => (
-            <a key={item} href="#" className="relative transition-colors group" style={{ color: secondaryTextColor }}>
-              <span className="group-hover:text-white transition-colors">{item}</span>
-              <span className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: accentColor }} />
-            </a>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const itemTitle = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={itemTitle}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="relative transition-colors group flex items-center gap-1"
+                  style={{ color: secondaryTextColor }}
+                >
+                  <span className="group-hover:text-white transition-colors">{itemTitle}</span>
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                  <span className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: accentColor }} />
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/10 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
       </header>
       <div className="flex-1 flex items-center justify-center">
@@ -872,7 +1385,32 @@ export function GamingHeader({
   fontSize = "base",
   fontWeight = "bold",
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Games"},{"title":"Esports"},{"title":"Community"},{"title":"Store"}]',
+  navInteractionMode = "hover",
 }: GamingHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Games" }, { title: "Esports" }, { title: "Community" }, { title: "Store" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="h-1 w-full" style={{ background: `linear-gradient(to right, ${accentColor}, ${secondaryAccentColor}, purple)` }} />
@@ -892,19 +1430,48 @@ export function GamingHeader({
             {brandName}
           </div>
           <nav className="hidden items-center gap-6 md:flex">
-            {["Games", "Esports", "Community", "Store"].map(item => (
-              <a 
-                key={item} 
-                href="#" 
-                className={cn(
-                  "uppercase text-neutral-400 transition-colors hover:text-cyan-400",
-                  fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium",
-                  fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base"
-                )}
-              >
-                {item}
-              </a>
-            ))}
+            {navItems.map((item: any, index: number) => {
+              const title = item.title || item
+              const hasSubmenu = item.items && item.items.length > 0
+              return (
+                <div
+                  key={title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                    className={cn(
+                      "flex items-center gap-1 uppercase text-neutral-400 transition-colors hover:text-cyan-400",
+                      fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium",
+                      fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base"
+                    )}
+                  >
+                    {title}
+                    {hasSubmenu && (
+                      <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                    )}
+                  </button>
+                  {hasSubmenu && activeDropdown === index && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-48 rounded-lg border border-cyan-500/30 bg-neutral-900/95 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                      style={{ boxShadow: `0 0 20px ${accentColor}40` }}
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded-md px-3 py-2 text-sm uppercase text-neutral-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+                        >
+                          {subItem}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
         </div>
         <div className="flex items-center gap-4">
@@ -944,7 +1511,31 @@ export function NewsPortalHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 4,
+  navigationConfig = '[{"title":"World"},{"title":"Politics"},{"title":"Business"},{"title":"Tech"},{"title":"Science"},{"title":"Health"},{"title":"Sports"},{"title":"Opinion"}]',
+  navInteractionMode = "hover",
 }: NewsPortalHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "World" }, { title: "Politics" }, { title: "Business" }, { title: "Tech" }, { title: "Science" }, { title: "Health" }, { title: "Sports" }, { title: "Opinion" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="flex h-8 items-center justify-between border-b border-neutral-200 px-6 text-xs font-medium text-neutral-500" style={{ backgroundColor: topBarColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -980,10 +1571,46 @@ export function NewsPortalHeader({
           </button>
         </div>
       </header>
-      <nav className="flex h-10 items-center justify-center gap-6 border-b border-neutral-200 text-xs font-bold uppercase tracking-wider text-neutral-600 overflow-x-auto px-4">
-        {["World", "Politics", "Business", "Tech", "Science", "Health", "Sports", "Opinion"].map(item => (
-          <a key={item} href="#" className="hover:text-black whitespace-nowrap">{item}</a>
-        ))}
+      <nav className="relative flex h-10 items-center justify-center gap-6 border-b border-neutral-200 text-xs font-bold uppercase tracking-wider text-neutral-600 overflow-x-auto px-4">
+        {navItems.map((item: any, index: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          return (
+            <div
+              key={title}
+              className="relative"
+              {...(navInteractionMode === 'hover' ? {
+                onMouseEnter: () => handleMouseEnter(index),
+                onMouseLeave: handleMouseLeave
+              } : {})}
+            >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                className="flex items-center gap-1 hover:text-black whitespace-nowrap"
+              >
+                {title}
+                {hasSubmenu && (
+                  <ChevronDown size={10} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === index && (
+                <div 
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-40 rounded-lg border border-neutral-200 bg-white p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {item.items.map((subItem: string, subIndex: number) => (
+                    <a 
+                      key={subIndex} 
+                      href="#" 
+                      className="block rounded-md px-3 py-2 text-xs font-normal text-neutral-700 hover:bg-neutral-100 hover:text-black transition-colors"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
     </div>
   )
@@ -1001,7 +1628,31 @@ export function VideoPlatformHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 16,
+  navigationConfig = '[{"title":"All"},{"title":"Gaming"},{"title":"Live"},{"title":"Music"},{"title":"Mixes"},{"title":"Computers"},{"title":"Programming"},{"title":"Podcasts"}]',
+  navInteractionMode = "hover",
 }: VideoPlatformHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "All" }, { title: "Gaming" }, { title: "Live" }, { title: "Music" }, { title: "Mixes" }, { title: "Computers" }, { title: "Programming" }, { title: "Podcasts" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header className="flex h-14 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1036,16 +1687,47 @@ export function VideoPlatformHeader({
           <div className="ml-2 h-8 w-8 rounded-full bg-purple-600 text-sm font-medium text-white flex items-center justify-center">A</div>
         </div>
       </header>
-      <div className="flex gap-3 py-3 overflow-x-auto scrollbar-hide" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
-        {["All", "Gaming", "Live", "Music", "Mixes", "Computers", "Programming", "Podcasts"].map((tag, i) => (
-          <button
-            key={tag}
-            className={cn("whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors")}
-            style={i === 0 ? { backgroundColor: textColor, color: backgroundColor } : { backgroundColor: "rgba(255,255,255,0.1)", color: textColor }}
-          >
-            {tag}
-          </button>
-        ))}
+      <div className="relative flex gap-3 py-3 overflow-x-auto scrollbar-hide" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
+        {navItems.map((item: any, i: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          return (
+            <div
+              key={title}
+              className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(i),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === i ? null : i)}
+                className={cn("whitespace-nowrap flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors")}
+                style={i === 0 ? { backgroundColor: textColor, color: backgroundColor } : { backgroundColor: "rgba(255,255,255,0.1)", color: textColor }}
+              >
+                {title}
+                {hasSubmenu && (
+                  <ChevronDown size={12} className={cn("transition-transform", activeDropdown === i ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === i && (
+                <div 
+                  className="absolute top-full left-0 mt-2 w-48 rounded-lg border border-neutral-700 bg-neutral-900 p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {item.items.map((subItem: string, subIndex: number) => (
+                    <a 
+                      key={subIndex} 
+                      href="#" 
+                      className="block rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -1065,7 +1747,31 @@ export function CryptoExchangeHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Markets"},{"title":"Trade"},{"title":"Futures"},{"title":"Earn"}]',
+  navInteractionMode = "hover",
 }: CryptoExchangeHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Markets" }, { title: "Trade" }, { title: "Futures" }, { title: "Earn" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="flex h-8 items-center gap-8 border-b border-neutral-800 px-4 text-xs overflow-hidden whitespace-nowrap font-mono" style={{ backgroundColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1088,11 +1794,44 @@ export function CryptoExchangeHeader({
             {brandName}
           </div>
           <nav className="hidden items-center gap-6 text-sm font-medium text-neutral-400 md:flex">
-            {["Markets", "Trade", "Futures", "Earn"].map(item => (
-              <span key={item} className="cursor-pointer hover:text-white" style={item === "Markets" ? { color: textColor } : {}}>
-                {item}
-              </span>
-            ))}
+            {navItems.map((item: any, index: number) => {
+              const title = item.title || item
+              const hasSubmenu = item.items && item.items.length > 0
+              return (
+                <div
+                  key={title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                    className="flex items-center gap-1 cursor-pointer hover:text-white"
+                    style={index === 0 ? { color: textColor } : {}}
+                  >
+                    {title}
+                    {hasSubmenu && (
+                      <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                    )}
+                  </button>
+                  {hasSubmenu && activeDropdown === index && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-800 bg-neutral-900 p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                        >
+                          {subItem}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
         </div>
         <div className="flex items-center gap-4">
@@ -1125,6 +1864,8 @@ export function HelpCenterHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Getting Started"},{"title":"Account","items":["Billing","Settings","Security"]},{"title":"Billing"},{"title":"API"}]',
+  navInteractionMode = "hover",
 }: HelpCenterHeaderProps) {
   return (
     <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
@@ -1175,6 +1916,8 @@ export function SocialMediaHeader({
   paddingBottom = 0,
   paddingX = 16,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Home"},{"title":"Watch"},{"title":"Groups"},{"title":"Gaming"}]',
+  navInteractionMode = "hover",
 }: SocialMediaHeaderProps) {
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor: containerBackgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
@@ -1242,7 +1985,31 @@ export function SplitMinimalHeader({
   paddingX = 32,
   fontSize = "base",
   fontWeight = "medium",
+  navigationConfig = '[{"title":"Work"},{"title":"Agency"},{"title":"Expertise"},{"title":"Insights"}]',
+  navInteractionMode = "hover",
 }: SplitMinimalHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Work" }, { title: "Agency" }, { title: "Expertise" }, { title: "Insights" }]
+  }
   return (
     <div 
       className="flex h-[200px] w-full flex-col" 
@@ -1267,9 +2034,45 @@ export function SplitMinimalHeader({
           )}
           style={{ color: secondaryTextColor }}
         >
-          {["Work", "Agency", "Expertise", "Insights"].map(i => (
-            <a key={i} href="#" className="hover:text-white transition-colors">{i}</a>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:text-white transition-colors"
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/10 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <button
           className="rounded-full border px-6 py-2 text-sm hover:bg-neutral-900 transition-colors"
@@ -1299,7 +2102,31 @@ export function StackedClassicHeader({
   paddingBottom = 24,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"World"},{"title":"U.S."},{"title":"Politics"},{"title":"N.Y."},{"title":"Business"},{"title":"Opinion"},{"title":"Tech"},{"title":"Science"}]',
+  navInteractionMode = "hover",
 }: StackedClassicHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "World" }, { title: "U.S." }, { title: "Politics" }, { title: "N.Y." }, { title: "Business" }, { title: "Opinion" }, { title: "Tech" }, { title: "Science" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor }}>
       <div className="flex h-10 items-center justify-center text-[10px] font-bold uppercase tracking-widest" style={{ backgroundColor: topBarBackgroundColor, color: topBarTextColor }}>
@@ -1316,10 +2143,46 @@ export function StackedClassicHeader({
       >
         <h1 className="text-3xl font-serif font-bold tracking-tight mb-4">{brandName}</h1>
         <div className="h-px w-full max-w-4xl mb-4" style={{ backgroundColor: borderColor }} />
-        <nav className="flex gap-6 text-xs font-bold uppercase tracking-wider text-neutral-600">
-          {["World", "U.S.", "Politics", "N.Y.", "Business", "Opinion", "Tech", "Science"].map(item => (
-            <a key={item} href="#" className="hover:text-black transition-colors">{item}</a>
-          ))}
+        <nav className="relative flex gap-6 text-xs font-bold uppercase tracking-wider text-neutral-600">
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:text-black transition-colors"
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={10} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-32 rounded border border-neutral-200 bg-white p-2 shadow-lg z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded px-2 py-1.5 text-xs font-normal text-neutral-700 hover:bg-neutral-100 hover:text-black transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
       </header>
       <div className="flex-1 bg-neutral-100" />
@@ -1339,7 +2202,31 @@ export function ArchitecturalHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Projects"},{"title":"Studio"},{"title":"News"},{"title":"Contact"}]',
+  navInteractionMode = "hover",
 }: ArchitecturalHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Projects" }, { title: "Studio" }, { title: "News" }, { title: "Contact" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col border" style={{ backgroundColor, borderColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header 
@@ -1353,10 +2240,49 @@ export function ArchitecturalHeader({
           {brandName}
         </div>
         <div className="col-span-6 flex h-16 items-center justify-center border-r" style={{ borderColor }}>
-          <nav className="flex gap-8 text-xs font-mono uppercase" style={{ color: secondaryTextColor }}>
-            {["Projects", "Studio", "News", "Contact"].map(item => (
-              <a key={item} href="#" className="hover:text-white transition-colors">[{item}]</a>
-            ))}
+          <nav className="relative flex gap-8 text-xs font-mono uppercase" style={{ color: secondaryTextColor }}>
+            {navItems.map((item: any, index: number) => {
+              const title = item.title || item
+              const hasSubmenu = item.items && item.items.length > 0
+              return (
+                <div
+                  key={title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                    className="flex items-center gap-1 hover:text-white transition-colors"
+                  >
+                    [{title}]
+                    {hasSubmenu && (
+                      <ChevronDown size={10} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                    )}
+                  </button>
+                  {hasSubmenu && activeDropdown === index && (
+                    <div 
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-32 rounded border p-2 z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                      style={{ 
+                        borderColor,
+                        backgroundColor,
+                        boxShadow: `0 4px 6px -1px rgba(0, 0, 0, 0.1)`
+                      }}
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded px-2 py-1.5 text-xs font-mono text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                          [{subItem}]
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </nav>
         </div>
         <div className="col-span-3 flex h-16 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1383,7 +2309,31 @@ export function FashionEditorialHeader({
   paddingTop = 24,
   paddingBottom = 24,
   paddingX = 24,
+  navigationConfig = '[{"title":"Fashion"},{"title":"Beauty"},{"title":"Culture"},{"title":"Living"}]',
+  navInteractionMode = "hover",
 }: FashionEditorialHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Fashion" }, { title: "Beauty" }, { title: "Culture" }, { title: "Living" }]
+  }
   return (
     <div 
       className="relative flex h-[250px] w-full flex-col justify-between overflow-hidden"
@@ -1402,9 +2352,45 @@ export function FashionEditorialHeader({
         <Search size={24} />
       </header>
       <div className="relative z-10 flex justify-center gap-6 text-sm font-bold uppercase tracking-widest" style={{ color: `${textColor}e6` }}>
-        {["Fashion", "Beauty", "Culture", "Living"].map(item => (
-          <span key={item}>{item}</span>
-        ))}
+        {navItems.map((item: any, index: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          return (
+            <div
+              key={title}
+              className="relative"
+              {...(navInteractionMode === 'hover' ? {
+                onMouseEnter: () => handleMouseEnter(index),
+                onMouseLeave: handleMouseLeave
+              } : {})}
+            >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                className="flex items-center gap-1"
+              >
+                {title}
+                {hasSubmenu && (
+                  <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === index && (
+                <div 
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-40 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {item.items.map((subItem: string, subIndex: number) => (
+                    <a 
+                      key={subIndex} 
+                      href="#" 
+                      className="block rounded-md px-3 py-2 text-xs font-normal text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -1423,7 +2409,31 @@ export function AppStoreHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Discover"},{"title":"Arcade"},{"title":"Create"},{"title":"Work"},{"title":"Play"},{"title":"Develop"},{"title":"Categories"}]',
+  navInteractionMode = "hover",
 }: AppStoreHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Discover" }, { title: "Arcade" }, { title: "Create" }, { title: "Work" }, { title: "Play" }, { title: "Develop" }, { title: "Categories" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header 
@@ -1452,16 +2462,45 @@ export function AppStoreHeader({
           <div className="h-8 w-8 rounded-full bg-neutral-700" />
         </div>
       </header>
-      <div className="flex items-center gap-6 py-4 border-b overflow-x-auto" style={{ borderColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
-        {["Discover", "Arcade", "Create", "Work", "Play", "Develop", "Categories"].map((item, idx) => (
-          <button
-            key={item}
-            className={cn("text-sm font-medium transition-colors")}
-            style={idx === 0 ? { color: accentColor } : { color: "#a3a3a3" }}
-          >
-            {item}
-          </button>
-        ))}
+      <div className="relative flex items-center gap-6 py-4 border-b overflow-x-auto" style={{ borderColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
+        {navItems.map((item: any, idx: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          return (
+            <div
+              key={title}
+              className="relative"
+              onMouseEnter={() => handleMouseEnter(idx)}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === idx ? null : idx)}
+                className={cn("flex items-center gap-1 text-sm font-medium transition-colors")}
+                style={idx === 0 ? { color: accentColor } : { color: "#a3a3a3" }}
+              >
+                {title}
+                {hasSubmenu && (
+                  <ChevronDown size={12} className={cn("transition-transform", activeDropdown === idx ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === idx && (
+                <div 
+                  className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-700 bg-neutral-900 p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {item.items.map((subItem: string, subIndex: number) => (
+                    <a 
+                      key={subIndex} 
+                      href="#" 
+                      className="block rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -1480,7 +2519,31 @@ export function UniversityHeader({
   paddingBottom = 0,
   paddingX = 32,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Admissions"},{"title":"Academics","items":["Programs","Departments","Research"]},{"title":"Research"},{"title":"Campus Life"},{"title":"About"}]',
+  navInteractionMode = "hover",
 }: UniversityHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Admissions" }, { title: "Academics" }, { title: "Research" }, { title: "Campus Life" }, { title: "About" }]
+  }
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="flex h-8 justify-end items-center px-8 text-xs font-medium text-white/90 gap-4" style={{ backgroundColor: primaryColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1509,9 +2572,46 @@ export function UniversityHeader({
           </div>
         </div>
         <nav className="hidden md:flex gap-6 text-sm font-bold uppercase" style={{ color: textColor }}>
-          {["Admissions", "Academics", "Research", "Campus Life", "About"].map(item => (
-            <a key={item} href="#" className="hover:opacity-80 transition-opacity" style={{ color: textColor }}>{item}</a>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+                  style={{ color: textColor }}
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-200 bg-white p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-black transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <Menu size={24} className="md:hidden" style={{ color: textColor }} />
       </header>
@@ -1532,17 +2632,117 @@ export function RestaurantHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 32,
+  navigationConfig = '[{"title":"Menu"},{"title":"Wines"},{"title":"Private Dining"}]',
+  navInteractionMode = "hover",
 }: RestaurantHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Menu" }, { title: "Wines" }, { title: "Private Dining" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header className="flex h-24 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <nav className="hidden md:flex gap-8 text-sm font-medium tracking-widest uppercase">
-          <a href="#" className="hover:text-white transition-colors">Menu</a>
-          <a href="#" className="hover:text-white transition-colors">Wines</a>
+          {navItems.slice(0, 2).map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:text-white transition-colors"
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <div className="text-3xl font-serif italic">{restaurantName}</div>
         <nav className="hidden md:flex gap-8 text-sm font-medium tracking-widest uppercase items-center">
-          <a href="#" className="hover:text-white transition-colors">Private Dining</a>
+          {navItems.slice(2).map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index + 2),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index + 2 ? null : index + 2)}
+                  className="flex items-center gap-1 hover:text-white transition-colors"
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index + 2 ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index + 2 && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
           <button
             className="border px-6 py-2 hover:bg-opacity-10 transition-colors"
             style={{ borderColor: accentColor, color: accentColor }}
@@ -1572,6 +2772,8 @@ export function ArtistHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 24,
+  navigationConfig = '[{"title":"Music"},{"title":"Tour Dates"},{"title":"Merch"},{"title":"About"}]',
+  navInteractionMode = "hover",
 }: ArtistHeaderProps) {
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
@@ -1611,7 +2813,32 @@ export function NonProfitHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 24, // Using px-6 (24px) default from design
+  navigationConfig = '[{"title":"Our Work"},{"title":"Stories"},{"title":"Financials"},{"title":"About Us"}]',
+  navInteractionMode = "hover",
 }: NonProfitHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Our Work" }, { title: "Stories" }, { title: "Financials" }, { title: "About Us" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header className="flex h-20 items-center justify-between shadow-sm relative z-10" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1620,9 +2847,45 @@ export function NonProfitHeader({
           <span className="text-xl font-bold" style={{ color: textColor }}>{orgName}</span>
         </div>
         <nav className="hidden md:flex gap-8 text-sm font-semibold text-neutral-600">
-          {["Our Work", "Stories", "Financials", "About Us"].map(item => (
-            <a key={item} href="#" className="hover:text-neutral-900 transition-colors">{item}</a>
-          ))}
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:text-neutral-900 transition-colors"
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-200 bg-white p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-black transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <button
           className="rounded-full px-6 py-2.5 font-bold text-white shadow-lg hover:-translate-y-0.5 transition-all"
@@ -1651,7 +2914,32 @@ export function Web3DappHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Swap"},{"title":"Tokens"},{"title":"NFTs"},{"title":"Pools"}]',
+  navInteractionMode = "hover",
 }: Web3DappHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Swap" }, { title: "Tokens" }, { title: "NFTs" }, { title: "Pools" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header 
@@ -1668,15 +2956,46 @@ export function Web3DappHeader({
           <span className="text-xl font-bold" style={{ color: textColor }}>{appName}</span>
         </div>
         <div className="hidden md:flex items-center rounded-xl bg-neutral-900 p-1 border border-neutral-800">
-          {["Swap", "Tokens", "NFTs", "Pools"].map((item, idx) => (
-            <button
-              key={item}
-              className={cn("px-4 py-1.5 rounded-lg text-sm font-medium transition-colors")}
-              style={idx === 0 ? { backgroundColor: "#262626", color: "white" } : { color: "#a3a3a3" }}
-            >
-              {item}
-            </button>
-          ))}
+          {navItems.map((item: any, idx: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(idx),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === idx ? null : idx)}
+                  className={cn("flex items-center gap-1 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors")}
+                  style={idx === 0 ? { backgroundColor: "#262626", color: "white" } : { color: "#a3a3a3" }}
+                >
+                  {title}
+                  {hasSubmenu && (
+                    <ChevronDown size={12} className={cn("transition-transform", activeDropdown === idx ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === idx && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-neutral-800 bg-neutral-900 p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors"
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2 rounded-xl bg-neutral-900 px-3 py-2 text-sm font-medium text-white border border-neutral-800">
@@ -1709,7 +3028,32 @@ export function CyberSecurityHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Services"},{"title":"Intelligence"},{"title":"About"}]',
+  navInteractionMode = "hover",
 }: CyberSecurityHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Services" }, { title: "Intelligence" }, { title: "About" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col font-mono" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="h-1 w-full" style={{ backgroundColor: primaryColor }} />
@@ -1728,9 +3072,46 @@ export function CyberSecurityHeader({
           <span className="animate-pulse block h-4 w-2" style={{ backgroundColor: primaryColor }} />
         </div>
         <nav className="hidden md:flex gap-8 text-xs" style={{ color: "#15803d" }}>
-          <a href="#" className="hover:text-green-400 transition-colors">[SERVICES]</a>
-          <a href="#" className="hover:text-green-400 transition-colors">[INTELLIGENCE]</a>
-          <a href="#" className="hover:text-green-400 transition-colors">[ABOUT]</a>
+          {navItems.map((item: any, index: number) => {
+            const title = item.title || item
+            const hasSubmenu = item.items && item.items.length > 0
+            return (
+              <div
+                key={title}
+                className="relative"
+                {...(navInteractionMode === 'hover' ? {
+                  onMouseEnter: () => handleMouseEnter(index),
+                  onMouseLeave: handleMouseLeave
+                } : {})}
+              >
+                <button
+                  onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                  className="flex items-center gap-1 hover:text-green-400 transition-colors"
+                >
+                  [{title.toUpperCase()}]
+                  {hasSubmenu && (
+                    <ChevronDown size={10} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+                {hasSubmenu && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-40 rounded border border-green-500/30 bg-black/95 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200 font-mono"
+                    style={{ borderColor: primaryColor }}
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded px-2 py-1.5 text-xs text-green-400 hover:bg-green-500/10 hover:text-green-300 transition-colors"
+                      >
+                        [{subItem.toUpperCase()}]
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </nav>
         <div className="flex items-center gap-2 text-xs border px-3 py-1" style={{ color: primaryColor, borderColor }}>
           <Shield size={12} /> {statusText}
@@ -1757,6 +3138,8 @@ export function CoursePlatformHeader({
   paddingBottom = 0,
   paddingX = 24,
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Categories"},{"title":"My Learning"},{"title":"Wishlist"},{"title":"Instructor"}]',
+  navInteractionMode = "hover",
 }: CoursePlatformHeaderProps) {
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
@@ -1819,6 +3202,8 @@ export function MagazineModernHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 24,
+  navigationConfig = '[{"title":"Technology"},{"title":"Design"},{"title":"Business"},{"title":"Culture"}]',
+  navInteractionMode = "hover",
 }: MagazineModernHeaderProps) {
   return (
     <div className="flex h-[200px] w-full flex-col relative" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
@@ -1853,7 +3238,32 @@ export function TravelBookingHeader({
   paddingTop = 0,
   paddingBottom = 0,
   paddingX = 24,
+  navigationConfig = '[{"title":"Stays"},{"title":"Flights"},{"title":"Flight + Hotel"}]',
+  navInteractionMode = "hover",
 }: TravelBookingHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Stays" }, { title: "Flights" }, { title: "Flight + Hotel" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header className="flex h-16 items-center justify-between max-w-5xl mx-auto w-full" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
@@ -1866,16 +3276,48 @@ export function TravelBookingHeader({
           <button className="bg-white px-4 py-1.5 rounded-sm font-bold" style={{ color: backgroundColor }}>Sign in</button>
         </div>
       </header>
-      <div className="flex gap-6 max-w-5xl mx-auto w-full mt-2 text-sm overflow-x-auto pb-4" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
-        <button className="flex items-center gap-2 rounded-full border border-white bg-white/10 px-4 py-2 hover:bg-white/20">
-          <Home size={16} /> Stays
-        </button>
-        <button className="flex items-center gap-2 rounded-full border border-transparent px-4 py-2 hover:bg-white/10">
-          <Plane size={16} /> Flights
-        </button>
-        <button className="flex items-center gap-2 rounded-full border border-transparent px-4 py-2 hover:bg-white/10">
-          <Globe size={16} /> Flight + Hotel
-        </button>
+      <div className="relative flex gap-6 max-w-5xl mx-auto w-full mt-2 text-sm overflow-x-auto pb-4" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
+        {navItems.map((item: any, index: number) => {
+          const title = item.title || item
+          const hasSubmenu = item.items && item.items.length > 0
+          const icons = [Home, Plane, Globe]
+          const Icon = icons[index] || Home
+          return (
+            <div
+              key={title}
+              className="relative"
+              {...(navInteractionMode === 'hover' ? {
+                onMouseEnter: () => handleMouseEnter(index),
+                onMouseLeave: handleMouseLeave
+              } : {})}
+            >
+              <button
+                onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                className={cn("flex items-center gap-2 rounded-full border px-4 py-2 hover:bg-white/20", index === 0 ? "border-white bg-white/10" : "border-transparent hover:bg-white/10")}
+              >
+                <Icon size={16} /> {title}
+                {hasSubmenu && (
+                  <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                )}
+              </button>
+              {hasSubmenu && activeDropdown === index && (
+                <div 
+                  className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                >
+                  {item.items.map((subItem: string, subIndex: number) => (
+                    <a 
+                      key={subIndex} 
+                      href="#" 
+                      className="block rounded-md px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
       <div className="relative mt-4 max-w-5xl mx-auto w-full" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex p-1 rounded-md gap-1" style={{ backgroundColor: searchBoxColor }}>
@@ -1904,7 +3346,32 @@ export function GradientBlurHeader({
   accentColor,
   paddingTop = 0,
   paddingBottom = 0,
+  navigationConfig = '[{"title":"Product"},{"title":"Solutions"},{"title":"Resources"},{"title":"Pricing"}]',
+  navInteractionMode = "hover",
 }: GradientBlurHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = [{ title: "Product" }, { title: "Solutions" }, { title: "Resources" }, { title: "Pricing" }]
+  }
+
   return (
     <div className="flex h-[200px] w-full flex-col items-center justify-center relative overflow-hidden" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="absolute top-[-50%] left-[-10%] h-[200%] w-[120%] bg-[radial-gradient(circle_at_50%_50%,#e9d5ff,#fae8ff,#ffffff)] blur-3xl opacity-60" />
@@ -1913,12 +3380,44 @@ export function GradientBlurHeader({
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm font-bold" style={{ color: accentColor }}>
             G
           </div>
-          <div className="flex items-center gap-1 bg-neutral-100/50 p-1 rounded-xl">
-            {["Product", "Solutions", "Resources", "Pricing"].map(item => (
-              <button key={item} className="px-4 py-1.5 text-sm font-medium text-neutral-600 hover:bg-white hover:text-black hover:shadow-sm rounded-lg transition-all">
-                {item}
-              </button>
-            ))}
+          <div className="relative flex items-center gap-1 bg-neutral-100/50 p-1 rounded-xl">
+            {navItems.map((item: any, index: number) => {
+              const title = item.title || item
+              const hasSubmenu = item.items && item.items.length > 0
+              return (
+                <div
+                  key={title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <button
+                    onClick={() => navInteractionMode === 'click' && hasSubmenu && setActiveDropdown(activeDropdown === index ? null : index)}
+                    className="flex items-center gap-1 px-4 py-1.5 text-sm font-medium text-neutral-600 hover:bg-white hover:text-black hover:shadow-sm rounded-lg transition-all"
+                  >
+                    {title}
+                    {hasSubmenu && (
+                      <ChevronDown size={12} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                    )}
+                  </button>
+                  {hasSubmenu && activeDropdown === index && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-40 rounded-lg border border-white/20 bg-white/95 backdrop-blur-sm p-2 shadow-xl z-[9999] animate-in fade-in zoom-in-95 duration-200"
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded-md px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-black transition-colors"
+                        >
+                          {subItem}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
           <button className="rounded-xl bg-black px-4 py-2 text-sm font-bold text-white hover:bg-neutral-800 transition-colors">
             {buttonText}

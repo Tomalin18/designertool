@@ -58,8 +58,32 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
     items = []
   }
 
-  const updateItems = (newItems: any[]) => {
-    onChange(JSON.stringify(newItems, null, 2))
+  const updateItems = (newItems: any[], shouldCleanEmpty = false) => {
+    // 只有在需要清理時才清理末尾空項目（比如保存時）
+    // 平時保留空項目，以便用戶可以繼續添加
+    let processedItems = newItems
+    if (shouldCleanEmpty) {
+      processedItems = newItems.map((item) => {
+        if (!item.items || item.items.length === 0) return item
+        
+        const nonEmptyItems = item.items.filter((s: string) => s.trim() !== "")
+        
+        // 如果沒有非空項目，只保留一個空項目
+        if (nonEmptyItems.length === 0) {
+          return { ...item, items: [""] }
+        }
+        
+        // 如果有非空項目，移除所有末尾的空項目
+        const cleaned = [...item.items]
+        while (cleaned.length > 0 && cleaned[cleaned.length - 1].trim() === "") {
+          cleaned.pop()
+        }
+        
+        return { ...item, items: cleaned }
+      })
+    }
+    
+    onChange(JSON.stringify(processedItems, null, 2))
   }
 
   const addItem = () => {
@@ -81,20 +105,21 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
   const updateSubitem = (itemIndex: number, subIndex: number, val: string) => {
     const newItems = [...items]
     if (!newItems[itemIndex].items) newItems[itemIndex].items = []
-    newItems[itemIndex].items[subIndex] = val
     
-    // Auto-add empty item if filling the last one and it's not empty
-    if (subIndex === newItems[itemIndex].items.length - 1 && val !== "") {
-       newItems[itemIndex].items.push("")
+    // 如果清空一個項目，移除它
+    if (val.trim() === "") {
+      newItems[itemIndex].items.splice(subIndex, 1)
+    } else {
+      newItems[itemIndex].items[subIndex] = val
     }
-    // If we clear an item and it's not the only one, maybe remove it? 
-    // Let's keep it simple: only add. Users can't easily delete subitems except by clearing?
-    // I'll add a delete button for subitems or just rely on "clearing + blur"? 
-    // User requested "fill one then appear next".
-    // I'll stick to that. Empty items at the end are fine (filter them in display if needed, but here we save them).
-    // Actually, the display component might render empty strings. I should filter them before saving?
-    // No, keep state consistent. The component rendering `navItems.map` should handle empty.
     
+    updateItems(newItems)
+  }
+
+  const addSubitem = (itemIndex: number) => {
+    const newItems = [...items]
+    if (!newItems[itemIndex].items) newItems[itemIndex].items = []
+    newItems[itemIndex].items.push("")
     updateItems(newItems)
   }
 
@@ -119,7 +144,7 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
                checked={!!item.items}
                onCheckedChange={(checked) => {
                  if (checked) {
-                   updateItem(index, 'items', [""])
+                   updateItem(index, 'items', [])
                  } else {
                    const newItems = [...items]
                    delete newItems[index].items
@@ -131,30 +156,46 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
            </div>
            {item.items && (
              <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
-               {item.items.map((subItem: string, subIndex: number) => (
-                 <div key={subIndex} className="flex gap-2">
-                   <Input
-                     value={subItem}
-                     onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
-                     placeholder={subIndex === item.items.length - 1 ? "Add subitem..." : "Subitem Title"}
-                     className="h-7 text-xs"
-                   />
-                   {item.items.length > 1 && subIndex !== item.items.length - 1 && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7"
-                        onClick={() => {
-                          const newItems = [...items]
-                          newItems[index].items.splice(subIndex, 1)
-                          updateItems(newItems)
-                        }}
-                      >
-                        <Trash2 size={12} />
-                      </Button>
-                   )}
-                 </div>
-               ))}
+               {item.items
+                 .map((subItem: string, subIndex: number) => ({ subItem, subIndex }))
+                 .filter(({ subItem, subIndex }: { subItem: string; subIndex: number }) => {
+                   // 渲染非空的項目
+                   if (subItem.trim() !== "") return true
+                   // 如果是空項目，只有在是最後一個項目時才渲染（用於輸入新項目）
+                   return subIndex === item.items.length - 1
+                 })
+                 .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
+                   <div key={subIndex} className="flex gap-2">
+                     <Input
+                       value={subItem}
+                       onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
+                       placeholder="Subitem Title"
+                       className="h-7 text-xs"
+                     />
+                     {subItem.trim() !== "" && (
+                       <Button 
+                         variant="ghost" 
+                         size="icon" 
+                         className="h-7 w-7"
+                         onClick={() => {
+                           const newItems = [...items]
+                           newItems[index].items.splice(subIndex, 1)
+                           updateItems(newItems)
+                         }}
+                       >
+                         <Trash2 size={12} />
+                       </Button>
+                     )}
+                   </div>
+                 ))}
+               <Button
+                 variant="outline"
+                 size="sm"
+                 onClick={() => addSubitem(index)}
+                 className="h-7 text-xs gap-1 w-full"
+               >
+                 <Plus size={12} /> Add Subitem
+               </Button>
              </div>
            )}
         </div>
@@ -610,10 +651,13 @@ export function CustomizePanel({
       { prefix: 'terminal', group: 'Card' },
       { prefix: 'phone', group: 'Mockup' },
       { prefix: 'icon', group: 'Icon' },
-      { prefix: 'nav', group: 'Navigation' },
-      { prefix: 'link', group: 'Navigation' },
-      { prefix: 'menu', group: 'Navigation' },
+      { prefix: 'link', group: 'Navbar' },
+      { prefix: 'menu', group: 'Navbar' },
     ]
+    
+    // Separate maps for Navbar and Submenu
+    const navbarProps: string[] = []
+    const submenuProps: string[] = []
     
     // Style subcategories
     const stylePropsMap: Record<string, string[]> = {
@@ -628,6 +672,24 @@ export function CustomizePanel({
 
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
+      
+      // Special case: navigationConfig stays in Content tab
+      if (key === 'navigationConfig') {
+        contentProps.push(key)
+        return
+      }
+      
+      // Special case: navInteractionMode and navbar props (nav*, link*, menu* but not submenu*)
+      if (key === 'navInteractionMode' || (key.startsWith('nav') && !key.startsWith('submenu'))) {
+        navbarProps.push(key)
+        return
+      }
+      
+      // Special case: submenu props go to Submenu
+      if (key.startsWith('submenu')) {
+        submenuProps.push(key)
+        return
+      }
       
       // 1. Check for Elements first
       // But exclude some common content keys that might accidentally match like 'icon' in 'showIcon' if we are not careful
@@ -716,12 +778,33 @@ export function CustomizePanel({
       { name: "other", label: "Other", keys: stylePropsMap.other },
     ].filter(sub => sub.keys.length > 0)
 
+    // Remove 'Navbar' from elementsPropsMap if it exists, since we handle it separately
+    if (elementsPropsMap['Navbar']) {
+      delete elementsPropsMap['Navbar']
+    }
+    
     // Create element subcategories
     const elementSubcategories = Object.entries(elementsPropsMap).map(([name, keys]) => ({
       name: name.toLowerCase(),
       label: name,
       keys
     }))
+    
+    // Add Navbar and Submenu as separate subcategories if they have props
+    if (navbarProps.length > 0) {
+      elementSubcategories.push({
+        name: 'navbar',
+        label: 'Navbar',
+        keys: navbarProps
+      })
+    }
+    if (submenuProps.length > 0) {
+      elementSubcategories.push({
+        name: 'submenu',
+        label: 'Submenu',
+        keys: submenuProps
+      })
+    }
 
     // Calculate states
     const hasStyleProps = styleSubcategories.length > 0
