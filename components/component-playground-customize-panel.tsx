@@ -610,6 +610,9 @@ export function CustomizePanel({
       { prefix: 'terminal', group: 'Card' },
       { prefix: 'phone', group: 'Mockup' },
       { prefix: 'icon', group: 'Icon' },
+      { prefix: 'nav', group: 'Navigation' },
+      { prefix: 'link', group: 'Navigation' },
+      { prefix: 'menu', group: 'Navigation' },
     ]
     
     // Style subcategories
