@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import {
   Menu,
   X,
@@ -85,6 +85,20 @@ export function SimpleHeader({
 }: SimpleHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
 
   let navItems: any[] = []
   try {
@@ -122,8 +136,8 @@ export function SimpleHeader({
               <div
                 key={index}
                 className="relative group"
-                onMouseEnter={() => navInteractionMode === 'hover' && setActiveDropdown(index)}
-                onMouseLeave={() => navInteractionMode === 'hover' && setActiveDropdown(null)}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
               >
                 <button
                   className="flex items-center gap-1 transition-colors hover:opacity-80"
@@ -321,6 +335,20 @@ export function SaaSHeader({
   navInteractionMode = "hover",
 }: SaaSHeaderProps) {
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = (index: number) => {
+    if (navInteractionMode !== 'hover') return
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(index)
+  }
+
+  const handleMouseLeave = () => {
+    if (navInteractionMode !== 'hover') return
+    timeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null)
+    }, 150)
+  }
 
   let navItems: any[] = []
   try {
@@ -391,8 +419,8 @@ export function SaaSHeader({
                 <div 
                   key={index} 
                   className="relative group"
-                  onMouseEnter={() => navInteractionMode === 'hover' && setActiveDropdown(index)}
-                  onMouseLeave={() => navInteractionMode === 'hover' && setActiveDropdown(null)}
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <button 
                     className={cn(
