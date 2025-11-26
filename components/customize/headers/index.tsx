@@ -61,28 +61,7 @@ export const headerDefaultProps: Record<HeaderSlug, Record<string, string | numb
     return acc
   }, {} as Record<HeaderSlug, Record<string, string | number | boolean>>)
 
-// --- Helper Components ---
-
-const ShinyButton = ({
-  children,
-  className,
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
-  return (
-    <button
-      className={cn(
-        "relative overflow-hidden rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-2 font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95",
-        className
-      )}
-      {...props}
-    >
-      <span className="relative z-10 flex items-center gap-2">{children}</span>
-      <div className="absolute inset-0 -z-10 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 group-hover:translate-x-[100%]" />
-    </button>
-  )
-}
-
-// --- 0. Simple Header (Existing) ---
+// --- 1. Simple Header ---
 export type SimpleHeaderProps = HeaderComponentProps<"simple-header">
 export function SimpleHeader({
   logoText,
@@ -98,28 +77,46 @@ export function SimpleHeader({
   buttonBackgroundColor = "#000000",
   buttonTextColor = "#ffffff",
   buttonBorderRadius = 6,
-  paddingY = 16,
+  paddingTop = 20,
+  paddingBottom = 20,
   paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
+  borderBottomWidth = 1,
 }: SimpleHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const links = [link1Text, link2Text, link3Text, link4Text]
 
   return (
     <header
-      className="w-full border-b transition-all duration-300"
-      style={{ backgroundColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}
+      className={cn(
+        "w-full transition-all duration-300",
+        fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+        fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+      )}
+      style={{ 
+        backgroundColor, 
+        paddingLeft: `${paddingX}px`, 
+        paddingRight: `${paddingX}px`,
+        borderBottomWidth: `${borderBottomWidth}px`,
+        borderBottomStyle: 'solid',
+        borderBottomColor: '#e5e7eb' // default border color
+      }}
     >
-      <div className="mx-auto max-w-7xl" style={{ paddingTop: `${paddingY}px`, paddingBottom: `${paddingY}px` }}>
+      <div className="mx-auto max-w-7xl" style={{ paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
         <div className="flex items-center justify-between">
+          {/* Logo */}
           <div className="text-xl font-bold" style={{ color: logoColor }}>
             {logoText}
           </div>
+
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {links.map((link, i) => (
               <a
                 key={i}
                 href="#"
-                className="text-sm font-medium transition-colors"
+                className="transition-colors"
                 style={{ color: linkColor }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = linkHoverColor)}
                 onMouseLeave={(e) => (e.currentTarget.style.color = linkColor)}
@@ -128,6 +125,8 @@ export function SimpleHeader({
               </a>
             ))}
           </nav>
+
+          {/* Desktop CTA */}
           <div className="hidden md:block">
             <button
               className="px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
@@ -140,6 +139,8 @@ export function SimpleHeader({
               {buttonText}
             </button>
           </div>
+
+          {/* Mobile Menu Button */}
           <button
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -148,10 +149,16 @@ export function SimpleHeader({
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="mt-4 flex flex-col gap-4 md:hidden pb-4">
             {links.map((link, i) => (
-              <a key={i} href="#" className="text-sm font-medium" style={{ color: linkColor }}>
+              <a
+                key={i}
+                href="#"
+                style={{ color: linkColor }}
+              >
                 {link}
               </a>
             ))}
@@ -172,7 +179,7 @@ export function SimpleHeader({
   )
 }
 
-// --- 1. Floating Capsule Nav ---
+// --- 2. Floating Capsule Nav ---
 export type FloatingNavProps = HeaderComponentProps<"floating-capsule-nav">
 export function FloatingNav({
   logoText,
@@ -186,12 +193,30 @@ export function FloatingNav({
   buttonBackgroundColor,
   buttonTextColor,
   glowColor,
+  paddingTop = 32,
+  paddingBottom = 20,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
 }: FloatingNavProps) {
   const [active, setActive] = useState("Home")
   const navItems = ["Home", "Features", "Pricing", "About"]
 
   return (
-    <div className="relative flex h-[300px] w-full flex-col items-center pt-8 overflow-hidden" style={{ backgroundColor }}>
+    <div 
+      className={cn(
+        "relative flex w-full flex-col items-center overflow-hidden",
+        fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+      )}
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+        height: '300px' // Keep fixed height for preview consistency
+      }}
+    >
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
       <div className="absolute top-0 h-[200px] w-[200px] rounded-full blur-[60px]" style={{ backgroundColor: glowColor }} />
       <nav
@@ -207,7 +232,8 @@ export function FloatingNav({
               key={item}
               onClick={() => setActive(item)}
               className={cn(
-                "relative rounded-full px-4 py-2 text-sm font-medium transition-colors hover:text-white"
+                "relative rounded-full px-4 py-2 font-medium transition-colors hover:text-white",
+                fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
               )}
               style={{ color: active === item ? activeItemColor : itemColor }}
             >
@@ -220,7 +246,7 @@ export function FloatingNav({
         </div>
         <div className="mx-2 hidden md:block h-4 w-px bg-neutral-800" />
         <button
-          className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-transform hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-transform hover:scale-105 active:scale-95"
           style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}
         >
           {buttonText}
@@ -234,7 +260,7 @@ export function FloatingNav({
   )
 }
 
-// --- 2. SaaS Header ---
+// --- 3. SaaS Header ---
 export type SaaSHeaderProps = HeaderComponentProps<"saas-header">
 export function SaaSHeader({
   companyName,
@@ -247,9 +273,45 @@ export function SaaSHeader({
   bannerGradientTo,
   textColor,
   linkColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
+  borderBottomWidth = 1,
 }: SaaSHeaderProps) {
+  // Internal helper for self-contained code export
+  const ShinyButton = ({
+    children,
+    className,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+    return (
+      <button
+        className={cn(
+          "relative overflow-hidden rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-2 font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-95 group",
+          className
+        )}
+        {...props}
+      >
+        <span className="relative z-10 flex items-center gap-2">{children}</span>
+        <div className="absolute inset-0 -z-10 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 group-hover:translate-x-[100%]" />
+      </button>
+    )
+  }
+
   return (
-    <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor }}>
+    <div 
+      className={cn(
+        "flex h-[250px] w-full flex-col",
+        fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+      )}
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`
+      }}
+    >
       <div
         className="relative z-20 flex h-9 items-center justify-center px-4 text-xs font-medium text-indigo-100"
         style={{ background: `linear-gradient(to right, ${bannerGradientFrom}, ${bannerGradientTo})` }}
@@ -260,22 +322,37 @@ export function SaaSHeader({
           <span className="ml-1 cursor-pointer underline hover:text-white">{bannerLinkText}</span>
         </span>
       </div>
-      <header className="sticky top-0 z-10 w-full border-b border-neutral-800 bg-opacity-80 backdrop-blur-md" style={{ backgroundColor: `${backgroundColor}cc` }}>
-        <div className="flex h-16 items-center justify-between px-6">
+      <header 
+        className="sticky top-0 z-10 w-full bg-opacity-80 backdrop-blur-md" 
+        style={{ 
+          backgroundColor: `${backgroundColor}cc`,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          borderBottomStyle: 'solid',
+          borderBottomColor: '#262626'
+        }}
+      >
+        <div className="flex h-16 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2 text-xl font-bold" style={{ color: textColor }}>
               <div className="h-6 w-6 rounded bg-white" /> {companyName}
             </div>
             <nav className="hidden items-center gap-6 md:flex">
               {["Products", "Customers", "Pricing"].map((item) => (
-                <button key={item} className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-white" style={{ color: linkColor }}>
+                <button 
+                  key={item} 
+                  className={cn(
+                    "flex items-center gap-1 font-medium transition-colors hover:text-white",
+                    fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+                  )}
+                  style={{ color: linkColor }}
+                >
                   {item} {item === "Products" && <ChevronDown size={14} />}
                 </button>
               ))}
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <button className="hidden text-sm font-medium hover:text-white md:block" style={{ color: linkColor }}>
+            <button className="hidden font-medium hover:text-white md:block" style={{ color: linkColor }}>
               {secondaryButtonText}
             </button>
             <ShinyButton className="h-9 px-4 text-xs">{primaryButtonText}</ShinyButton>
@@ -289,7 +366,7 @@ export function SaaSHeader({
   )
 }
 
-// --- 3. Dashboard Header ---
+// --- 4. Dashboard Header ---
 export type DashboardHeaderProps = HeaderComponentProps<"dashboard-header">
 export function DashboardHeader({
   teamName,
@@ -299,22 +376,40 @@ export function DashboardHeader({
   borderColor,
   accentColor,
   notificationColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
+  borderBottomWidth = 1,
 }: DashboardHeaderProps) {
   return (
-    <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor }}>
+    <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header
-        className="flex h-16 items-center justify-between border-b px-6"
-        style={{ borderColor, backgroundColor }}
+        className={cn(
+          "flex h-16 items-center justify-between",
+          fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+        )}
+        style={{ 
+          borderColor, 
+          backgroundColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          borderBottomStyle: 'solid',
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`
+        }}
       >
         <div className="flex items-center gap-4">
           <button className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white">
             <LayoutGrid size={20} />
           </button>
           <div className="h-6 w-px bg-neutral-800" />
-          <nav className="flex items-center text-sm">
-            <span className="font-medium text-neutral-400 hover:text-neutral-200 cursor-pointer">Team</span>
+          <nav className="flex items-center">
+            <span className="text-neutral-400 hover:text-neutral-200 cursor-pointer">Team</span>
             <span className="mx-2 text-neutral-600">/</span>
-            <span className="font-semibold text-white">{teamName}</span>
+            <span 
+              className={cn("text-white", fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium")}
+            >{teamName}</span>
           </nav>
         </div>
         <div className="mx-4 hidden max-w-md flex-1 md:block">
@@ -323,7 +418,7 @@ export function DashboardHeader({
             <input
               type="text"
               placeholder={searchPlaceholder}
-              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 py-2 pl-10 pr-4 text-sm text-neutral-200 placeholder-neutral-600 focus:border-indigo-500/50 focus:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              className="w-full rounded-xl border border-neutral-800 bg-neutral-900 py-2 pl-10 pr-4 text-neutral-200 placeholder-neutral-600 focus:border-indigo-500/50 focus:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               style={{ caretColor: accentColor }}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
@@ -358,7 +453,7 @@ export function DashboardHeader({
   )
 }
 
-// --- 4. Neo-Brutalist Header ---
+// --- 5. Neo-Brutalist Header ---
 export type NeoBrutalistHeaderProps = HeaderComponentProps<"neo-brutalist-header">
 export function NeoBrutalistHeader({
   brandName,
@@ -368,12 +463,28 @@ export function NeoBrutalistHeader({
   secondaryColor,
   textColor,
   borderColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "bold",
+  borderBottomWidth = 4,
 }: NeoBrutalistHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <header
-        className="flex h-20 items-center justify-between border-b-4 px-6"
-        style={{ borderColor, backgroundColor }}
+        className={cn(
+          "flex h-20 items-center justify-between",
+          fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+        )}
+        style={{ 
+          borderColor, 
+          backgroundColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          borderBottomStyle: 'solid',
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
       >
         <div className="flex items-center gap-2">
           <div
@@ -389,7 +500,10 @@ export function NeoBrutalistHeader({
             <a
               key={item}
               href="#"
-              className="text-lg font-bold uppercase hover:underline decoration-4 underline-offset-4"
+              className={cn(
+                "uppercase hover:underline decoration-4 underline-offset-4",
+                fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-black"
+              )}
               style={{ color: textColor, textDecorationColor: primaryColor }}
             >
               {item}
@@ -413,7 +527,7 @@ export function NeoBrutalistHeader({
   )
 }
 
-// --- 5. Ecommerce Mega Header ---
+// --- 6. Ecommerce Mega Header ---
 export type EcommerceMegaHeaderProps = HeaderComponentProps<"ecommerce-mega-header">
 export function EcommerceMegaHeader({
   brandName,
@@ -423,10 +537,16 @@ export function EcommerceMegaHeader({
   topBarColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
+  borderBottomWidth = 1,
 }: EcommerceMegaHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <div className="flex h-8 items-center justify-between px-6 text-[10px] font-medium text-neutral-400" style={{ backgroundColor: topBarColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <div className="flex h-8 items-center justify-between px-6 text-[10px] font-medium text-neutral-400" style={{ backgroundColor: topBarColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex gap-4">
           <span>{topBarText}</span>
           <span>30-day returns</span>
@@ -437,7 +557,10 @@ export function EcommerceMegaHeader({
           <span className="hover:text-white cursor-pointer">USD ($)</span>
         </div>
       </div>
-      <div className="flex h-20 items-center justify-between border-b border-neutral-800 px-6">
+      <div 
+        className="flex h-20 items-center justify-between border-b border-neutral-800"
+        style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px`, borderBottomWidth: `${borderBottomWidth}px` }}
+      >
         <div className="text-2xl font-serif italic" style={{ color: textColor }}>{brandName}</div>
         <div className="mx-8 hidden flex-1 max-w-lg md:block">
           <div className="relative">
@@ -462,7 +585,14 @@ export function EcommerceMegaHeader({
           </div>
         </div>
       </div>
-      <div className="flex h-12 items-center justify-center gap-8 border-b border-neutral-800 text-sm font-medium text-neutral-400">
+      <div 
+        className={cn(
+          "flex h-12 items-center justify-center gap-8 border-b border-neutral-800 text-neutral-400",
+          fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+          fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+        )}
+        style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px`, borderBottomWidth: `${borderBottomWidth}px` }}
+      >
         {["New In", "Clothing", "Shoes", "Accessories", "Sale"].map((item) => (
           <a
             key={item}
@@ -478,7 +608,7 @@ export function EcommerceMegaHeader({
   )
 }
 
-// --- 6. Developer Docs Header ---
+// --- 7. Developer Docs Header ---
 export type DeveloperDocsHeaderProps = HeaderComponentProps<"developer-docs-header">
 export function DeveloperDocsHeader({
   brandName,
@@ -487,17 +617,39 @@ export function DeveloperDocsHeader({
   borderColor,
   textColor,
   secondaryTextColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "medium",
+  borderBottomWidth = 1,
 }: DeveloperDocsHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-16 items-center justify-between border-b px-6" style={{ backgroundColor, borderColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-16 items-center justify-between border-b" 
+        style={{ 
+          backgroundColor, 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
+      >
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 font-bold" style={{ color: textColor }}>
             <div className="rounded-md bg-white/10 p-1"><Command size={18} /></div>
             {brandName}
           </div>
           <div className="hidden h-6 w-px md:block" style={{ backgroundColor: borderColor }} />
-          <nav className="hidden items-center gap-4 text-sm font-medium md:flex" style={{ color: secondaryTextColor }}>
+          <nav 
+            className={cn(
+              "hidden items-center gap-4 md:flex",
+              fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+              fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+            )}
+            style={{ color: secondaryTextColor }}
+          >
             <span style={{ color: textColor }}>Documentation</span>
             <span className="cursor-pointer hover:text-white">API Reference</span>
             <span className="cursor-pointer hover:text-white">Showcase</span>
@@ -539,7 +691,7 @@ export function DeveloperDocsHeader({
   )
 }
 
-// --- 7. Creative Portfolio Header ---
+// --- 8. Creative Portfolio Header ---
 export type CreativePortfolioHeaderProps = HeaderComponentProps<"creative-portfolio-header">
 export function CreativePortfolioHeader({
   name,
@@ -548,15 +700,35 @@ export function CreativePortfolioHeader({
   textColor,
   accentColor,
   secondaryTextColor,
+  paddingTop = 32,
+  paddingBottom = 20,
+  paddingX = 32,
+  fontSize = "base",
+  fontWeight = "medium",
 }: CreativePortfolioHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col p-8" style={{ backgroundColor }}>
+    <div 
+      className="flex h-[200px] w-full flex-col" 
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`
+      }}
+    >
       <header className="flex w-full justify-between items-start">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-bold tracking-tight" style={{ color: textColor }}>{name}</h1>
           <span className="text-xs" style={{ color: secondaryTextColor }}>{title}</span>
         </div>
-        <nav className="flex gap-8 text-sm font-medium">
+        <nav 
+          className={cn(
+            "flex gap-8",
+            fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+            fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+          )}
+        >
           {["Work", "About", "Playground", "Contact"].map(item => (
             <a key={item} href="#" className="relative transition-colors group" style={{ color: secondaryTextColor }}>
               <span className="group-hover:text-white transition-colors">{item}</span>
@@ -578,7 +750,7 @@ export function CreativePortfolioHeader({
   )
 }
 
-// --- 8. Gaming Header ---
+// --- 9. Gaming Header ---
 export type GamingHeaderProps = HeaderComponentProps<"gaming-header">
 export function GamingHeader({
   brandName,
@@ -587,11 +759,26 @@ export function GamingHeader({
   accentColor,
   secondaryAccentColor,
   textColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "bold",
+  borderBottomWidth = 1,
 }: GamingHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="h-1 w-full" style={{ background: `linear-gradient(to right, ${accentColor}, ${secondaryAccentColor}, purple)` }} />
-      <header className="relative flex h-20 items-center justify-between border-b border-white/10 px-6">
+      <header 
+        className="relative flex h-20 items-center justify-between border-b border-white/10" 
+        style={{ 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          borderBottomStyle: 'solid',
+          borderBottomColor: 'rgba(255,255,255,0.1)'
+        }}
+      >
         <div className="absolute left-0 top-0 h-full w-32 -skew-x-12 bg-white/5" />
         <div className="relative z-10 flex items-center gap-8">
           <div className="text-2xl font-black italic tracking-tighter" style={{ color: textColor, textShadow: `0 0 10px ${accentColor}80` }}>
@@ -599,7 +786,15 @@ export function GamingHeader({
           </div>
           <nav className="hidden items-center gap-6 md:flex">
             {["Games", "Esports", "Community", "Store"].map(item => (
-              <a key={item} href="#" className="font-bold uppercase text-neutral-400 transition-colors hover:text-cyan-400">
+              <a 
+                key={item} 
+                href="#" 
+                className={cn(
+                  "uppercase text-neutral-400 transition-colors hover:text-cyan-400",
+                  fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium",
+                  fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base"
+                )}
+              >
                 {item}
               </a>
             ))}
@@ -628,7 +823,7 @@ export function GamingHeader({
   )
 }
 
-// --- 9. News Portal Header ---
+// --- 10. News Portal Header ---
 export type NewsPortalHeaderProps = HeaderComponentProps<"news-portal-header">
 export function NewsPortalHeader({
   brandName,
@@ -638,10 +833,14 @@ export function NewsPortalHeader({
   topBarColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 4,
 }: NewsPortalHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor }}>
-      <div className="flex h-8 items-center justify-between border-b border-neutral-200 px-6 text-xs font-medium text-neutral-500" style={{ backgroundColor: topBarColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <div className="flex h-8 items-center justify-between border-b border-neutral-200 px-6 text-xs font-medium text-neutral-500" style={{ backgroundColor: topBarColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex items-center gap-4">
           <span>{dateText}</span>
           <span className="hidden md:inline">London 14°C, Cloudy</span>
@@ -651,7 +850,16 @@ export function NewsPortalHeader({
           <span className="hover:text-black cursor-pointer">Sign In</span>
         </div>
       </div>
-      <header className="flex h-24 items-center justify-between border-b-4 border-black px-6">
+      <header 
+        className="flex h-24 items-center justify-between border-b-4 border-black" 
+        style={{ 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          borderBottomColor: 'black',
+          borderBottomStyle: 'solid'
+        }}
+      >
         <div className="text-4xl font-serif font-black tracking-tight">{brandName}</div>
         <div className="hidden items-center gap-4 md:flex">
           <button className="flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100">
@@ -674,7 +882,7 @@ export function NewsPortalHeader({
   )
 }
 
-// --- 10. Video Platform Header ---
+// --- 11. Video Platform Header ---
 export type VideoPlatformHeaderProps = HeaderComponentProps<"video-platform-header">
 export function VideoPlatformHeader({
   brandName,
@@ -683,10 +891,13 @@ export function VideoPlatformHeader({
   textColor,
   accentColor,
   searchBarColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 16,
 }: VideoPlatformHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-14 items-center justify-between px-4">
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="flex h-14 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex items-center gap-4">
           <button className="p-2 hover:bg-neutral-800 rounded-full" style={{ color: textColor }}><Menu size={20} /></button>
           <div className="flex items-center gap-1 text-lg font-bold tracking-tighter" style={{ color: textColor }}>
@@ -718,7 +929,7 @@ export function VideoPlatformHeader({
           <div className="ml-2 h-8 w-8 rounded-full bg-purple-600 text-sm font-medium text-white flex items-center justify-center">A</div>
         </div>
       </header>
-      <div className="flex gap-3 px-4 py-3 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-3 py-3 overflow-x-auto scrollbar-hide" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         {["All", "Gaming", "Live", "Music", "Mixes", "Computers", "Programming", "Podcasts"].map((tag, i) => (
           <button
             key={tag}
@@ -733,7 +944,7 @@ export function VideoPlatformHeader({
   )
 }
 
-// --- 11. Crypto Exchange Header ---
+// --- 12. Crypto Exchange Header ---
 export type CryptoExchangeHeaderProps = HeaderComponentProps<"crypto-exchange-header">
 export function CryptoExchangeHeader({
   brandName,
@@ -743,16 +954,27 @@ export function CryptoExchangeHeader({
   textColor,
   upColor,
   downColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: CryptoExchangeHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <div className="flex h-8 items-center gap-8 border-b border-neutral-800 px-4 text-xs overflow-hidden whitespace-nowrap font-mono" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <div className="flex h-8 items-center gap-8 border-b border-neutral-800 px-4 text-xs overflow-hidden whitespace-nowrap font-mono" style={{ backgroundColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <span className="flex items-center gap-1" style={{ color: upColor }}>{ticker1} <TrendingUp size={10} /></span>
         <span className="flex items-center gap-1" style={{ color: downColor }}>ETH/USD $3,450.20 <TrendingUp size={10} className="rotate-180" /> -1.2%</span>
         <span className="flex items-center gap-1" style={{ color: upColor }}>SOL/USD $145.80 <TrendingUp size={10} /> +5.8%</span>
         <span className="flex items-center gap-1 text-neutral-400">DOGE/USD $0.12 <TrendingUp size={10} /> +0.1%</span>
       </div>
-      <header className="flex h-16 items-center justify-between px-6 border-b border-neutral-800">
+      <header 
+        className="flex h-16 items-center justify-between border-b border-neutral-800"
+        style={{ 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
         <div className="flex items-center gap-8">
           <div className="text-xl font-bold flex items-center gap-2" style={{ color: textColor }}>
             <div className="h-6 w-6 rounded-full" style={{ backgroundColor: accentColor }} />
@@ -782,7 +1004,7 @@ export function CryptoExchangeHeader({
   )
 }
 
-// --- 12. Help Center Header ---
+// --- 13. Help Center Header ---
 export type HelpCenterHeaderProps = HeaderComponentProps<"help-center-header">
 export function HelpCenterHeader({
   title,
@@ -792,10 +1014,21 @@ export function HelpCenterHeader({
   textColor,
   accentColor,
   secondaryBackgroundColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: HelpCenterHeaderProps) {
   return (
-    <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-16 items-center justify-between border-b border-neutral-100 px-6 lg:px-12">
+    <div className="flex h-[250px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-16 items-center justify-between border-b border-neutral-100 lg:px-12"
+        style={{ 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
         <div className="flex items-center gap-2 text-lg font-bold" style={{ color: textColor }}>
           <HelpCircle className="text-blue-600" style={{ color: accentColor }} />
           {title}
@@ -822,7 +1055,7 @@ export function HelpCenterHeader({
   )
 }
 
-// --- 13. Social Media Header ---
+// --- 14. Social Media Header ---
 export type SocialMediaHeaderProps = HeaderComponentProps<"social-media-header">
 export function SocialMediaHeader({
   logoText,
@@ -831,10 +1064,22 @@ export function SocialMediaHeader({
   iconColor,
   activeIconColor,
   buttonBackgroundColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 16,
+  borderBottomWidth = 1,
 }: SocialMediaHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor: containerBackgroundColor }}>
-      <header className="flex h-14 items-center justify-between border-b border-[#2e3034] px-4 shadow-sm" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor: containerBackgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-14 items-center justify-between border-b border-[#2e3034] shadow-sm" 
+        style={{ 
+          backgroundColor, 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-2xl font-bold text-white">{logoText}</div>
           <div className="hidden h-10 w-10 items-center justify-center rounded-full bg-[#3a3b3c] text-neutral-400 hover:bg-[#4e4f50] lg:flex">
@@ -875,7 +1120,7 @@ export function SocialMediaHeader({
   )
 }
 
-// --- 14. Split Minimal Header ---
+// --- 15. Split Minimal Header ---
 export type SplitMinimalHeaderProps = HeaderComponentProps<"split-minimal-header">
 export function SplitMinimalHeader({
   brandName,
@@ -885,15 +1130,36 @@ export function SplitMinimalHeader({
   textColor,
   secondaryTextColor,
   buttonBorderColor,
+  paddingTop = 32,
+  paddingBottom = 32,
+  paddingX = 32,
+  fontSize = "base",
+  fontWeight = "medium",
 }: SplitMinimalHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col p-8" style={{ backgroundColor }}>
+    <div 
+      className="flex h-[200px] w-full flex-col" 
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`
+      }}
+    >
       <header className="flex w-full items-center justify-between">
         <div className="flex items-center gap-2 text-xl font-bold tracking-tight" style={{ color: textColor }}>
           <div className="h-2 w-2 rounded-full bg-white"/>
           {brandName}
         </div>
-        <nav className="hidden md:flex gap-8 text-sm font-medium" style={{ color: secondaryTextColor }}>
+        <nav 
+          className={cn(
+            "hidden md:flex gap-8",
+            fontSize === "sm" ? "text-sm" : fontSize === "lg" ? "text-lg" : fontSize === "xl" ? "text-xl" : "text-base",
+            fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+          )}
+          style={{ color: secondaryTextColor }}
+        >
           {["Work", "Agency", "Expertise", "Insights"].map(i => (
             <a key={i} href="#" className="hover:text-white transition-colors">{i}</a>
           ))}
@@ -912,7 +1178,7 @@ export function SplitMinimalHeader({
   )
 }
 
-// --- 15. Stacked Classic Header ---
+// --- 16. Stacked Classic Header ---
 export type StackedClassicHeaderProps = HeaderComponentProps<"stacked-classic-header">
 export function StackedClassicHeader({
   brandName,
@@ -922,13 +1188,25 @@ export function StackedClassicHeader({
   topBarTextColor,
   textColor,
   borderColor,
+  paddingTop = 24,
+  paddingBottom = 24,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: StackedClassicHeaderProps) {
   return (
     <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor }}>
       <div className="flex h-10 items-center justify-center text-[10px] font-bold uppercase tracking-widest" style={{ backgroundColor: topBarBackgroundColor, color: topBarTextColor }}>
         {topBarText}
       </div>
-      <header className="flex flex-col items-center py-6 border-b" style={{ borderColor }}>
+      <header 
+        className="flex flex-col items-center border-b" 
+        style={{ 
+          borderColor,
+          paddingTop: `${paddingTop}px`,
+          paddingBottom: `${paddingBottom}px`,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
         <h1 className="text-3xl font-serif font-bold tracking-tight mb-4">{brandName}</h1>
         <div className="h-px w-full max-w-4xl mb-4" style={{ backgroundColor: borderColor }} />
         <nav className="flex gap-6 text-xs font-bold uppercase tracking-wider text-neutral-600">
@@ -942,7 +1220,7 @@ export function StackedClassicHeader({
   )
 }
 
-// --- 16. Architectural Header ---
+// --- 17. Architectural Header ---
 export type ArchitecturalHeaderProps = HeaderComponentProps<"architectural-header">
 export function ArchitecturalHeader({
   brandName,
@@ -950,11 +1228,21 @@ export function ArchitecturalHeader({
   borderColor,
   textColor,
   secondaryTextColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: ArchitecturalHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col border" style={{ backgroundColor, borderColor }}>
-      <header className="grid grid-cols-12 border-b" style={{ borderColor }}>
-        <div className="col-span-3 flex h-16 items-center border-r px-6 text-lg font-bold uppercase tracking-widest" style={{ borderColor, color: textColor }}>
+    <div className="flex h-[200px] w-full flex-col border" style={{ backgroundColor, borderColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="grid grid-cols-12 border-b" 
+        style={{ 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
+        <div className="col-span-3 flex h-16 items-center border-r text-lg font-bold uppercase tracking-widest" style={{ borderColor, color: textColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
           {brandName}
         </div>
         <div className="col-span-6 flex h-16 items-center justify-center border-r" style={{ borderColor }}>
@@ -964,7 +1252,7 @@ export function ArchitecturalHeader({
             ))}
           </nav>
         </div>
-        <div className="col-span-3 flex h-16 items-center justify-between px-6">
+        <div className="col-span-3 flex h-16 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
           <span className="text-xs font-mono" style={{ color: secondaryTextColor }}>EN / JP</span>
           <Menu size={20} style={{ color: textColor }} />
         </div>
@@ -978,16 +1266,27 @@ export function ArchitecturalHeader({
   )
 }
 
-// --- 17. Fashion Editorial Header ---
+// --- 18. Fashion Editorial Header ---
 export type FashionEditorialHeaderProps = HeaderComponentProps<"fashion-editorial-header">
 export function FashionEditorialHeader({
   brandName,
   imageUrl,
   textColor,
   overlayColor,
+  paddingTop = 24,
+  paddingBottom = 24,
+  paddingX = 24,
 }: FashionEditorialHeaderProps) {
   return (
-    <div className="relative flex h-[250px] w-full flex-col justify-between p-6 overflow-hidden">
+    <div 
+      className="relative flex h-[250px] w-full flex-col justify-between overflow-hidden"
+      style={{
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`
+      }}
+    >
       <img src={imageUrl} className="absolute inset-0 h-full w-full object-cover" alt="Fashion background" />
       <div className="absolute inset-0" style={{ backgroundColor: overlayColor }} />
       <header className="relative z-10 flex w-full items-center justify-between" style={{ color: textColor }}>
@@ -1004,7 +1303,7 @@ export function FashionEditorialHeader({
   )
 }
 
-// --- 18. App Store Header ---
+// --- 19. App Store Header ---
 export type AppStoreHeaderProps = HeaderComponentProps<"app-store-header">
 export function AppStoreHeader({
   storeName,
@@ -1013,10 +1312,22 @@ export function AppStoreHeader({
   textColor,
   accentColor,
   borderColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: AppStoreHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-16 items-center justify-between px-6 border-b" style={{ borderColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-16 items-center justify-between border-b" 
+        style={{ 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
+      >
         <div className="flex items-center gap-2 font-bold text-xl" style={{ color: textColor }}>
           <div className="h-8 w-8 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: accentColor }}>A</div>
           {storeName}
@@ -1034,7 +1345,7 @@ export function AppStoreHeader({
           <div className="h-8 w-8 rounded-full bg-neutral-700" />
         </div>
       </header>
-      <div className="flex items-center gap-6 px-6 py-4 border-b overflow-x-auto" style={{ borderColor }}>
+      <div className="flex items-center gap-6 py-4 border-b overflow-x-auto" style={{ borderColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         {["Discover", "Arcade", "Create", "Work", "Play", "Develop", "Categories"].map((item, idx) => (
           <button
             key={item}
@@ -1049,7 +1360,7 @@ export function AppStoreHeader({
   )
 }
 
-// --- 19. University Header ---
+// --- 20. University Header ---
 export type UniversityHeaderProps = HeaderComponentProps<"university-header">
 export function UniversityHeader({
   universityName,
@@ -1058,10 +1369,14 @@ export function UniversityHeader({
   primaryColor,
   textColor,
   borderColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 32,
+  borderBottomWidth = 1,
 }: UniversityHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <div className="flex h-8 justify-end items-center px-8 text-xs font-medium text-white/90 gap-4" style={{ backgroundColor: primaryColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <div className="flex h-8 justify-end items-center px-8 text-xs font-medium text-white/90 gap-4" style={{ backgroundColor: primaryColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <span>Students</span>
         <span>Faculty & Staff</span>
         <span>Alumni</span>
@@ -1070,7 +1385,15 @@ export function UniversityHeader({
         <span>Give</span>
         <Search size={12} />
       </div>
-      <header className="flex h-20 items-center justify-between px-8 border-b" style={{ borderColor }}>
+      <header 
+        className="flex h-20 items-center justify-between border-b" 
+        style={{ 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
+      >
         <div className="flex items-center gap-3">
           <GraduationCap size={32} style={{ color: primaryColor }} />
           <div className="flex flex-col leading-none">
@@ -1090,7 +1413,7 @@ export function UniversityHeader({
   )
 }
 
-// --- 20. Restaurant Header ---
+// --- 21. Restaurant Header ---
 export type RestaurantHeaderProps = HeaderComponentProps<"restaurant-header">
 export function RestaurantHeader({
   restaurantName,
@@ -1099,10 +1422,13 @@ export function RestaurantHeader({
   backgroundColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 32,
 }: RestaurantHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor }}>
-      <header className="flex h-24 items-center justify-between px-8">
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="flex h-24 items-center justify-between" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <nav className="hidden md:flex gap-8 text-sm font-medium tracking-widest uppercase">
           <a href="#" className="hover:text-white transition-colors">Menu</a>
           <a href="#" className="hover:text-white transition-colors">Wines</a>
@@ -1128,7 +1454,7 @@ export function RestaurantHeader({
   )
 }
 
-// --- 21. Artist / Band Header ---
+// --- 22. Artist / Band Header ---
 export type ArtistHeaderProps = HeaderComponentProps<"artist-band-header">
 export function ArtistHeader({
   artistName,
@@ -1136,10 +1462,13 @@ export function ArtistHeader({
   marqueeBackgroundColor,
   textColor,
   marqueeTextColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
 }: ArtistHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-20 items-center justify-between px-6" style={{ color: textColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="flex h-20 items-center justify-between" style={{ color: textColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <Menu size={24} />
         <h1 className="text-4xl font-black uppercase tracking-tighter mix-blend-difference">{artistName}</h1>
         <div className="flex gap-4">
@@ -1162,7 +1491,7 @@ export function ArtistHeader({
   )
 }
 
-// --- 22. Non-Profit Header ---
+// --- 23. Non-Profit Header ---
 export type NonProfitHeaderProps = HeaderComponentProps<"non-profit-header">
 export function NonProfitHeader({
   orgName,
@@ -1172,10 +1501,13 @@ export function NonProfitHeader({
   primaryColor,
   textColor,
   secondaryBackgroundColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24, // Using px-6 (24px) default from design
 }: NonProfitHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-20 items-center justify-between px-6 lg:px-12 shadow-sm relative z-10">
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="flex h-20 items-center justify-between shadow-sm relative z-10" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex items-center gap-2">
           <Heart className="fill-current" size={32} style={{ color: primaryColor }} />
           <span className="text-xl font-bold" style={{ color: textColor }}>{orgName}</span>
@@ -1199,7 +1531,7 @@ export function NonProfitHeader({
   )
 }
 
-// --- 23. Web3 Dapp Header ---
+// --- 24. Web3 Dapp Header ---
 export type Web3DappHeaderProps = HeaderComponentProps<"web3-dapp-header">
 export function Web3DappHeader({
   appName,
@@ -1208,10 +1540,22 @@ export function Web3DappHeader({
   textColor,
   accentColor,
   borderColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: Web3DappHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-20 items-center justify-between px-6 border-b" style={{ borderColor }}>
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-20 items-center justify-between border-b" 
+        style={{ 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
+      >
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded bg-gradient-to-tr from-pink-500 to-violet-500" />
           <span className="text-xl font-bold" style={{ color: textColor }}>{appName}</span>
@@ -1246,7 +1590,7 @@ export function Web3DappHeader({
   )
 }
 
-// --- 24. Cyber Security Header ---
+// --- 25. Cyber Security Header ---
 export type CyberSecurityHeaderProps = HeaderComponentProps<"cyber-security-header">
 export function CyberSecurityHeader({
   brandName,
@@ -1254,11 +1598,23 @@ export function CyberSecurityHeader({
   backgroundColor,
   primaryColor,
   borderColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: CyberSecurityHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col font-mono" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col font-mono" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="h-1 w-full" style={{ backgroundColor: primaryColor }} />
-      <header className="flex h-16 items-center justify-between px-6 border-b" style={{ borderColor }}>
+      <header 
+        className="flex h-16 items-center justify-between border-b" 
+        style={{ 
+          borderColor,
+          borderBottomWidth: `${borderBottomWidth}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`
+        }}
+      >
         <div className="flex items-center gap-2" style={{ color: primaryColor }}>
           <Terminal size={20} />
           <span className="font-bold tracking-widest">{brandName}</span>
@@ -1280,7 +1636,7 @@ export function CyberSecurityHeader({
   )
 }
 
-// --- 25. Course Platform Header ---
+// --- 26. Course Platform Header ---
 export type CoursePlatformHeaderProps = HeaderComponentProps<"course-platform-header">
 export function CoursePlatformHeader({
   platformName,
@@ -1290,10 +1646,21 @@ export function CoursePlatformHeader({
   secondaryBackgroundColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
+  borderBottomWidth = 1,
 }: CoursePlatformHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor }}>
-      <header className="flex h-16 items-center justify-between px-6 border-b border-neutral-800">
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header 
+        className="flex h-16 items-center justify-between border-b border-neutral-800"
+        style={{ 
+          paddingLeft: `${paddingX}px`, 
+          paddingRight: `${paddingX}px`,
+          borderBottomWidth: `${borderBottomWidth}px`
+        }}
+      >
         <div className="flex items-center gap-8">
           <div className="font-bold text-lg" style={{ color: textColor }}>{platformName}</div>
           <span className="text-sm text-neutral-400 hover:text-white cursor-pointer">Categories</span>
@@ -1316,7 +1683,7 @@ export function CoursePlatformHeader({
           <div className="h-8 w-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs font-bold text-white">JD</div>
         </div>
       </header>
-      <div className="px-6 py-3 flex items-center justify-between" style={{ backgroundColor: secondaryBackgroundColor }}>
+      <div className="py-3 flex items-center justify-between" style={{ backgroundColor: secondaryBackgroundColor, paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex items-center gap-4">
           <span className="text-sm font-bold" style={{ color: textColor }}>Welcome back, {userName}</span>
           <div className="h-4 w-px bg-neutral-600" />
@@ -1333,7 +1700,7 @@ export function CoursePlatformHeader({
   )
 }
 
-// --- 26. Magazine Modern Header ---
+// --- 27. Magazine Modern Header ---
 export type MagazineModernHeaderProps = HeaderComponentProps<"magazine-modern-header">
 export function MagazineModernHeader({
   brandName,
@@ -1342,10 +1709,13 @@ export function MagazineModernHeader({
   backgroundColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
 }: MagazineModernHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col relative" style={{ backgroundColor, color: textColor }}>
-      <header className="absolute top-0 left-0 w-full h-20 flex items-center justify-between px-6 z-10">
+    <div className="flex h-[200px] w-full flex-col relative" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="absolute top-0 left-0 w-full h-20 flex items-center justify-between z-10" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex items-center gap-4">
           <Menu size={32} strokeWidth={1.5} />
           <Search size={24} strokeWidth={1.5} />
@@ -1365,7 +1735,7 @@ export function MagazineModernHeader({
   )
 }
 
-// --- 27. Travel Booking Header ---
+// --- 28. Travel Booking Header ---
 export type TravelBookingHeaderProps = HeaderComponentProps<"travel-booking-header">
 export function TravelBookingHeader({
   brandName,
@@ -1373,10 +1743,13 @@ export function TravelBookingHeader({
   textColor,
   searchBoxColor,
   searchButtonColor,
+  paddingTop = 0,
+  paddingBottom = 0,
+  paddingX = 24,
 }: TravelBookingHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor }}>
-      <header className="flex h-16 items-center justify-between px-6 max-w-5xl mx-auto w-full">
+    <div className="flex h-[200px] w-full flex-col" style={{ backgroundColor, color: textColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
+      <header className="flex h-16 items-center justify-between max-w-5xl mx-auto w-full" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <span className="text-xl font-bold">{brandName}</span>
         <div className="flex gap-4 items-center text-sm font-medium">
           <span>USD</span>
@@ -1386,7 +1759,7 @@ export function TravelBookingHeader({
           <button className="bg-white px-4 py-1.5 rounded-sm font-bold" style={{ color: backgroundColor }}>Sign in</button>
         </div>
       </header>
-      <div className="flex gap-6 px-6 max-w-5xl mx-auto w-full mt-2 text-sm overflow-x-auto pb-4">
+      <div className="flex gap-6 max-w-5xl mx-auto w-full mt-2 text-sm overflow-x-auto pb-4" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <button className="flex items-center gap-2 rounded-full border border-white bg-white/10 px-4 py-2 hover:bg-white/20">
           <Home size={16} /> Stays
         </button>
@@ -1397,7 +1770,7 @@ export function TravelBookingHeader({
           <Globe size={16} /> Flight + Hotel
         </button>
       </div>
-      <div className="relative mt-4 px-6 max-w-5xl mx-auto w-full">
+      <div className="relative mt-4 max-w-5xl mx-auto w-full" style={{ paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }}>
         <div className="flex p-1 rounded-md gap-1" style={{ backgroundColor: searchBoxColor }}>
           <div className="flex-1 bg-white rounded-sm flex items-center px-3 py-3 text-black gap-2">
             <Home size={20} className="text-neutral-400" />
@@ -1414,7 +1787,7 @@ export function TravelBookingHeader({
   )
 }
 
-// --- 28. Gradient Blur Header ---
+// --- 29. Gradient Blur Header ---
 export type GradientBlurHeaderProps = HeaderComponentProps<"gradient-blur-header">
 export function GradientBlurHeader({
   buttonText,
@@ -1422,9 +1795,11 @@ export function GradientBlurHeader({
   navBackgroundColor,
   textColor,
   accentColor,
+  paddingTop = 0,
+  paddingBottom = 0,
 }: GradientBlurHeaderProps) {
   return (
-    <div className="flex h-[200px] w-full flex-col items-center justify-center relative overflow-hidden" style={{ backgroundColor }}>
+    <div className="flex h-[200px] w-full flex-col items-center justify-center relative overflow-hidden" style={{ backgroundColor, paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }}>
       <div className="absolute top-[-50%] left-[-10%] h-[200%] w-[120%] bg-[radial-gradient(circle_at_50%_50%,#e9d5ff,#fae8ff,#ffffff)] blur-3xl opacity-60" />
       <header className="relative z-10 w-full max-w-2xl mt-8">
         <nav className="flex items-center justify-between rounded-2xl border border-white/20 p-2 shadow-xl shadow-purple-500/5 backdrop-blur-xl" style={{ backgroundColor: navBackgroundColor }}>

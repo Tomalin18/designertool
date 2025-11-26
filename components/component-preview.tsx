@@ -34,6 +34,8 @@ import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName, paymentDefaultProps } from "@/components/customize/payments"
 import { ctaSections } from "@/lib/cta-sections"
 import { ctaComponentsByName, ctaDefaultProps } from "@/components/customize/ctas"
+import { headerSections } from "@/lib/header-sections"
+import { headerComponentsByName, headerDefaultProps } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName, footerDefaultProps } from "@/components/customize/footers"
 import { AlertCircle, ChevronDown } from 'lucide-react'
@@ -63,13 +65,16 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const ctaMeta = ctaSections.find((cta) => cta.name === name)
   const CtaComponent = ctaMeta ? ctaComponentsByName[ctaMeta.componentName] : null
 
+  const headerMeta = headerSections.find((header) => header.name === name)
+  const HeaderComponent = headerMeta ? headerComponentsByName[headerMeta.componentName] : null
+
   const footerMeta = footerSections.find((footer) => footer.name === name)
   const FooterComponent = footerMeta ? footerComponentsByName[footerMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -104,6 +109,15 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="w-full">
           <CtaComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (headerMeta && HeaderComponent) {
+      const defaultProps = headerDefaultProps[headerMeta.slug] || {}
+      return (
+        <div className="w-full">
+          <HeaderComponent {...defaultProps} />
         </div>
       )
     }

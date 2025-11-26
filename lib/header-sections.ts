@@ -12,6 +12,15 @@ export interface HeaderSectionMeta {
   props: Record<string, HeaderPropDefinition>
 }
 
+const commonHeaderProps: Record<string, HeaderPropDefinition> = {
+  paddingTop: { control: "slider", default: 20, min: 0, max: 100, description: "Top padding" },
+  paddingBottom: { control: "slider", default: 20, min: 0, max: 100, description: "Bottom padding" },
+  paddingX: { control: "slider", default: 24, min: 0, max: 100, description: "Horizontal padding" },
+  fontSize: { control: "select", options: ["sm", "base", "lg", "xl"], default: "base", description: "Base font size" },
+  fontWeight: { control: "select", options: ["normal", "medium", "semibold", "bold"], default: "medium", description: "Base font weight" },
+  borderBottomWidth: { control: "slider", default: 1, min: 0, max: 4, description: "Bottom border width" },
+}
+
 export const headerSections: HeaderSectionMeta[] = [
   {
     slug: "simple-header",
@@ -20,6 +29,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A classic header with logo, navigation links, and a CTA button.",
     tags: ["header", "navigation", "simple", "classic", "light"],
     props: {
+      ...commonHeaderProps,
       logoText: { control: "text", default: "Lumina", description: "Logo text displayed on the left." },
       link1Text: { control: "text", default: "Features", description: "Text for the first navigation link." },
       link2Text: { control: "text", default: "Pricing", description: "Text for the second navigation link." },
@@ -33,8 +43,6 @@ export const headerSections: HeaderSectionMeta[] = [
       buttonBackgroundColor: { control: "color", default: "#000000", description: "Background color of the CTA button." },
       buttonTextColor: { control: "color", default: "#ffffff", description: "Text color of the CTA button." },
       buttonBorderRadius: { control: "slider", default: 6, min: 0, max: 32, description: "Border radius of the CTA button." },
-      paddingY: { control: "slider", default: 16, min: 0, max: 64, description: "Vertical padding of the header." },
-      paddingX: { control: "slider", default: 24, min: 0, max: 128, description: "Horizontal padding of the header." },
     },
   },
   {
@@ -44,6 +52,8 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A trendy floating navigation bar with a capsule shape and blur effects.",
     tags: ["header", "navigation", "floating", "modern", "dark"],
     props: {
+      ...commonHeaderProps,
+      paddingTop: { control: "slider", default: 32, min: 0, max: 100, description: "Top padding" }, // Override default
       logoText: { control: "text", default: "L", description: "Logo text." },
       heading: { control: "text", default: "The Future of UI", description: "Main heading text." },
       subHeading: { control: "text", default: "Floating navigation for modern landing pages.", description: "Subheading text." },
@@ -64,6 +74,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A professional header for SaaS products with a top banner and multiple navigation levels.",
     tags: ["header", "saas", "product", "banner"],
     props: {
+      ...commonHeaderProps,
       companyName: { control: "text", default: "Acme Corp", description: "Company name." },
       bannerText: { control: "text", default: "New Feature: AI Generation is now live.", description: "Top banner text." },
       bannerLinkText: { control: "text", default: "Learn more", description: "Link text in the banner." },
@@ -83,6 +94,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "An application header with search, notifications, and user profile.",
     tags: ["header", "application", "dashboard", "search"],
     props: {
+      ...commonHeaderProps,
       teamName: { control: "text", default: "Q4 Marketing", description: "Current team/project name." },
       userName: { control: "text", default: "Alex", description: "User name." },
       searchPlaceholder: { control: "text", default: "Search anything...", description: "Placeholder for search input." },
@@ -99,6 +111,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A bold, high-contrast header with brutalist design elements.",
     tags: ["header", "brutalist", "bold", "trendy"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "Brutal.", description: "Brand name." },
       buttonText: { control: "text", default: "Join Now", description: "CTA button text." },
       backgroundColor: { control: "color", default: "#1a1a1a", description: "Background color." },
@@ -115,6 +128,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A feature-rich header for online stores with top bar, search, and category nav.",
     tags: ["header", "ecommerce", "store", "megamenu"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "Luxe.", description: "Brand name." },
       topBarText: { control: "text", default: "Free Shipping on orders over $100", description: "Top bar announcement." },
       searchPlaceholder: { control: "text", default: "Search for products...", description: "Search input placeholder." },
@@ -131,6 +145,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A technical documentation header with version selector and search.",
     tags: ["header", "documentation", "developer", "technical"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "DevDocs", description: "Brand name." },
       version: { control: "text", default: "v2.4", description: "Current version." },
       backgroundColor: { control: "color", default: "#0d1117", description: "Background color." },
@@ -146,6 +161,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A minimalist header for creative portfolios with underline hover effects.",
     tags: ["header", "portfolio", "creative", "minimal"],
     props: {
+      ...commonHeaderProps,
       name: { control: "text", default: "Alex Chen", description: "Artist/Designer name." },
       title: { control: "text", default: "Digital Product Designer", description: "Role title." },
       backgroundColor: { control: "color", default: "#171717", description: "Background color." },
@@ -161,6 +177,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A gaming-inspired header with slanted shapes and neon accents.",
     tags: ["header", "gaming", "esports", "futuristic"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "NEXUS", description: "Brand name." },
       statusText: { control: "text", default: "ONLINE", description: "Status indicator text." },
       backgroundColor: { control: "color", default: "#050505", description: "Background color." },
@@ -176,6 +193,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A classic news site header with date, weather, and category navigation.",
     tags: ["header", "news", "editorial", "classic"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "The Daily Chronicle", description: "Newspaper name." },
       dateText: { control: "text", default: "Tuesday, October 24, 2024", description: "Date display." },
       subscribeText: { control: "text", default: "Subscribe Now", description: "Subscribe button text." },
@@ -192,6 +210,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A video streaming platform header with search and categories.",
     tags: ["header", "video", "streaming", "media"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "StreamTube", description: "Platform name." },
       searchPlaceholder: { control: "text", default: "Search", description: "Search input placeholder." },
       backgroundColor: { control: "color", default: "#0f0f0f", description: "Background color." },
@@ -207,6 +226,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A cryptocurrency exchange header with a live ticker tape.",
     tags: ["header", "crypto", "finance", "trading"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "BinanceX", description: "Exchange name." },
       ticker1: { control: "text", default: "BTC/USD $64,230.50 +2.4%", description: "First ticker item." },
       backgroundColor: { control: "color", default: "#0b0e11", description: "Background color." },
@@ -223,6 +243,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A clean help center header with a prominent search bar.",
     tags: ["header", "support", "help", "clean"],
     props: {
+      ...commonHeaderProps,
       title: { control: "text", default: "Help Center", description: "Header title." },
       heroTitle: { control: "text", default: "How can we help?", description: "Hero section title." },
       searchPlaceholder: { control: "text", default: "Search articles...", description: "Search input placeholder." },
@@ -239,6 +260,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A social network header with central navigation and user actions.",
     tags: ["header", "social", "app", "interactive"],
     props: {
+      ...commonHeaderProps,
       logoText: { control: "text", default: "f", description: "Logo text." },
       backgroundColor: { control: "color", default: "#242526", description: "Header background color." },
       containerBackgroundColor: { control: "color", default: "#1c1e21", description: "Outer container background color." },
@@ -254,6 +276,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A minimal header with a split layout for navigation and actions.",
     tags: ["header", "minimal", "clean", "modern"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "monolith.", description: "Brand name." },
       ctaText: { control: "text", default: "Let's Talk", description: "CTA button text." },
       heroText: { control: "text", default: "Less is more.", description: "Hero text." },
@@ -270,6 +293,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A traditional header with a centered logo and stacked navigation, perfect for publications.",
     tags: ["header", "classic", "stacked", "publication"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "The New York Times", description: "Publication name." },
       topBarText: { control: "text", default: "Worldwide Shipping Available", description: "Top bar text." },
       backgroundColor: { control: "color", default: "#fdfbf7", description: "Background color." },
@@ -286,6 +310,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A structured, grid-based header with a modern architectural feel.",
     tags: ["header", "architectural", "grid", "structured"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "Arkitekt", description: "Brand name." },
       backgroundColor: { control: "color", default: "#171717", description: "Background color." },
       borderColor: { control: "color", default: "#262626", description: "Grid border color." },
@@ -300,6 +325,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A chic, transparent header overlaying a full-width image.",
     tags: ["header", "fashion", "editorial", "overlay"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "VOGUE", description: "Brand name." },
       imageUrl: { control: "text", default: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1000&auto=format&fit=crop", description: "Background image URL." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
@@ -313,6 +339,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A header mimicking an app store interface with search and horizontal scrolling categories.",
     tags: ["header", "app-store", "mobile", "search"],
     props: {
+      ...commonHeaderProps,
       storeName: { control: "text", default: "AppStore", description: "Store name." },
       searchPlaceholder: { control: "text", default: "Search apps, games, movies...", description: "Search input placeholder." },
       backgroundColor: { control: "color", default: "#171717", description: "Background color." },
@@ -328,6 +355,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A formal header for academic institutions with utility navigation.",
     tags: ["header", "university", "academic", "formal"],
     props: {
+      ...commonHeaderProps,
       universityName: { control: "text", default: "Stanford", description: "University name." },
       subtitle: { control: "text", default: "University", description: "Subtitle." },
       backgroundColor: { control: "color", default: "#ffffff", description: "Background color." },
@@ -343,6 +371,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A sophisticated header for restaurants with elegant typography.",
     tags: ["header", "restaurant", "dining", "elegant"],
     props: {
+      ...commonHeaderProps,
       restaurantName: { control: "text", default: "Osteria.", description: "Restaurant name." },
       address: { control: "text", default: "123 Culinary Ave, NY", description: "Address text." },
       phone: { control: "text", default: "+1 (555) 000-0000", description: "Phone number." },
@@ -358,6 +387,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A bold header for artists or bands with a marquee tour date strip.",
     tags: ["header", "artist", "music", "band"],
     props: {
+      ...commonHeaderProps,
       artistName: { control: "text", default: "The Weeknd", description: "Artist name." },
       backgroundColor: { control: "color", default: "#000000", description: "Background color." },
       marqueeBackgroundColor: { control: "color", default: "#dc2626", description: "Marquee strip background color." },
@@ -372,6 +402,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A clean header for non-profits with a prominent donate button.",
     tags: ["header", "non-profit", "charity", "clean"],
     props: {
+      ...commonHeaderProps,
       orgName: { control: "text", default: "GlobalAid", description: "Organization name." },
       donateText: { control: "text", default: "Donate Now", description: "Donate button text." },
       urgentMessage: { control: "text", default: "Urgent: Earthquake relief fund initialized.", description: "Urgent message text." },
@@ -388,6 +419,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A Web3-ready header with wallet connection and network selector.",
     tags: ["header", "web3", "dapp", "crypto"],
     props: {
+      ...commonHeaderProps,
       appName: { control: "text", default: "Uniswap", description: "DApp name." },
       connectText: { control: "text", default: "Connect", description: "Connect button text." },
       backgroundColor: { control: "color", default: "#050505", description: "Background color." },
@@ -403,6 +435,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A terminal-inspired header for security or tech themes.",
     tags: ["header", "cyber", "security", "terminal"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "SECURE_SHELL", description: "Brand name." },
       statusText: { control: "text", default: "SYSTEM_SAFE", description: "Status text." },
       backgroundColor: { control: "color", default: "#000000", description: "Background color." },
@@ -417,6 +450,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "An educational platform header with progress tracking.",
     tags: ["header", "education", "course", "learning"],
     props: {
+      ...commonHeaderProps,
       platformName: { control: "text", default: "UdemyClone", description: "Platform name." },
       userName: { control: "text", default: "John", description: "User name." },
       courseName: { control: "text", default: "React Advanced", description: "Current course name." },
@@ -433,6 +467,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A modern, spacious header for digital magazines.",
     tags: ["header", "magazine", "modern", "clean"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "WIRED", description: "Brand name." },
       categoryText: { control: "text", default: "Technology", description: "Featured category." },
       headlineText: { control: "text", default: "The Future of Interface Design is Invisible", description: "Main headline." },
@@ -448,6 +483,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A comprehensive header for travel booking sites with search tabs.",
     tags: ["header", "travel", "booking", "search"],
     props: {
+      ...commonHeaderProps,
       brandName: { control: "text", default: "Booking.com", description: "Brand name." },
       backgroundColor: { control: "color", default: "#003580", description: "Background color." },
       textColor: { control: "color", default: "#ffffff", description: "Text color." },
@@ -462,6 +498,7 @@ export const headerSections: HeaderSectionMeta[] = [
     description: "A trendy header with a glassmorphism effect and gradient background.",
     tags: ["header", "gradient", "blur", "glassmorphism"],
     props: {
+      ...commonHeaderProps,
       buttonText: { control: "text", default: "Get Access", description: "CTA button text." },
       backgroundColor: { control: "color", default: "#ffffff", description: "Background color." },
       navBackgroundColor: { control: "color", default: "rgba(255, 255, 255, 0.3)", description: "Nav background color." },
