@@ -532,7 +532,28 @@ export function Web3CryptoHero({
   buttonGradientFrom = "#2563eb",
   buttonGradientTo = "#4c1d95",
   showBitcoinIcon = true,
+  descriptionColor = "#a3a3a3",
+  buttonTextColor = "#ffffff",
+  buttonBorderRadius = 99,
+  buttonPaddingX = 24,
+  buttonPaddingY = 12,
+  buttonFontSize = "base",
+  buttonFontWeight = "bold",
 }: Web3CryptoHeroProps) {
+  const fontSizeClass = {
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[buttonFontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[buttonFontWeight as string] || "font-bold"
+
   return (
     <div
       className="relative flex flex-col items-center justify-center overflow-hidden py-20 text-center"
@@ -553,11 +574,19 @@ export function Web3CryptoHero({
         >
           {heading}
         </h1>
-        <p className="mx-auto mt-6 max-w-md text-neutral-400">{description}</p>
+        <p className="mx-auto mt-6 max-w-md" style={{ color: descriptionColor }}>{description}</p>
         <div className="mt-8 flex justify-center">
           <button
-            className="flex items-center gap-2 rounded-full px-6 py-3 font-bold text-white hover:opacity-90"
-            style={{ backgroundImage: `linear-gradient(90deg, ${buttonGradientFrom}, ${buttonGradientTo})` }}
+            className={cn("flex items-center gap-2 hover:opacity-90", fontSizeClass, fontWeightClass)}
+            style={{ 
+              backgroundImage: `linear-gradient(90deg, ${buttonGradientFrom}, ${buttonGradientTo})`,
+              color: buttonTextColor,
+              borderRadius: `${buttonBorderRadius}px`,
+              paddingTop: `${buttonPaddingY}px`,
+              paddingBottom: `${buttonPaddingY}px`,
+              paddingLeft: `${buttonPaddingX}px`,
+              paddingRight: `${buttonPaddingX}px`,
+            }}
           >
             {showBitcoinIcon && <Bitcoin size={18} />}
             {buttonLabel}

@@ -855,6 +855,49 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#262626",
                 description: "Color of the divider border.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
+            // Border
+            borderWidth: {
+                control: "slider",
+                default: 1,
+                min: 0,
+                max: 8,
+                description: "Width of the top border.",
+            },
         },
     },
     {
@@ -918,6 +961,49 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#000000",
                 description: "Hover color for social icons.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 48,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 48,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "bold",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
+            // Border
+            borderWidth: {
+                control: "slider",
+                default: 4,
+                min: 0,
+                max: 12,
+                description: "Width of the border.",
             },
         },
     },
@@ -1003,6 +1089,41 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#6366f1",
                 description: "Hover color for links.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
         },
     },
     {
@@ -1061,6 +1182,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#262626",
                 description: "Color of the horizontal divider.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
@@ -1161,6 +1317,49 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#e5e5e5",
                 description: "Color of the top border.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
+            // Border
+            borderWidth: {
+                control: "slider",
+                default: 1,
+                min: 0,
+                max: 8,
+                description: "Width of the top border.",
+            },
         },
     },
     {
@@ -1219,6 +1418,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#737373",
                 description: "Color of the location and copyright text.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
@@ -1280,6 +1514,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#000000",
                 description: "Text color of the CTA button.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 80,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 80,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
@@ -1370,6 +1639,41 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#ec4899",
                 description: "Color of the heart icon.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
         },
     },
     {
@@ -1436,6 +1740,49 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#f5f5f5",
                 description: "Color of the top border.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 32,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
+            // Border
+            borderWidth: {
+                control: "slider",
+                default: 1,
+                min: 0,
+                max: 8,
+                description: "Width of the top border.",
             },
         },
     },
@@ -1505,6 +1852,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#262626",
                 description: "Border color of the status badge.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 48,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 48,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
@@ -1605,6 +1987,41 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#e5e5e5",
                 description: "Color of the grid dividers.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
         },
     },
     {
@@ -1694,6 +2111,41 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#ffffff",
                 description: "Color of the logo and company name.",
             },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
+            },
         },
     },
     {
@@ -1782,6 +2234,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#22c55e",
                 description: "Color of the version status dot.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
@@ -1995,6 +2482,41 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#e5e5e5",
                 description: "Color of the horizontal divider.",
+            },
+            // Spacing
+            paddingTop: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Top padding of the footer.",
+            },
+            paddingBottom: {
+                control: "slider",
+                default: 64,
+                min: 0,
+                max: 128,
+                description: "Bottom padding of the footer.",
+            },
+            paddingX: {
+                control: "slider",
+                default: 24,
+                min: 0,
+                max: 128,
+                description: "Horizontal padding of the content.",
+            },
+            // Typography
+            fontSize: {
+                control: "select",
+                default: "base",
+                options: ["xs", "sm", "base", "lg", "xl"],
+                description: "Base font size of the text.",
+            },
+            fontWeight: {
+                control: "select",
+                default: "normal",
+                options: ["light", "normal", "medium", "semibold", "bold"],
+                description: "Font weight of the text.",
             },
         },
     },
