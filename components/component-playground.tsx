@@ -3656,7 +3656,8 @@ export function ${footerMeta.componentName}Demo() {
   return (
     <${footerMeta.componentName}${propsString ? " " + propsString : ""} />
   )
-}
+}`
+    }
 
     // Header section code generation with initialCode (full component)
     if (headerMeta && initialCode) {
@@ -3704,7 +3705,6 @@ export function ${headerMeta.componentName}Demo() {
     <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
   )
 }`
-    }`
     }
 
     if (children) {
