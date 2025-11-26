@@ -85,6 +85,21 @@ export const headerSections: HeaderSectionMeta[] = [
       bannerGradientTo: { control: "color", default: "#581c87", description: "Banner gradient end color." },
       textColor: { control: "text", default: "#ffffff", description: "Main text color." },
       linkColor: { control: "text", default: "#a3a3a3", description: "Link text color." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Products", items: ["Analytics", "Automation", "Security"] },
+          { title: "Customers", items: ["Case Studies", "Reviews"] },
+          { title: "Pricing" }
+        ], null, 2), 
+        description: "Navigation structure (JSON). Each item has 'title' and optional 'items' array." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
     },
   },
   {

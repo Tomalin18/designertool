@@ -280,7 +280,19 @@ export function SaaSHeader({
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
+  navigationConfig = '[{"title":"Products","items":["Analytics","Automation","Security"]},{"title":"Customers","items":["Case Studies","Reviews"]},{"title":"Pricing"}]',
+  navInteractionMode = "hover",
 }: SaaSHeaderProps) {
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    // Fallback
+    navItems = []
+  }
+
   // Internal helper for self-contained code export
   const ShinyButton = ({
     children,
@@ -338,17 +350,46 @@ export function SaaSHeader({
               <div className="h-6 w-6 rounded bg-white" /> {companyName}
             </div>
             <nav className="hidden items-center gap-6 md:flex">
-              {["Products", "Customers", "Pricing"].map((item) => (
-                <button 
-                  key={item} 
-                  className={cn(
-                    "flex items-center gap-1 font-medium transition-colors hover:text-white",
-                    fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
-                  )}
-                  style={{ color: linkColor }}
+              {navItems.map((item, index) => (
+                <div 
+                  key={index} 
+                  className="relative group"
+                  onMouseEnter={() => navInteractionMode === 'hover' && setActiveDropdown(index)}
+                  onMouseLeave={() => navInteractionMode === 'hover' && setActiveDropdown(null)}
                 >
-                  {item} {item === "Products" && <ChevronDown size={14} />}
-                </button>
+                  <button 
+                    className={cn(
+                      "flex items-center gap-1 font-medium transition-colors hover:text-white",
+                      fontWeight === "normal" ? "font-normal" : fontWeight === "semibold" ? "font-semibold" : fontWeight === "bold" ? "font-bold" : "font-medium"
+                    )}
+                    style={{ color: linkColor }}
+                    onClick={() => navInteractionMode === 'click' && setActiveDropdown(activeDropdown === index ? null : index)}
+                  >
+                    {item.title} {(item.items && item.items.length > 0) && <ChevronDown size={14} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />}
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  {(item.items && item.items.length > 0 && activeDropdown === index) && (
+                    <div 
+                      className="absolute top-full left-0 mt-2 w-48 rounded-xl border p-2 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+                      style={{ 
+                        backgroundColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#171717' : '#ffffff',
+                        borderColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#262626' : '#e5e7eb'
+                      }}
+                    >
+                      {item.items.map((subItem: string, subIndex: number) => (
+                        <a 
+                          key={subIndex} 
+                          href="#" 
+                          className="block rounded-lg px-4 py-2 text-sm transition-colors hover:bg-white/10"
+                          style={{ color: linkColor }}
+                        >
+                          {subItem}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </nav>
           </div>
