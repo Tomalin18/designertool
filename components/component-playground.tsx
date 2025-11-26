@@ -36,6 +36,8 @@ import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName } from "@/components/customize/payments"
 import { ctaSections } from "@/lib/cta-sections"
 import { ctaComponentsByName } from "@/components/customize/ctas"
+import { footerSections } from "@/lib/footer-sections"
+import { footerComponentsByName } from "@/components/customize/footers"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -63,969 +65,974 @@ const ctaNameToMeta = ctaSections.reduce<Record<string, (typeof ctaSections)[num
   return acc
 }, {})
 
+const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSections)[number]>>((acc, footer) => {
+  acc[footer.name] = footer
+  return acc
+}, {})
+
 const componentConfigs: Record<string, any> = (() => {
   const configs: Record<string, any> = {
-  Button: {
-    props: {
-      variant: { type: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"], default: "default" },
-      size: { type: "select", options: ["default", "sm", "lg", "icon"], default: "default" },
-      disabled: { type: "boolean", default: false },
-      children: { type: "text", default: "Click me" },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
-      borderWidth: { type: "slider", min: 0, max: 4, default: 0 },
+    Button: {
+      props: {
+        variant: { type: "select", options: ["default", "destructive", "outline", "secondary", "ghost", "link"], default: "default" },
+        size: { type: "select", options: ["default", "sm", "lg", "icon"], default: "default" },
+        disabled: { type: "boolean", default: false },
+        children: { type: "text", default: "Click me" },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
+        borderWidth: { type: "slider", min: 0, max: 4, default: 0 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          fontSize: '1.5rem',
+        }
+        if (borderWidth > 0) {
+          style.borderWidth = `${borderWidth}px`
+          style.borderStyle = 'solid'
+          style.borderColor = 'hsl(var(--border))'
+        }
+        return (
+          <Button
+            {...domProps}
+            className="scale-150"
+            style={style}
+          >
+            {props.children}
+          </Button>
+        )
+      },
     },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        fontSize: '1.5rem',
-      }
-      if (borderWidth > 0) {
-        style.borderWidth = `${borderWidth}px`
-        style.borderStyle = 'solid'
-        style.borderColor = 'hsl(var(--border))'
-      }
-      return (
-        <Button
-          {...domProps}
-          className="scale-150"
-          style={style}
+    Badge: {
+      props: {
+        variant: { type: "select", options: ["default", "secondary", "destructive", "outline"], default: "default" },
+        children: { type: "text", default: "Badge" },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 12 },
+        borderWidth: { type: "slider", min: 0, max: 4, default: 0 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          fontSize: '1.25rem',
+        }
+        if (borderWidth > 0) {
+          style.borderWidth = `${borderWidth}px`
+          style.borderStyle = 'solid'
+          style.borderColor = 'hsl(var(--border))'
+        }
+        return (
+          <Badge
+            {...domProps}
+            className="scale-150 inline-block"
+            style={style}
+          >
+            {props.children}
+          </Badge>
+        )
+      },
+    },
+    Checkbox: {
+      props: {
+        disabled: { type: "boolean", default: false },
+        defaultChecked: { type: "boolean", default: false },
+      },
+      render: (props: any) => (
+        <div className="flex items-center space-x-4">
+          <Checkbox {...props} id="terms" className="h-8 w-8" />
+          <label htmlFor="terms" className="text-xl font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Accept terms and conditions
+          </label>
+        </div>
+      ),
+    },
+    Progress: {
+      props: {
+        value: { type: "slider", min: 0, max: 100, default: 50 },
+      },
+      render: (props: any) => <Progress {...props} className="w-[80%] h-6" />,
+    },
+    Switch: {
+      props: {
+        disabled: { type: "boolean", default: false },
+        defaultChecked: { type: "boolean", default: false },
+      },
+      render: (props: any) => (
+        <div className="flex items-center space-x-4">
+          <Switch {...props} id="airplane-mode" className="scale-150" />
+          <Label htmlFor="airplane-mode" className="text-xl">Airplane Mode</Label>
+        </div>
+      ),
+    },
+    Accordion: {
+      props: {
+        type: { type: "select", options: ["single", "multiple"], default: "single" },
+        collapsible: { type: "boolean", default: true },
+      },
+      render: (props: any) => (
+        <Accordion
+          type={props.type}
+          collapsible={props.type === "single" ? props.collapsible : undefined}
+          className="w-full"
         >
-          {props.children}
-        </Button>
-      )
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>
+            <AccordionContent className="text-lg pb-6">Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="text-xl py-6">Is it styled?</AccordionTrigger>
+            <AccordionContent className="text-lg pb-6">Yes. It comes with default styles that you can override.</AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-3">
+            <AccordionTrigger className="text-xl py-6">Is it animated?</AccordionTrigger>
+            <AccordionContent className="text-lg pb-6">Yes. It's animated by default, but you can disable it if you prefer.</AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      ),
     },
-  },
-  Badge: {
-    props: {
-      variant: { type: "select", options: ["default", "secondary", "destructive", "outline"], default: "default" },
-      children: { type: "text", default: "Badge" },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 12 },
-      borderWidth: { type: "slider", min: 0, max: 4, default: 0 },
+    Input: {
+      props: {
+        type: { type: "select", options: ["text", "email", "password", "number", "search", "tel", "url"], default: "text" },
+        placeholder: { type: "text", default: "Enter text..." },
+        disabled: { type: "boolean", default: false },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
+        borderWidth: { type: "slider", min: 1, max: 4, default: 1 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          borderWidth: `${borderWidth}px`,
+        }
+        return (
+          <Input
+            {...domProps}
+            className="max-w-2xl text-xl h-16 px-6"
+            style={style}
+          />
+        )
+      },
     },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        fontSize: '1.25rem',
-      }
-      if (borderWidth > 0) {
-        style.borderWidth = `${borderWidth}px`
-        style.borderStyle = 'solid'
-        style.borderColor = 'hsl(var(--border))'
-      }
-      return (
-        <Badge
-          {...domProps}
-          className="scale-150 inline-block"
-          style={style}
-        >
-          {props.children}
-        </Badge>
-      )
-    },
-  },
-  Checkbox: {
-    props: {
-      disabled: { type: "boolean", default: false },
-      defaultChecked: { type: "boolean", default: false },
-    },
-    render: (props: any) => (
-      <div className="flex items-center space-x-4">
-        <Checkbox {...props} id="terms" className="h-8 w-8" />
-        <label htmlFor="terms" className="text-xl font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Accept terms and conditions
-        </label>
-      </div>
-    ),
-  },
-  Progress: {
-    props: {
-      value: { type: "slider", min: 0, max: 100, default: 50 },
-    },
-    render: (props: any) => <Progress {...props} className="w-[80%] h-6" />,
-  },
-  Switch: {
-    props: {
-      disabled: { type: "boolean", default: false },
-      defaultChecked: { type: "boolean", default: false },
-    },
-    render: (props: any) => (
-      <div className="flex items-center space-x-4">
-        <Switch {...props} id="airplane-mode" className="scale-150" />
-        <Label htmlFor="airplane-mode" className="text-xl">Airplane Mode</Label>
-      </div>
-    ),
-  },
-  Accordion: {
-    props: {
-      type: { type: "select", options: ["single", "multiple"], default: "single" },
-      collapsible: { type: "boolean", default: true },
-    },
-    render: (props: any) => (
-      <Accordion
-        type={props.type}
-        collapsible={props.type === "single" ? props.collapsible : undefined}
-        className="w-full"
-      >
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>
-          <AccordionContent className="text-lg pb-6">Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-2">
-          <AccordionTrigger className="text-xl py-6">Is it styled?</AccordionTrigger>
-          <AccordionContent className="text-lg pb-6">Yes. It comes with default styles that you can override.</AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-3">
-          <AccordionTrigger className="text-xl py-6">Is it animated?</AccordionTrigger>
-          <AccordionContent className="text-lg pb-6">Yes. It's animated by default, but you can disable it if you prefer.</AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    ),
-  },
-  Input: {
-    props: {
-      type: { type: "select", options: ["text", "email", "password", "number", "search", "tel", "url"], default: "text" },
-      placeholder: { type: "text", default: "Enter text..." },
-      disabled: { type: "boolean", default: false },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
-      borderWidth: { type: "slider", min: 1, max: 4, default: 1 },
-    },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        borderWidth: `${borderWidth}px`,
-      }
-      return (
-        <Input
-          {...domProps}
-          className="max-w-2xl text-xl h-16 px-6"
-          style={style}
-        />
-      )
-    },
-  },
-  Card: {
-    props: {
-      title: { type: "text", default: "Card Title" },
-      description: { type: "text", default: "Card description goes here." },
-      showFooter: { type: "boolean", default: true },
-      borderRadius: { type: "slider", min: 0, max: 32, default: 8 },
-      borderWidth: { type: "slider", min: 0, max: 4, default: 1 },
-    },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, title, description, showFooter, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        borderWidth: `${borderWidth}px`,
-      }
-      return (
-        <Card className="w-[700px]" style={style} {...domProps}>
-          <div className="p-12">
-            <h3 className="text-4xl font-semibold leading-none tracking-tight">{title}</h3>
-            <p className="text-lg text-muted-foreground mt-4">{description}</p>
-          </div>
-          {showFooter && (
-            <div className="flex items-center p-12 pt-0">
-              <Button className="w-full text-xl h-14">Action</Button>
+    Card: {
+      props: {
+        title: { type: "text", default: "Card Title" },
+        description: { type: "text", default: "Card description goes here." },
+        showFooter: { type: "boolean", default: true },
+        borderRadius: { type: "slider", min: 0, max: 32, default: 8 },
+        borderWidth: { type: "slider", min: 0, max: 4, default: 1 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, title, description, showFooter, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          borderWidth: `${borderWidth}px`,
+        }
+        return (
+          <Card className="w-[700px]" style={style} {...domProps}>
+            <div className="p-12">
+              <h3 className="text-4xl font-semibold leading-none tracking-tight">{title}</h3>
+              <p className="text-lg text-muted-foreground mt-4">{description}</p>
             </div>
-          )}
-        </Card>
-      )
+            {showFooter && (
+              <div className="flex items-center p-12 pt-0">
+                <Button className="w-full text-xl h-14">Action</Button>
+              </div>
+            )}
+          </Card>
+        )
+      },
     },
-  },
-  Alert: {
-    props: {
-      variant: { type: "select", options: ["default", "destructive"], default: "default" },
-      title: { type: "text", default: "Heads up!" },
-      description: { type: "text", default: "You can add components to your app using the cli." },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 8 },
-      borderWidth: { type: "slider", min: 0, max: 4, default: 1 },
+    Alert: {
+      props: {
+        variant: { type: "select", options: ["default", "destructive"], default: "default" },
+        title: { type: "text", default: "Heads up!" },
+        description: { type: "text", default: "You can add components to your app using the cli." },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 8 },
+        borderWidth: { type: "slider", min: 0, max: 4, default: 1 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, title, description, variant, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          borderWidth: `${borderWidth}px`,
+        }
+        return (
+          <Alert variant={variant} className="max-w-3xl p-8" style={style} {...domProps}>
+            <AlertCircle className="h-8 w-8" />
+            <AlertTitle className="text-2xl">{title}</AlertTitle>
+            <AlertDescription className="text-lg mt-2">{description}</AlertDescription>
+          </Alert>
+        )
+      },
     },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, title, description, variant, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        borderWidth: `${borderWidth}px`,
-      }
-      return (
-        <Alert variant={variant} className="max-w-3xl p-8" style={style} {...domProps}>
-          <AlertCircle className="h-8 w-8" />
-          <AlertTitle className="text-2xl">{title}</AlertTitle>
-          <AlertDescription className="text-lg mt-2">{description}</AlertDescription>
-        </Alert>
-      )
+    Avatar: {
+      props: {
+        size: { type: "select", options: ["sm", "md", "lg"], default: "md" },
+        fallback: { type: "text", default: "CN" },
+        showImage: { type: "boolean", default: true },
+      },
+      render: (props: any) => {
+        const sizeClasses = {
+          sm: "h-16 w-16 text-xl",
+          md: "h-24 w-24 text-2xl",
+          lg: "h-32 w-32 text-3xl",
+        }
+        return (
+          <Avatar className={sizeClasses[props.size as keyof typeof sizeClasses]}>
+            {props.showImage && <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />}
+            <AvatarFallback className="text-2xl">{props.fallback}</AvatarFallback>
+          </Avatar>
+        )
+      },
     },
-  },
-  Avatar: {
-    props: {
-      size: { type: "select", options: ["sm", "md", "lg"], default: "md" },
-      fallback: { type: "text", default: "CN" },
-      showImage: { type: "boolean", default: true },
+    Dialog: {
+      props: {
+        title: { type: "text", default: "Are you absolutely sure?" },
+        description: { type: "text", default: "This action cannot be undone." },
+      },
+      render: (props: any) => (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="text-xl px-8 py-6 h-auto">Open Dialog</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-3xl p-10">
+            <DialogHeader>
+              <DialogTitle className="text-3xl">{props.title}</DialogTitle>
+              <DialogDescription className="text-lg mt-4">{props.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mt-8 gap-4">
+              <Button variant="outline" className="text-lg px-6 py-5 h-auto">Cancel</Button>
+              <Button className="text-lg px-6 py-5 h-auto">Continue</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ),
     },
-    render: (props: any) => {
-      const sizeClasses = {
-        sm: "h-16 w-16 text-xl",
-        md: "h-24 w-24 text-2xl",
-        lg: "h-32 w-32 text-3xl",
-      }
-      return (
-        <Avatar className={sizeClasses[props.size as keyof typeof sizeClasses]}>
-          {props.showImage && <AvatarImage src="https://github.com/shadcn.png" alt="Avatar" />}
-          <AvatarFallback className="text-2xl">{props.fallback}</AvatarFallback>
-        </Avatar>
-      )
+    "Dropdown Menu": {
+      props: {
+        triggerText: { type: "text", default: "Open Menu" },
+        itemCount: { type: "slider", min: 1, max: 10, default: 4 },
+      },
+      render: (props: any) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="text-xl px-8 py-6 h-auto">{props.triggerText}</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-80">
+            {Array.from({ length: props.itemCount }).map((_, i) => (
+              <DropdownMenuItem key={i} className="text-lg py-4 px-4">Item {i + 1}</DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
-  },
-  Dialog: {
-    props: {
-      title: { type: "text", default: "Are you absolutely sure?" },
-      description: { type: "text", default: "This action cannot be undone." },
+    Label: {
+      props: {
+        text: { type: "text", default: "Your email" },
+        required: { type: "boolean", default: false },
+      },
+      render: (props: any) => (
+        <div className="space-y-4">
+          <Label htmlFor="email" className="text-xl">
+            {props.text}
+            {props.required && <span className="text-destructive ml-1">*</span>}
+          </Label>
+          <Input id="email" type="email" placeholder="m@example.com" className="text-xl h-16 px-6" />
+        </div>
+      ),
     },
-    render: (props: any) => (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="text-xl px-8 py-6 h-auto">Open Dialog</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-3xl p-10">
-          <DialogHeader>
-            <DialogTitle className="text-3xl">{props.title}</DialogTitle>
-            <DialogDescription className="text-lg mt-4">{props.description}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-8 gap-4">
-            <Button variant="outline" className="text-lg px-6 py-5 h-auto">Cancel</Button>
-            <Button className="text-lg px-6 py-5 h-auto">Continue</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    ),
-  },
-  "Dropdown Menu": {
-    props: {
-      triggerText: { type: "text", default: "Open Menu" },
-      itemCount: { type: "slider", min: 1, max: 10, default: 4 },
+    Select: {
+      props: {
+        placeholder: { type: "text", default: "Select an option" },
+        disabled: { type: "boolean", default: false },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
+      },
+      render: (props: any) => {
+        const { borderRadius, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+        }
+        return (
+          <Select disabled={domProps.disabled}>
+            <SelectTrigger className="w-[560px] text-xl h-16 px-6" style={style}>
+              <SelectValue placeholder={domProps.placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="apple" className="text-xl py-4">Apple</SelectItem>
+              <SelectItem value="banana" className="text-xl py-4">Banana</SelectItem>
+              <SelectItem value="orange" className="text-xl py-4">Orange</SelectItem>
+              <SelectItem value="grape" className="text-xl py-4">Grape</SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      },
     },
-    render: (props: any) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="text-xl px-8 py-6 h-auto">{props.triggerText}</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80">
-          {Array.from({ length: props.itemCount }).map((_, i) => (
-            <DropdownMenuItem key={i} className="text-lg py-4 px-4">Item {i + 1}</DropdownMenuItem>
+    Separator: {
+      props: {
+        orientation: { type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
+      },
+      render: (props: any) => (
+        <div className={props.orientation === "horizontal" ? "w-full space-y-8" : "flex h-40 space-x-8"}>
+          <div className={props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}>
+            <h4 className="text-xl font-medium leading-none">Radix Primitives</h4>
+            <p className="text-lg text-muted-foreground">An open-source UI component library.</p>
+          </div>
+          <Separator orientation={props.orientation} className={props.orientation === "horizontal" ? "h-[2px]" : "w-[2px]"} />
+          <div className={props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}>
+            <h4 className="text-xl font-medium leading-none">Shadcn UI</h4>
+            <p className="text-lg text-muted-foreground">Beautifully designed components.</p>
+          </div>
+        </div>
+      ),
+    },
+    Skeleton: {
+      props: {
+        count: { type: "slider", min: 1, max: 5, default: 3 },
+        height: { type: "slider", min: 20, max: 200, default: 40 },
+      },
+      render: (props: any) => (
+        <div className="space-y-6 w-full max-w-3xl">
+          {Array.from({ length: props.count }).map((_, i) => (
+            <Skeleton key={i} style={{ height: `${props.height * 2}px` }} className="w-full" />
           ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-  Label: {
-    props: {
-      text: { type: "text", default: "Your email" },
-      required: { type: "boolean", default: false },
-    },
-    render: (props: any) => (
-      <div className="space-y-4">
-        <Label htmlFor="email" className="text-xl">
-          {props.text}
-          {props.required && <span className="text-destructive ml-1">*</span>}
-        </Label>
-        <Input id="email" type="email" placeholder="m@example.com" className="text-xl h-16 px-6" />
-      </div>
-    ),
-  },
-  Select: {
-    props: {
-      placeholder: { type: "text", default: "Select an option" },
-      disabled: { type: "boolean", default: false },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
-    },
-    render: (props: any) => {
-      const { borderRadius, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-      }
-      return (
-        <Select disabled={domProps.disabled}>
-          <SelectTrigger className="w-[560px] text-xl h-16 px-6" style={style}>
-            <SelectValue placeholder={domProps.placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="apple" className="text-xl py-4">Apple</SelectItem>
-            <SelectItem value="banana" className="text-xl py-4">Banana</SelectItem>
-            <SelectItem value="orange" className="text-xl py-4">Orange</SelectItem>
-            <SelectItem value="grape" className="text-xl py-4">Grape</SelectItem>
-          </SelectContent>
-        </Select>
-      )
-    },
-  },
-  Separator: {
-    props: {
-      orientation: { type: "select", options: ["horizontal", "vertical"], default: "horizontal" },
-    },
-    render: (props: any) => (
-      <div className={props.orientation === "horizontal" ? "w-full space-y-8" : "flex h-40 space-x-8"}>
-        <div className={props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}>
-          <h4 className="text-xl font-medium leading-none">Radix Primitives</h4>
-          <p className="text-lg text-muted-foreground">An open-source UI component library.</p>
         </div>
-        <Separator orientation={props.orientation} className={props.orientation === "horizontal" ? "h-[2px]" : "w-[2px]"} />
-        <div className={props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}>
-          <h4 className="text-xl font-medium leading-none">Shadcn UI</h4>
-          <p className="text-lg text-muted-foreground">Beautifully designed components.</p>
-        </div>
-      </div>
-    ),
-  },
-  Skeleton: {
-    props: {
-      count: { type: "slider", min: 1, max: 5, default: 3 },
-      height: { type: "slider", min: 20, max: 200, default: 40 },
+      ),
     },
-    render: (props: any) => (
-      <div className="space-y-6 w-full max-w-3xl">
-        {Array.from({ length: props.count }).map((_, i) => (
-          <Skeleton key={i} style={{ height: `${props.height * 2}px` }} className="w-full" />
-        ))}
-      </div>
-    ),
-  },
-  Tabs: {
-    props: {
-      defaultValue: { type: "select", options: ["tab1", "tab2", "tab3"], default: "tab1" },
-      tabCount: { type: "slider", min: 2, max: 5, default: 3 },
-    },
-    render: (props: any) => (
-      <Tabs defaultValue={props.defaultValue} className="w-[800px]">
-        <TabsList className="grid w-full h-16" style={{ gridTemplateColumns: `repeat(${props.tabCount}, 1fr)` }}>
+    Tabs: {
+      props: {
+        defaultValue: { type: "select", options: ["tab1", "tab2", "tab3"], default: "tab1" },
+        tabCount: { type: "slider", min: 2, max: 5, default: 3 },
+      },
+      render: (props: any) => (
+        <Tabs defaultValue={props.defaultValue} className="w-[800px]">
+          <TabsList className="grid w-full h-16" style={{ gridTemplateColumns: `repeat(${props.tabCount}, 1fr)` }}>
+            {Array.from({ length: props.tabCount }).map((_, i) => (
+              <TabsTrigger key={i} value={`tab${i + 1}`} className="text-xl">Tab {i + 1}</TabsTrigger>
+            ))}
+          </TabsList>
           {Array.from({ length: props.tabCount }).map((_, i) => (
-            <TabsTrigger key={i} value={`tab${i + 1}`} className="text-xl">Tab {i + 1}</TabsTrigger>
+            <TabsContent key={i} value={`tab${i + 1}`} className="space-y-4 p-6">
+              <h3 className="text-2xl font-medium">Content for Tab {i + 1}</h3>
+              <p className="text-lg text-muted-foreground">
+                This is the content area for tab {i + 1}. You can add any content here.
+              </p>
+            </TabsContent>
           ))}
-        </TabsList>
-        {Array.from({ length: props.tabCount }).map((_, i) => (
-          <TabsContent key={i} value={`tab${i + 1}`} className="space-y-4 p-6">
-            <h3 className="text-2xl font-medium">Content for Tab {i + 1}</h3>
-            <p className="text-lg text-muted-foreground">
-              This is the content area for tab {i + 1}. You can add any content here.
-            </p>
-          </TabsContent>
-        ))}
-      </Tabs>
-    ),
-  },
-  Textarea: {
-    props: {
-      placeholder: { type: "text", default: "Type your message here." },
-      rows: { type: "slider", min: 2, max: 10, default: 4 },
-      disabled: { type: "boolean", default: false },
-      borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
-      borderWidth: { type: "slider", min: 1, max: 4, default: 1 },
+        </Tabs>
+      ),
     },
-    render: (props: any) => {
-      const { borderRadius, borderWidth, ...domProps } = props
-      const style: React.CSSProperties = {
-        borderRadius: `${borderRadius}px`,
-        borderWidth: `${borderWidth}px`,
-      }
-      return (
-        <Textarea
-          {...domProps}
-          className="max-w-3xl text-xl p-6"
-          style={style}
-        />
-      )
-    },
-  },
-  Toast: {
-    props: {
-      title: { type: "text", default: "Scheduled: Catch up" },
-      description: { type: "text", default: "Friday, February 10, 2023 at 5:57 PM" },
-    },
-    render: (props: any) => (
-      <div className="max-w-2xl">
-        <Alert className="p-8">
-          <Terminal className="h-8 w-8" />
-          <AlertTitle className="text-2xl">{props.title}</AlertTitle>
-          <AlertDescription className="text-lg mt-2">{props.description}</AlertDescription>
-        </Alert>
-        <p className="text-base text-muted-foreground mt-4">
-          Note: This is a preview. Actual toast will appear as a notification.
-        </p>
-      </div>
-    ),
-  },
-  Toggle: {
-    props: {
-      variant: { type: "select", options: ["default", "outline"], default: "default" },
-      size: { type: "select", options: ["default", "sm", "lg"], default: "default" },
-      disabled: { type: "boolean", default: false },
-    },
-    render: (props: any) => (
-      <Toggle {...props} aria-label="Toggle italic" className="h-16 w-16">
-        <span className="font-bold text-3xl">B</span>
-      </Toggle>
-    ),
-  },
-  Tooltip: {
-    props: {
-      text: { type: "text", default: "Add to library" },
-      side: { type: "select", options: ["top", "bottom", "left", "right"], default: "top" },
-    },
-    render: (props: any) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>
-          </TooltipTrigger>
-          <TooltipContent side={props.side} className="text-lg p-4">
-            <p>{props.text}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    ),
-  },
-  UrlInput: {
-    props: {
-      enableHoverTilt: { type: "boolean", default: true },
-      isLoading: { type: "boolean", default: false },
-      borderRadius: { type: "slider", min: 0, max: 32, default: 12 },
-      gradientFrom: { type: "color", default: "" },
-      gradientTo: { type: "color", default: "" },
-      gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
-      gradientAnimated: { type: "boolean", default: false },
-      backgroundColor: { type: "color", default: "#0f172a" },
-      borderColor: { type: "color", default: "#334155" },
-      showButton: { type: "boolean", default: true },
-      buttonText: { type: "text", default: "Generate" },
-      placeholder: { type: "text", default: "https://your-shop.com/product/..." },
-      showIcon: { type: "boolean", default: true },
-    },
-    render: (props: any) => {
-      // Convert hex to rgb if needed for backgroundColor and borderColor
-      const hexToRgb = (hex: string) => {
-        if (!hex || !hex.startsWith('#')) return hex
-        const r = parseInt(hex.slice(1, 3), 16)
-        const g = parseInt(hex.slice(3, 5), 16)
-        const b = parseInt(hex.slice(5, 7), 16)
-        return `rgb(${r} ${g} ${b})`
-      }
-
-      return (
-        <ThreeDCard className="w-full max-w-2xl" disabled={!props.enableHoverTilt}>
-          <UrlInput
-            onGenerate={(url) => console.log('Generated URL:', url)}
-            isLoading={props.isLoading}
-            borderRadius={props.borderRadius}
-            gradientFrom={props.gradientFrom || undefined}
-            gradientTo={props.gradientTo || undefined}
-            gradientWidth={props.gradientWidth}
-            gradientAnimated={props.gradientAnimated}
-            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
-            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
-            showButton={props.showButton}
-            buttonText={props.buttonText}
-            placeholder={props.placeholder}
-            showIcon={props.showIcon}
-          />
-        </ThreeDCard>
-      )
-    },
-  },
-  MediaPlayer: {
-    props: {
-      enableHoverTilt: { type: "boolean", default: true },
-      className: { type: "text", default: "" },
-      trackTitle: { type: "text", default: "Midnight City" },
-      artist: { type: "text", default: "M83" },
-      album: { type: "text", default: "Hurry Up, We're Dreaming" },
-      albumArtUrl: { type: "text", default: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop" },
-      totalTime: { type: "text", default: "4:03" },
-      progress: { type: "slider", min: 0, max: 100, default: 66.67 },
-      isPlaying: { type: "boolean", default: true },
-      isLoved: { type: "boolean", default: false },
-      isShuffle: { type: "boolean", default: false },
-      isRepeat: { type: "boolean", default: false },
-      showShuffle: { type: "boolean", default: true },
-      showRepeat: { type: "boolean", default: true },
-      showHeart: { type: "boolean", default: true },
-      backgroundColor: { type: "color", default: "#171717" },
-      borderColor: { type: "color", default: "#ffffff" },
-      borderRadius: { type: "slider", min: 0, max: 48, default: 24 },
-      glowColor1: { type: "color", default: "#6366f1" },
-      glowColor2: { type: "color", default: "#a855f7" },
-      gradientFrom: { type: "color", default: "" },
-      gradientTo: { type: "color", default: "" },
-      gradientWidth: { type: "slider", min: 0, max: 10, default: 2 },
-      gradientAnimated: { type: "boolean", default: false },
-      enableImageUpload: { type: "boolean", default: true },
-    },
-    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
-      // Convert hex to rgb with opacity if needed
-      const hexToRgbWithOpacity = (hex: string, opacity: number = 0.6) => {
-        if (!hex || !hex.startsWith('#')) return hex;
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgb(${r} ${g} ${b} / ${opacity})`;
-      };
-
-      const hexToRgb = (hex: string) => {
-        if (!hex || !hex.startsWith('#')) return hex;
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgb(${r} ${g} ${b})`;
-      };
-
-      // Helper to convert hex to rgba
-      const hexToRgba = (hex: string, opacity: number = 0.1) => {
-        if (!hex || !hex.startsWith('#')) return hex;
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-      };
-
-      // Helper functions for time conversion (same as in MediaPlayer)
-      const timeToSeconds = (time: string): number => {
-        const parts = time.split(':');
-        if (parts.length === 2) {
-          return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    Textarea: {
+      props: {
+        placeholder: { type: "text", default: "Type your message here." },
+        rows: { type: "slider", min: 2, max: 10, default: 4 },
+        disabled: { type: "boolean", default: false },
+        borderRadius: { type: "slider", min: 0, max: 24, default: 6 },
+        borderWidth: { type: "slider", min: 1, max: 4, default: 1 },
+      },
+      render: (props: any) => {
+        const { borderRadius, borderWidth, ...domProps } = props
+        const style: React.CSSProperties = {
+          borderRadius: `${borderRadius}px`,
+          borderWidth: `${borderWidth}px`,
         }
-        return 0;
-      };
-
-      const secondsToTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-      };
-
-      // Calculate current time from progress
-      let displayCurrentTime = "0:00";
-      if (props.progress !== undefined && props.totalTime) {
-        const totalSeconds = timeToSeconds(props.totalTime);
-        const currentSeconds = (props.progress / 100) * totalSeconds;
-        displayCurrentTime = secondsToTime(currentSeconds);
-      }
-
-      return (
-        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
-          <MediaPlayer
-            className={props.className || undefined}
-            trackTitle={props.trackTitle}
-            artist={props.artist}
-            album={props.album}
-            albumArtUrl={props.albumArtUrl}
-            totalTime={props.totalTime}
-            progress={props.progress}
-            isPlaying={props.isPlaying}
-            isLoved={props.isLoved}
-            isShuffle={props.isShuffle}
-            isRepeat={props.isRepeat}
-            showShuffle={props.showShuffle}
-            showRepeat={props.showRepeat}
-            showHeart={props.showHeart}
-            backgroundColor={props.backgroundColor ? hexToRgbWithOpacity(props.backgroundColor, 0.6) : undefined}
-            borderColor={props.borderColor ? hexToRgba(props.borderColor, 0.1) : undefined}
-            borderRadius={props.borderRadius}
-            glowColor1={props.glowColor1 ? hexToRgbWithOpacity(props.glowColor1, 0.2) : undefined}
-            glowColor2={props.glowColor2 ? hexToRgbWithOpacity(props.glowColor2, 0.2) : undefined}
-            gradientFrom={props.gradientFrom || undefined}
-            gradientTo={props.gradientTo || undefined}
-            gradientWidth={props.gradientWidth}
-            gradientAnimated={props.gradientAnimated}
-            enableImageUpload={props.enableImageUpload}
-            onShuffle={setProps ? (isShuffle) => {
-              // Update Playground props when shuffle state changes
-              setProps((prev: any) => ({ ...prev, isShuffle }));
-            } : undefined}
-            onRepeat={setProps ? (isRepeat) => {
-              // Update Playground props when repeat state changes
-              setProps((prev: any) => ({ ...prev, isRepeat }));
-            } : undefined}
-            onPlayPause={setProps ? (isPlaying) => {
-              // Update Playground props when play/pause state changes
-              setProps((prev: any) => ({ ...prev, isPlaying }));
-            } : undefined}
-            onLove={setProps ? (isLoved) => {
-              // Update Playground props when love state changes
-              setProps((prev: any) => ({ ...prev, isLoved }));
-            } : undefined}
-            onTimeChange={(currentTime, progress) => {
-              // Progress and time are automatically synced in the component
-              console.log('Time changed:', currentTime, 'Progress:', progress);
-            }}
-            onImageUpload={setProps ? (imageUrl) => {
-              console.log('Image uploaded:', imageUrl.substring(0, 50) + '...');
-              // Update Playground props when image is uploaded
-              setProps((prev: any) => ({ ...prev, albumArtUrl: imageUrl }));
-            } : undefined}
+        return (
+          <Textarea
+            {...domProps}
+            className="max-w-3xl text-xl p-6"
+            style={style}
           />
-        </ThreeDCard>
-      )
+        )
+      },
     },
-  },
-  ChatInterface: {
-    props: {
-      className: { type: "text", default: "" },
-      enableHoverTilt: { type: "boolean", default: true },
-      // Header
-      headerUserName: { type: "text", default: "Sarah Jenkins" },
-      headerUserStatus: { type: "select", options: ["Online now", "Offline", "Away", "Busy", "Do not disturb", "Other"], default: "Online now" },
-      headerUserStatusCustom: { type: "text", default: "" },
-      headerUserAvatar: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
-      headerShowPhone: { type: "boolean", default: true },
-      headerShowVideo: { type: "boolean", default: true },
-      headerShowMore: { type: "boolean", default: true },
-      headerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
-      headerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
-      headerTextColor: { type: "color-tailwind-text", default: "text-neutral-100" },
-      headerStatusColor: { type: "text", default: "" },
-      // Body
-      bodyBgColor: { type: "color-tailwind-bg", default: "" },
-      bodyPadding: { type: "slider", min: 2, max: 12, default: 6 },
-      bodyShowDateLabel: { type: "boolean", default: true },
-      bodyDateLabelText: { type: "text", default: "Today, Oct 24" },
-      bodyShowTypingIndicator: { type: "boolean", default: true },
-      bodyShowReadReceipt: { type: "boolean", default: false },
-      message1Text: { type: "text", default: "Hey! Have you had a chance to look at the new design system components?" },
-      message1Time: { type: "text", default: "10:30 AM" },
-      message1IsOwn: { type: "boolean", default: false },
-      message2Text: { type: "text", default: "Yes! I just checked them out. The neon gradients look absolutely stunning 🤩" },
-      message2Time: { type: "text", default: "10:32 AM" },
-      message2IsOwn: { type: "boolean", default: true },
-      message2IsRead: { type: "boolean", default: false },
-      message3Text: { type: "text", default: "Right? I think we should use the SpotlightCard for the feature section." },
-      message3Time: { type: "text", default: "10:32 AM" },
-      message3IsOwn: { type: "boolean", default: true },
-      message3IsRead: { type: "boolean", default: true },
-      message4Text: { type: "text", default: "Agreed. I'm preparing the documentation now. Will send over the draft in a bit!" },
-      message4Time: { type: "text", default: "10:35 AM" },
-      message4IsOwn: { type: "boolean", default: false },
-      ownMessageColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
-      otherMessageColor: { type: "color-tailwind-bg", default: "bg-neutral-800" },
-      messageTextColor: { type: "color-tailwind-text", default: "" },
-      timeTextColor: { type: "color-tailwind-text", default: "text-neutral-500" },
-      // Footer
-      footerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
-      footerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
-      footerInputBgColor: { type: "color-tailwind-bg", default: "bg-neutral-950" },
-      footerInputPlaceholder: { type: "text", default: "Type a message..." },
-      footerShowAttach: { type: "boolean", default: true },
-      footerShowEmoji: { type: "boolean", default: true },
-      footerButtonColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
-      footerFocusBorderColor: { type: "color-tailwind-border", default: "border-indigo-500/50" },
+    Toast: {
+      props: {
+        title: { type: "text", default: "Scheduled: Catch up" },
+        description: { type: "text", default: "Friday, February 10, 2023 at 5:57 PM" },
+      },
+      render: (props: any) => (
+        <div className="max-w-2xl">
+          <Alert className="p-8">
+            <Terminal className="h-8 w-8" />
+            <AlertTitle className="text-2xl">{props.title}</AlertTitle>
+            <AlertDescription className="text-lg mt-2">{props.description}</AlertDescription>
+          </Alert>
+          <p className="text-base text-muted-foreground mt-4">
+            Note: This is a preview. Actual toast will appear as a notification.
+          </p>
+        </div>
+      ),
     },
-    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
-      return (
-        <ThreeDCard className="w-full max-w-md h-[600px]" disabled={!props.enableHoverTilt}>
-          <ChatInterface
-            className={props.className}
-            headerUserName={props.headerUserName}
-            headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
-            headerUserAvatar={props.headerUserAvatar}
-            onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, headerUserAvatar: url })) : undefined}
-            headerShowPhone={props.headerShowPhone}
-            headerShowVideo={props.headerShowVideo}
-            headerShowMore={props.headerShowMore}
-            headerBgColor={props.headerBgColor}
-            headerBorderColor={props.headerBorderColor}
-            headerTextColor={props.headerTextColor}
-            headerStatusColor={props.headerStatusColor}
-            bodyBgColor={props.bodyBgColor}
-            bodyPadding={props.bodyPadding}
-            bodyShowDateLabel={props.bodyShowDateLabel}
-            bodyDateLabelText={props.bodyDateLabelText}
-            bodyShowTypingIndicator={props.bodyShowTypingIndicator}
-            bodyShowReadReceipt={props.bodyShowReadReceipt}
-            message1Text={props.message1Text}
-            message1Time={props.message1Time}
-            message1IsOwn={props.message1IsOwn}
-            message2Text={props.message2Text}
-            message2Time={props.message2Time}
-            message2IsOwn={props.message2IsOwn}
-            message2IsRead={props.message2IsRead}
-            message3Text={props.message3Text}
-            message3Time={props.message3Time}
-            message3IsOwn={props.message3IsOwn}
-            message3IsRead={props.message3IsRead}
-            message4Text={props.message4Text}
-            message4Time={props.message4Time}
-            message4IsOwn={props.message4IsOwn}
-            onMessage1TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message1Text: text })) : undefined}
-            onMessage2TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message2Text: text })) : undefined}
-            onMessage3TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message3Text: text })) : undefined}
-            onMessage4TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message4Text: text })) : undefined}
-            editable={true}
-            ownMessageColor={props.ownMessageColor}
-            otherMessageColor={props.otherMessageColor}
-            messageTextColor={props.messageTextColor}
-            timeTextColor={props.timeTextColor}
-            footerBgColor={props.footerBgColor}
-            footerBorderColor={props.footerBorderColor}
-            footerInputBgColor={props.footerInputBgColor}
-            footerInputPlaceholder={props.footerInputPlaceholder}
-            footerShowAttach={props.footerShowAttach}
-            footerShowEmoji={props.footerShowEmoji}
-            footerButtonColor={props.footerButtonColor}
-            footerFocusBorderColor={props.footerFocusBorderColor}
-          />
-        </ThreeDCard>
-      )
+    Toggle: {
+      props: {
+        variant: { type: "select", options: ["default", "outline"], default: "default" },
+        size: { type: "select", options: ["default", "sm", "lg"], default: "default" },
+        disabled: { type: "boolean", default: false },
+      },
+      render: (props: any) => (
+        <Toggle {...props} aria-label="Toggle italic" className="h-16 w-16">
+          <span className="font-bold text-3xl">B</span>
+        </Toggle>
+      ),
     },
-  },
-  SocialProfileCard: {
-    props: {
-      className: { type: "text", default: "" },
-      enableHoverTilt: { type: "boolean", default: true },
-      name: { type: "text", default: "Sarah Jenkins" },
-      username: { type: "text", default: "@sarah_des" },
-      bio: { type: "text", default: "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers." },
-      avatarUrl: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
-      location: { type: "text", default: "San Francisco, CA" },
-      website: { type: "text", default: "sarah.design" },
-      twitter: { type: "text", default: "@sarah_des" },
-      showLocation: { type: "boolean", default: true },
-      showWebsite: { type: "boolean", default: true },
-      showTwitter: { type: "boolean", default: true },
-      followers: { type: "text", default: "12.5k" },
-      following: { type: "text", default: "842" },
-      projects: { type: "text", default: "142" },
-      isOnline: { type: "boolean", default: true },
-      statusColor: { type: "color-tailwind-bg", default: "bg-green-500" },
-      bannerGradientFrom: { type: "color-tailwind-gradient", default: "from-indigo-500" },
-      bannerGradientVia: { type: "color-tailwind-gradient", default: "via-purple-500" },
-      bannerGradientTo: { type: "color-tailwind-gradient", default: "to-pink-500" },
-      followButtonText: { type: "text", default: "Follow" },
-      showFollowButton: { type: "boolean", default: true },
-      showMessageButton: { type: "boolean", default: true },
-      showSimilarButton: { type: "boolean", default: true },
-      messageButtonText: { type: "text", default: "Message" },
-      similarButtonText: { type: "text", default: "Similar" },
-      backgroundColor: { type: "color", default: "" },
-      borderColor: { type: "color", default: "" },
-      borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
-      gradientFrom: { type: "color", default: "" },
-      gradientTo: { type: "color", default: "" },
-      gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
-      gradientAnimated: { type: "boolean", default: false },
+    Tooltip: {
+      props: {
+        text: { type: "text", default: "Add to library" },
+        side: { type: "select", options: ["top", "bottom", "left", "right"], default: "top" },
+      },
+      render: (props: any) => (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>
+            </TooltipTrigger>
+            <TooltipContent side={props.side} className="text-lg p-4">
+              <p>{props.text}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
     },
-    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
-      // Convert hex to rgb if needed
-      const hexToRgb = (hex: string) => {
-        if (!hex) return undefined
-        // Extract hex from Tailwind format like bg-[#hex] or from-[#hex]
-        const hexMatch = hex.match(/\[#([0-9A-Fa-f]{6})\]/)
-        if (hexMatch) {
-          const r = parseInt(hexMatch[1].slice(0, 2), 16)
-          const g = parseInt(hexMatch[1].slice(2, 4), 16)
-          const b = parseInt(hexMatch[1].slice(4, 6), 16)
-          return `rgb(${r} ${g} ${b})`
-        }
-        // If it's already a hex value
-        if (hex.startsWith('#')) {
+    UrlInput: {
+      props: {
+        enableHoverTilt: { type: "boolean", default: true },
+        isLoading: { type: "boolean", default: false },
+        borderRadius: { type: "slider", min: 0, max: 32, default: 12 },
+        gradientFrom: { type: "color", default: "" },
+        gradientTo: { type: "color", default: "" },
+        gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+        gradientAnimated: { type: "boolean", default: false },
+        backgroundColor: { type: "color", default: "#0f172a" },
+        borderColor: { type: "color", default: "#334155" },
+        showButton: { type: "boolean", default: true },
+        buttonText: { type: "text", default: "Generate" },
+        placeholder: { type: "text", default: "https://your-shop.com/product/..." },
+        showIcon: { type: "boolean", default: true },
+      },
+      render: (props: any) => {
+        // Convert hex to rgb if needed for backgroundColor and borderColor
+        const hexToRgb = (hex: string) => {
+          if (!hex || !hex.startsWith('#')) return hex
           const r = parseInt(hex.slice(1, 3), 16)
           const g = parseInt(hex.slice(3, 5), 16)
           const b = parseInt(hex.slice(5, 7), 16)
           return `rgb(${r} ${g} ${b})`
         }
-        // Return as is if it's already rgb or other format
-        return hex
-      }
 
-      return (
-        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
-          <SocialProfileCard
-            className={props.className}
-            name={props.name}
-            username={props.username}
-            bio={props.bio}
-            avatarUrl={props.avatarUrl}
-            location={props.location}
-            website={props.website}
-            twitter={props.twitter}
-            showLocation={props.showLocation}
-            showWebsite={props.showWebsite}
-            showTwitter={props.showTwitter}
-            followers={props.followers}
-            following={props.following}
-            projects={props.projects}
-            isOnline={props.isOnline}
-            statusColor={props.statusColor}
-            bannerGradientFrom={props.bannerGradientFrom}
-            bannerGradientVia={props.bannerGradientVia}
-            bannerGradientTo={props.bannerGradientTo}
-            followButtonText={props.followButtonText}
-            showFollowButton={props.showFollowButton}
-            showMessageButton={props.showMessageButton}
-            showSimilarButton={props.showSimilarButton}
-            messageButtonText={props.messageButtonText}
-            similarButtonText={props.similarButtonText}
-            onFollow={props.onFollow}
-            onMessage={props.onMessage}
-            onSimilar={props.onSimilar}
-            onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, avatarUrl: url })) : undefined}
-            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
-            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
-            borderRadius={props.borderRadius}
-            gradientFrom={props.gradientFrom || undefined}
-            gradientTo={props.gradientTo || undefined}
-            gradientWidth={props.gradientWidth}
-            gradientAnimated={props.gradientAnimated}
-          />
-        </ThreeDCard>
-      )
+        return (
+          <ThreeDCard className="w-full max-w-2xl" disabled={!props.enableHoverTilt}>
+            <UrlInput
+              onGenerate={(url) => console.log('Generated URL:', url)}
+              isLoading={props.isLoading}
+              borderRadius={props.borderRadius}
+              gradientFrom={props.gradientFrom || undefined}
+              gradientTo={props.gradientTo || undefined}
+              gradientWidth={props.gradientWidth}
+              gradientAnimated={props.gradientAnimated}
+              backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+              borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+              showButton={props.showButton}
+              buttonText={props.buttonText}
+              placeholder={props.placeholder}
+              showIcon={props.showIcon}
+            />
+          </ThreeDCard>
+        )
+      },
     },
-  },
-  GlassAuthForm: {
-    props: {
-      className: { type: "text", default: "" },
-      enableHoverTilt: { type: "boolean", default: true },
-      // Text content
-      title: { type: "text", default: "Welcome Back" },
-      subtitle: { type: "text", default: "Enter your credentials to access the workspace." },
-      emailLabel: { type: "text", default: "Email address" },
-      passwordLabel: { type: "text", default: "Password" },
-      rememberText: { type: "text", default: "Remember me" },
-      forgotPasswordText: { type: "text", default: "Forgot password?" },
-      signInText: { type: "text", default: "Sign In" },
-      continueWithText: { type: "text", default: "Or continue with" },
-      githubText: { type: "text", default: "GitHub" },
-      googleText: { type: "text", default: "Google" },
-      // Display options
-      showRememberMe: { type: "boolean", default: true },
-      showForgotPassword: { type: "boolean", default: true },
-      showSocialButtons: { type: "boolean", default: true },
-      showGithub: { type: "boolean", default: true },
-      showGoogle: { type: "boolean", default: true },
-      // Colors
-      backgroundColor: { type: "color", default: "#171717" },
-      borderColor: { type: "color", default: "#262626" },
-      textColor: { type: "color-tailwind-text", default: "text-white" },
-      iconGradientFrom: { type: "color", default: "#6366f1" },
-      iconGradientTo: { type: "color", default: "#a855f7" },
-      orb1Color: { type: "color", default: "#6366f1" },
-      orb2Color: { type: "color", default: "#a855f7" },
-      buttonColor: { type: "color", default: "" },
-      socialButtonBgColor: { type: "color", default: "#262626" },
-      socialButtonBorderColor: { type: "color", default: "#404040" },
-      inputLabelColor: { type: "color-tailwind-text", default: "text-neutral-400" },
-      inputBgColor: { type: "color-tailwind-bg", default: "bg-neutral-800" },
-      inputBorderColor: { type: "color-tailwind-border", default: "border-neutral-700" },
-      inputTextColor: { type: "color-tailwind-text", default: "text-white" },
-      focusBorderColor: { type: "color-tailwind-border", default: "border-indigo-500" },
-      // Card gradient
-      cardGradientFrom: { type: "color", default: "" },
-      cardGradientTo: { type: "color", default: "" },
-      cardGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
-      cardGradientAnimated: { type: "boolean", default: false },
-      // Outer gradient
-      outerGradientFrom: { type: "color", default: "" },
-      outerGradientTo: { type: "color", default: "" },
-      outerGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
-      outerGradientAnimated: { type: "boolean", default: false },
-      // Style
-      borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
-      padding: { type: "slider", min: 4, max: 16, default: 8 },
-      backdropBlur: { type: "slider", min: 0, max: 24, default: 12 },
-    },
-    render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
-      // Helper to convert hex or Tailwind class to rgb
-      const getColorFromTailwind = (colorValue: string): string | undefined => {
-        if (!colorValue) return undefined
-        // Extract hex from bg-[#hex] or text-[#hex] format
-        const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
-        if (hexMatch) {
-          const r = parseInt(hexMatch[1].slice(0, 2), 16)
-          const g = parseInt(hexMatch[1].slice(2, 4), 16)
-          const b = parseInt(hexMatch[1].slice(4, 6), 16)
-          return `rgb(${r} ${g} ${b})`
-        }
-        // If it's already a hex value
-        if (colorValue.startsWith('#')) {
-          const r = parseInt(colorValue.slice(1, 3), 16)
-          const g = parseInt(colorValue.slice(3, 5), 16)
-          const b = parseInt(colorValue.slice(5, 7), 16)
-          return `rgb(${r} ${g} ${b})`
-        }
-        // Try color map for Tailwind classes
-        const colorMap: Record<string, string> = {
-          "text-white": "rgb(255 255 255)",
-          "text-neutral-400": "rgb(163 163 163)",
-          "text-neutral-500": "rgb(115 115 115)",
-          "bg-neutral-800": "rgb(38 38 38)",
-          "bg-neutral-900": "rgb(23 23 23)",
-          "border-neutral-700": "rgb(64 64 64)",
-          "border-indigo-500": "rgb(99 102 241)",
-        }
-        return colorMap[colorValue] || undefined
-      }
+    MediaPlayer: {
+      props: {
+        enableHoverTilt: { type: "boolean", default: true },
+        className: { type: "text", default: "" },
+        trackTitle: { type: "text", default: "Midnight City" },
+        artist: { type: "text", default: "M83" },
+        album: { type: "text", default: "Hurry Up, We're Dreaming" },
+        albumArtUrl: { type: "text", default: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=1000&auto=format&fit=crop" },
+        totalTime: { type: "text", default: "4:03" },
+        progress: { type: "slider", min: 0, max: 100, default: 66.67 },
+        isPlaying: { type: "boolean", default: true },
+        isLoved: { type: "boolean", default: false },
+        isShuffle: { type: "boolean", default: false },
+        isRepeat: { type: "boolean", default: false },
+        showShuffle: { type: "boolean", default: true },
+        showRepeat: { type: "boolean", default: true },
+        showHeart: { type: "boolean", default: true },
+        backgroundColor: { type: "color", default: "#171717" },
+        borderColor: { type: "color", default: "#ffffff" },
+        borderRadius: { type: "slider", min: 0, max: 48, default: 24 },
+        glowColor1: { type: "color", default: "#6366f1" },
+        glowColor2: { type: "color", default: "#a855f7" },
+        gradientFrom: { type: "color", default: "" },
+        gradientTo: { type: "color", default: "" },
+        gradientWidth: { type: "slider", min: 0, max: 10, default: 2 },
+        gradientAnimated: { type: "boolean", default: false },
+        enableImageUpload: { type: "boolean", default: true },
+      },
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Convert hex to rgb with opacity if needed
+        const hexToRgbWithOpacity = (hex: string, opacity: number = 0.6) => {
+          if (!hex || !hex.startsWith('#')) return hex;
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgb(${r} ${g} ${b} / ${opacity})`;
+        };
 
-      // Helper to convert hex to rgb (for color type props)
-      const hexToRgb = (hex: string) => {
-        if (!hex) return undefined
-        if (hex.startsWith('#')) {
-          const r = parseInt(hex.slice(1, 3), 16)
-          const g = parseInt(hex.slice(3, 5), 16)
-          const b = parseInt(hex.slice(5, 7), 16)
-          return `rgb(${r} ${g} ${b})`
-        }
-        return hex
-      }
+        const hexToRgb = (hex: string) => {
+          if (!hex || !hex.startsWith('#')) return hex;
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgb(${r} ${g} ${b})`;
+        };
 
-      return (
-        <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
-          <GlassAuthForm
-            className={props.className}
-            title={props.title}
-            subtitle={props.subtitle}
-            emailLabel={props.emailLabel}
-            passwordLabel={props.passwordLabel}
-            rememberText={props.rememberText}
-            forgotPasswordText={props.forgotPasswordText}
-            signInText={props.signInText}
-            continueWithText={props.continueWithText}
-            githubText={props.githubText}
-            googleText={props.googleText}
-            showRememberMe={props.showRememberMe}
-            showForgotPassword={props.showForgotPassword}
-            showSocialButtons={props.showSocialButtons}
-            showGithub={props.showGithub}
-            showGoogle={props.showGoogle}
-            backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
-            borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
-            textColor={props.textColor ? getColorFromTailwind(props.textColor) : undefined}
-            iconGradientFrom={props.iconGradientFrom ? hexToRgb(props.iconGradientFrom) : undefined}
-            iconGradientTo={props.iconGradientTo ? hexToRgb(props.iconGradientTo) : undefined}
-            orb1Color={props.orb1Color ? hexToRgb(props.orb1Color) : undefined}
-            orb2Color={props.orb2Color ? hexToRgb(props.orb2Color) : undefined}
-            buttonColor={props.buttonColor ? hexToRgb(props.buttonColor) : undefined}
-            socialButtonBgColor={props.socialButtonBgColor ? hexToRgb(props.socialButtonBgColor) : undefined}
-            socialButtonBorderColor={props.socialButtonBorderColor ? hexToRgb(props.socialButtonBorderColor) : undefined}
-            inputLabelColor={props.inputLabelColor ? getColorFromTailwind(props.inputLabelColor) : undefined}
-            inputBgColor={props.inputBgColor ? getColorFromTailwind(props.inputBgColor) : undefined}
-            inputBorderColor={props.inputBorderColor ? getColorFromTailwind(props.inputBorderColor) : undefined}
-            inputTextColor={props.inputTextColor ? getColorFromTailwind(props.inputTextColor) : undefined}
-            focusBorderColor={props.focusBorderColor ? getColorFromTailwind(props.focusBorderColor) : undefined}
-            cardGradientFrom={props.cardGradientFrom ? hexToRgb(props.cardGradientFrom) : undefined}
-            cardGradientTo={props.cardGradientTo ? hexToRgb(props.cardGradientTo) : undefined}
-            cardGradientWidth={props.cardGradientWidth}
-            cardGradientAnimated={props.cardGradientAnimated}
-            outerGradientFrom={props.outerGradientFrom ? hexToRgb(props.outerGradientFrom) : undefined}
-            outerGradientTo={props.outerGradientTo ? hexToRgb(props.outerGradientTo) : undefined}
-            outerGradientWidth={props.outerGradientWidth}
-            outerGradientAnimated={props.outerGradientAnimated}
-            borderRadius={props.borderRadius}
-            padding={props.padding}
-            backdropBlur={props.backdropBlur}
-          />
-        </ThreeDCard>
-      )
+        // Helper to convert hex to rgba
+        const hexToRgba = (hex: string, opacity: number = 0.1) => {
+          if (!hex || !hex.startsWith('#')) return hex;
+          const r = parseInt(hex.slice(1, 3), 16);
+          const g = parseInt(hex.slice(3, 5), 16);
+          const b = parseInt(hex.slice(5, 7), 16);
+          return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        };
+
+        // Helper functions for time conversion (same as in MediaPlayer)
+        const timeToSeconds = (time: string): number => {
+          const parts = time.split(':');
+          if (parts.length === 2) {
+            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+          }
+          return 0;
+        };
+
+        const secondsToTime = (seconds: number): string => {
+          const mins = Math.floor(seconds / 60);
+          const secs = Math.floor(seconds % 60);
+          return `${mins}:${secs.toString().padStart(2, '0')}`;
+        };
+
+        // Calculate current time from progress
+        let displayCurrentTime = "0:00";
+        if (props.progress !== undefined && props.totalTime) {
+          const totalSeconds = timeToSeconds(props.totalTime);
+          const currentSeconds = (props.progress / 100) * totalSeconds;
+          displayCurrentTime = secondsToTime(currentSeconds);
+        }
+
+        return (
+          <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
+            <MediaPlayer
+              className={props.className || undefined}
+              trackTitle={props.trackTitle}
+              artist={props.artist}
+              album={props.album}
+              albumArtUrl={props.albumArtUrl}
+              totalTime={props.totalTime}
+              progress={props.progress}
+              isPlaying={props.isPlaying}
+              isLoved={props.isLoved}
+              isShuffle={props.isShuffle}
+              isRepeat={props.isRepeat}
+              showShuffle={props.showShuffle}
+              showRepeat={props.showRepeat}
+              showHeart={props.showHeart}
+              backgroundColor={props.backgroundColor ? hexToRgbWithOpacity(props.backgroundColor, 0.6) : undefined}
+              borderColor={props.borderColor ? hexToRgba(props.borderColor, 0.1) : undefined}
+              borderRadius={props.borderRadius}
+              glowColor1={props.glowColor1 ? hexToRgbWithOpacity(props.glowColor1, 0.2) : undefined}
+              glowColor2={props.glowColor2 ? hexToRgbWithOpacity(props.glowColor2, 0.2) : undefined}
+              gradientFrom={props.gradientFrom || undefined}
+              gradientTo={props.gradientTo || undefined}
+              gradientWidth={props.gradientWidth}
+              gradientAnimated={props.gradientAnimated}
+              enableImageUpload={props.enableImageUpload}
+              onShuffle={setProps ? (isShuffle) => {
+                // Update Playground props when shuffle state changes
+                setProps((prev: any) => ({ ...prev, isShuffle }));
+              } : undefined}
+              onRepeat={setProps ? (isRepeat) => {
+                // Update Playground props when repeat state changes
+                setProps((prev: any) => ({ ...prev, isRepeat }));
+              } : undefined}
+              onPlayPause={setProps ? (isPlaying) => {
+                // Update Playground props when play/pause state changes
+                setProps((prev: any) => ({ ...prev, isPlaying }));
+              } : undefined}
+              onLove={setProps ? (isLoved) => {
+                // Update Playground props when love state changes
+                setProps((prev: any) => ({ ...prev, isLoved }));
+              } : undefined}
+              onTimeChange={(currentTime, progress) => {
+                // Progress and time are automatically synced in the component
+                console.log('Time changed:', currentTime, 'Progress:', progress);
+              }}
+              onImageUpload={setProps ? (imageUrl) => {
+                console.log('Image uploaded:', imageUrl.substring(0, 50) + '...');
+                // Update Playground props when image is uploaded
+                setProps((prev: any) => ({ ...prev, albumArtUrl: imageUrl }));
+              } : undefined}
+            />
+          </ThreeDCard>
+        )
+      },
     },
-  },
-}
+    ChatInterface: {
+      props: {
+        className: { type: "text", default: "" },
+        enableHoverTilt: { type: "boolean", default: true },
+        // Header
+        headerUserName: { type: "text", default: "Sarah Jenkins" },
+        headerUserStatus: { type: "select", options: ["Online now", "Offline", "Away", "Busy", "Do not disturb", "Other"], default: "Online now" },
+        headerUserStatusCustom: { type: "text", default: "" },
+        headerUserAvatar: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
+        headerShowPhone: { type: "boolean", default: true },
+        headerShowVideo: { type: "boolean", default: true },
+        headerShowMore: { type: "boolean", default: true },
+        headerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
+        headerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
+        headerTextColor: { type: "color-tailwind-text", default: "text-neutral-100" },
+        headerStatusColor: { type: "text", default: "" },
+        // Body
+        bodyBgColor: { type: "color-tailwind-bg", default: "" },
+        bodyPadding: { type: "slider", min: 2, max: 12, default: 6 },
+        bodyShowDateLabel: { type: "boolean", default: true },
+        bodyDateLabelText: { type: "text", default: "Today, Oct 24" },
+        bodyShowTypingIndicator: { type: "boolean", default: true },
+        bodyShowReadReceipt: { type: "boolean", default: false },
+        message1Text: { type: "text", default: "Hey! Have you had a chance to look at the new design system components?" },
+        message1Time: { type: "text", default: "10:30 AM" },
+        message1IsOwn: { type: "boolean", default: false },
+        message2Text: { type: "text", default: "Yes! I just checked them out. The neon gradients look absolutely stunning 🤩" },
+        message2Time: { type: "text", default: "10:32 AM" },
+        message2IsOwn: { type: "boolean", default: true },
+        message2IsRead: { type: "boolean", default: false },
+        message3Text: { type: "text", default: "Right? I think we should use the SpotlightCard for the feature section." },
+        message3Time: { type: "text", default: "10:32 AM" },
+        message3IsOwn: { type: "boolean", default: true },
+        message3IsRead: { type: "boolean", default: true },
+        message4Text: { type: "text", default: "Agreed. I'm preparing the documentation now. Will send over the draft in a bit!" },
+        message4Time: { type: "text", default: "10:35 AM" },
+        message4IsOwn: { type: "boolean", default: false },
+        ownMessageColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
+        otherMessageColor: { type: "color-tailwind-bg", default: "bg-neutral-800" },
+        messageTextColor: { type: "color-tailwind-text", default: "" },
+        timeTextColor: { type: "color-tailwind-text", default: "text-neutral-500" },
+        // Footer
+        footerBgColor: { type: "color-tailwind-bg", default: "bg-neutral-900/80" },
+        footerBorderColor: { type: "color-tailwind-border", default: "border-neutral-800" },
+        footerInputBgColor: { type: "color-tailwind-bg", default: "bg-neutral-950" },
+        footerInputPlaceholder: { type: "text", default: "Type a message..." },
+        footerShowAttach: { type: "boolean", default: true },
+        footerShowEmoji: { type: "boolean", default: true },
+        footerButtonColor: { type: "color-tailwind-bg", default: "bg-indigo-600" },
+        footerFocusBorderColor: { type: "color-tailwind-border", default: "border-indigo-500/50" },
+      },
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        return (
+          <ThreeDCard className="w-full max-w-md h-[600px]" disabled={!props.enableHoverTilt}>
+            <ChatInterface
+              className={props.className}
+              headerUserName={props.headerUserName}
+              headerUserStatus={props.headerUserStatus === "Other" ? props.headerUserStatusCustom : props.headerUserStatus}
+              headerUserAvatar={props.headerUserAvatar}
+              onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, headerUserAvatar: url })) : undefined}
+              headerShowPhone={props.headerShowPhone}
+              headerShowVideo={props.headerShowVideo}
+              headerShowMore={props.headerShowMore}
+              headerBgColor={props.headerBgColor}
+              headerBorderColor={props.headerBorderColor}
+              headerTextColor={props.headerTextColor}
+              headerStatusColor={props.headerStatusColor}
+              bodyBgColor={props.bodyBgColor}
+              bodyPadding={props.bodyPadding}
+              bodyShowDateLabel={props.bodyShowDateLabel}
+              bodyDateLabelText={props.bodyDateLabelText}
+              bodyShowTypingIndicator={props.bodyShowTypingIndicator}
+              bodyShowReadReceipt={props.bodyShowReadReceipt}
+              message1Text={props.message1Text}
+              message1Time={props.message1Time}
+              message1IsOwn={props.message1IsOwn}
+              message2Text={props.message2Text}
+              message2Time={props.message2Time}
+              message2IsOwn={props.message2IsOwn}
+              message2IsRead={props.message2IsRead}
+              message3Text={props.message3Text}
+              message3Time={props.message3Time}
+              message3IsOwn={props.message3IsOwn}
+              message3IsRead={props.message3IsRead}
+              message4Text={props.message4Text}
+              message4Time={props.message4Time}
+              message4IsOwn={props.message4IsOwn}
+              onMessage1TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message1Text: text })) : undefined}
+              onMessage2TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message2Text: text })) : undefined}
+              onMessage3TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message3Text: text })) : undefined}
+              onMessage4TextChange={setProps ? (text: string) => setProps((prev: any) => ({ ...prev, message4Text: text })) : undefined}
+              editable={true}
+              ownMessageColor={props.ownMessageColor}
+              otherMessageColor={props.otherMessageColor}
+              messageTextColor={props.messageTextColor}
+              timeTextColor={props.timeTextColor}
+              footerBgColor={props.footerBgColor}
+              footerBorderColor={props.footerBorderColor}
+              footerInputBgColor={props.footerInputBgColor}
+              footerInputPlaceholder={props.footerInputPlaceholder}
+              footerShowAttach={props.footerShowAttach}
+              footerShowEmoji={props.footerShowEmoji}
+              footerButtonColor={props.footerButtonColor}
+              footerFocusBorderColor={props.footerFocusBorderColor}
+            />
+          </ThreeDCard>
+        )
+      },
+    },
+    SocialProfileCard: {
+      props: {
+        className: { type: "text", default: "" },
+        enableHoverTilt: { type: "boolean", default: true },
+        name: { type: "text", default: "Sarah Jenkins" },
+        username: { type: "text", default: "@sarah_des" },
+        bio: { type: "text", default: "Product Designer crafting digital experiences. Coffee enthusiast ☕. Building next-gen UI tools for developers." },
+        avatarUrl: { type: "text", default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop" },
+        location: { type: "text", default: "San Francisco, CA" },
+        website: { type: "text", default: "sarah.design" },
+        twitter: { type: "text", default: "@sarah_des" },
+        showLocation: { type: "boolean", default: true },
+        showWebsite: { type: "boolean", default: true },
+        showTwitter: { type: "boolean", default: true },
+        followers: { type: "text", default: "12.5k" },
+        following: { type: "text", default: "842" },
+        projects: { type: "text", default: "142" },
+        isOnline: { type: "boolean", default: true },
+        statusColor: { type: "color-tailwind-bg", default: "bg-green-500" },
+        bannerGradientFrom: { type: "color-tailwind-gradient", default: "from-indigo-500" },
+        bannerGradientVia: { type: "color-tailwind-gradient", default: "via-purple-500" },
+        bannerGradientTo: { type: "color-tailwind-gradient", default: "to-pink-500" },
+        followButtonText: { type: "text", default: "Follow" },
+        showFollowButton: { type: "boolean", default: true },
+        showMessageButton: { type: "boolean", default: true },
+        showSimilarButton: { type: "boolean", default: true },
+        messageButtonText: { type: "text", default: "Message" },
+        similarButtonText: { type: "text", default: "Similar" },
+        backgroundColor: { type: "color", default: "" },
+        borderColor: { type: "color", default: "" },
+        borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
+        gradientFrom: { type: "color", default: "" },
+        gradientTo: { type: "color", default: "" },
+        gradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+        gradientAnimated: { type: "boolean", default: false },
+      },
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Convert hex to rgb if needed
+        const hexToRgb = (hex: string) => {
+          if (!hex) return undefined
+          // Extract hex from Tailwind format like bg-[#hex] or from-[#hex]
+          const hexMatch = hex.match(/\[#([0-9A-Fa-f]{6})\]/)
+          if (hexMatch) {
+            const r = parseInt(hexMatch[1].slice(0, 2), 16)
+            const g = parseInt(hexMatch[1].slice(2, 4), 16)
+            const b = parseInt(hexMatch[1].slice(4, 6), 16)
+            return `rgb(${r} ${g} ${b})`
+          }
+          // If it's already a hex value
+          if (hex.startsWith('#')) {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            return `rgb(${r} ${g} ${b})`
+          }
+          // Return as is if it's already rgb or other format
+          return hex
+        }
+
+        return (
+          <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
+            <SocialProfileCard
+              className={props.className}
+              name={props.name}
+              username={props.username}
+              bio={props.bio}
+              avatarUrl={props.avatarUrl}
+              location={props.location}
+              website={props.website}
+              twitter={props.twitter}
+              showLocation={props.showLocation}
+              showWebsite={props.showWebsite}
+              showTwitter={props.showTwitter}
+              followers={props.followers}
+              following={props.following}
+              projects={props.projects}
+              isOnline={props.isOnline}
+              statusColor={props.statusColor}
+              bannerGradientFrom={props.bannerGradientFrom}
+              bannerGradientVia={props.bannerGradientVia}
+              bannerGradientTo={props.bannerGradientTo}
+              followButtonText={props.followButtonText}
+              showFollowButton={props.showFollowButton}
+              showMessageButton={props.showMessageButton}
+              showSimilarButton={props.showSimilarButton}
+              messageButtonText={props.messageButtonText}
+              similarButtonText={props.similarButtonText}
+              onFollow={props.onFollow}
+              onMessage={props.onMessage}
+              onSimilar={props.onSimilar}
+              onAvatarChange={setProps ? (url: string) => setProps((prev: any) => ({ ...prev, avatarUrl: url })) : undefined}
+              backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+              borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+              borderRadius={props.borderRadius}
+              gradientFrom={props.gradientFrom || undefined}
+              gradientTo={props.gradientTo || undefined}
+              gradientWidth={props.gradientWidth}
+              gradientAnimated={props.gradientAnimated}
+            />
+          </ThreeDCard>
+        )
+      },
+    },
+    GlassAuthForm: {
+      props: {
+        className: { type: "text", default: "" },
+        enableHoverTilt: { type: "boolean", default: true },
+        // Text content
+        title: { type: "text", default: "Welcome Back" },
+        subtitle: { type: "text", default: "Enter your credentials to access the workspace." },
+        emailLabel: { type: "text", default: "Email address" },
+        passwordLabel: { type: "text", default: "Password" },
+        rememberText: { type: "text", default: "Remember me" },
+        forgotPasswordText: { type: "text", default: "Forgot password?" },
+        signInText: { type: "text", default: "Sign In" },
+        continueWithText: { type: "text", default: "Or continue with" },
+        githubText: { type: "text", default: "GitHub" },
+        googleText: { type: "text", default: "Google" },
+        // Display options
+        showRememberMe: { type: "boolean", default: true },
+        showForgotPassword: { type: "boolean", default: true },
+        showSocialButtons: { type: "boolean", default: true },
+        showGithub: { type: "boolean", default: true },
+        showGoogle: { type: "boolean", default: true },
+        // Colors
+        backgroundColor: { type: "color", default: "#171717" },
+        borderColor: { type: "color", default: "#262626" },
+        textColor: { type: "color-tailwind-text", default: "text-white" },
+        iconGradientFrom: { type: "color", default: "#6366f1" },
+        iconGradientTo: { type: "color", default: "#a855f7" },
+        orb1Color: { type: "color", default: "#6366f1" },
+        orb2Color: { type: "color", default: "#a855f7" },
+        buttonColor: { type: "color", default: "" },
+        socialButtonBgColor: { type: "color", default: "#262626" },
+        socialButtonBorderColor: { type: "color", default: "#404040" },
+        inputLabelColor: { type: "color-tailwind-text", default: "text-neutral-400" },
+        inputBgColor: { type: "color-tailwind-bg", default: "bg-neutral-800" },
+        inputBorderColor: { type: "color-tailwind-border", default: "border-neutral-700" },
+        inputTextColor: { type: "color-tailwind-text", default: "text-white" },
+        focusBorderColor: { type: "color-tailwind-border", default: "border-indigo-500" },
+        // Card gradient
+        cardGradientFrom: { type: "color", default: "" },
+        cardGradientTo: { type: "color", default: "" },
+        cardGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+        cardGradientAnimated: { type: "boolean", default: false },
+        // Outer gradient
+        outerGradientFrom: { type: "color", default: "" },
+        outerGradientTo: { type: "color", default: "" },
+        outerGradientWidth: { type: "slider", min: 1, max: 10, default: 2 },
+        outerGradientAnimated: { type: "boolean", default: false },
+        // Style
+        borderRadius: { type: "slider", min: 8, max: 48, default: 24 },
+        padding: { type: "slider", min: 4, max: 16, default: 8 },
+        backdropBlur: { type: "slider", min: 0, max: 24, default: 12 },
+      },
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Helper to convert hex or Tailwind class to rgb
+        const getColorFromTailwind = (colorValue: string): string | undefined => {
+          if (!colorValue) return undefined
+          // Extract hex from bg-[#hex] or text-[#hex] format
+          const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+          if (hexMatch) {
+            const r = parseInt(hexMatch[1].slice(0, 2), 16)
+            const g = parseInt(hexMatch[1].slice(2, 4), 16)
+            const b = parseInt(hexMatch[1].slice(4, 6), 16)
+            return `rgb(${r} ${g} ${b})`
+          }
+          // If it's already a hex value
+          if (colorValue.startsWith('#')) {
+            const r = parseInt(colorValue.slice(1, 3), 16)
+            const g = parseInt(colorValue.slice(3, 5), 16)
+            const b = parseInt(colorValue.slice(5, 7), 16)
+            return `rgb(${r} ${g} ${b})`
+          }
+          // Try color map for Tailwind classes
+          const colorMap: Record<string, string> = {
+            "text-white": "rgb(255 255 255)",
+            "text-neutral-400": "rgb(163 163 163)",
+            "text-neutral-500": "rgb(115 115 115)",
+            "bg-neutral-800": "rgb(38 38 38)",
+            "bg-neutral-900": "rgb(23 23 23)",
+            "border-neutral-700": "rgb(64 64 64)",
+            "border-indigo-500": "rgb(99 102 241)",
+          }
+          return colorMap[colorValue] || undefined
+        }
+
+        // Helper to convert hex to rgb (for color type props)
+        const hexToRgb = (hex: string) => {
+          if (!hex) return undefined
+          if (hex.startsWith('#')) {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            return `rgb(${r} ${g} ${b})`
+          }
+          return hex
+        }
+
+        return (
+          <ThreeDCard className="w-full max-w-sm" disabled={!props.enableHoverTilt}>
+            <GlassAuthForm
+              className={props.className}
+              title={props.title}
+              subtitle={props.subtitle}
+              emailLabel={props.emailLabel}
+              passwordLabel={props.passwordLabel}
+              rememberText={props.rememberText}
+              forgotPasswordText={props.forgotPasswordText}
+              signInText={props.signInText}
+              continueWithText={props.continueWithText}
+              githubText={props.githubText}
+              googleText={props.googleText}
+              showRememberMe={props.showRememberMe}
+              showForgotPassword={props.showForgotPassword}
+              showSocialButtons={props.showSocialButtons}
+              showGithub={props.showGithub}
+              showGoogle={props.showGoogle}
+              backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+              borderColor={props.borderColor ? hexToRgb(props.borderColor) : undefined}
+              textColor={props.textColor ? getColorFromTailwind(props.textColor) : undefined}
+              iconGradientFrom={props.iconGradientFrom ? hexToRgb(props.iconGradientFrom) : undefined}
+              iconGradientTo={props.iconGradientTo ? hexToRgb(props.iconGradientTo) : undefined}
+              orb1Color={props.orb1Color ? hexToRgb(props.orb1Color) : undefined}
+              orb2Color={props.orb2Color ? hexToRgb(props.orb2Color) : undefined}
+              buttonColor={props.buttonColor ? hexToRgb(props.buttonColor) : undefined}
+              socialButtonBgColor={props.socialButtonBgColor ? hexToRgb(props.socialButtonBgColor) : undefined}
+              socialButtonBorderColor={props.socialButtonBorderColor ? hexToRgb(props.socialButtonBorderColor) : undefined}
+              inputLabelColor={props.inputLabelColor ? getColorFromTailwind(props.inputLabelColor) : undefined}
+              inputBgColor={props.inputBgColor ? getColorFromTailwind(props.inputBgColor) : undefined}
+              inputBorderColor={props.inputBorderColor ? getColorFromTailwind(props.inputBorderColor) : undefined}
+              inputTextColor={props.inputTextColor ? getColorFromTailwind(props.inputTextColor) : undefined}
+              focusBorderColor={props.focusBorderColor ? getColorFromTailwind(props.focusBorderColor) : undefined}
+              cardGradientFrom={props.cardGradientFrom ? hexToRgb(props.cardGradientFrom) : undefined}
+              cardGradientTo={props.cardGradientTo ? hexToRgb(props.cardGradientTo) : undefined}
+              cardGradientWidth={props.cardGradientWidth}
+              cardGradientAnimated={props.cardGradientAnimated}
+              outerGradientFrom={props.outerGradientFrom ? hexToRgb(props.outerGradientFrom) : undefined}
+              outerGradientTo={props.outerGradientTo ? hexToRgb(props.outerGradientTo) : undefined}
+              outerGradientWidth={props.outerGradientWidth}
+              outerGradientAnimated={props.outerGradientAnimated}
+              borderRadius={props.borderRadius}
+              padding={props.padding}
+              backdropBlur={props.backdropBlur}
+            />
+          </ThreeDCard>
+        )
+      },
+    },
+  }
 
   heroSections.forEach((hero) => {
     const Component = heroComponentsByName[hero.componentName]
@@ -1138,6 +1145,34 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add footer sections to configs
+  footerSections.forEach((footer) => {
+    const Component = footerComponentsByName[footer.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(footer.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[footer.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
   return configs
 })()
 
@@ -1153,6 +1188,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const featureMeta = featureNameToMeta[componentName]
   const paymentMeta = paymentNameToMeta[componentName]
   const ctaMeta = ctaNameToMeta[componentName]
+  const footerMeta = footerNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
 
   const [props, setProps] = React.useState<Record<string, any>>(() => {
@@ -1246,14 +1282,27 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const generateCode = () => {
     if (!config) return ""
 
+    // For CTA and Footer sections, show all props including defaults
+    const shouldShowAllProps = ctaMeta || footerMeta
+
     const propsString = Object.entries(props)
       .filter(([key, value]) => {
         if (key === "enableHoverTilt") return false
         const propConfig = config.props[key]
+        if (shouldShowAllProps) {
+          // Show all props for CTA and Footer sections
+          return value !== undefined && value !== ""
+        }
+        // For other components, only show non-default props
         return value !== propConfig.default && value !== undefined && value !== ""
       })
       .map(([key, value]) => {
         if (typeof value === "boolean") {
+          if (shouldShowAllProps) {
+            // For CTA and Footer, always show boolean props
+            return `${key}={${value}}`
+          }
+          // For other components, only show true booleans
           return value ? key : ""
         }
         if (typeof value === "string") {
@@ -3306,8 +3355,8 @@ export function SocialProfileCardDemo() {
       const interfaceName = `${heroMeta.componentName}Props`
       const propsInterface = `interface ${interfaceName} {\n` +
         Object.entries(config.props).map(([key, conf]: [string, any]) => {
-          const type = conf.type === "boolean" ? "boolean" : 
-                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
           return `  ${key}?: ${type}`
         }).join("\n") +
         "\n}"
@@ -3317,10 +3366,10 @@ export function SocialProfileCardDemo() {
         new RegExp(`export type ${interfaceName} = HeroComponentProps<"[^"]+">`),
         propsInterface
       )
-      
+
       // Fallback if replacement didn't happen (e.g. different formatting), just prepend
       if (code === initialCode) {
-         code = propsInterface + "\n\n" + initialCode
+        code = propsInterface + "\n\n" + initialCode
       }
 
       const imports = `"use client"
@@ -3387,8 +3436,8 @@ export function ${heroMeta.componentName}Demo() {
       const interfaceName = `${featureMeta.componentName}Props`
       const propsInterface = `interface ${interfaceName} {\n` +
         Object.entries(config.props).map(([key, conf]: [string, any]) => {
-          const type = conf.type === "boolean" ? "boolean" : 
-                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
           return `  ${key}?: ${type}`
         }).join("\n") +
         "\n}"
@@ -3398,10 +3447,10 @@ export function ${heroMeta.componentName}Demo() {
         new RegExp(`export type ${interfaceName} = FeatureComponentProps<"[^"]+">`),
         propsInterface
       )
-      
+
       // Fallback if replacement didn't happen (e.g. different formatting), just prepend
       if (code === initialCode) {
-         code = propsInterface + "\n\n" + initialCode
+        code = propsInterface + "\n\n" + initialCode
       }
 
       const imports = `"use client"
@@ -3434,8 +3483,8 @@ export function ${featureMeta.componentName}Demo() {
       const interfaceName = `${paymentMeta.componentName}Props`
       const propsInterface = `interface ${interfaceName} {\n` +
         Object.entries(config.props).map(([key, conf]: [string, any]) => {
-          const type = conf.type === "boolean" ? "boolean" : 
-                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
           return `  ${key}?: ${type}`
         }).join("\n") +
         "\n}"
@@ -3445,10 +3494,10 @@ export function ${featureMeta.componentName}Demo() {
         new RegExp(`export type ${interfaceName} = PaymentComponentProps<"[^"]+">`),
         propsInterface
       )
-      
+
       // Fallback if replacement didn't happen (e.g. different formatting), just prepend
       if (code === initialCode) {
-         code = propsInterface + "\n\n" + initialCode
+        code = propsInterface + "\n\n" + initialCode
       }
 
       const imports = `"use client"
@@ -3482,8 +3531,8 @@ export function ${paymentMeta.componentName}Demo() {
       const interfaceName = `${ctaMeta.componentName}Props`
       const propsInterface = `interface ${interfaceName} {\n` +
         Object.entries(config.props).map(([key, conf]: [string, any]) => {
-          const type = conf.type === "boolean" ? "boolean" : 
-                       conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
           return `  ${key}?: ${type}`
         }).join("\n") +
         "\n}"
@@ -3493,10 +3542,10 @@ export function ${paymentMeta.componentName}Demo() {
         new RegExp(`export type ${interfaceName} = CtaComponentProps<"[^"]+">`),
         propsInterface
       )
-      
+
       // Fallback if replacement didn't happen (e.g. different formatting), just prepend
       if (code === initialCode) {
-         code = propsInterface + "\n\n" + initialCode
+        code = propsInterface + "\n\n" + initialCode
       }
 
       const imports = `"use client"
@@ -3520,6 +3569,54 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 export function ${ctaMeta.componentName}Demo() {
   return (
     <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
+    // Footer section code generation with initialCode (full component)
+    if (footerMeta && initialCode) {
+      const interfaceName = `${footerMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = FooterComponentProps<"[^"]+">`),
+        propsInterface
+      )
+
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+        code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { 
+  Twitter, Facebook, Instagram, Linkedin, Github, Youtube, ArrowRight, Mail, MapPin, Phone,
+  Globe, Shield, CreditCard, Heart, Send, CheckCircle2, Smartphone, Command, Sun, Moon,
+  Slack, Dribbble, Figma, Disc, ArrowUpRight, Zap, Terminal
+} from "lucide-react"
+import { ShinyButton } from "@/components/customize/ShinyButton"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${footerMeta.componentName}Demo() {\n  return (\n    <${footerMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // Footer section code generation (simple import)
+    if (footerMeta) {
+      return `import { ${footerMeta.componentName} } from "@/components/customize/footers"
+
+export function ${footerMeta.componentName}Demo() {
+  return (
+    <${footerMeta.componentName}${propsString ? " " + propsString : ""} />
   )
 }`
     }

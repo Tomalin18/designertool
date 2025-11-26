@@ -30,12 +30,11 @@ import {
 
 export function ColorsPageClient() {
     const { colorPalette, setColorPalette } = useTheme()
-    const [selectedPalette, setSelectedPalette] = useState<ColorPalette>(
-        colorPalette || colorPalettes[0]
-    )
+    // Always start with the first palette to ensure SSR/client hydration match
+    const [selectedPalette, setSelectedPalette] = useState<ColorPalette>(colorPalettes[0])
     const [copiedColor, setCopiedColor] = useState<string | null>(null)
 
-    // Sync selectedPalette with global colorPalette
+    // Sync selectedPalette with global colorPalette after hydration
     useEffect(() => {
         if (colorPalette) {
             setSelectedPalette(colorPalette)

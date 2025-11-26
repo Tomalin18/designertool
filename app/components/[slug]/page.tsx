@@ -11,6 +11,7 @@ import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
+import { footerSections } from "@/lib/footer-sections"
 import fs from 'fs'
 import path from 'path'
 
@@ -38,24 +39,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const featureMeta = featureSections.find(f => f.slug === slug)
   const paymentMeta = paymentSections.find(p => p.slug === slug)
   const ctaMeta = ctaSections.find(c => c.slug === slug)
-  
+  const footerMeta = footerSections.find(f => f.slug === slug)
+
   if (heroMeta) {
     try {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'heroes', 'index.tsx')
       const fileContent = fs.readFileSync(filePath, 'utf-8')
-      
+
       // Extract the specific component function
       const functionStartRegex = new RegExp(`export function ${heroMeta.componentName}\\s*\\(`, 'm')
       const match = fileContent.match(functionStartRegex)
-      
+
       if (match && match.index !== undefined) {
         const startIndex = match.index
         // Find the end of this function (start of next export or end of file)
         const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
-        const endIndex = nextExportMatch && nextExportMatch.index 
-          ? startIndex + 1 + nextExportMatch.index 
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
           : fileContent.length
-          
+
         let componentCode = fileContent.slice(startIndex, endIndex).trim()
         initialCode = componentCode
       }
@@ -69,19 +71,19 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     try {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'features', 'index.tsx')
       const fileContent = fs.readFileSync(filePath, 'utf-8')
-      
+
       // Extract the specific component function
       const functionStartRegex = new RegExp(`export function ${featureMeta.componentName}\\s*\\(`, 'm')
       const match = fileContent.match(functionStartRegex)
-      
+
       if (match && match.index !== undefined) {
         const startIndex = match.index
         // Find the end of this function (start of next export or end of file)
         const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
-        const endIndex = nextExportMatch && nextExportMatch.index 
-          ? startIndex + 1 + nextExportMatch.index 
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
           : fileContent.length
-          
+
         let componentCode = fileContent.slice(startIndex, endIndex).trim()
         initialCode = componentCode
       }
@@ -95,19 +97,19 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     try {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'payments', 'index.tsx')
       const fileContent = fs.readFileSync(filePath, 'utf-8')
-      
+
       // Extract the specific component function
       const functionStartRegex = new RegExp(`export function ${paymentMeta.componentName}\\s*\\(`, 'm')
       const match = fileContent.match(functionStartRegex)
-      
+
       if (match && match.index !== undefined) {
         const startIndex = match.index
         // Find the end of this function (start of next export or end of file)
         const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
-        const endIndex = nextExportMatch && nextExportMatch.index 
-          ? startIndex + 1 + nextExportMatch.index 
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
           : fileContent.length
-          
+
         let componentCode = fileContent.slice(startIndex, endIndex).trim()
         initialCode = componentCode
       }
@@ -121,24 +123,51 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     try {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'ctas', 'index.tsx')
       const fileContent = fs.readFileSync(filePath, 'utf-8')
-      
+
       // Extract the specific component function
       const functionStartRegex = new RegExp(`export function ${ctaMeta.componentName}\\s*\\(`, 'm')
       const match = fileContent.match(functionStartRegex)
-      
+
       if (match && match.index !== undefined) {
         const startIndex = match.index
         // Find the end of this function (start of next export or end of file)
         const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
-        const endIndex = nextExportMatch && nextExportMatch.index 
-          ? startIndex + 1 + nextExportMatch.index 
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
           : fileContent.length
-          
+
         let componentCode = fileContent.slice(startIndex, endIndex).trim()
         initialCode = componentCode
       }
     } catch (e) {
       console.error("Error reading CTA component code:", e)
+    }
+  }
+
+  // Read Footer component code if it's a footer section
+  if (footerMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'footers', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (footer components use function declarations)
+      const functionStartRegex = new RegExp(`export function ${footerMeta.componentName}\\s*\\(`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this function component
+        // Look for the closing of the function by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading footer component code:", e)
     }
   }
 

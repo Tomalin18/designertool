@@ -14,6 +14,7 @@ import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
+import { footerSections } from "@/lib/footer-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -34,41 +35,41 @@ export function ComponentsPageClient() {
     })
 
     const customComponents: ComponentInfo[] = [
-      {
-        name: "UrlInput",
-        description: "A URL input component with gradient border effect and generate button.",
-        href: "/components/url-input",
-        category: "Forms",
-        tags: componentDetails["url-input"]?.tags || [],
-      },
-      {
-        name: "MediaPlayer",
-        description: "A beautiful media player component with album art, playback controls, and progress bar.",
-        href: "/components/media-player",
-        category: "Display",
-        tags: componentDetails["media-player"]?.tags || [],
-      },
-      {
-        name: "ChatInterface",
-        description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
-        href: "/components/chat-interface",
-        category: "Display",
-        tags: componentDetails["chat-interface"]?.tags || [],
-      },
-      {
-        name: "SocialProfileCard",
-        description: "A beautiful social profile card component with avatar, stats, and action buttons.",
-        href: "/components/social-profile-card",
-        category: "Display",
-        tags: componentDetails["social-profile-card"]?.tags || [],
-      },
-      {
-        name: "GlassAuthForm",
-        description: "A beautiful glassmorphism authentication form component with floating label inputs and social login buttons.",
-        href: "/components/glass-auth-form",
-        category: "Forms",
-        tags: componentDetails["glass-auth-form"]?.tags || [],
-      },
+        {
+            name: "UrlInput",
+            description: "A URL input component with gradient border effect and generate button.",
+            href: "/components/url-input",
+            category: "Forms",
+            tags: componentDetails["url-input"]?.tags || [],
+        },
+        {
+            name: "MediaPlayer",
+            description: "A beautiful media player component with album art, playback controls, and progress bar.",
+            href: "/components/media-player",
+            category: "Display",
+            tags: componentDetails["media-player"]?.tags || [],
+        },
+        {
+            name: "ChatInterface",
+            description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
+            href: "/components/chat-interface",
+            category: "Display",
+            tags: componentDetails["chat-interface"]?.tags || [],
+        },
+        {
+            name: "SocialProfileCard",
+            description: "A beautiful social profile card component with avatar, stats, and action buttons.",
+            href: "/components/social-profile-card",
+            category: "Display",
+            tags: componentDetails["social-profile-card"]?.tags || [],
+        },
+        {
+            name: "GlassAuthForm",
+            description: "A beautiful glassmorphism authentication form component with floating label inputs and social login buttons.",
+            href: "/components/glass-auth-form",
+            category: "Forms",
+            tags: componentDetails["glass-auth-form"]?.tags || [],
+        },
     ]
 
     // Get all unique tags from custom components
@@ -121,6 +122,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredFooterSections = footerSections.filter((footer) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            footer.name.toLowerCase().includes(searchLower) ||
+            footer.description.toLowerCase().includes(searchLower) ||
+            footer.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     // Combine all sections for display
     const allFilteredSections = [
         ...filteredHeroSections.map(hero => ({
@@ -147,6 +157,12 @@ export function ComponentsPageClient() {
             description: cta.description,
             type: 'cta' as const,
         })),
+        ...filteredFooterSections.map(footer => ({
+            slug: footer.slug,
+            name: footer.name,
+            description: footer.description,
+            type: 'footer' as const,
+        })),
     ]
 
     // Get all unique tags from sections
@@ -155,6 +171,7 @@ export function ComponentsPageClient() {
         ...featureSections.flatMap(feature => feature.tags),
         ...paymentSections.flatMap(payment => payment.tags),
         ...ctaSections.flatMap(cta => cta.tags),
+        ...footerSections.flatMap(footer => footer.tags),
     ])).sort()
 
     const sidebarItems = [
@@ -175,6 +192,9 @@ export function ComponentsPageClient() {
     const featureRef = useRef<HTMLDivElement>(null)
     const paymentRef = useRef<HTMLDivElement>(null)
     const ctaRef = useRef<HTMLDivElement>(null)
+    const footerRef = useRef<HTMLDivElement>(null)
+
+    // Section categories for TOC
 
     // Section categories for TOC
     const sectionCategories = [
@@ -182,6 +202,7 @@ export function ComponentsPageClient() {
         { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
         { id: 'payment', label: 'Payment', count: filteredPaymentSections.length, ref: paymentRef },
         { id: 'cta', label: 'CTA', count: filteredCtaSections.length, ref: ctaRef },
+        { id: 'footer', label: 'Footer', count: filteredFooterSections.length, ref: footerRef },
     ]
 
     // Scroll to section
@@ -199,8 +220,11 @@ export function ComponentsPageClient() {
             const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
             const paymentTop = paymentRef.current?.getBoundingClientRect().top ?? Infinity
             const ctaTop = ctaRef.current?.getBoundingClientRect().top ?? Infinity
-            
-            if (ctaTop <= 200) {
+            const footerTop = footerRef.current?.getBoundingClientRect().top ?? Infinity
+
+            if (footerTop <= 200) {
+                setActiveSection('footer')
+            } else if (ctaTop <= 200) {
                 setActiveSection('cta')
             } else if (paymentTop <= 200) {
                 setActiveSection('payment')
@@ -467,6 +491,24 @@ export function ComponentsPageClient() {
                                                         name={cta.name}
                                                         description={cta.description}
                                                         href={`/components/${cta.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Footer Sections */}
+                                {filteredFooterSections.length > 0 && (
+                                    <div ref={footerRef} className="scroll-mt-20 mt-6">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredFooterSections.map((footer, index) => (
+                                                <div key={footer.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={footer.name}
+                                                        description={footer.description}
+                                                        href={`/components/${footer.slug}`}
                                                         category="Sections"
                                                     />
                                                 </div>

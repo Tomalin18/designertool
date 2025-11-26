@@ -444,7 +444,7 @@ export function CustomizePanel({
     // Generic grouping for Hero sections and other components
     const contentProps: string[] = []
     const styleProps: string[] = []
-    
+
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
       if (
@@ -494,6 +494,20 @@ export function CustomizePanel({
   const visibleProps = Object.entries(config.props).filter(
     ([key]) => !grouping.hiddenProps?.includes(key)
   )
+
+  // Show message if there are no customizable props
+  if (visibleProps.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <p className="text-sm text-muted-foreground mb-2">
+          This component has no customizable properties.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Copy the code below and modify it directly in your project.
+        </p>
+      </div>
+    )
+  }
 
   if (grouping.type === "tabs" && grouping.tabs) {
     return (

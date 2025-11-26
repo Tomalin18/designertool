@@ -72,3 +72,4 @@ All hero components are exported from `@/components/customize/heroes`. Their pro
 
 Refer to the playground for exact props and defaults for each variant.
 
+
