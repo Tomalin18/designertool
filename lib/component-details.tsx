@@ -3,6 +3,7 @@ import { featureSections } from "./feature-sections"
 import { paymentSections } from "./payment-sections"
 import { ctaSections } from "./cta-sections"
 import { footerSections } from "./footer-sections"
+import { headerSections } from "./header-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2321,6 +2322,31 @@ export function ${footer.componentName}Demo() {
 }`,
     tags: footer.tags,
     props: Object.entries(footer.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})
+
+headerSections.forEach((header) => {
+  componentDetails[header.slug] = {
+    name: header.name,
+    description: header.description,
+    category: "Sections",
+    hasPlayground: true,
+    installation: "Copy the header component from the code example below.",
+    usage: `import { ${header.componentName} } from "@/components/customize/headers"
+
+export function ${header.componentName}Demo() {
+  return <${header.componentName} />
+}`,
+    tags: header.tags,
+    props: Object.entries(header.props).map(([propName, prop]) => ({
       name: propName,
       type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
       default:

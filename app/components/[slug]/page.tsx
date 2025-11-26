@@ -10,6 +10,7 @@ import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
+import { headerSections } from "@/lib/header-sections"
 import fs from 'fs'
 import path from 'path'
 
@@ -38,6 +39,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const paymentMeta = paymentSections.find(p => p.slug === slug)
   const ctaMeta = ctaSections.find(c => c.slug === slug)
   const footerMeta = footerSections.find(f => f.slug === slug)
+  const headerMeta = headerSections.find(h => h.slug === slug)
 
   if (heroMeta) {
     try {
@@ -169,6 +171,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  // Read Header component code if it's a header section
+  if (headerMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'headers', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function
+      const functionStartRegex = new RegExp(`export function ${headerMeta.componentName}\\s*\\(`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this function component
+        // Look for the closing of the function by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading header component code:", e)
+    }
+  }
+
   const sidebarItems = [
     {
       title: "Components",
@@ -191,8 +220,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       <div className="py-8 md:py-12">
         <div className="mb-6">
           <BackToComponentsButton 
-            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta ? "/components?tab=section" : "/components"}
-            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta)}
+            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
+            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
           />
           <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
             {component.category}
