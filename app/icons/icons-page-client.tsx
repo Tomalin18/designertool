@@ -54,7 +54,7 @@ export function IconsPageClient() {
     const allLineicons = getAllLineiconNames()
     const filteredLineicons = searchQuery
         ? filterLineicons(searchQuery)
-        : allLineicons.slice(0, 100) // 預設顯示前 100 個
+        : allLineicons.slice(0, 100) // 預設顯示前 100
 
     const handleIconSelect = (iconName: string, category: string, source: IconSource = "lucide") => {
         setSelectedIcon({ name: iconName, category, source })
