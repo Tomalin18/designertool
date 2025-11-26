@@ -1226,6 +1226,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const paymentMeta = paymentNameToMeta[componentName]
   const ctaMeta = ctaNameToMeta[componentName]
   const footerMeta = footerNameToMeta[componentName]
+  const headerMeta = headerNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
   const [showSidebar, setShowSidebar] = React.useState(true)
 
