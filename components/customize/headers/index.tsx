@@ -265,8 +265,7 @@ export function FloatingNav({
         paddingTop: `${paddingTop}px`,
         paddingBottom: `${paddingBottom}px`,
         paddingLeft: `${paddingX}px`,
-        paddingRight: `${paddingX}px`,
-        height: '300px' // Keep fixed height for preview consistency
+        paddingRight: `${paddingX}px`
       }}
     >
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
@@ -304,7 +303,7 @@ export function FloatingNav({
           {buttonText}
         </button>
       </nav>
-      <div className="mt-12 text-center space-y-2 relative z-10 px-4">
+      <div className="mt-8 text-center space-y-2 relative z-10 px-4">
         <h2 className="text-3xl font-bold text-white">{heading}</h2>
         <p className="text-neutral-500">{subHeading}</p>
       </div>
