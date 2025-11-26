@@ -12,16 +12,16 @@ export interface HeaderSectionMeta {
   props: Record<string, HeaderPropDefinition>
 }
 
-const commonHeaderProps: Record<string, HeaderPropDefinition> = {
+const commonHeaderProps = {
   paddingTop: { control: "slider", default: 20, min: 0, max: 100, description: "Top padding" },
   paddingBottom: { control: "slider", default: 20, min: 0, max: 100, description: "Bottom padding" },
   paddingX: { control: "slider", default: 24, min: 0, max: 100, description: "Horizontal padding" },
   fontSize: { control: "select", options: ["sm", "base", "lg", "xl"], default: "base", description: "Base font size" },
   fontWeight: { control: "select", options: ["normal", "medium", "semibold", "bold"], default: "medium", description: "Base font weight" },
   borderBottomWidth: { control: "slider", default: 1, min: 0, max: 4, description: "Bottom border width" },
-}
+} as const satisfies Record<string, HeaderPropDefinition>
 
-export const headerSections: HeaderSectionMeta[] = [
+export const headerSections = [
   {
     slug: "simple-header",
     name: "Simple Header",
@@ -533,4 +533,4 @@ export const headerSections: HeaderSectionMeta[] = [
       accentColor: { control: "color", default: "#9333ea", description: "Accent color (Purple)." },
     },
   },
-]
+] as const satisfies HeaderSectionMeta[]

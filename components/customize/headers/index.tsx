@@ -36,9 +36,9 @@ import {
   Github,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { headerSections, HeaderPropDefinition } from "@/lib/header-sections"
+import { headerSections, HeaderPropDefinition, HeaderSectionMeta } from "@/lib/header-sections"
 
-type HeaderDefinition = (typeof headerSections)[number]
+type HeaderDefinition = ((typeof headerSections)[number] & HeaderSectionMeta)
 export type HeaderSlug = HeaderDefinition["slug"]
 
 type ExtractHeaderDefinition<Slug extends HeaderSlug> = Extract<HeaderDefinition, { slug: Slug }>
@@ -265,13 +265,14 @@ export function FloatingNav({
         paddingTop: `${paddingTop}px`,
         paddingBottom: `${paddingBottom}px`,
         paddingLeft: `${paddingX}px`,
-        paddingRight: `${paddingX}px`
+        paddingRight: `${paddingX}px`,
+        height: '300px' // Keep fixed height for preview consistency
       }}
     >
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
       <div className="absolute top-0 h-[200px] w-[200px] rounded-full blur-[60px]" style={{ backgroundColor: glowColor }} />
       <nav
-        className="relative flex items-center gap-1 rounded-full border border-white/10 p-2 px-2 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20 z-10"
+        className="relative flex items-center gap-0 rounded-full border border-white/10 p-2 px-2 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20 z-10"
         style={{ backgroundColor: navBackgroundColor, boxShadow: `0 25px 50px -12px ${glowColor}` }}
       >
         <div className="mr-4 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 font-bold text-white">
@@ -303,7 +304,7 @@ export function FloatingNav({
           {buttonText}
         </button>
       </nav>
-      <div className="mt-8 text-center space-y-2 relative z-10 px-4">
+      <div className="mt-12 text-center space-y-2 relative z-10 px-4">
         <h2 className="text-3xl font-bold text-white">{heading}</h2>
         <p className="text-neutral-500">{subHeading}</p>
       </div>
