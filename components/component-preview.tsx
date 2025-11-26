@@ -34,6 +34,8 @@ import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName, paymentDefaultProps } from "@/components/customize/payments"
 import { ctaSections } from "@/lib/cta-sections"
 import { ctaComponentsByName, ctaDefaultProps } from "@/components/customize/ctas"
+import { footerSections } from "@/lib/footer-sections"
+import { footerComponentsByName, footerDefaultProps } from "@/components/customize/footers"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -61,10 +63,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const ctaMeta = ctaSections.find((cta) => cta.name === name)
   const CtaComponent = ctaMeta ? ctaComponentsByName[ctaMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta
+  const footerMeta = footerSections.find((footer) => footer.name === name)
+  const FooterComponent = footerMeta ? footerComponentsByName[footerMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -99,6 +104,15 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="w-full">
           <CtaComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (footerMeta && FooterComponent) {
+      const defaultProps = footerDefaultProps[footerMeta.slug] || {}
+      return (
+        <div className="w-full">
+          <FooterComponent {...defaultProps} />
         </div>
       )
     }
@@ -292,8 +306,8 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
         )
       case "UrlInput":
         return (
-          <UrlInput 
-            onGenerate={(url) => console.log('Generated URL:', url)} 
+          <UrlInput
+            onGenerate={(url) => console.log('Generated URL:', url)}
             isLoading={false}
             className="w-full max-w-2xl"
           />
