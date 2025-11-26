@@ -175,6 +175,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   if (headerMeta) {
     try {
       const filePath = path.join(process.cwd(), 'components', 'customize', 'headers', 'index.tsx')
+      // console.log("Reading header file from:", filePath)
       const fileContent = fs.readFileSync(filePath, 'utf-8')
 
       // Extract the specific component function

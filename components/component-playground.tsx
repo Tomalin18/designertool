@@ -3865,7 +3865,7 @@ export function ${headerMeta.componentName}Demo() {
       </div>
 
       <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
-        <SheetContent className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" side="right">
+        <SheetContent className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" side="right" onInteractOutside={(e) => e.preventDefault()}>
           <SheetHeader className="p-6 border-b sticky top-0 bg-background z-10">
             <SheetTitle>Customize</SheetTitle>
           </SheetHeader>
