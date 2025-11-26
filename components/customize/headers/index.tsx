@@ -66,10 +66,8 @@ export const headerDefaultProps: Record<HeaderSlug, Record<string, string | numb
 export type SimpleHeaderProps = HeaderComponentProps<"simple-header">
 export function SimpleHeader({
   logoText,
-  link1Text,
-  link2Text,
-  link3Text,
-  link4Text,
+  navigationConfig = '[{"title":"Features","items":["Analytics","Automation","Security"]},{"title":"Pricing"},{"title":"About"},{"title":"Blog"}]',
+  navInteractionMode = "hover",
   buttonText,
   backgroundColor = "#ffffff",
   logoColor = "#000000",
@@ -86,7 +84,14 @@ export function SimpleHeader({
   borderBottomWidth = 1,
 }: SimpleHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const links = [link1Text, link2Text, link3Text, link4Text]
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null)
+
+  let navItems: any[] = []
+  try {
+    navItems = JSON.parse(navigationConfig)
+  } catch (e) {
+    navItems = []
+  }
 
   return (
     <header
@@ -113,17 +118,46 @@ export function SimpleHeader({
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {links.map((link, i) => (
-              <a
-                key={i}
-                href="#"
-                className="transition-colors"
-                style={{ color: linkColor }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = linkHoverColor)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = linkColor)}
+            {navItems.map((item, index) => (
+              <div
+                key={index}
+                className="relative group"
+                onMouseEnter={() => navInteractionMode === 'hover' && setActiveDropdown(index)}
+                onMouseLeave={() => navInteractionMode === 'hover' && setActiveDropdown(null)}
               >
-                {link}
-              </a>
+                <button
+                  className="flex items-center gap-1 transition-colors hover:opacity-80"
+                  style={{ color: linkColor }}
+                  onClick={() => navInteractionMode === 'click' && setActiveDropdown(activeDropdown === index ? null : index)}
+                >
+                  {item.title}
+                  {item.items && item.items.length > 0 && (
+                    <ChevronDown size={14} className={cn("transition-transform", activeDropdown === index ? "rotate-180" : "")} />
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {item.items && item.items.length > 0 && activeDropdown === index && (
+                  <div 
+                    className="absolute top-full left-0 mt-2 w-48 rounded-xl border p-2 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200"
+                    style={{ 
+                      backgroundColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#171717' : '#ffffff',
+                      borderColor: backgroundColor === '#000000' || backgroundColor === '#0a0a0a' ? '#262626' : '#e5e7eb'
+                    }}
+                  >
+                    {item.items.map((subItem: string, subIndex: number) => (
+                      <a 
+                        key={subIndex} 
+                        href="#" 
+                        className="block rounded-lg px-4 py-2 text-sm transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                        style={{ color: linkColor }}
+                      >
+                        {subItem}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
 
@@ -154,14 +188,17 @@ export function SimpleHeader({
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="mt-4 flex flex-col gap-4 md:hidden pb-4">
-            {links.map((link, i) => (
-              <a
-                key={i}
-                href="#"
-                style={{ color: linkColor }}
-              >
-                {link}
-              </a>
+            {navItems.map((item, i) => (
+              <div key={i} className="flex flex-col gap-2">
+                <a href="#" style={{ color: linkColor }} className="font-medium">{item.title}</a>
+                {item.items && item.items.length > 0 && (
+                  <div className="pl-4 flex flex-col gap-2 border-l border-neutral-200">
+                    {item.items.map((subItem: string, j: number) => (
+                      <a key={j} href="#" className="text-sm text-neutral-500">{subItem}</a>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
             <button
               className="w-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"

@@ -31,10 +31,22 @@ export const headerSections: HeaderSectionMeta[] = [
     props: {
       ...commonHeaderProps,
       logoText: { control: "text", default: "Lumina", description: "Logo text displayed on the left." },
-      link1Text: { control: "text", default: "Features", description: "Text for the first navigation link." },
-      link2Text: { control: "text", default: "Pricing", description: "Text for the second navigation link." },
-      link3Text: { control: "text", default: "About", description: "Text for the third navigation link." },
-      link4Text: { control: "text", default: "Blog", description: "Text for the fourth navigation link." },
+      navigationConfig: { 
+        control: "textarea", 
+        default: JSON.stringify([
+          { title: "Features", items: ["Analytics", "Automation", "Security"] },
+          { title: "Pricing" },
+          { title: "About" },
+          { title: "Blog" }
+        ], null, 2), 
+        description: "Navigation structure (JSON)." 
+      },
+      navInteractionMode: { 
+        control: "select", 
+        options: ["hover", "click"], 
+        default: "hover", 
+        description: "Interaction mode for dropdowns." 
+      },
       buttonText: { control: "text", default: "Get Started", description: "Text for the CTA button." },
       backgroundColor: { control: "color", default: "#ffffff", description: "Background color of the header." },
       logoColor: { control: "color", default: "#000000", description: "Color of the logo text." },
