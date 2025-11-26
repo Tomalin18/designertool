@@ -3656,7 +3656,55 @@ export function ${footerMeta.componentName}Demo() {
   return (
     <${footerMeta.componentName}${propsString ? " " + propsString : ""} />
   )
+}
+
+    // Header section code generation with initialCode (full component)
+    if (headerMeta && initialCode) {
+      const interfaceName = `${headerMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = HeaderComponentProps<"[^"]+">`),
+        propsInterface
+      )
+
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+        code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import {
+  Menu, X, ChevronDown, Search, Bell, Zap, ShoppingBag, Command, Moon, Globe,
+  Mic, Video, TrendingUp, HelpCircle, Home, Tv, Users, Gamepad2, MenuSquare,
+  MessageCircle, Terminal, Shield, Wallet, MapPin, Phone, Music, Heart,
+  GraduationCap, Plane, Calendar, LayoutGrid, Github
+} from "lucide-react"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${headerMeta.componentName}Demo() {\n  return (\n    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // Header section code generation (simple import)
+    if (headerMeta) {
+      return `import { ${headerMeta.componentName} } from "@/components/customize/headers"
+
+export function ${headerMeta.componentName}Demo() {
+  return (
+    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
 }`
+    }`
     }
 
     if (children) {
