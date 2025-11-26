@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
 import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { headerSections } from "@/lib/header-sections"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -109,6 +110,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredHeaderSections = headerSections.filter((header) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            header.name.toLowerCase().includes(searchLower) ||
+            header.description.toLowerCase().includes(searchLower) ||
+            header.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     const filteredHeroSections = heroSections.filter((hero) => {
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
@@ -156,6 +166,12 @@ export function ComponentsPageClient() {
 
     // Combine all sections for display
     const allFilteredSections = [
+        ...filteredHeaderSections.map(header => ({
+            slug: header.slug,
+            name: header.name,
+            description: header.description,
+            type: 'header' as const,
+        })),
         ...filteredHeroSections.map(hero => ({
             slug: hero.slug,
             name: hero.name,
@@ -190,6 +206,7 @@ export function ComponentsPageClient() {
 
     // Get all unique tags from sections
     const allSectionTags = Array.from(new Set([
+        ...headerSections.flatMap(header => header.tags),
         ...heroSections.flatMap(hero => hero.tags),
         ...featureSections.flatMap(feature => feature.tags),
         ...paymentSections.flatMap(payment => payment.tags),
@@ -211,6 +228,7 @@ export function ComponentsPageClient() {
     // Section TOC state
     const [activeSection, setActiveSection] = useState<string | null>(null)
     const [showToc, setShowToc] = useState(false)
+    const headerRef = useRef<HTMLDivElement>(null)
     const heroRef = useRef<HTMLDivElement>(null)
     const featureRef = useRef<HTMLDivElement>(null)
     const paymentRef = useRef<HTMLDivElement>(null)
@@ -218,9 +236,8 @@ export function ComponentsPageClient() {
     const footerRef = useRef<HTMLDivElement>(null)
 
     // Section categories for TOC
-
-    // Section categories for TOC
     const sectionCategories = [
+        { id: 'header', label: 'Header', count: filteredHeaderSections.length, ref: headerRef },
         { id: 'hero', label: 'Hero', count: filteredHeroSections.length, ref: heroRef },
         { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
         { id: 'payment', label: 'Payment', count: filteredPaymentSections.length, ref: paymentRef },
@@ -240,6 +257,7 @@ export function ComponentsPageClient() {
     // Update active section on scroll
     useEffect(() => {
         const handleScroll = () => {
+            const headerTop = headerRef.current?.getBoundingClientRect().top ?? Infinity
             const heroTop = heroRef.current?.getBoundingClientRect().top ?? Infinity
             const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
             const paymentTop = paymentRef.current?.getBoundingClientRect().top ?? Infinity
@@ -256,6 +274,8 @@ export function ComponentsPageClient() {
                 setActiveSection('feature')
             } else if (heroTop <= 200) {
                 setActiveSection('hero')
+            } else if (headerTop <= 200) {
+                setActiveSection('header')
             } else {
                 setActiveSection(null)
             }
@@ -451,9 +471,27 @@ export function ComponentsPageClient() {
 
                         {allFilteredSections.length > 0 ? (
                             <div className="relative">
+                                {/* Header Sections */}
+                                {filteredHeaderSections.length > 0 && (
+                                    <div ref={headerRef} className="scroll-mt-20">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredHeaderSections.map((header, index) => (
+                                                <div key={header.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={header.name}
+                                                        description={header.description}
+                                                        href={`/components/${header.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Hero Sections */}
                                 {filteredHeroSections.length > 0 && (
-                                    <div ref={heroRef} className="scroll-mt-20">
+                                    <div ref={heroRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
                                             {filteredHeroSections.map((hero, index) => (
                                                 <div key={hero.slug} className="relative">
