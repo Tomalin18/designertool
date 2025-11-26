@@ -531,8 +531,10 @@ export function CustomizePanel({
       }
 
       // Typography
-      if (matches(['font', 'text', 'heading', 'lineheight']) && !matches(['texture', 'context'])) { 
-         // exclude texture/context if they were to exist, mostly 'text' matches 'textColor'
+      if (
+        matches(['font', 'lineheight', 'letterspacing']) ||
+        (matches(['text']) && matches(['size', 'align', 'decoration', 'transform', 'indent', 'overflow', 'weight', 'style']))
+      ) { 
          stylePropsMap.typography.push(key)
          return
       }
