@@ -588,7 +588,7 @@ export function CustomizePanel({
 
     // Calculate states
     const hasStyleProps = styleSubcategories.length > 0
-    const hasElementProps = elementSubcategories.length > 0
+    // const hasElementProps = elementSubcategories.length > 0 // No longer needed as a single group
 
     const tabs = []
     if (contentProps.length > 0) {
@@ -604,14 +604,14 @@ export function CustomizePanel({
       })
     }
 
-    if (hasElementProps) {
+    // Add each element group as a top-level tab
+    elementSubcategories.forEach(sub => {
       tabs.push({
-        name: "elements",
-        label: "Elements",
-        keys: [],
-        subcategories: elementSubcategories
+        name: sub.name,
+        label: sub.label,
+        keys: sub.keys
       })
-    }
+    })
 
     if (tabs.length > 0) {
       return {
@@ -657,9 +657,9 @@ export function CustomizePanel({
   if (grouping.type === "tabs" && grouping.tabs) {
     return (
       <Tabs defaultValue={grouping.tabs[0]?.name || "general"} className="w-full">
-        <TabsList className={`grid w-full ${grouping.tabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <TabsList className="grid w-full grid-flow-col auto-cols-fr h-auto">
           {grouping.tabs.map((tab) => (
-            <TabsTrigger key={tab.name} value={tab.name}>
+            <TabsTrigger key={tab.name} value={tab.name} className="whitespace-normal h-full py-2">
               {tab.label}
             </TabsTrigger>
           ))}
