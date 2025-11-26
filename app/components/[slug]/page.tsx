@@ -1,12 +1,10 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
 import { ComponentPlayground } from "@/components/component-playground"
 import { componentDetails } from "@/lib/component-details"
 import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { BackToComponentsButton } from "@/components/back-to-components-button"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -192,12 +190,10 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <div className="py-8 md:py-12">
         <div className="mb-6">
-          <Link href="/components">
-            <Button variant="ghost" size="sm" className="mb-4 -ml-2">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Components
-            </Button>
-          </Link>
+          <BackToComponentsButton 
+            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta ? "/components?tab=section" : "/components"}
+            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta)}
+          />
           <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
             {component.category}
           </div>

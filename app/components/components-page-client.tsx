@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { useState, useEffect, useRef } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Search, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,10 +22,32 @@ import { cn } from "@/lib/utils"
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
 
 export function ComponentsPageClient() {
+    const searchParams = useSearchParams()
+    const router = useRouter()
     const [selectedCategory, setSelectedCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
-    const [customizeSearch, setCustomizeSearch] = useState("")
+    const [componentsSearch, setComponentsSearch] = useState("")
     const [sectionSearch, setSectionSearch] = useState("")
+    
+    // Get initial tab from URL parameter, default to "components"
+    const tabFromUrl = searchParams.get("tab") || "components"
+    const [activeTab, setActiveTab] = useState(tabFromUrl)
+    
+    // Sync activeTab with URL parameter when it changes (e.g., from browser back/forward)
+    useEffect(() => {
+        const currentTab = searchParams.get("tab") || "components"
+        if (currentTab !== activeTab) {
+            setActiveTab(currentTab)
+        }
+    }, [searchParams])
+    
+    // Update URL when tab changes
+    const handleTabChange = (value: string) => {
+        setActiveTab(value)
+        const params = new URLSearchParams()
+        params.set("tab", value)
+        router.replace(`/components?${params.toString()}`, { scroll: false })
+    }
 
     const filteredComponents = componentsData.filter((component) => {
         const matchesCategory = selectedCategory === "All" || component.category === selectedCategory
@@ -78,7 +101,7 @@ export function ComponentsPageClient() {
     )).sort()
 
     const filteredCustomComponents = customComponents.filter((component) => {
-        const searchLower = customizeSearch.toLowerCase()
+        const searchLower = componentsSearch.toLowerCase()
         const matchesSearch =
             component.name.toLowerCase().includes(searchLower) ||
             component.description.toLowerCase().includes(searchLower) ||
@@ -213,6 +236,7 @@ export function ComponentsPageClient() {
         }
     }
 
+
     // Update active section on scroll
     useEffect(() => {
         const handleScroll = () => {
@@ -250,10 +274,10 @@ export function ComponentsPageClient() {
             </aside>
 
             <section className="py-6 md:py-8">
-                <Tabs defaultValue="customize" className="w-full">
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                     <TabsList className="mb-6">
                         <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
-                        <TabsTrigger value="customize">Customize</TabsTrigger>
+                        <TabsTrigger value="components">Components</TabsTrigger>
                         <TabsTrigger value="section">Section</TabsTrigger>
                     </TabsList>
 
@@ -303,8 +327,8 @@ export function ComponentsPageClient() {
                         )}
                     </TabsContent>
 
-                    {/* Customize Tab */}
-                    <TabsContent value="customize" className="mt-0">
+                    {/* Components Tab */}
+                    <TabsContent value="components" className="mt-0">
                         <div className="flex flex-col gap-4 mb-8">
                             {/* Search */}
                             <div className="relative">
@@ -313,8 +337,8 @@ export function ComponentsPageClient() {
                                     type="search"
                                     placeholder="Search custom components by name, description, or tags..."
                                     className="pl-10"
-                                    value={customizeSearch}
-                                    onChange={(e) => setCustomizeSearch(e.target.value)}
+                                    value={componentsSearch}
+                                    onChange={(e) => setComponentsSearch(e.target.value)}
                                 />
                             </div>
 
@@ -322,7 +346,7 @@ export function ComponentsPageClient() {
                             {allTags.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
                                     {allTags.map((tag) => {
-                                        const isSelected = customizeSearch.toLowerCase() === tag.toLowerCase()
+                                        const isSelected = componentsSearch.toLowerCase() === tag.toLowerCase()
                                         return (
                                             <Badge
                                                 key={tag}
@@ -332,7 +356,7 @@ export function ComponentsPageClient() {
                                                 <button
                                                     type="button"
                                                     className="cursor-pointer hover:opacity-80 transition-opacity"
-                                                    onClick={() => setCustomizeSearch(isSelected ? "" : tag)}
+                                                    onClick={() => setComponentsSearch(isSelected ? "" : tag)}
                                                 >
                                                     {tag}
                                                 </button>

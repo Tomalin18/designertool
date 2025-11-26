@@ -465,6 +465,47 @@ export function CustomizePanel({
       }
     })
 
+    // 統一 style props 的顯示順序
+    const stylePropOrder = [
+      "backgroundColor",
+      "textColor",
+      "descriptionColor",
+      "headingColor",
+      "linkColor",
+      "primaryLinkColor",
+      "secondaryLinkColor",
+      "linkHoverColor",
+      "hoverColor",
+      "overlayColor",
+      "overlayOpacity",
+      "borderColor",
+      "iconColor",
+      "iconHoverColor",
+      "buttonColor",
+      "buttonTextColor",
+      "buttonBackgroundColor",
+      "inputBackgroundColor",
+      "inputBorderColor",
+      "inputTextColor",
+      "inputPlaceholderColor",
+      "focusBorderColor",
+    ]
+    
+    styleProps.sort((a, b) => {
+      const indexA = stylePropOrder.indexOf(a)
+      const indexB = stylePropOrder.indexOf(b)
+      
+      // 如果都在順序數組中，按照順序排列
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB
+      }
+      // 如果只有一個在順序數組中，在前的優先
+      if (indexA !== -1) return -1
+      if (indexB !== -1) return 1
+      // 如果都不在順序數組中，保持原有順序（按字母順序）
+      return a.localeCompare(b)
+    })
+
     if (styleProps.length > 0) {
       return {
         type: "tabs",
