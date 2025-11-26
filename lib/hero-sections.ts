@@ -642,10 +642,63 @@ export const heroSections: HeroSectionMeta[] = [
         default: "Trade, swap, and earn on the most secure decentralized exchange platform.",
         description: "Supporting description under the heading.",
       },
+      descriptionColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Color of the supporting description text.",
+      },
       buttonLabel: {
         control: "text",
         default: "Connect Wallet",
         description: "Label for the main CTA button.",
+      },
+      buttonTextColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color of the CTA button.",
+      },
+      buttonGradientFrom: {
+        control: "color",
+        default: "#2563eb",
+        description: "Starting color for the CTA gradient button.",
+      },
+      buttonGradientTo: {
+        control: "color",
+        default: "#4c1d95",
+        description: "Ending color for the CTA gradient button.",
+      },
+      buttonBorderRadius: {
+        control: "slider",
+        default: 99,
+        min: 0,
+        max: 99,
+        description: "Border radius of the button.",
+      },
+      buttonPaddingX: {
+        control: "slider",
+        default: 24,
+        min: 0,
+        max: 64,
+        description: "Horizontal padding of the button.",
+      },
+      buttonPaddingY: {
+        control: "slider",
+        default: 12,
+        min: 0,
+        max: 32,
+        description: "Vertical padding of the button.",
+      },
+      buttonFontSize: {
+        control: "select",
+        default: "base",
+        options: ["sm", "base", "lg", "xl"],
+        description: "Font size of the button text.",
+      },
+      buttonFontWeight: {
+        control: "select",
+        default: "bold",
+        options: ["normal", "medium", "semibold", "bold"],
+        description: "Font weight of the button text.",
       },
       backgroundColor: {
         control: "color",
@@ -671,16 +724,6 @@ export const heroSections: HeroSectionMeta[] = [
         control: "color",
         default: "#c084fc",
         description: "Ending color for the heading gradient.",
-      },
-      buttonGradientFrom: {
-        control: "color",
-        default: "#2563eb",
-        description: "Starting color for the CTA gradient button.",
-      },
-      buttonGradientTo: {
-        control: "color",
-        default: "#4c1d95",
-        description: "Ending color for the CTA gradient button.",
       },
       showBitcoinIcon: {
         control: "boolean",

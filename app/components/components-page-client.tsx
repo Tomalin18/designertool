@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import { useState, useEffect, useRef } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Search, List } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { componentsData, categories, ComponentInfo } from "@/lib/components-data"
 import { componentDetails } from "@/lib/component-details"
 import { SidebarNav } from "@/components/sidebar-nav"
+import { headerSections } from "@/lib/header-sections"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -21,10 +23,32 @@ import { cn } from "@/lib/utils"
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
 
 export function ComponentsPageClient() {
+    const searchParams = useSearchParams()
+    const router = useRouter()
     const [selectedCategory, setSelectedCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
-    const [customizeSearch, setCustomizeSearch] = useState("")
+    const [componentsSearch, setComponentsSearch] = useState("")
     const [sectionSearch, setSectionSearch] = useState("")
+    
+    // Get initial tab from URL parameter, default to "components"
+    const tabFromUrl = searchParams.get("tab") || "components"
+    const [activeTab, setActiveTab] = useState(tabFromUrl)
+    
+    // Sync activeTab with URL parameter when it changes (e.g., from browser back/forward)
+    useEffect(() => {
+        const currentTab = searchParams.get("tab") || "components"
+        if (currentTab !== activeTab) {
+            setActiveTab(currentTab)
+        }
+    }, [searchParams])
+    
+    // Update URL when tab changes
+    const handleTabChange = (value: string) => {
+        setActiveTab(value)
+        const params = new URLSearchParams()
+        params.set("tab", value)
+        router.replace(`/components?${params.toString()}`, { scroll: false })
+    }
 
     const filteredComponents = componentsData.filter((component) => {
         const matchesCategory = selectedCategory === "All" || component.category === selectedCategory
@@ -78,11 +102,20 @@ export function ComponentsPageClient() {
     )).sort()
 
     const filteredCustomComponents = customComponents.filter((component) => {
-        const searchLower = customizeSearch.toLowerCase()
+        const searchLower = componentsSearch.toLowerCase()
         const matchesSearch =
             component.name.toLowerCase().includes(searchLower) ||
             component.description.toLowerCase().includes(searchLower) ||
             (component.tags && component.tags.some(tag => tag.toLowerCase().includes(searchLower)))
+        return matchesSearch
+    })
+
+    const filteredHeaderSections = headerSections.filter((header) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            header.name.toLowerCase().includes(searchLower) ||
+            header.description.toLowerCase().includes(searchLower) ||
+            header.tags.some(tag => tag.toLowerCase().includes(searchLower))
         return matchesSearch
     })
 
@@ -133,6 +166,12 @@ export function ComponentsPageClient() {
 
     // Combine all sections for display
     const allFilteredSections = [
+        ...filteredHeaderSections.map(header => ({
+            slug: header.slug,
+            name: header.name,
+            description: header.description,
+            type: 'header' as const,
+        })),
         ...filteredHeroSections.map(hero => ({
             slug: hero.slug,
             name: hero.name,
@@ -167,6 +206,7 @@ export function ComponentsPageClient() {
 
     // Get all unique tags from sections
     const allSectionTags = Array.from(new Set([
+        ...headerSections.flatMap(header => header.tags),
         ...heroSections.flatMap(hero => hero.tags),
         ...featureSections.flatMap(feature => feature.tags),
         ...paymentSections.flatMap(payment => payment.tags),
@@ -188,6 +228,7 @@ export function ComponentsPageClient() {
     // Section TOC state
     const [activeSection, setActiveSection] = useState<string | null>(null)
     const [showToc, setShowToc] = useState(false)
+    const headerRef = useRef<HTMLDivElement>(null)
     const heroRef = useRef<HTMLDivElement>(null)
     const featureRef = useRef<HTMLDivElement>(null)
     const paymentRef = useRef<HTMLDivElement>(null)
@@ -195,9 +236,8 @@ export function ComponentsPageClient() {
     const footerRef = useRef<HTMLDivElement>(null)
 
     // Section categories for TOC
-
-    // Section categories for TOC
     const sectionCategories = [
+        { id: 'header', label: 'Header', count: filteredHeaderSections.length, ref: headerRef },
         { id: 'hero', label: 'Hero', count: filteredHeroSections.length, ref: heroRef },
         { id: 'feature', label: 'Features', count: filteredFeatureSections.length, ref: featureRef },
         { id: 'payment', label: 'Payment', count: filteredPaymentSections.length, ref: paymentRef },
@@ -213,9 +253,11 @@ export function ComponentsPageClient() {
         }
     }
 
+
     // Update active section on scroll
     useEffect(() => {
         const handleScroll = () => {
+            const headerTop = headerRef.current?.getBoundingClientRect().top ?? Infinity
             const heroTop = heroRef.current?.getBoundingClientRect().top ?? Infinity
             const featureTop = featureRef.current?.getBoundingClientRect().top ?? Infinity
             const paymentTop = paymentRef.current?.getBoundingClientRect().top ?? Infinity
@@ -232,6 +274,8 @@ export function ComponentsPageClient() {
                 setActiveSection('feature')
             } else if (heroTop <= 200) {
                 setActiveSection('hero')
+            } else if (headerTop <= 200) {
+                setActiveSection('header')
             } else {
                 setActiveSection(null)
             }
@@ -250,10 +294,10 @@ export function ComponentsPageClient() {
             </aside>
 
             <section className="py-6 md:py-8">
-                <Tabs defaultValue="customize" className="w-full">
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                     <TabsList className="mb-6">
                         <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
-                        <TabsTrigger value="customize">Customize</TabsTrigger>
+                        <TabsTrigger value="components">Components</TabsTrigger>
                         <TabsTrigger value="section">Section</TabsTrigger>
                     </TabsList>
 
@@ -303,8 +347,8 @@ export function ComponentsPageClient() {
                         )}
                     </TabsContent>
 
-                    {/* Customize Tab */}
-                    <TabsContent value="customize" className="mt-0">
+                    {/* Components Tab */}
+                    <TabsContent value="components" className="mt-0">
                         <div className="flex flex-col gap-4 mb-8">
                             {/* Search */}
                             <div className="relative">
@@ -313,8 +357,8 @@ export function ComponentsPageClient() {
                                     type="search"
                                     placeholder="Search custom components by name, description, or tags..."
                                     className="pl-10"
-                                    value={customizeSearch}
-                                    onChange={(e) => setCustomizeSearch(e.target.value)}
+                                    value={componentsSearch}
+                                    onChange={(e) => setComponentsSearch(e.target.value)}
                                 />
                             </div>
 
@@ -322,7 +366,7 @@ export function ComponentsPageClient() {
                             {allTags.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
                                     {allTags.map((tag) => {
-                                        const isSelected = customizeSearch.toLowerCase() === tag.toLowerCase()
+                                        const isSelected = componentsSearch.toLowerCase() === tag.toLowerCase()
                                         return (
                                             <Badge
                                                 key={tag}
@@ -332,7 +376,7 @@ export function ComponentsPageClient() {
                                                 <button
                                                     type="button"
                                                     className="cursor-pointer hover:opacity-80 transition-opacity"
-                                                    onClick={() => setCustomizeSearch(isSelected ? "" : tag)}
+                                                    onClick={() => setComponentsSearch(isSelected ? "" : tag)}
                                                 >
                                                     {tag}
                                                 </button>
@@ -427,9 +471,27 @@ export function ComponentsPageClient() {
 
                         {allFilteredSections.length > 0 ? (
                             <div className="relative">
+                                {/* Header Sections */}
+                                {filteredHeaderSections.length > 0 && (
+                                    <div ref={headerRef} className="scroll-mt-20">
+                                        <div className="grid gap-6 grid-cols-1">
+                                            {filteredHeaderSections.map((header, index) => (
+                                                <div key={header.slug} className="relative">
+                                                    <ComponentPreview
+                                                        name={header.name}
+                                                        description={header.description}
+                                                        href={`/components/${header.slug}`}
+                                                        category="Sections"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Hero Sections */}
                                 {filteredHeroSections.length > 0 && (
-                                    <div ref={heroRef} className="scroll-mt-20">
+                                    <div ref={heroRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
                                             {filteredHeroSections.map((hero, index) => (
                                                 <div key={hero.slug} className="relative">

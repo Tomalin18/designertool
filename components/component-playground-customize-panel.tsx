@@ -11,6 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ColorPicker } from "@/components/ui/color-picker"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Plus, Trash2, GripVertical } from "lucide-react"
 
 interface CustomizePanelProps {
   componentName: string
@@ -32,6 +35,11 @@ interface CustomizePanelProps {
       name: string
       label: string
       keys: string[]
+      subcategories?: {
+        name: string
+        label: string
+        keys: string[]
+      }[]
     }[]
     sections?: {
       name: string
@@ -40,6 +48,122 @@ interface CustomizePanelProps {
     }[]
     hiddenProps?: string[]
   }
+}
+
+const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  let items: any[] = []
+  try {
+    items = JSON.parse(value)
+  } catch (e) {
+    items = []
+  }
+
+  const updateItems = (newItems: any[]) => {
+    onChange(JSON.stringify(newItems, null, 2))
+  }
+
+  const addItem = () => {
+    updateItems([...items, { title: "New Item" }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: string, val: any) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: val }
+    updateItems(newItems)
+  }
+
+  const updateSubitem = (itemIndex: number, subIndex: number, val: string) => {
+    const newItems = [...items]
+    if (!newItems[itemIndex].items) newItems[itemIndex].items = []
+    newItems[itemIndex].items[subIndex] = val
+    
+    // Auto-add empty item if filling the last one and it's not empty
+    if (subIndex === newItems[itemIndex].items.length - 1 && val !== "") {
+       newItems[itemIndex].items.push("")
+    }
+    // If we clear an item and it's not the only one, maybe remove it? 
+    // Let's keep it simple: only add. Users can't easily delete subitems except by clearing?
+    // I'll add a delete button for subitems or just rely on "clearing + blur"? 
+    // User requested "fill one then appear next".
+    // I'll stick to that. Empty items at the end are fine (filter them in display if needed, but here we save them).
+    // Actually, the display component might render empty strings. I should filter them before saving?
+    // No, keep state consistent. The component rendering `navItems.map` should handle empty.
+    
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+           <div className="flex items-center gap-2">
+             <Input 
+               value={item.title} 
+               onChange={(e) => updateItem(index, 'title', e.target.value)}
+               placeholder="Item Title"
+               className="h-8"
+             />
+             <Button variant="ghost" size="icon" onClick={() => removeItem(index)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+               <Trash2 size={14} />
+             </Button>
+           </div>
+           <div className="flex items-center space-x-2">
+             <Checkbox 
+               id={`submenu-${index}`} 
+               checked={!!item.items}
+               onCheckedChange={(checked) => {
+                 if (checked) {
+                   updateItem(index, 'items', [""])
+                 } else {
+                   const newItems = [...items]
+                   delete newItems[index].items
+                   updateItems(newItems)
+                 }
+               }}
+             />
+             <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
+           </div>
+           {item.items && (
+             <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
+               {item.items.map((subItem: string, subIndex: number) => (
+                 <div key={subIndex} className="flex gap-2">
+                   <Input
+                     value={subItem}
+                     onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
+                     placeholder={subIndex === item.items.length - 1 ? "Add subitem..." : "Subitem Title"}
+                     className="h-7 text-xs"
+                   />
+                   {item.items.length > 1 && subIndex !== item.items.length - 1 && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7"
+                        onClick={() => {
+                          const newItems = [...items]
+                          newItems[index].items.splice(subIndex, 1)
+                          updateItems(newItems)
+                        }}
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                   )}
+                 </div>
+               ))}
+             </div>
+           )}
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Item
+      </Button>
+    </div>
+  )
 }
 
 export function CustomizePanel({
@@ -51,6 +175,19 @@ export function CustomizePanel({
 }: CustomizePanelProps) {
   const renderProp = (key: string, propConfig: any, isLast: boolean) => {
     const label = key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()
+
+    if (key === "navigationConfig") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <NavigationConfigEditor 
+            value={props[key] || "[]"} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
 
     return (
       <div key={key} className="space-y-2">
@@ -281,7 +418,16 @@ export function CustomizePanel({
   // Get grouping configuration based on component
   const getGroupingConfig = (): {
     type: "tabs" | "sections"
-    tabs?: { name: string; label: string; keys: string[] }[]
+    tabs?: {
+      name: string
+      label: string
+      keys: string[]
+      subcategories?: {
+        name: string
+        label: string
+        keys: string[]
+      }[]
+    }[]
     sections?: { name: string; label: string; keys: string[] }[]
     hiddenProps?: string[]
   } => {
@@ -443,35 +589,172 @@ export function CustomizePanel({
 
     // Generic grouping for Hero sections and other components
     const contentProps: string[] = []
-    const styleProps: string[] = []
+    const elementsPropsMap: Record<string, string[]> = {}
+    
+    // Sub-component prefixes to identify properties belonging to specific elements
+    const elementPrefixes = [
+      { prefix: 'button', group: 'Button' },
+      { prefix: 'cta', group: 'Button' },
+      { prefix: 'primaryCta', group: 'Button' },
+      { prefix: 'secondaryCta', group: 'Button' },
+      { prefix: 'primaryStore', group: 'Button' },
+      { prefix: 'secondaryStore', group: 'Button' },
+      { prefix: 'playButton', group: 'Button' },
+      { prefix: 'pill', group: 'Badge' },
+      { prefix: 'badge', group: 'Badge' },
+      { prefix: 'tag', group: 'Badge' },
+      { prefix: 'input', group: 'Input' },
+      { prefix: 'placeholder', group: 'Input' },
+      { prefix: 'card', group: 'Card' },
+      { prefix: 'preview', group: 'Card' },
+      { prefix: 'terminal', group: 'Card' },
+      { prefix: 'phone', group: 'Mockup' },
+      { prefix: 'icon', group: 'Icon' },
+      { prefix: 'nav', group: 'Navigation' },
+      { prefix: 'link', group: 'Navigation' },
+      { prefix: 'menu', group: 'Navigation' },
+    ]
+    
+    // Style subcategories
+    const stylePropsMap: Record<string, string[]> = {
+      spacing: [],
+      typography: [],
+      border: [],
+      shadow: [],
+      animation: [],
+      layout: [],
+      other: []
+    }
 
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
+      
+      // 1. Check for Elements first
+      // But exclude some common content keys that might accidentally match like 'icon' in 'showIcon' if we are not careful
+      // We should check if it STARTS with the prefix.
+      const elementMatch = elementPrefixes.find(item => key.startsWith(item.prefix))
+      
+      // Special case: don't capture "show..." props into elements unless it's style related? 
+      // Actually "showPill" usually goes to Content. 
+      // Let's exclude "show" prefixes from elements grouping to keep them in Content.
+      if (elementMatch && !key.startsWith('show')) {
+        const groupName = elementMatch.group
+        if (!elementsPropsMap[groupName]) elementsPropsMap[groupName] = []
+        elementsPropsMap[groupName].push(key)
+        return
+      }
+      
+      // Helper to check containment
+      const matches = (keywords: string[]) => keywords.some(k => lowerKey.includes(k))
+
+      // Spacing
+      if (matches(['padding', 'margin', 'gap'])) {
+        stylePropsMap.spacing.push(key)
+        return
+      }
+
+      // Border (check before typography/color because matches 'border')
+      if (matches(['border'])) {
+        stylePropsMap.border.push(key)
+        return
+      }
+
+      // Shadow
+      if (matches(['shadow'])) {
+        stylePropsMap.shadow.push(key)
+        return
+      }
+
+      // Typography
+      if (
+        matches(['font', 'lineheight', 'letterspacing']) ||
+        (matches(['text']) && matches(['size', 'align', 'decoration', 'transform', 'indent', 'overflow', 'weight', 'style']))
+      ) { 
+         stylePropsMap.typography.push(key)
+         return
+      }
+
+      // Animation
+      if (matches(['transition', 'duration', 'timing', 'ease'])) {
+        stylePropsMap.animation.push(key)
+        return
+      }
+
+      // Layout
+      if (matches(['flex', 'justify', 'align', 'direction'])) {
+        stylePropsMap.layout.push(key)
+        return
+      }
+
+      // Other Style Props
       if (
         lowerKey.includes("color") ||
         lowerKey.includes("background") ||
         lowerKey.includes("gradient") ||
-        lowerKey.includes("border") ||
-        lowerKey.includes("shadow") ||
         lowerKey.includes("opacity") ||
         lowerKey.includes("blur") ||
         lowerKey.includes("overlay") ||
         config.props[key].type === "color" ||
         config.props[key].type.startsWith("color-")
       ) {
-        styleProps.push(key)
-      } else {
-        contentProps.push(key)
+        stylePropsMap.other.push(key)
+        return
       }
+
+      // If none of the above, it's content
+      contentProps.push(key)
     })
 
-    if (styleProps.length > 0) {
+    // Create style subcategories configuration
+    const styleSubcategories = [
+      { name: "spacing", label: "Spacing", keys: stylePropsMap.spacing },
+      { name: "typography", label: "Typography", keys: stylePropsMap.typography },
+      { name: "border", label: "Border", keys: stylePropsMap.border },
+      { name: "shadow", label: "Shadow", keys: stylePropsMap.shadow },
+      { name: "animation", label: "Animation", keys: stylePropsMap.animation },
+      { name: "layout", label: "Layout", keys: stylePropsMap.layout },
+      { name: "other", label: "Other", keys: stylePropsMap.other },
+    ].filter(sub => sub.keys.length > 0)
+
+    // Create element subcategories
+    const elementSubcategories = Object.entries(elementsPropsMap).map(([name, keys]) => ({
+      name: name.toLowerCase(),
+      label: name,
+      keys
+    }))
+
+    // Calculate states
+    const hasStyleProps = styleSubcategories.length > 0
+    // const hasElementProps = elementSubcategories.length > 0 // No longer needed as a single group
+
+    const tabs = []
+    if (contentProps.length > 0) {
+      tabs.push({ name: "content", label: "Content", keys: contentProps })
+    }
+    
+    if (hasStyleProps) {
+      tabs.push({ 
+        name: "style", 
+        label: "Style", 
+        keys: [], 
+        subcategories: styleSubcategories
+      })
+    }
+
+    // Add Components tab with subcategories for each element group
+    if (elementSubcategories.length > 0) {
+      tabs.push({
+        name: "components",
+        label: "Components",
+        keys: [],
+        subcategories: elementSubcategories
+      })
+    }
+
+    if (tabs.length > 0) {
       return {
         type: "tabs",
-        tabs: [
-          { name: "content", label: "Content", keys: contentProps },
-          { name: "style", label: "Style", keys: styleProps },
-        ],
+        tabs
       }
     }
 
@@ -512,20 +795,47 @@ export function CustomizePanel({
   if (grouping.type === "tabs" && grouping.tabs) {
     return (
       <Tabs defaultValue={grouping.tabs[0]?.name || "general"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-flow-col auto-cols-fr h-auto">
           {grouping.tabs.map((tab) => (
-            <TabsTrigger key={tab.name} value={tab.name}>
+            <TabsTrigger key={tab.name} value={tab.name} className="whitespace-normal h-full py-2">
               {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
         {grouping.tabs.map((tab) => (
           <TabsContent key={tab.name} value={tab.name} className="space-y-4 mt-4">
-            {tab.keys.map((key, index) => {
-              const propConfig = config.props[key]
-              if (!propConfig) return null
-              return renderProp(key, propConfig, index === tab.keys.length - 1)
-            })}
+            {tab.subcategories && tab.subcategories.length > 0 ? (
+              <Tabs defaultValue={tab.subcategories[0]?.name} className="w-full">
+                <div className="overflow-x-auto pb-2 -mx-1 px-1">
+                  <TabsList className="inline-flex h-9 items-center justify-start rounded-lg bg-muted p-1 w-auto min-w-full">
+                    {tab.subcategories.map((sub) => (
+                      <TabsTrigger 
+                        key={sub.name} 
+                        value={sub.name} 
+                        className="text-xs px-3 py-1 h-7 flex-1 whitespace-nowrap"
+                      >
+                        {sub.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                {tab.subcategories.map((sub) => (
+                  <TabsContent key={sub.name} value={sub.name} className="space-y-4 mt-2">
+                    {sub.keys.map((key, index) => {
+                      const propConfig = config.props[key]
+                      if (!propConfig) return null
+                      return renderProp(key, propConfig, index === sub.keys.length - 1)
+                    })}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            ) : (
+              tab.keys.map((key, index) => {
+                const propConfig = config.props[key]
+                if (!propConfig) return null
+                return renderProp(key, propConfig, index === tab.keys.length - 1)
+              })
+            )}
           </TabsContent>
         ))}
       </Tabs>

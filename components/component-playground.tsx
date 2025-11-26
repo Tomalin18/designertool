@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Settings2 } from 'lucide-react'
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -36,6 +38,8 @@ import { paymentSections } from "@/lib/payment-sections"
 import { paymentComponentsByName } from "@/components/customize/payments"
 import { ctaSections } from "@/lib/cta-sections"
 import { ctaComponentsByName } from "@/components/customize/ctas"
+import { headerSections } from "@/lib/header-sections"
+import { headerComponentsByName } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName } from "@/components/customize/footers"
 import { ThreeDCard } from "@/components/three-d-card"
@@ -67,6 +71,11 @@ const ctaNameToMeta = ctaSections.reduce<Record<string, (typeof ctaSections)[num
 
 const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSections)[number]>>((acc, footer) => {
   acc[footer.name] = footer
+  return acc
+}, {})
+
+const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
+  acc[header.name] = header
   return acc
 }, {})
 
@@ -1061,6 +1070,34 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add header sections to configs
+  headerSections.forEach((header) => {
+    const Component = headerComponentsByName[header.componentName]
+    if (!Component) return
+
+    const propConfig = Object.fromEntries(
+      Object.entries(header.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[header.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
   // Add feature sections to configs
   featureSections.forEach((feature) => {
     const Component = featureComponentsByName[feature.componentName]
@@ -1189,7 +1226,9 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const paymentMeta = paymentNameToMeta[componentName]
   const ctaMeta = ctaNameToMeta[componentName]
   const footerMeta = footerNameToMeta[componentName]
+  const headerMeta = headerNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
+  const [showSidebar, setShowSidebar] = React.useState(true)
 
   const [props, setProps] = React.useState<Record<string, any>>(() => {
     if (!config) return {}
@@ -3621,6 +3660,54 @@ export function ${footerMeta.componentName}Demo() {
 }`
     }
 
+    // Header section code generation with initialCode (full component)
+    if (headerMeta && initialCode) {
+      const interfaceName = `${headerMeta.componentName}Props`
+      const propsInterface = `interface ${interfaceName} {\n` +
+        Object.entries(config.props).map(([key, conf]: [string, any]) => {
+          const type = conf.type === "boolean" ? "boolean" :
+            conf.type === "slider" || conf.min !== undefined ? "number" : "string"
+          return `  ${key}?: ${type}`
+        }).join("\n") +
+        "\n}"
+
+      // Replace the type definition line
+      let code = initialCode.replace(
+        new RegExp(`export type ${interfaceName} = HeaderComponentProps<"[^"]+">`),
+        propsInterface
+      )
+
+      // Fallback if replacement didn't happen (e.g. different formatting), just prepend
+      if (code === initialCode) {
+        code = propsInterface + "\n\n" + initialCode
+      }
+
+      const imports = `"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import {
+  Menu, X, ChevronDown, Search, Bell, Zap, ShoppingBag, Command, Moon, Globe,
+  Mic, Video, TrendingUp, HelpCircle, Home, Tv, Users, Gamepad2, MenuSquare,
+  MessageCircle, Terminal, Shield, Wallet, MapPin, Phone, Music, Heart,
+  GraduationCap, Plane, Calendar, LayoutGrid, Github
+} from "lucide-react"
+`
+
+      return `${imports}\n${code}\n\n// Usage example:\nexport function ${headerMeta.componentName}Demo() {\n  return (\n    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+    }
+
+    // Header section code generation (simple import)
+    if (headerMeta) {
+      return `import { ${headerMeta.componentName} } from "@/components/customize/headers"
+
+export function ${headerMeta.componentName}Demo() {
+  return (
+    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
     if (children) {
       return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
     }
@@ -3643,31 +3730,22 @@ export function ${footerMeta.componentName}Demo() {
   }
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-6 min-w-0 w-full">
-      {/* Mobile Order: 1. Preview */}
-      <div className="order-1 lg:col-span-1">
-        <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-          {config.render(props, setProps)}
-        </Card>
-      </div>
+    <div className="relative w-full">
+      <div className="flex flex-col gap-6 min-w-0 w-full">
+        <div className="relative">
+          <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
+            {config.render(props, setProps)}
+          </Card>
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute right-4 top-4 z-10 h-10 w-10 rounded-full shadow-md bg-background border-muted-foreground/20"
+            onClick={() => setShowSidebar(true)}
+          >
+            <Settings2 className="h-5 w-5" />
+          </Button>
+        </div>
 
-      {/* Mobile Order: 2. Customize (Desktop: Right Column) */}
-      <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-3">
-        <Card className="p-6 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
-          <h3 className="font-semibold mb-4">Customize</h3>
-          {config && (
-            <CustomizePanel
-              componentName={componentName}
-              props={props}
-              config={config}
-              updateProp={updateProp}
-            />
-          )}
-        </Card>
-      </div>
-
-      {/* Mobile Order: 3. Code */}
-      <div className="order-3 lg:col-span-1 min-w-0">
         <Card className="p-6 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Code</h3>
@@ -3696,10 +3774,7 @@ export function ${footerMeta.componentName}Demo() {
             </pre>
           </div>
         </Card>
-      </div>
 
-      {/* Mobile Order: 4. Properties */}
-      <div className="order-4 lg:col-span-2">
         <Card className="p-6">
           <h3 className="font-semibold mb-4">Properties</h3>
           <div className="border rounded-lg overflow-hidden">
@@ -3739,59 +3814,74 @@ export function ${footerMeta.componentName}Demo() {
             </table>
           </div>
         </Card>
+
+        {(() => {
+          const componentDetail = componentDetails[slug]
+          if (!componentDetail || (!componentDetail.variants?.length && !componentDetail.examples?.length)) {
+            return null
+          }
+
+          return (
+            <>
+              {componentDetail.variants && componentDetail.variants.length > 0 && (
+                <div>
+                  <Card className="p-6">
+                    <h3 className="font-semibold mb-4">Variants</h3>
+                    <div className="space-y-6">
+                      {componentDetail.variants.map((variant, index) => (
+                        <div key={index} className="space-y-3">
+                          <div>
+                            <h4 className="font-medium text-sm mb-1">{variant.name}</h4>
+                            <p className="text-sm text-muted-foreground">{variant.description}</p>
+                          </div>
+                          <CodeBlock code={variant.code} />
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {componentDetail.examples && componentDetail.examples.length > 0 && (
+                <div>
+                  <Card className="p-6">
+                    <h3 className="font-semibold mb-4">Examples</h3>
+                    <div className="space-y-8">
+                      {componentDetail.examples.map((example, index) => (
+                        <div key={index} className="space-y-3">
+                          <div>
+                            <h4 className="font-medium text-base mb-1">{example.title}</h4>
+                            <p className="text-sm text-muted-foreground">{example.description}</p>
+                          </div>
+                          <CodeBlock code={example.code} />
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              )}
+            </>
+          )
+        })()}
       </div>
 
-      {/* Variants and Examples */}
-      {(() => {
-        const componentDetail = componentDetails[slug]
-        if (!componentDetail || (!componentDetail.variants?.length && !componentDetail.examples?.length)) {
-          return null
-        }
-
-        return (
-          <>
-            {/* Variants */}
-            {componentDetail.variants && componentDetail.variants.length > 0 && (
-              <div className="order-5 lg:col-span-2">
-                <Card className="p-6">
-                  <h3 className="font-semibold mb-4">Variants</h3>
-                  <div className="space-y-6">
-                    {componentDetail.variants.map((variant, index) => (
-                      <div key={index} className="space-y-3">
-                        <div>
-                          <h4 className="font-medium text-sm mb-1">{variant.name}</h4>
-                          <p className="text-sm text-muted-foreground">{variant.description}</p>
-                        </div>
-                        <CodeBlock code={variant.code} />
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </div>
+      <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
+        <SheetContent className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" side="right" onInteractOutside={(e) => e.preventDefault()}>
+          <SheetHeader className="p-6 border-b sticky top-0 bg-background z-10">
+            <SheetTitle>Customize</SheetTitle>
+          </SheetHeader>
+          <div className="p-6">
+            {config && (
+              <CustomizePanel
+                componentName={componentName}
+                props={props}
+                config={config}
+                updateProp={updateProp}
+              />
             )}
-
-            {/* Examples */}
-            {componentDetail.examples && componentDetail.examples.length > 0 && (
-              <div className="order-6 lg:col-span-2">
-                <Card className="p-6">
-                  <h3 className="font-semibold mb-4">Examples</h3>
-                  <div className="space-y-8">
-                    {componentDetail.examples.map((example, index) => (
-                      <div key={index} className="space-y-3">
-                        <div>
-                          <h4 className="font-medium text-base mb-1">{example.title}</h4>
-                          <p className="text-sm text-muted-foreground">{example.description}</p>
-                        </div>
-                        <CodeBlock code={example.code} />
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </div>
-            )}
-          </>
-        )
-      })()}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
