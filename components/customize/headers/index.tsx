@@ -78,7 +78,7 @@ export function SimpleHeader({
   buttonBorderRadius = 6,
   paddingTop = 20,
   paddingBottom = 20,
-  paddingX = 24,
+  paddingX = 0,
   fontSize = "base",
   fontWeight = "medium",
   borderBottomWidth = 1,
@@ -275,7 +275,7 @@ export function FloatingNav({
         className="relative flex items-center gap-0 rounded-full border border-white/10 p-2 px-2 shadow-2xl backdrop-blur-xl transition-all hover:border-white/20 z-10"
         style={{ backgroundColor: navBackgroundColor, boxShadow: `0 25px 50px -12px ${glowColor}` }}
       >
-        <div className="mr-4 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 font-bold text-white">
+        <div className="mr-0 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 font-bold text-white">
           {logoText}
         </div>
         <div className="hidden md:flex items-center">
@@ -296,7 +296,7 @@ export function FloatingNav({
             </button>
           ))}
         </div>
-        <div className="mx-2 hidden md:block h-4 w-px bg-neutral-800" />
+        <div className="mx-0 hidden md:block h-4 w-px bg-neutral-800" />
         <button
           className="flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-transform hover:scale-105 active:scale-95"
           style={{ backgroundColor: buttonBackgroundColor, color: buttonTextColor }}

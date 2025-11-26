@@ -362,6 +362,7 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   return (
     <Card className={cn(
       "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
+      isSection && "gap-0 py-0",
       className
     )}>
       <div className={cn(
