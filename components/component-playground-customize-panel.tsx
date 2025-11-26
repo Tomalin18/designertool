@@ -738,14 +738,15 @@ export function CustomizePanel({
       })
     }
 
-    // Add each element group as a top-level tab
-    elementSubcategories.forEach(sub => {
+    // Add Components tab with subcategories for each element group
+    if (elementSubcategories.length > 0) {
       tabs.push({
-        name: sub.name,
-        label: sub.label,
-        keys: sub.keys
+        name: "components",
+        label: "Components",
+        keys: [],
+        subcategories: elementSubcategories
       })
-    })
+    }
 
     if (tabs.length > 0) {
       return {
