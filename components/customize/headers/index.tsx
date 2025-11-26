@@ -33,6 +33,7 @@ import {
   Plane,
   Calendar,
   LayoutGrid,
+  Github,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { headerSections, HeaderPropDefinition } from "@/lib/header-sections"
