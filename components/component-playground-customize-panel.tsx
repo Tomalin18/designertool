@@ -32,6 +32,11 @@ interface CustomizePanelProps {
       name: string
       label: string
       keys: string[]
+      subcategories?: {
+        name: string
+        label: string
+        keys: string[]
+      }[]
     }[]
     sections?: {
       name: string
@@ -281,7 +286,16 @@ export function CustomizePanel({
   // Get grouping configuration based on component
   const getGroupingConfig = (): {
     type: "tabs" | "sections"
-    tabs?: { name: string; label: string; keys: string[] }[]
+    tabs?: {
+      name: string
+      label: string
+      keys: string[]
+      subcategories?: {
+        name: string
+        label: string
+        keys: string[]
+      }[]
+    }[]
     sections?: { name: string; label: string; keys: string[] }[]
     hiddenProps?: string[]
   } => {
@@ -443,75 +457,105 @@ export function CustomizePanel({
 
     // Generic grouping for Hero sections and other components
     const contentProps: string[] = []
-    const styleProps: string[] = []
+    
+    // Style subcategories
+    const stylePropsMap: Record<string, string[]> = {
+      spacing: [],
+      typography: [],
+      border: [],
+      shadow: [],
+      animation: [],
+      layout: [],
+      other: []
+    }
 
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
+      
+      // Helper to check containment
+      const matches = (keywords: string[]) => keywords.some(k => lowerKey.includes(k))
+
+      // Spacing
+      if (matches(['padding', 'margin', 'gap'])) {
+        stylePropsMap.spacing.push(key)
+        return
+      }
+
+      // Border (check before typography/color because matches 'border')
+      if (matches(['border'])) {
+        stylePropsMap.border.push(key)
+        return
+      }
+
+      // Shadow
+      if (matches(['shadow'])) {
+        stylePropsMap.shadow.push(key)
+        return
+      }
+
+      // Typography
+      if (matches(['font', 'text', 'heading', 'lineheight']) && !matches(['texture', 'context'])) { 
+         // exclude texture/context if they were to exist, mostly 'text' matches 'textColor'
+         stylePropsMap.typography.push(key)
+         return
+      }
+
+      // Animation
+      if (matches(['transition', 'duration', 'timing', 'ease'])) {
+        stylePropsMap.animation.push(key)
+        return
+      }
+
+      // Layout
+      if (matches(['flex', 'justify', 'align', 'direction'])) {
+        stylePropsMap.layout.push(key)
+        return
+      }
+
+      // Other Style Props
       if (
         lowerKey.includes("color") ||
         lowerKey.includes("background") ||
         lowerKey.includes("gradient") ||
-        lowerKey.includes("border") ||
-        lowerKey.includes("shadow") ||
         lowerKey.includes("opacity") ||
         lowerKey.includes("blur") ||
         lowerKey.includes("overlay") ||
         config.props[key].type === "color" ||
         config.props[key].type.startsWith("color-")
       ) {
-        styleProps.push(key)
-      } else {
-        contentProps.push(key)
+        stylePropsMap.other.push(key)
+        return
       }
+
+      // If none of the above, it's content
+      contentProps.push(key)
     })
 
-    // 統一 style props 的顯示順序
-    const stylePropOrder = [
-      "backgroundColor",
-      "textColor",
-      "descriptionColor",
-      "headingColor",
-      "linkColor",
-      "primaryLinkColor",
-      "secondaryLinkColor",
-      "linkHoverColor",
-      "hoverColor",
-      "overlayColor",
-      "overlayOpacity",
-      "borderColor",
-      "iconColor",
-      "iconHoverColor",
-      "buttonColor",
-      "buttonTextColor",
-      "buttonBackgroundColor",
-      "inputBackgroundColor",
-      "inputBorderColor",
-      "inputTextColor",
-      "inputPlaceholderColor",
-      "focusBorderColor",
-    ]
-    
-    styleProps.sort((a, b) => {
-      const indexA = stylePropOrder.indexOf(a)
-      const indexB = stylePropOrder.indexOf(b)
-      
-      // 如果都在順序數組中，按照順序排列
-      if (indexA !== -1 && indexB !== -1) {
-        return indexA - indexB
-      }
-      // 如果只有一個在順序數組中，在前的優先
-      if (indexA !== -1) return -1
-      if (indexB !== -1) return 1
-      // 如果都不在順序數組中，保持原有順序（按字母順序）
-      return a.localeCompare(b)
-    })
+    // Create style subcategories configuration
+    const styleSubcategories = [
+      { name: "spacing", label: "Spacing", keys: stylePropsMap.spacing },
+      { name: "typography", label: "Typography", keys: stylePropsMap.typography },
+      { name: "border", label: "Border", keys: stylePropsMap.border },
+      { name: "shadow", label: "Shadow", keys: stylePropsMap.shadow },
+      { name: "animation", label: "Animation", keys: stylePropsMap.animation },
+      { name: "layout", label: "Layout", keys: stylePropsMap.layout },
+      { name: "other", label: "Other", keys: stylePropsMap.other },
+    ].filter(sub => sub.keys.length > 0)
 
-    if (styleProps.length > 0) {
+    // Calculate if we have any style props
+    const hasStyleProps = styleSubcategories.length > 0
+
+    if (hasStyleProps) {
       return {
         type: "tabs",
         tabs: [
           { name: "content", label: "Content", keys: contentProps },
-          { name: "style", label: "Style", keys: styleProps },
+          { 
+            name: "style", 
+            label: "Style", 
+            keys: [], // Keys are distributed in subcategories
+            subcategories: styleSubcategories
+          },
         ],
       }
     }
@@ -562,11 +606,38 @@ export function CustomizePanel({
         </TabsList>
         {grouping.tabs.map((tab) => (
           <TabsContent key={tab.name} value={tab.name} className="space-y-4 mt-4">
-            {tab.keys.map((key, index) => {
-              const propConfig = config.props[key]
-              if (!propConfig) return null
-              return renderProp(key, propConfig, index === tab.keys.length - 1)
-            })}
+            {tab.subcategories && tab.subcategories.length > 0 ? (
+              <Tabs defaultValue={tab.subcategories[0]?.name} className="w-full">
+                <div className="overflow-x-auto pb-2 -mx-1 px-1">
+                  <TabsList className="inline-flex h-9 items-center justify-start rounded-lg bg-muted p-1 w-auto min-w-full">
+                    {tab.subcategories.map((sub) => (
+                      <TabsTrigger 
+                        key={sub.name} 
+                        value={sub.name} 
+                        className="text-xs px-3 py-1 h-7 flex-1 whitespace-nowrap"
+                      >
+                        {sub.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+                {tab.subcategories.map((sub) => (
+                  <TabsContent key={sub.name} value={sub.name} className="space-y-4 mt-2">
+                    {sub.keys.map((key, index) => {
+                      const propConfig = config.props[key]
+                      if (!propConfig) return null
+                      return renderProp(key, propConfig, index === sub.keys.length - 1)
+                    })}
+                  </TabsContent>
+                ))}
+              </Tabs>
+            ) : (
+              tab.keys.map((key, index) => {
+                const propConfig = config.props[key]
+                if (!propConfig) return null
+                return renderProp(key, propConfig, index === tab.keys.length - 1)
+              })
+            )}
           </TabsContent>
         ))}
       </Tabs>
