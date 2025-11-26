@@ -917,11 +917,18 @@ export function GradientFooter({
   companyName = "LoveUI",
   tagline = "Hand-crafted UI components for your next project. Made with love and passion.",
   copyrightYear = "2024",
+  productLink1 = "Features",
+  productLink2 = "Pricing",
+  productLink3 = "Changelog",
+  companyLink1 = "About",
+  companyLink2 = "Blog",
+  companyLink3 = "Careers",
   gradientFrom = "#4338ca",
   gradientVia = "#7c3aed",
   gradientTo = "#db2777",
   textColor = "#ffffff",
   linkColor = "#c7d2fe",
+  linkHoverColor = "#ffffff",
   iconColor = "#ec4899",
 }: GradientFooterProps) {
   return (
@@ -947,9 +954,36 @@ export function GradientFooter({
               Product
             </h3>
             <ul className="space-y-2 text-sm" style={{ color: linkColor }}>
-              <li><a href="#" className="hover:text-white">Features</a></li>
-              <li><a href="#" className="hover:text-white">Pricing</a></li>
-              <li><a href="#" className="hover:text-white">Changelog</a></li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {productLink1}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {productLink2}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {productLink3}
+                </a>
+              </li>
             </ul>
           </div>
           <div>
@@ -957,9 +991,36 @@ export function GradientFooter({
               Company
             </h3>
             <ul className="space-y-2 text-sm" style={{ color: linkColor }}>
-              <li><a href="#" className="hover:text-white">About</a></li>
-              <li><a href="#" className="hover:text-white">Blog</a></li>
-              <li><a href="#" className="hover:text-white">Careers</a></li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {companyLink1}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {companyLink2}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+                >
+                  {companyLink3}
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -975,11 +1036,15 @@ export function GradientFooter({
 export type MinimalSplitFooterProps = FooterComponentProps<"minimal-split-footer">
 export function MinimalSplitFooter({
   companyName = "monolith.",
+  link1Text = "Work",
+  link2Text = "About",
+  link3Text = "Contact",
   copyrightYear = "2024",
   copyrightText = "Monolith Studio",
   backgroundColor = "#ffffff",
   logoColor = "#000000",
   linkColor = "#525252",
+  linkHoverColor = "#000000",
   copyrightColor = "#a3a3a3",
   borderColor = "#f5f5f5",
 }: MinimalSplitFooterProps) {
@@ -990,9 +1055,30 @@ export function MinimalSplitFooter({
           {companyName}
         </div>
         <div className="flex gap-8 text-sm" style={{ color: linkColor }}>
-          <a href="#" className="hover:opacity-70">Work</a>
-          <a href="#" className="hover:opacity-70">About</a>
-          <a href="#" className="hover:opacity-70">Contact</a>
+          <a 
+            href="#" 
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link1Text}
+          </a>
+          <a 
+            href="#" 
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link2Text}
+          </a>
+          <a 
+            href="#" 
+            className="transition-colors"
+            onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+            onMouseLeave={(e) => e.currentTarget.style.color = linkColor}
+          >
+            {link3Text}
+          </a>
         </div>
         <p className="text-sm" style={{ color: copyrightColor }}>
           &copy; {copyrightYear} {copyrightText}
@@ -1005,22 +1091,36 @@ export function MinimalSplitFooter({
 // --- 15. Status Indicator Footer ---
 export type StatusIndicatorFooterProps = FooterComponentProps<"status-indicator-footer">
 export function StatusIndicatorFooter({
+  link1Text = "Status",
+  link2Text = "Docs",
+  link3Text = "Support",
+  link4Text = "API",
   statusText = "System Operational",
   backgroundColor = "#171717",
   textColor = "#a3a3a3",
+  linkHoverColor = "#ffffff",
   statusBackgroundColor = "#0a0a0a",
   statusTextColor = "#22c55e",
   statusDotColor = "#22c55e",
   statusBorderColor = "#262626",
 }: StatusIndicatorFooterProps) {
+  const links = [link1Text, link2Text, link3Text, link4Text]
+
   return (
     <footer className="py-8 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex gap-6 text-sm" style={{ color: textColor }}>
-          <a href="#" className="hover:text-white">Status</a>
-          <a href="#" className="hover:text-white">Docs</a>
-          <a href="#" className="hover:text-white">Support</a>
-          <a href="#" className="hover:text-white">API</a>
+          {links.map((link) => (
+            <a 
+              key={link}
+              href="#" 
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+            >
+              {link}
+            </a>
+          ))}
         </div>
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-lg border text-sm"
@@ -1043,9 +1143,21 @@ export function StatusIndicatorFooter({
 export type ArchitecturalFooterProps = FooterComponentProps<"architectural-footer">
 export function ArchitecturalFooter({
   companyName = "Arkitekt",
+  studioTitle = "Studio",
+  studioLink1 = "Projects",
+  studioLink2 = "Process",
+  studioLink3 = "Team",
+  contactTitle = "Contact",
+  contactLink1 = "Email",
+  contactLink2 = "Instagram",
+  contactLink3 = "LinkedIn",
+  location = "Berlin, Germany",
+  copyrightText = "© 2024 All Rights Reserved",
+  legalLinks = "Privacy · Terms",
   backgroundColor = "#fafafa",
   headingColor = "#000000",
   textColor = "#525252",
+  linkHoverColor = "#000000",
   companyNameColor = "#d4d4d8",
   dividerColor = "#e5e5e5",
 }: ArchitecturalFooterProps) {
@@ -1060,29 +1172,83 @@ export function ArchitecturalFooter({
           </div>
           <div>
             <h3 className="font-bold mb-4 text-sm uppercase tracking-wider" style={{ color: headingColor }}>
-              Studio
+              {studioTitle}
             </h3>
             <ul className="space-y-2 text-sm" style={{ color: textColor }}>
-              <li><a href="#" className="hover:opacity-70">Projects</a></li>
-              <li><a href="#" className="hover:opacity-70">Process</a></li>
-              <li><a href="#" className="hover:opacity-70">Team</a></li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {studioLink1}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {studioLink2}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {studioLink3}
+                </a>
+              </li>
             </ul>
           </div>
           <div>
             <h3 className="font-bold mb-4 text-sm uppercase tracking-wider" style={{ color: headingColor }}>
-              Contact
+              {contactTitle}
             </h3>
             <ul className="space-y-2 text-sm" style={{ color: textColor }}>
-              <li><a href="#" className="hover:opacity-70">Email</a></li>
-              <li><a href="#" className="hover:opacity-70">Instagram</a></li>
-              <li><a href="#" className="hover:opacity-70">LinkedIn</a></li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {contactLink1}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {contactLink2}
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="#" 
+                  className="transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                  onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                >
+                  {contactLink3}
+                </a>
+              </li>
             </ul>
           </div>
         </div>
         <div className="pt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs" style={{ color: textColor }}>
-          <p>Berlin, Germany</p>
-          <p className="text-center">© 2024 All Rights Reserved</p>
-          <p className="md:text-right">Privacy · Terms</p>
+          <p>{location}</p>
+          <p className="text-center">{copyrightText}</p>
+          <p className="md:text-right">{legalLinks}</p>
         </div>
       </div>
     </footer>
@@ -1096,6 +1262,9 @@ export function CtaAttachedFooter({
   ctaDescription = "Create your account today and start building.",
   ctaButtonText = "Sign Up Free",
   companyName = "Bolt",
+  link1Text = "Privacy",
+  link2Text = "Terms",
+  link3Text = "Contact",
   copyrightYear = "2024",
   ctaBackgroundColor = "#6366f1",
   ctaTextColor = "#ffffff",
@@ -1103,6 +1272,7 @@ export function CtaAttachedFooter({
   ctaButtonTextColor = "#6366f1",
   footerBackgroundColor = "#171717",
   footerTextColor = "#a3a3a3",
+  linkHoverColor = "#ffffff",
   logoColor = "#ffffff",
 }: CtaAttachedFooterProps) {
   return (
@@ -1130,9 +1300,30 @@ export function CtaAttachedFooter({
             {companyName}
           </div>
           <div className="flex gap-6 text-sm" style={{ color: footerTextColor }}>
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Contact</a>
+            <a 
+              href="#" 
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = footerTextColor}
+            >
+              {link1Text}
+            </a>
+            <a 
+              href="#" 
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = footerTextColor}
+            >
+              {link2Text}
+            </a>
+            <a 
+              href="#" 
+              className="transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+              onMouseLeave={(e) => e.currentTarget.style.color = footerTextColor}
+            >
+              {link3Text}
+            </a>
           </div>
           <p className="text-sm" style={{ color: footerTextColor }}>
             &copy; {copyrightYear} {companyName}
@@ -1149,13 +1340,23 @@ export function DeveloperFocusFooter({
   companyName = "DevTools",
   version = "v2.4.0",
   githubStars = "12.5k",
+  section1Title = "Docs",
+  section2Title = "API",
+  section3Title = "Community",
+  sectionLink1 = "Getting Started",
+  sectionLink2 = "Guides",
+  sectionLink3 = "Reference",
   backgroundColor = "#0d1117",
   textColor = "#8b949e",
+  linkHoverColor = "#ffffff",
   headingColor = "#ffffff",
   badgeBackgroundColor = "#161b22",
   badgeBorderColor = "#30363d",
   versionDotColor = "#22c55e",
 }: DeveloperFocusFooterProps) {
+  const sections = [section1Title, section2Title, section3Title]
+  const links = [sectionLink1, sectionLink2, sectionLink3]
+
   return (
     <footer className="py-12 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-6xl">
@@ -1182,15 +1383,24 @@ export function DeveloperFocusFooter({
               </div>
             </div>
           </div>
-          {["Docs", "API", "Community"].map((section) => (
+          {sections.map((section) => (
             <div key={section}>
               <h3 className="font-bold mb-4 text-sm" style={{ color: headingColor }}>
                 {section}
               </h3>
               <ul className="space-y-2 text-sm" style={{ color: textColor }}>
-                <li><a href="#" className="hover:text-white">Getting Started</a></li>
-                <li><a href="#" className="hover:text-white">Guides</a></li>
-                <li><a href="#" className="hover:text-white">Reference</a></li>
+                {links.map((link) => (
+                  <li key={link}>
+                    <a 
+                      href="#" 
+                      className="transition-colors"
+                      onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor}
+                      onMouseLeave={(e) => e.currentTarget.style.color = textColor}
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
@@ -1206,20 +1416,28 @@ export function MagazineFooter({
   companyName = "WIRED",
   copyrightYear = "2024",
   copyrightText = "Condé Nast. All rights reserved.",
+  section1Title = "Latest",
+  section2Title = "Culture",
+  section3Title = "Business",
+  section4Title = "Science",
+  articleTitle = "Article Title Goes Here",
   backgroundColor = "#ffffff",
   headingColor = "#000000",
   linkColor = "#000000",
+  linkHoverColor = "#000000",
   categoryColor = "#dc2626",
   companyNameColor = "#000000",
   copyrightColor = "#737373",
   borderColor = "#000000",
   tagBorderColor = "#e5e5e5",
 }: MagazineFooterProps) {
+  const sections = [section1Title, section2Title, section3Title, section4Title]
+
   return (
     <footer className="py-12 px-6 border-t-4" style={{ backgroundColor, borderColor }}>
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {["Latest", "Culture", "Business", "Science"].map((section) => (
+          {sections.map((section) => (
             <div key={section}>
               <h3 className="font-bold mb-4 text-sm uppercase tracking-wider" style={{ color: headingColor }}>
                 {section}
@@ -1230,8 +1448,14 @@ export function MagazineFooter({
                     <div className="text-xs mb-1 px-2 py-0.5 border rounded-full inline-block" style={{ color: categoryColor, borderColor: tagBorderColor }}>
                       {section}
                     </div>
-                    <a href="#" className="text-sm hover:opacity-70 block" style={{ color: linkColor }}>
-                      Article Title Goes Here
+                    <a 
+                      href="#" 
+                      className="text-sm block transition-opacity"
+                      style={{ color: linkColor }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = "0.7"}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
+                    >
+                      {articleTitle}
                     </a>
                   </li>
                 ))}
@@ -1257,24 +1481,40 @@ export type EcommerceTrustFooterProps = FooterComponentProps<"ecommerce-trust-fo
 export function EcommerceTrustFooter({
   companyName = "Luxe.",
   copyrightYear = "2024",
+  badge1Title = "Secure Payments",
+  badge1Description = "SSL Encrypted",
+  badge2Title = "Easy Returns",
+  badge2Description = "30-Day Policy",
+  badge3Title = "Authentic Products",
+  badge3Description = "100% Genuine",
+  badge4Title = "Worldwide Shipping",
+  badge4Description = "Fast Delivery",
+  link1Text = "Privacy",
+  link2Text = "Terms",
+  link3Text = "Shipping",
+  link4Text = "Returns",
   backgroundColor = "#fafafa",
   headingColor = "#171717",
   textColor = "#737373",
+  linkHoverColor = "#000000",
   iconBackgroundColor = "#e5e5e5",
   iconColor = "#525252",
   companyNameColor = "#000000",
   dividerColor = "#e5e5e5",
 }: EcommerceTrustFooterProps) {
+  const badges = [
+    { icon: Shield, title: badge1Title, desc: badge1Description },
+    { icon: CreditCard, title: badge2Title, desc: badge2Description },
+    { icon: CheckCircle2, title: badge3Title, desc: badge3Description },
+    { icon: Globe, title: badge4Title, desc: badge4Description },
+  ]
+  const links = [link1Text, link2Text, link3Text, link4Text]
+
   return (
     <footer className="py-16 px-6" style={{ backgroundColor }}>
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {[
-            { icon: Shield, title: "Secure Payments", desc: "SSL Encrypted" },
-            { icon: CreditCard, title: "Easy Returns", desc: "30-Day Policy" },
-            { icon: CheckCircle2, title: "Authentic Products", desc: "100% Genuine" },
-            { icon: Globe, title: "Worldwide Shipping", desc: "Fast Delivery" },
-          ].map((item, i) => (
+          {badges.map((item, i) => (
             <div key={i} className="text-center">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
@@ -1296,10 +1536,17 @@ export function EcommerceTrustFooter({
             {companyName}
           </div>
           <div className="flex gap-6 text-sm" style={{ color: textColor }}>
-            <a href="#" className="hover:opacity-70">Privacy</a>
-            <a href="#" className="hover:opacity-70">Terms</a>
-            <a href="#" className="hover:opacity-70">Shipping</a>
-            <a href="#" className="hover:opacity-70">Returns</a>
+            {links.map((link) => (
+              <a 
+                key={link}
+                href="#" 
+                className="transition-opacity"
+                onMouseEnter={(e) => e.currentTarget.style.opacity = "0.7"}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
+              >
+                {link}
+              </a>
+            ))}
           </div>
           <p className="text-sm" style={{ color: textColor }}>
             &copy; {copyrightYear} {companyName}

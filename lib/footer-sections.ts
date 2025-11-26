@@ -43,10 +43,90 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year displayed in the copyright notice.",
             },
+            link1Text: {
+                control: "text",
+                default: "About",
+                description: "Text for the first navigation link.",
+            },
+            link1Url: {
+                control: "text",
+                default: "#",
+                description: "URL for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Blog",
+                description: "Text for the second navigation link.",
+            },
+            link2Url: {
+                control: "text",
+                default: "#",
+                description: "URL for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Jobs",
+                description: "Text for the third navigation link.",
+            },
+            link3Url: {
+                control: "text",
+                default: "#",
+                description: "URL for the third navigation link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Press",
+                description: "Text for the fourth navigation link.",
+            },
+            link4Url: {
+                control: "text",
+                default: "#",
+                description: "URL for the fourth navigation link.",
+            },
+            link5Text: {
+                control: "text",
+                default: "Accessibility",
+                description: "Text for the fifth navigation link.",
+            },
+            link5Url: {
+                control: "text",
+                default: "#",
+                description: "URL for the fifth navigation link.",
+            },
             showSocialIcons: {
                 control: "boolean",
                 default: true,
                 description: "Toggle to show or hide social media icons.",
+            },
+            showTwitter: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Twitter icon.",
+            },
+            showInstagram: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Instagram icon.",
+            },
+            showGithub: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide GitHub icon.",
+            },
+            twitterUrl: {
+                control: "text",
+                default: "#",
+                description: "URL for Twitter link.",
+            },
+            instagramUrl: {
+                control: "text",
+                default: "#",
+                description: "URL for Instagram link.",
+            },
+            githubUrl: {
+                control: "text",
+                default: "#",
+                description: "URL for GitHub link.",
             },
             backgroundColor: {
                 control: "color",
@@ -58,6 +138,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#737373",
                 description: "Color of the navigation link text.",
             },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for navigation links.",
+            },
             copyrightTextColor: {
                 control: "color",
                 default: "#737373",
@@ -67,6 +152,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#a3a3a3",
                 description: "Color of the social media icons.",
+            },
+            iconHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for social media icons.",
             },
             borderColor: {
                 control: "color",
@@ -97,6 +187,106 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year in the copyright notice.",
             },
+            solutionsTitle: {
+                control: "text",
+                default: "Solutions",
+                description: "Title for the Solutions column.",
+            },
+            solutionsLink1: {
+                control: "text",
+                default: "Marketing",
+                description: "First link in Solutions column.",
+            },
+            solutionsLink2: {
+                control: "text",
+                default: "Analytics",
+                description: "Second link in Solutions column.",
+            },
+            solutionsLink3: {
+                control: "text",
+                default: "Commerce",
+                description: "Third link in Solutions column.",
+            },
+            solutionsLink4: {
+                control: "text",
+                default: "Insights",
+                description: "Fourth link in Solutions column.",
+            },
+            supportTitle: {
+                control: "text",
+                default: "Support",
+                description: "Title for the Support column.",
+            },
+            supportLink1: {
+                control: "text",
+                default: "Pricing",
+                description: "First link in Support column.",
+            },
+            supportLink2: {
+                control: "text",
+                default: "Documentation",
+                description: "Second link in Support column.",
+            },
+            supportLink3: {
+                control: "text",
+                default: "Guides",
+                description: "Third link in Support column.",
+            },
+            supportLink4: {
+                control: "text",
+                default: "API Status",
+                description: "Fourth link in Support column.",
+            },
+            companyTitle: {
+                control: "text",
+                default: "Company",
+                description: "Title for the Company column.",
+            },
+            companyLink1: {
+                control: "text",
+                default: "About",
+                description: "First link in Company column.",
+            },
+            companyLink2: {
+                control: "text",
+                default: "Blog",
+                description: "Second link in Company column.",
+            },
+            companyLink3: {
+                control: "text",
+                default: "Jobs",
+                description: "Third link in Company column.",
+            },
+            companyLink4: {
+                control: "text",
+                default: "Press",
+                description: "Fourth link in Company column.",
+            },
+            showTwitter: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Twitter icon.",
+            },
+            showGithub: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide GitHub icon.",
+            },
+            showLinkedin: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide LinkedIn icon.",
+            },
+            privacyLinkText: {
+                control: "text",
+                default: "Privacy Policy",
+                description: "Text for Privacy Policy link.",
+            },
+            termsLinkText: {
+                control: "text",
+                default: "Terms of Service",
+                description: "Text for Terms of Service link.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#0a0a0a",
@@ -106,6 +296,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#a3a3a3",
                 description: "Color of the body text and links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for links.",
             },
             headingColor: {
                 control: "color",
@@ -141,6 +336,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "The latest news, articles, and resources, sent to your inbox weekly.",
                 description: "Supporting description text.",
             },
+            placeholder: {
+                control: "text",
+                default: "Enter your email",
+                description: "Placeholder text for the email input.",
+            },
             buttonText: {
                 control: "text",
                 default: "Subscribe",
@@ -166,10 +366,35 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#c7d2fe",
                 description: "Color of the description text.",
             },
+            inputBackgroundColor: {
+                control: "color",
+                default: "rgba(255, 255, 255, 0.1)",
+                description: "Background color of the input field.",
+            },
+            inputBorderColor: {
+                control: "color",
+                default: "rgba(255, 255, 255, 0.2)",
+                description: "Border color of the input field.",
+            },
+            inputTextColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Text color in the input field.",
+            },
+            inputPlaceholderColor: {
+                control: "color",
+                default: "rgba(255, 255, 255, 0.6)",
+                description: "Placeholder text color.",
+            },
             buttonColor: {
                 control: "color",
                 default: "#5145cd",
                 description: "Background color of the subscribe button.",
+            },
+            buttonTextColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Text color of the subscribe button.",
             },
             borderColor: {
                 control: "color",
@@ -189,6 +414,56 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "text",
                 default: "Follow our journey",
                 description: "Main heading text.",
+            },
+            link1Text: {
+                control: "text",
+                default: "About",
+                description: "Text for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Blog",
+                description: "Text for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Careers",
+                description: "Text for the third navigation link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Contact",
+                description: "Text for the fourth navigation link.",
+            },
+            showTwitter: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Twitter icon.",
+            },
+            showFacebook: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Facebook icon.",
+            },
+            showInstagram: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Instagram icon.",
+            },
+            showLinkedin: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide LinkedIn icon.",
+            },
+            showYoutube: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide YouTube icon.",
+            },
+            showGithub: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide GitHub icon.",
             },
             backgroundColor: {
                 control: "color",
@@ -210,10 +485,20 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#737373",
                 description: "Color of the social icons.",
             },
+            iconHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for social icons.",
+            },
             linkColor: {
                 control: "color",
                 default: "#737373",
                 description: "Color of the navigation links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for navigation links.",
             },
         },
     },
@@ -233,6 +518,26 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "text",
                 default: "Download our mobile app to manage your projects on the go. Available for iOS and Android devices.",
                 description: "Supporting description text.",
+            },
+            appStoreButtonText: {
+                control: "text",
+                default: "App Store",
+                description: "Text on the App Store button.",
+            },
+            googlePlayButtonText: {
+                control: "text",
+                default: "Google Play",
+                description: "Text on the Google Play button.",
+            },
+            showAppStore: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide App Store button.",
+            },
+            showGooglePlay: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Google Play button.",
             },
             backgroundColor: {
                 control: "color",
@@ -254,6 +559,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#000000",
                 description: "Background color of the store buttons.",
             },
+            buttonTextColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Text color of the store buttons.",
+            },
             borderColor: {
                 control: "color",
                 default: "#e5e5e5",
@@ -272,6 +582,26 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "text",
                 default: "CMD+UI",
                 description: "Company name displayed in the logo.",
+            },
+            link1Text: {
+                control: "text",
+                default: "Product",
+                description: "Text for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Features",
+                description: "Text for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Pricing",
+                description: "Text for the third navigation link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Docs",
+                description: "Text for the fourth navigation link.",
             },
             copyrightYear: {
                 control: "text",
@@ -293,6 +623,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#a3a3a3",
                 description: "Color of the navigation links.",
             },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for navigation links.",
+            },
             logoColor: {
                 control: "color",
                 default: "#ffffff",
@@ -302,6 +637,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#262626",
                 description: "Background color of the theme toggle.",
+            },
+            toggleTextColor: {
+                control: "color",
+                default: "#a3a3a3",
+                description: "Text color of the theme toggle.",
             },
             borderColor: {
                 control: "color",
@@ -332,6 +672,21 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year established.",
             },
+            showTwitter: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Twitter icon.",
+            },
+            showInstagram: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Instagram icon.",
+            },
+            showLinkedin: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide LinkedIn icon.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#ffde59",
@@ -352,6 +707,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#fbbf24",
                 description: "Color of the email underline accent.",
             },
+            iconHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for social icons.",
+            },
         },
     },
     {
@@ -361,6 +721,61 @@ export const footerSections: FooterSectionMeta[] = [
         description: "A dense footer layout suitable for displaying a full sitemap.",
         tags: ["footer", "sitemap", "dense", "links", "navigation"],
         props: {
+            section1Title: {
+                control: "text",
+                default: "Product",
+                description: "Title for the first section.",
+            },
+            section2Title: {
+                control: "text",
+                default: "Features",
+                description: "Title for the second section.",
+            },
+            section3Title: {
+                control: "text",
+                default: "Resources",
+                description: "Title for the third section.",
+            },
+            section4Title: {
+                control: "text",
+                default: "Company",
+                description: "Title for the fourth section.",
+            },
+            section5Title: {
+                control: "text",
+                default: "Legal",
+                description: "Title for the fifth section.",
+            },
+            section6Title: {
+                control: "text",
+                default: "Support",
+                description: "Title for the sixth section.",
+            },
+            link1Text: {
+                control: "text",
+                default: "Overview",
+                description: "Text for the first link in each section.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Features",
+                description: "Text for the second link in each section.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Tutorials",
+                description: "Text for the third link in each section.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Pricing",
+                description: "Text for the fourth link in each section.",
+            },
+            link5Text: {
+                control: "text",
+                default: "Releases",
+                description: "Text for the fifth link in each section.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#fafafa",
@@ -400,6 +815,21 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year in the copyright notice.",
             },
+            link1Text: {
+                control: "text",
+                default: "Privacy",
+                description: "Text for the first footer link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Terms",
+                description: "Text for the second footer link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Cookies",
+                description: "Text for the third footer link.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#0a0a0a",
@@ -414,6 +844,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#737373",
                 description: "Color of the copyright and link text.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for footer links.",
             },
             dividerColor: {
                 control: "color",
@@ -439,6 +874,56 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year in the copyright notice.",
             },
+            link1Text: {
+                control: "text",
+                default: "Privacy Policy",
+                description: "Text for the first legal link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Terms of Use",
+                description: "Text for the second legal link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Sales Policy",
+                description: "Text for the third legal link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Legal",
+                description: "Text for the fourth legal link.",
+            },
+            link5Text: {
+                control: "text",
+                default: "Site Map",
+                description: "Text for the fifth legal link.",
+            },
+            link6Text: {
+                control: "text",
+                default: "Cookie Settings",
+                description: "Text for the sixth legal link.",
+            },
+            link7Text: {
+                control: "text",
+                default: "Accessibility",
+                description: "Text for the seventh legal link.",
+            },
+            showShield: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide Shield icon.",
+            },
+            showCreditCard: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide CreditCard icon.",
+            },
+            showCheckCircle: {
+                control: "boolean",
+                default: true,
+                description: "Show or hide CheckCircle icon.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#ffffff",
@@ -448,6 +933,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#171717",
                 description: "Color of the legal links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for legal links.",
             },
             textColor: {
                 control: "color",
@@ -473,6 +963,26 @@ export const footerSections: FooterSectionMeta[] = [
         description: "A footer with large, interactive hover effects on navigation items.",
         tags: ["footer", "interactive", "hover", "animation", "creative"],
         props: {
+            link1Text: {
+                control: "text",
+                default: "Work",
+                description: "Text for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Services",
+                description: "Text for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "About",
+                description: "Text for the third navigation link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Contact",
+                description: "Text for the fourth navigation link.",
+            },
             location: {
                 control: "text",
                 default: "Based in Berlin",
@@ -588,6 +1098,36 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year in the copyright notice.",
             },
+            productLink1: {
+                control: "text",
+                default: "Features",
+                description: "First link in Product section.",
+            },
+            productLink2: {
+                control: "text",
+                default: "Pricing",
+                description: "Second link in Product section.",
+            },
+            productLink3: {
+                control: "text",
+                default: "Changelog",
+                description: "Third link in Product section.",
+            },
+            companyLink1: {
+                control: "text",
+                default: "About",
+                description: "First link in Company section.",
+            },
+            companyLink2: {
+                control: "text",
+                default: "Blog",
+                description: "Second link in Company section.",
+            },
+            companyLink3: {
+                control: "text",
+                default: "Careers",
+                description: "Third link in Company section.",
+            },
             gradientFrom: {
                 control: "color",
                 default: "#4338ca",
@@ -613,6 +1153,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#c7d2fe",
                 description: "Color of the navigation links.",
             },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for navigation links.",
+            },
             iconColor: {
                 control: "color",
                 default: "#ec4899",
@@ -632,6 +1177,23 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "monolith.",
                 description: "Company name displayed as logo.",
             },
+            link1Text: {
+                control: "text",
+                default: "Work",
+                description: "Text for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "About",
+                description: "Text for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Contact",
+                description: "Text for the third navigation link.",
+            },
+
+
             copyrightYear: {
                 control: "text",
                 default: "2024",
@@ -657,6 +1219,7 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#525252",
                 description: "Color of the navigation links.",
             },
+
             copyrightColor: {
                 control: "color",
                 default: "#a3a3a3",
@@ -676,6 +1239,26 @@ export const footerSections: FooterSectionMeta[] = [
         description: "A footer that includes a live system status indicator.",
         tags: ["footer", "status", "indicator", "system", "uptime"],
         props: {
+            link1Text: {
+                control: "text",
+                default: "Status",
+                description: "Text for the first navigation link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Docs",
+                description: "Text for the second navigation link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Support",
+                description: "Text for the third navigation link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "API",
+                description: "Text for the fourth navigation link.",
+            },
             statusText: {
                 control: "text",
                 default: "System Operational",
@@ -690,6 +1273,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#a3a3a3",
                 description: "Color of the navigation links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for navigation links.",
             },
             statusBackgroundColor: {
                 control: "color",
@@ -725,6 +1313,61 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "Arkitekt",
                 description: "Company name displayed in large text.",
             },
+            studioTitle: {
+                control: "text",
+                default: "Studio",
+                description: "Title for the Studio section.",
+            },
+            studioLink1: {
+                control: "text",
+                default: "Projects",
+                description: "First link in Studio section.",
+            },
+            studioLink2: {
+                control: "text",
+                default: "Process",
+                description: "Second link in Studio section.",
+            },
+            studioLink3: {
+                control: "text",
+                default: "Team",
+                description: "Third link in Studio section.",
+            },
+            contactTitle: {
+                control: "text",
+                default: "Contact",
+                description: "Title for the Contact section.",
+            },
+            contactLink1: {
+                control: "text",
+                default: "Email",
+                description: "First link in Contact section.",
+            },
+            contactLink2: {
+                control: "text",
+                default: "Instagram",
+                description: "Second link in Contact section.",
+            },
+            contactLink3: {
+                control: "text",
+                default: "LinkedIn",
+                description: "Third link in Contact section.",
+            },
+            location: {
+                control: "text",
+                default: "Berlin, Germany",
+                description: "Location text.",
+            },
+            copyrightText: {
+                control: "text",
+                default: "© 2024 All Rights Reserved",
+                description: "Copyright text.",
+            },
+            legalLinks: {
+                control: "text",
+                default: "Privacy · Terms",
+                description: "Legal links text.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#fafafa",
@@ -739,6 +1382,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#525252",
                 description: "Color of the body text and links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for links.",
             },
             companyNameColor: {
                 control: "color",
@@ -779,6 +1427,21 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "Bolt",
                 description: "Company name in the footer.",
             },
+            link1Text: {
+                control: "text",
+                default: "Privacy",
+                description: "Text for the first footer link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Terms",
+                description: "Text for the second footer link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Contact",
+                description: "Text for the third footer link.",
+            },
             copyrightYear: {
                 control: "text",
                 default: "2024",
@@ -814,6 +1477,11 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "#a3a3a3",
                 description: "Text color in the footer section.",
             },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for footer links.",
+            },
             logoColor: {
                 control: "color",
                 default: "#ffffff",
@@ -843,6 +1511,36 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "12.5k",
                 description: "GitHub star count.",
             },
+            section1Title: {
+                control: "text",
+                default: "Docs",
+                description: "Title for the first section.",
+            },
+            section2Title: {
+                control: "text",
+                default: "API",
+                description: "Title for the second section.",
+            },
+            section3Title: {
+                control: "text",
+                default: "Community",
+                description: "Title for the third section.",
+            },
+            sectionLink1: {
+                control: "text",
+                default: "Getting Started",
+                description: "First link in each section.",
+            },
+            sectionLink2: {
+                control: "text",
+                default: "Guides",
+                description: "Second link in each section.",
+            },
+            sectionLink3: {
+                control: "text",
+                default: "Reference",
+                description: "Third link in each section.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#0d1117",
@@ -852,6 +1550,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#8b949e",
                 description: "Color of the body text and links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#ffffff",
+                description: "Hover color for links.",
             },
             headingColor: {
                 control: "color",
@@ -897,6 +1600,31 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "Condé Nast. All rights reserved.",
                 description: "Copyright text.",
             },
+            section1Title: {
+                control: "text",
+                default: "Latest",
+                description: "Title for the first section.",
+            },
+            section2Title: {
+                control: "text",
+                default: "Culture",
+                description: "Title for the second section.",
+            },
+            section3Title: {
+                control: "text",
+                default: "Business",
+                description: "Title for the third section.",
+            },
+            section4Title: {
+                control: "text",
+                default: "Science",
+                description: "Title for the fourth section.",
+            },
+            articleTitle: {
+                control: "text",
+                default: "Article Title Goes Here",
+                description: "Title text for articles in each section.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#ffffff",
@@ -911,6 +1639,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#000000",
                 description: "Color of the article links.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for article links.",
             },
             categoryColor: {
                 control: "color",
@@ -956,6 +1689,66 @@ export const footerSections: FooterSectionMeta[] = [
                 default: "2024",
                 description: "Year in the copyright notice.",
             },
+            badge1Title: {
+                control: "text",
+                default: "Secure Payments",
+                description: "Title for the first trust badge.",
+            },
+            badge1Description: {
+                control: "text",
+                default: "SSL Encrypted",
+                description: "Description for the first trust badge.",
+            },
+            badge2Title: {
+                control: "text",
+                default: "Easy Returns",
+                description: "Title for the second trust badge.",
+            },
+            badge2Description: {
+                control: "text",
+                default: "30-Day Policy",
+                description: "Description for the second trust badge.",
+            },
+            badge3Title: {
+                control: "text",
+                default: "Authentic Products",
+                description: "Title for the third trust badge.",
+            },
+            badge3Description: {
+                control: "text",
+                default: "100% Genuine",
+                description: "Description for the third trust badge.",
+            },
+            badge4Title: {
+                control: "text",
+                default: "Worldwide Shipping",
+                description: "Title for the fourth trust badge.",
+            },
+            badge4Description: {
+                control: "text",
+                default: "Fast Delivery",
+                description: "Description for the fourth trust badge.",
+            },
+            link1Text: {
+                control: "text",
+                default: "Privacy",
+                description: "Text for the first footer link.",
+            },
+            link2Text: {
+                control: "text",
+                default: "Terms",
+                description: "Text for the second footer link.",
+            },
+            link3Text: {
+                control: "text",
+                default: "Shipping",
+                description: "Text for the third footer link.",
+            },
+            link4Text: {
+                control: "text",
+                default: "Returns",
+                description: "Text for the fourth footer link.",
+            },
             backgroundColor: {
                 control: "color",
                 default: "#fafafa",
@@ -970,6 +1763,11 @@ export const footerSections: FooterSectionMeta[] = [
                 control: "color",
                 default: "#737373",
                 description: "Color of the body text.",
+            },
+            linkHoverColor: {
+                control: "color",
+                default: "#000000",
+                description: "Hover color for footer links.",
             },
             iconBackgroundColor: {
                 control: "color",

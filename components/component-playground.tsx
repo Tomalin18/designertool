@@ -1282,14 +1282,27 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const generateCode = () => {
     if (!config) return ""
 
+    // For CTA and Footer sections, show all props including defaults
+    const shouldShowAllProps = ctaMeta || footerMeta
+
     const propsString = Object.entries(props)
       .filter(([key, value]) => {
         if (key === "enableHoverTilt") return false
         const propConfig = config.props[key]
+        if (shouldShowAllProps) {
+          // Show all props for CTA and Footer sections
+          return value !== undefined && value !== ""
+        }
+        // For other components, only show non-default props
         return value !== propConfig.default && value !== undefined && value !== ""
       })
       .map(([key, value]) => {
         if (typeof value === "boolean") {
+          if (shouldShowAllProps) {
+            // For CTA and Footer, always show boolean props
+            return `${key}={${value}}`
+          }
+          // For other components, only show true booleans
           return value ? key : ""
         }
         if (typeof value === "string") {
@@ -3588,7 +3601,8 @@ import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 import { 
   Twitter, Facebook, Instagram, Linkedin, Github, Youtube, ArrowRight, Mail, MapPin, Phone,
-  Globe, Shield, CreditCard, Heart, Send, CheckCircle2
+  Globe, Shield, CreditCard, Heart, Send, CheckCircle2, Smartphone, Command, Sun, Moon,
+  Slack, Dribbble, Figma, Disc, ArrowUpRight, Zap, Terminal
 } from "lucide-react"
 import { ShinyButton } from "@/components/customize/ShinyButton"
 `
