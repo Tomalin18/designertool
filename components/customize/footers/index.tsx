@@ -85,10 +85,43 @@ export function SimpleCenteredFooter({
   iconColor = "#a3a3a3",
   iconHoverColor = "#000000",
   borderColor = "#f5f5f5",
+  paddingTop = 48,
+  paddingBottom = 48,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "normal",
+  borderWidth = 1,
 }: SimpleCenteredFooterProps) {
+  const fontSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[fontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    light: "font-light",
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[fontWeight as string] || "font-normal"
+
   return (
-    <footer className="py-12 px-6 border-t" style={{ backgroundColor, borderColor }}>
-      <div className="mx-auto max-w-2xl text-center">
+    <footer
+      className="border-t transition-all duration-300"
+      style={{
+        backgroundColor,
+        borderColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+        borderTopWidth: `${borderWidth}px`,
+      }}
+    >
+      <div className={cn("mx-auto max-w-2xl text-center", fontSizeClass, fontWeightClass)}>
         <div className="mb-6 flex justify-center gap-6" style={{ color: textColor }}>
           <a
             href={link1Url}
@@ -208,10 +241,42 @@ export function MultiColumnLargeFooter({
   headingColor = "#ffffff",
   logoAccentColor = "#6366f1",
   borderColor = "#262626",
+  paddingTop = 64,
+  paddingBottom = 64,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "normal",
+  borderWidth = 1,
 }: MultiColumnLargeFooterProps) {
+  const fontSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[fontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    light: "font-light",
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[fontWeight as string] || "font-normal"
+
   return (
-    <footer className="py-16 px-6" style={{ backgroundColor, color: textColor }}>
-      <div className="mx-auto max-w-6xl grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
+    <footer
+      className="transition-all duration-300"
+      style={{
+        backgroundColor,
+        color: textColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+      }}
+    >
+      <div className={cn("mx-auto max-w-6xl grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5", fontSizeClass, fontWeightClass)}>
         <div className="col-span-2 lg:col-span-2">
           <div className="flex items-center gap-2 mb-4 font-bold text-xl" style={{ color: headingColor }}>
             <div className="h-8 w-8 rounded-lg" style={{ backgroundColor: logoAccentColor }} /> {companyName}
@@ -265,7 +330,13 @@ export function MultiColumnLargeFooter({
           </ul>
         </div>
       </div>
-      <div className="mx-auto mt-12 max-w-6xl border-t pt-8 text-sm flex flex-col md:flex-row justify-between gap-4" style={{ borderColor }}>
+      <div 
+        className="mx-auto mt-12 max-w-6xl border-t pt-8 text-sm flex flex-col md:flex-row justify-between gap-4" 
+        style={{ 
+          borderColor,
+          borderTopWidth: `${borderWidth}px`
+        }}
+      >
         <p>&copy; {copyrightYear} {companyName} Inc. All rights reserved.</p>
         <div className="flex gap-6">
           <a href="#" className="transition-colors" onMouseEnter={(e) => e.currentTarget.style.color = linkHoverColor} onMouseLeave={(e) => e.currentTarget.style.color = textColor}>{privacyLinkText}</a>
@@ -295,10 +366,41 @@ export function NewsletterFooter({
   buttonColor = "#5145cd",
   buttonTextColor = "#ffffff",
   borderColor = "#5145cd",
+  paddingTop = 48,
+  paddingBottom = 48,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "normal",
+  borderWidth = 1,
 }: NewsletterFooterProps) {
+  const fontSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[fontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    light: "font-light",
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[fontWeight as string] || "font-normal"
+
   return (
-    <footer className="py-12 px-6" style={{ backgroundColor }}>
-      <div className="mx-auto max-w-4xl">
+    <footer 
+      className="transition-all duration-300" 
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+      }}
+    >
+      <div className={cn("mx-auto max-w-4xl", fontSizeClass, fontWeightClass)}>
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-2" style={{ color: headingColor }}>
             {heading}
@@ -333,7 +435,14 @@ export function NewsletterFooter({
             {buttonText}
           </button>
         </div>
-        <div className="border-t pt-6 text-center text-sm" style={{ borderColor, color: descriptionColor }}>
+        <div 
+          className="border-t pt-6 text-center text-sm" 
+          style={{ 
+            borderColor, 
+            color: descriptionColor,
+            borderTopWidth: `${borderWidth}px`
+          }}
+        >
           <p>&copy; {copyrightYear} All rights reserved.</p>
         </div>
       </div>
@@ -362,6 +471,11 @@ export function SocialHeavyFooter({
   iconHoverColor = "#000000",
   linkColor = "#737373",
   linkHoverColor = "#000000",
+  paddingTop = 64,
+  paddingBottom = 64,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "normal",
 }: SocialHeavyFooterProps) {
   const socialIcons = [
     { show: showTwitter, Icon: Twitter },
@@ -372,9 +486,34 @@ export function SocialHeavyFooter({
     { show: showGithub, Icon: Github },
   ].filter(item => item.show)
 
+  const fontSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[fontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    light: "font-light",
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[fontWeight as string] || "font-normal"
+
   return (
-    <footer className="py-16 px-6" style={{ backgroundColor }}>
-      <div className="mx-auto max-w-4xl text-center">
+    <footer 
+      className="transition-all duration-300" 
+      style={{ 
+        backgroundColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+      }}
+    >
+      <div className={cn("mx-auto max-w-4xl text-center", fontSizeClass, fontWeightClass)}>
         <h2 className="text-xl font-bold mb-8" style={{ color: headingColor }}>
           {heading}
         </h2>
@@ -452,10 +591,43 @@ export function AppDownloadFooter({
   buttonBackgroundColor = "#000000",
   buttonTextColor = "#ffffff",
   borderColor = "#e5e5e5",
+  paddingTop = 48,
+  paddingBottom = 48,
+  paddingX = 24,
+  fontSize = "base",
+  fontWeight = "normal",
+  borderWidth = 1,
 }: AppDownloadFooterProps) {
+  const fontSizeClass = {
+    xs: "text-xs",
+    sm: "text-sm",
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+  }[fontSize as string] || "text-base"
+
+  const fontWeightClass = {
+    light: "font-light",
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[fontWeight as string] || "font-normal"
+
   return (
-    <footer className="py-12 px-6 border-t" style={{ backgroundColor, borderColor }}>
-      <div className="mx-auto max-w-4xl">
+    <footer 
+      className="border-t transition-all duration-300" 
+      style={{ 
+        backgroundColor, 
+        borderColor,
+        paddingTop: `${paddingTop}px`,
+        paddingBottom: `${paddingBottom}px`,
+        paddingLeft: `${paddingX}px`,
+        paddingRight: `${paddingX}px`,
+        borderTopWidth: `${borderWidth}px`,
+      }}
+    >
+      <div className={cn("mx-auto max-w-4xl", fontSizeClass, fontWeightClass)}>
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-3" style={{ color: headingColor }}>
             {heading}
