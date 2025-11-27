@@ -50,6 +50,8 @@ import { dialogSections } from "@/lib/dialog-sections"
 import { dialogComponentsByName } from "@/components/customize/dialogs"
 import { toggleSections } from "@/lib/toggle-sections"
 import { toggleComponentsByName } from "@/components/customize/toggles"
+import { tabsSections } from "@/lib/tabs-sections"
+import { tabsComponentsByName } from "@/components/customize/tabs"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -101,10 +103,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const toggleMeta = toggleSections.find((toggle) => toggle.name === name)
   const ToggleComponent = toggleMeta ? toggleComponentsByName[toggleMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta
+  const tabsMeta = tabsSections.find((tab) => tab.name === name)
+  const TabsComponent = tabsMeta ? tabsComponentsByName[tabsMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -270,6 +275,18 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <ToggleComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (tabsMeta && TabsComponent) {
+      // Get default props for the tabs
+      const defaultProps = Object.fromEntries(
+        Object.entries(tabsMeta.props).map(([key, prop]) => [key, prop.default])
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <TabsComponent {...defaultProps} />
         </div>
       )
     }

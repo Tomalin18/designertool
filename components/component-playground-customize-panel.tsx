@@ -18,6 +18,7 @@ import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
+import { tabsSections } from "@/lib/tabs-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -52,6 +53,94 @@ interface CustomizePanelProps {
     }[]
     hiddenProps?: string[]
   }
+}
+
+const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  // Parse tabs from newline-separated string
+  const tabs = value ? value.split("\n").filter((tab) => tab.trim() !== "") : []
+  
+  // Always show at least one empty input for adding new tabs
+  const displayTabs = tabs.length === 0 ? [""] : [...tabs, ""]
+
+  const updateTabs = (newTabs: string[]) => {
+    // Remove empty tabs except the last one (for adding new items)
+    // Filter out empty tabs, but keep the structure for display
+    const nonEmptyTabs = newTabs.filter((tab, index) => {
+      // Always keep the last item (for adding new tabs)
+      if (index === newTabs.length - 1) return false
+      // Keep non-empty tabs
+      return tab.trim() !== ""
+    })
+    
+    // Join with newlines - this is what gets saved
+    onChange(nonEmptyTabs.join("\n"))
+  }
+
+  const updateTab = (index: number, val: string) => {
+    const newTabs = [...displayTabs]
+    newTabs[index] = val
+    updateTabs(newTabs)
+  }
+
+  const removeTab = (index: number) => {
+    const newTabs = displayTabs.filter((_, i) => i !== index)
+    // Ensure at least one empty input remains
+    if (newTabs.length === 0) {
+      newTabs.push("")
+    }
+    updateTabs(newTabs)
+  }
+
+  const addTab = () => {
+    const newTabs = [...displayTabs]
+    // If the last item is not empty, add a new empty one
+    if (newTabs[newTabs.length - 1].trim() !== "") {
+      newTabs.push("")
+    }
+    updateTabs(newTabs)
+  }
+
+  return (
+    <div className="space-y-4">
+      {displayTabs.map((tab, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <Input
+            value={tab}
+            onChange={(e) => updateTab(index, e.target.value)}
+            placeholder="Tab label"
+            className="h-8"
+            onKeyDown={(e) => {
+              // Allow Enter to add a new tab
+              if (e.key === "Enter" && tab.trim() !== "") {
+                e.preventDefault()
+                addTab()
+              }
+              // Allow Backspace to remove empty tabs
+              if (e.key === "Backspace" && tab.trim() === "" && displayTabs.length > 1) {
+                e.preventDefault()
+                removeTab(index)
+              }
+            }}
+          />
+          {tab.trim() !== "" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeTab(index)}
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 size={14} />
+            </Button>
+          )}
+        </div>
+      ))}
+      {displayTabs[displayTabs.length - 1]?.trim() !== "" && (
+        <Button variant="outline" size="sm" onClick={addTab} className="w-full h-8 text-xs gap-1">
+          <Plus size={12} /> Add Tab
+        </Button>
+      )}
+    </div>
+  )
 }
 
 const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
@@ -575,6 +664,23 @@ export function CustomizePanel({
             value={props[key] || "[]"} 
             onChange={(val) => updateProp(key, val)} 
           />
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    // Special editor for tabs prop (textarea type)
+    if (key === "tabs" && propConfig.type === "textarea") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <TabsEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
           {!isLast && <Separator className="!mt-4" />}
         </div>
       )
@@ -1193,6 +1299,71 @@ export function CustomizePanel({
       }
       if (otherStyleProps.length > 0) {
         styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      }
+    }
+
+    // For Tabs components, use detailed grouping (similar to Badge and Input components)
+    // Try to find by componentName first, then by name
+    const tabsSection = tabsSections.find((tab: { componentName: string; name: string }) =>
+      tab.componentName === componentName || tab.name === componentName
+    )
+    if (tabsSection) {
+      // Define style-related keys for tabs
+      const colorKeys = [
+        'activeColor', 'inactiveColor', 'backgroundColor'
+      ]
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in tabsSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!tabsSection.props[key]) {
+          return
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for color props
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Content props: everything else
+        else {
+          contentProps.push(key)
+        }
+      })
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
       }
 
       const tabs = []
