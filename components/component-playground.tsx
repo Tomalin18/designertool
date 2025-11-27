@@ -56,6 +56,8 @@ import { toggleSections } from "@/lib/toggle-sections"
 import { toggleComponentsByName } from "@/components/customize/toggles"
 import { tabsSections } from "@/lib/tabs-sections"
 import { tabsComponentsByName } from "@/components/customize/tabs"
+import { sidebarSections } from "@/lib/sidebar-sections"
+import { sidebarComponentsByName } from "@/components/customize/sidebars"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -125,6 +127,11 @@ const toggleNameToMeta = toggleSections.reduce<Record<string, (typeof toggleSect
 
 const tabsNameToMeta = tabsSections.reduce<Record<string, (typeof tabsSections)[number]>>((acc, tab) => {
   acc[tab.name] = tab
+  return acc
+}, {})
+
+const sidebarNameToMeta = sidebarSections.reduce<Record<string, (typeof sidebarSections)[number]>>((acc, sidebar) => {
+  acc[sidebar.name] = sidebar
   return acc
 }, {})
 
@@ -2292,6 +2299,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add sidebar sections to configs
+  sidebarSections.forEach((sidebar) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = sidebarComponentsByName[sidebar.componentName]
+    if (!Component) {
+      console.warn(`Sidebar component not found: ${sidebar.componentName}. Available components:`, Object.keys(sidebarComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(sidebar.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[sidebar.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from sidebarComponentsByName (re-fetch to ensure it's available)
+        const Component = sidebarComponentsByName[sidebar.componentName]
+        
+        if (!Component) {
+          console.error(`Sidebar component ${sidebar.componentName} is not available in sidebarComponentsByName. Available:`, Object.keys(sidebarComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {sidebar.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from sidebar.props definition
+        Object.keys(sidebar.props).forEach((key) => {
+          const propConfig = sidebar.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in sidebar.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${sidebar.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2353,6 +2483,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.log(`Found tabs config by slug: ${slug} -> ${tabsMeta.name}`)
       } else {
         console.warn(`Tabs meta found but config not found: ${tabsMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+
+    const sidebarMeta = sidebarSections.find(s => s.slug === slug)
+    if (sidebarMeta) {
+      config = componentConfigs[sidebarMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = sidebarMeta.name
+        console.log(`Found sidebar config by slug: ${slug} -> ${sidebarMeta.name}`)
+      } else {
+        console.warn(`Sidebar meta found but config not found: ${sidebarMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
   }
@@ -2430,6 +2572,15 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const tabsMetaBySlug = tabsSections.find(t => t.slug === slug)
     if (tabsMetaBySlug) {
       tabsMeta = tabsNameToMeta[tabsMetaBySlug.name]
+    }
+  }
+
+  // For sidebar components, find by slug if not found by componentName
+  let sidebarMeta = sidebarNameToMeta[actualComponentName]
+  if (!sidebarMeta) {
+    const sidebarMetaBySlug = sidebarSections.find(s => s.slug === slug)
+    if (sidebarMetaBySlug) {
+      sidebarMeta = sidebarNameToMeta[sidebarMetaBySlug.name]
     }
   }
   const [copied, setCopied] = React.useState(false)
@@ -5622,6 +5773,16 @@ export default function ${dialogMeta.componentName}Example() {
         tabsMeta = tabsNameToMeta[tabsMetaBySlug.name]
       }
     }
+
+    let sidebarMeta: (typeof sidebarSections)[number] | undefined
+    sidebarMeta = sidebarNameToMeta[componentName]
+    if (!sidebarMeta) {
+      // Try to find by slug
+      const sidebarMetaBySlug = sidebarSections.find(s => s.slug === slug)
+      if (sidebarMetaBySlug) {
+        sidebarMeta = sidebarNameToMeta[sidebarMetaBySlug.name]
+      }
+    }
     if (toggleMeta && initialCode) {
       // Use the initialCode directly (it already contains the full component)
       // The initialCode from the file includes the component definition and interface
@@ -5837,6 +5998,120 @@ export default function ${tabsMeta.componentName}Example() {
   return (
     <div className="flex items-center justify-center p-8 min-h-[200px]">
       <${tabsMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // For sidebar components with initialCode
+    if (sidebarMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  Search, 
+  Settings, 
+  User, 
+  Bell, 
+  Grid, 
+  Briefcase, 
+  Calendar, 
+  MessageSquare, 
+  PieChart, 
+  Folder, 
+  FileText, 
+  LogOut, 
+  Plus, 
+  ChevronRight, 
+  ChevronDown, 
+  MoreHorizontal, 
+  Zap, 
+  Shield, 
+  Database, 
+  Cloud, 
+  Code, 
+  Terminal, 
+  Layout, 
+  Command, 
+  Hash, 
+  Music, 
+  Disc, 
+  Mic, 
+  Radio, 
+  Box, 
+  Layers, 
+  Flag,
+  MapPin,
+  Compass,
+  Gift,
+  CreditCard,
+  Phone,
+  Moon,
+  Sun,
+  Laptop,
+  Heart,
+  Star
+} from "lucide-react";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use as-is
+        return initialCode
+      }
+    }
+
+    // For sidebar components without initialCode, generate usage example
+    if (sidebarMeta) {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string): string => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings and handle newlines
+          const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${sidebarMeta.componentName} } from "@/components/customize/sidebars"
+
+export default function ${sidebarMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${sidebarMeta.componentName}${propsString}/>
     </div>
   )
 }`

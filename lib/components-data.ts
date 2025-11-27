@@ -8,6 +8,7 @@ import { inputSections } from "./input-sections"
 import { dialogSections } from "./dialog-sections"
 import { toggleSections } from "./toggle-sections"
 import { tabsSections } from "./tabs-sections"
+import { sidebarSections } from "./sidebar-sections"
 
 export interface ComponentInfo {
   name: string
@@ -221,6 +222,14 @@ const tabsComponentEntries: ComponentInfo[] = tabsSections.map((tab) => ({
   tags: tab.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries]
+const sidebarComponentEntries: ComponentInfo[] = sidebarSections.map((sidebar) => ({
+  name: sidebar.name,
+  description: sidebar.description,
+  href: `/components/${sidebar.slug}`,
+  category: "Sidebar",
+  tags: sidebar.tags,
+}))
 
-export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs"] as const
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries, ...sidebarComponentEntries]
+
+export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs", "Sidebar"] as const

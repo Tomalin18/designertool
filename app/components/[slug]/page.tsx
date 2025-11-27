@@ -19,6 +19,7 @@ import { inputSections } from "@/lib/input-sections"
 import { dialogSections } from "@/lib/dialog-sections"
 import { toggleSections } from "@/lib/toggle-sections"
 import { tabsSections } from "@/lib/tabs-sections"
+import { sidebarSections } from "@/lib/sidebar-sections"
 import { ComponentInfo } from "@/lib/components-data"
 import fs from 'fs'
 import path from 'path'
@@ -29,7 +30,8 @@ export function generateStaticParams() {
   const dialogSlugs = dialogSections.map(dialog => dialog.slug)
   const toggleSlugs = toggleSections.map(toggle => toggle.slug)
   const tabsSlugs = tabsSections.map(tab => tab.slug)
-  return [...componentSlugs, ...inputSlugs, ...dialogSlugs, ...toggleSlugs, ...tabsSlugs].map((slug) => ({
+  const sidebarSlugs = sidebarSections.map(sidebar => sidebar.slug)
+  return [...componentSlugs, ...inputSlugs, ...dialogSlugs, ...toggleSlugs, ...tabsSlugs, ...sidebarSlugs].map((slug) => ({
     slug,
   }))
 }
@@ -56,6 +58,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const dialogMeta = dialogSections.find(d => d.slug === slug)
   const toggleMeta = toggleSections.find(t => t.slug === slug)
   const tabsMeta = tabsSections.find(t => t.slug === slug)
+  const sidebarMeta = sidebarSections.find(s => s.slug === slug)
 
   // Get component from componentDetails or create from inputMeta/dialogMeta/toggleMeta/tabsMeta
   let component = componentDetails[slug]
@@ -128,6 +131,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       usage: `<${tabsMeta.componentName} />`,
       tags: tabsMeta.tags,
       props: Object.entries(tabsMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+
+  // For sidebar components, create component detail if not in componentDetails
+  if (sidebarMeta && !component) {
+    component = {
+      name: sidebarMeta.name,
+      description: sidebarMeta.description,
+      category: "Sidebar",
+      hasPlayground: true,
+      installation: `import { ${sidebarMeta.componentName} } from "@/components/customize/sidebars"`,
+      usage: `<${sidebarMeta.componentName} />`,
+      tags: sidebarMeta.tags,
+      props: Object.entries(sidebarMeta.props).map(([key, prop]) => ({
         name: key,
         type: prop.control,
         default: String(prop.default || ""),
@@ -486,6 +508,32 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  if (sidebarMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'sidebars', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${sidebarMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading sidebar component code:", e)
+    }
+  }
+
   // Build customComponents array (same as components-page-client.tsx)
   const customComponents: ComponentInfo[] = [
     {
@@ -564,6 +612,13 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       href: `/components/${tab.slug}`,
       category: "Tabs",
       tags: tab.tags || [],
+    })),
+    ...sidebarSections.map(sidebar => ({
+      name: sidebar.name,
+      description: sidebar.description,
+      href: `/components/${sidebar.slug}`,
+      category: "Sidebar",
+      tags: sidebar.tags || [],
     }))
   ]
 
@@ -599,6 +654,10 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
   const getTabsComponents = () => {
     return customComponents.filter(c => c.category === "Tabs")
+  }
+
+  const getSidebarComponents = () => {
+    return customComponents.filter(c => c.category === "Sidebar")
   }
 
   const getBadgeComponents = () => {
@@ -744,6 +803,14 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       ],
     },
     {
+      title: "Sidebar",
+      href: "/components",
+      items: getSidebarComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
       title: "Header",
       href: "/components",
       items: getSectionComponentsByType("header").map((component) => ({
@@ -801,6 +868,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     const categoryToSection: Record<string, string> = {
       "Toggle": "Toggle",
       "Tabs": "Tabs",
+      "Sidebar": "Sidebar",
       "Button": "Button",
       "Card": "Card",
       "Badge": "Badge",
@@ -864,6 +932,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             inputMeta={inputMeta}
             toggleMeta={toggleMeta}
             tabsMeta={tabsMeta}
+            sidebarMeta={sidebarMeta}
           />
         </div>
 

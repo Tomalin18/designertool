@@ -24,6 +24,7 @@ import { inputSections } from "@/lib/input-sections"
 import { dialogSections } from "@/lib/dialog-sections"
 import { toggleSections } from "@/lib/toggle-sections"
 import { tabsSections } from "@/lib/tabs-sections"
+import { sidebarSections } from "@/lib/sidebar-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -143,10 +144,17 @@ export function ComponentsPageClient() {
             href: `/components/${tab.slug}`,
             category: "Tabs",
             tags: tab.tags || [],
+        })),
+        ...sidebarSections.map(sidebar => ({
+            name: sidebar.name,
+            description: sidebar.description,
+            href: `/components/${sidebar.slug}`,
+            category: "Sidebar",
+            tags: sidebar.tags || [],
         }))
     ]
 
-    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs"]
+    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs", "Sidebar"]
 
     // Calculate tag frequency from custom components
     const tagFrequency = new Map<string, number>()
@@ -340,6 +348,10 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Tabs")
     }
 
+    const getSidebarComponents = () => {
+        return customComponents.filter(c => c.category === "Sidebar")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -435,6 +447,14 @@ export function ComponentsPageClient() {
                     href: component.href,
                 })),
             ],
+        },
+        {
+            title: "Sidebar",
+            href: "/components",
+            items: getSidebarComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
         },
         {
             title: "Header",
