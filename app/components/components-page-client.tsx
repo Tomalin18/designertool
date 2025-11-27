@@ -17,6 +17,7 @@ import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
+import { buttonSections } from "@/lib/button-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -26,14 +27,15 @@ export function ComponentsPageClient() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const [selectedCategory, setSelectedCategory] = useState("All")
+    const [selectedCustomCategory, setSelectedCustomCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
     const [componentsSearch, setComponentsSearch] = useState("")
     const [sectionSearch, setSectionSearch] = useState("")
-    
+
     // Get initial tab from URL parameter, default to "components"
     const tabFromUrl = searchParams.get("tab") || "components"
     const [activeTab, setActiveTab] = useState(tabFromUrl)
-    
+
     // Sync activeTab with URL parameter when it changes (e.g., from browser back/forward)
     useEffect(() => {
         const currentTab = searchParams.get("tab") || "components"
@@ -41,7 +43,7 @@ export function ComponentsPageClient() {
             setActiveTab(currentTab)
         }
     }, [searchParams])
-    
+
     // Update URL when tab changes
     const handleTabChange = (value: string) => {
         setActiveTab(value)
@@ -63,38 +65,47 @@ export function ComponentsPageClient() {
             name: "UrlInput",
             description: "A URL input component with gradient border effect and generate button.",
             href: "/components/url-input",
-            category: "Forms",
+            category: "Input",
             tags: componentDetails["url-input"]?.tags || [],
         },
         {
             name: "MediaPlayer",
             description: "A beautiful media player component with album art, playback controls, and progress bar.",
             href: "/components/media-player",
-            category: "Display",
+            category: "Card",
             tags: componentDetails["media-player"]?.tags || [],
         },
         {
             name: "ChatInterface",
             description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
             href: "/components/chat-interface",
-            category: "Display",
+            category: "Card",
             tags: componentDetails["chat-interface"]?.tags || [],
         },
         {
             name: "SocialProfileCard",
             description: "A beautiful social profile card component with avatar, stats, and action buttons.",
             href: "/components/social-profile-card",
-            category: "Display",
+            category: "Card",
             tags: componentDetails["social-profile-card"]?.tags || [],
         },
         {
             name: "GlassAuthForm",
             description: "A beautiful glassmorphism authentication form component with floating label inputs and social login buttons.",
             href: "/components/glass-auth-form",
-            category: "Forms",
+            category: "Card",
             tags: componentDetails["glass-auth-form"]?.tags || [],
         },
+        ...buttonSections.map(button => ({
+            name: button.name,
+            description: button.description,
+            href: `/components/${button.slug}`,
+            category: "Button",
+            tags: button.tags || [],
+        }))
     ]
+
+    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Switch", "Tabs"]
 
     // Get all unique tags from custom components
     const allTags = Array.from(new Set(
@@ -102,12 +113,13 @@ export function ComponentsPageClient() {
     )).sort()
 
     const filteredCustomComponents = customComponents.filter((component) => {
+        const matchesCategory = selectedCustomCategory === "All" || component.category === selectedCustomCategory
         const searchLower = componentsSearch.toLowerCase()
         const matchesSearch =
             component.name.toLowerCase().includes(searchLower) ||
             component.description.toLowerCase().includes(searchLower) ||
             (component.tags && component.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-        return matchesSearch
+        return matchesCategory && matchesSearch
     })
 
     const filteredHeaderSections = headerSections.filter((header) => {
@@ -164,6 +176,15 @@ export function ComponentsPageClient() {
         return matchesSearch
     })
 
+    const filteredButtonSections = buttonSections.filter((button) => {
+        const searchLower = sectionSearch.toLowerCase()
+        const matchesSearch =
+            button.name.toLowerCase().includes(searchLower) ||
+            button.description.toLowerCase().includes(searchLower) ||
+            button.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        return matchesSearch
+    })
+
     // Combine all sections for display
     const allFilteredSections = [
         ...filteredHeaderSections.map(header => ({
@@ -202,6 +223,12 @@ export function ComponentsPageClient() {
             description: footer.description,
             type: 'footer' as const,
         })),
+        ...filteredButtonSections.map(button => ({
+            slug: button.slug,
+            name: button.name,
+            description: button.description,
+            type: 'button' as const,
+        })),
     ]
 
     // Get all unique tags from sections
@@ -212,6 +239,7 @@ export function ComponentsPageClient() {
         ...paymentSections.flatMap(payment => payment.tags),
         ...ctaSections.flatMap(cta => cta.tags),
         ...footerSections.flatMap(footer => footer.tags),
+        ...buttonSections.flatMap(button => button.tags),
     ])).sort()
 
     const sidebarItems = [
@@ -350,6 +378,20 @@ export function ComponentsPageClient() {
                     {/* Components Tab */}
                     <TabsContent value="components" className="mt-0">
                         <div className="flex flex-col gap-4 mb-8">
+                            {/* Categories Filter */}
+                            <div className="flex flex-wrap gap-2">
+                                {customCategories.map((category) => (
+                                    <Button
+                                        key={category}
+                                        variant={selectedCustomCategory === category ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setSelectedCustomCategory(category)}
+                                    >
+                                        {category}
+                                    </Button>
+                                ))}
+                            </div>
+
                             {/* Search */}
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

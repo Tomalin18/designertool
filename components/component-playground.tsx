@@ -42,6 +42,8 @@ import { headerSections } from "@/lib/header-sections"
 import { headerComponentsByName } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName } from "@/components/customize/footers"
+import { buttonSections } from "@/lib/button-sections"
+import { buttonComponentsByName } from "@/components/customize/buttons"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -76,6 +78,11 @@ const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSect
 
 const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
   acc[header.name] = header
+  return acc
+}, {})
+
+const buttonNameToMeta = buttonSections.reduce<Record<string, (typeof buttonSections)[number]>>((acc, button) => {
+  acc[button.name] = button
   return acc
 }, {})
 
@@ -1210,6 +1217,37 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add button sections to configs
+  buttonSections.forEach((button) => {
+    const Component = buttonComponentsByName[button.componentName]
+    if (!Component) {
+      console.warn(`Button component not found: ${button.componentName}`)
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(button.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[button.name] = {
+      props: propConfig,
+      render: (props: any) => (
+        <div className="flex items-center justify-center p-8 w-full">
+          <Component {...props} />
+        </div>
+      ),
+    }
+  })
+
   return configs
 })()
 
@@ -1221,12 +1259,16 @@ interface PlaygroundProps {
 
 export function ComponentPlayground({ componentName, slug, initialCode }: PlaygroundProps) {
   const config = componentConfigs[componentName]
+  if (!config) {
+  }
+
   const heroMeta = heroNameToMeta[componentName]
   const featureMeta = featureNameToMeta[componentName]
   const paymentMeta = paymentNameToMeta[componentName]
   const ctaMeta = ctaNameToMeta[componentName]
   const footerMeta = footerNameToMeta[componentName]
   const headerMeta = headerNameToMeta[componentName]
+  const buttonMeta = buttonNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
   const [showSidebar, setShowSidebar] = React.useState(true)
 
@@ -1322,7 +1364,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     if (!config) return ""
 
     // For CTA and Footer sections, show all props including defaults
-    const shouldShowAllProps = ctaMeta || footerMeta
+    const shouldShowAllProps = ctaMeta || footerMeta || buttonMeta
 
     const propsString = Object.entries(props)
       .filter(([key, value]) => {

@@ -315,7 +315,7 @@ export function CustomizePanel({
           <div className="space-y-2">
             <Slider
               value={[props[key] !== undefined ? props[key] : propConfig.default]}
-              onValueChange={([value]) => updateProp(key, value)}
+              onValueChange={([value]: number[]) => updateProp(key, value)}
               min={propConfig.min}
               max={propConfig.max}
               step={1}

@@ -38,6 +38,8 @@ import { headerSections } from "@/lib/header-sections"
 import { headerComponentsByName, headerDefaultProps } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName, footerDefaultProps } from "@/components/customize/footers"
+import { buttonSections } from "@/lib/button-sections"
+import { buttonComponentsByName } from "@/components/customize/buttons"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -71,10 +73,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const footerMeta = footerSections.find((footer) => footer.name === name)
   const FooterComponent = footerMeta ? footerComponentsByName[footerMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta
+  const buttonMeta = buttonSections.find((button) => button.name === name)
+  const ButtonComponent = buttonMeta ? buttonComponentsByName[buttonMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -127,6 +132,18 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="w-full">
           <FooterComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (buttonMeta && ButtonComponent) {
+      // Get default props for the button
+      const defaultProps = Object.fromEntries(
+        Object.entries(buttonMeta.props).map(([key, prop]) => [key, prop.default])
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <ButtonComponent {...defaultProps} />
         </div>
       )
     }
