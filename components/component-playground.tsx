@@ -50,6 +50,8 @@ import { badgeSections } from "@/lib/badge-sections"
 import { badgeComponentsByName } from "@/components/customize/badges"
 import { inputSections } from "@/lib/input-sections"
 import { inputComponentsByName } from "@/components/customize/inputs"
+import { dialogSections } from "@/lib/dialog-sections"
+import { dialogComponentsByName } from "@/components/customize/dialogs"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -104,6 +106,11 @@ const buttonNameToMeta = buttonSections.reduce<Record<string, (typeof buttonSect
 
 const inputNameToMeta = inputSections.reduce<Record<string, (typeof inputSections)[number]>>((acc, input) => {
   acc[input.name] = input
+  return acc
+}, {})
+
+const dialogNameToMeta = dialogSections.reduce<Record<string, (typeof dialogSections)[number]>>((acc, dialog) => {
+  acc[dialog.name] = dialog
   return acc
 }, {})
 
@@ -1709,6 +1716,131 @@ const componentConfigs: Record<string, any> = (() => {
           )
         } catch (error) {
           console.error(`Error rendering ${input.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
+  // Add dialog sections to configs
+  dialogSections.forEach((dialog) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = dialogComponentsByName[dialog.componentName]
+    if (!Component) {
+      console.warn(`Dialog component not found: ${dialog.componentName}. Available components:`, Object.keys(dialogComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(dialog.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[dialog.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from dialogComponentsByName (re-fetch to ensure it's available)
+        const Component = dialogComponentsByName[dialog.componentName]
+        
+        if (!Component) {
+          console.error(`Dialog component ${dialog.componentName} is not available in dialogComponentsByName. Available:`, Object.keys(dialogComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {dialog.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from dialog.props definition
+        Object.keys(dialog.props).forEach((key) => {
+          const propConfig = dialog.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in dialog.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center p-8 overflow-auto">
+              <div className="w-full max-w-full flex items-center justify-center">
+                <Component {...processedProps} />
+              </div>
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${dialog.componentName}:`, error)
           return (
             <div className="w-full p-4 text-center text-muted-foreground">
               Error rendering component: {String(error)}

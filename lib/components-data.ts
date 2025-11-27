@@ -5,6 +5,7 @@ import { ctaSections } from "./cta-sections"
 import { headerSections } from "./header-sections"
 import { buttonSections } from "./button-sections"
 import { inputSections } from "./input-sections"
+import { dialogSections } from "./dialog-sections"
 
 export interface ComponentInfo {
   name: string
@@ -194,6 +195,14 @@ const inputComponentEntries: ComponentInfo[] = inputSections.map((input) => ({
   tags: input.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries]
+const dialogComponentEntries: ComponentInfo[] = dialogSections.map((dialog) => ({
+  name: dialog.name,
+  description: dialog.description,
+  href: `/components/${dialog.slug}`,
+  category: "Dialog",
+  tags: dialog.tags,
+}))
 
-export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input"] as const
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries]
+
+export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog"] as const

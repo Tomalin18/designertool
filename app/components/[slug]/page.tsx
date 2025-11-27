@@ -16,13 +16,15 @@ import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
+import { dialogSections } from "@/lib/dialog-sections"
 import fs from 'fs'
 import path from 'path'
 
 export function generateStaticParams() {
   const componentSlugs = Object.keys(componentDetails)
   const inputSlugs = inputSections.map(input => input.slug)
-  return [...componentSlugs, ...inputSlugs].map((slug) => ({
+  const dialogSlugs = dialogSections.map(dialog => dialog.slug)
+  return [...componentSlugs, ...inputSlugs, ...dialogSlugs].map((slug) => ({
     slug,
   }))
 }
@@ -46,8 +48,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const buttonMeta = buttonSections.find(b => b.slug === slug)
   const badgeMeta = badgeSections.find(b => b.slug === slug)
   const inputMeta = inputSections.find(i => i.slug === slug)
+  const dialogMeta = dialogSections.find(d => d.slug === slug)
 
-  // Get component from componentDetails or create from inputMeta
+  // Get component from componentDetails or create from inputMeta/dialogMeta
   let component = componentDetails[slug]
   
   // For input components, create component detail if not in componentDetails
@@ -61,6 +64,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       usage: `<${inputMeta.componentName} />`,
       tags: inputMeta.tags,
       props: Object.entries(inputMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+
+  // For dialog components, create component detail if not in componentDetails
+  if (dialogMeta && !component) {
+    component = {
+      name: dialogMeta.name,
+      description: dialogMeta.description,
+      category: "Dialog",
+      hasPlayground: true,
+      installation: `import { ${dialogMeta.componentName} } from "@/components/customize/dialogs"`,
+      usage: `<${dialogMeta.componentName} />`,
+      tags: dialogMeta.tags,
+      props: Object.entries(dialogMeta.props).map(([key, prop]) => ({
         name: key,
         type: prop.control,
         default: String(prop.default || ""),
@@ -336,6 +358,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       }
     } catch (e) {
       console.error("Error reading input component code:", e)
+    }
+  }
+
+  // Read Dialog component code if it's a dialog section
+  if (dialogMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'dialogs', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${dialogMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading dialog component code:", e)
     }
   }
 

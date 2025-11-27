@@ -46,6 +46,8 @@ import { badgeSections } from "@/lib/badge-sections"
 import { badgeComponentsByName } from "@/components/customize/badges"
 import { inputSections } from "@/lib/input-sections"
 import { inputComponentsByName } from "@/components/customize/inputs"
+import { dialogSections } from "@/lib/dialog-sections"
+import { dialogComponentsByName } from "@/components/customize/dialogs"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -91,10 +93,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const inputMeta = inputSections.find((input) => input.name === name)
   const InputComponent = inputMeta ? inputComponentsByName[inputMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta
+  const dialogMeta = dialogSections.find((dialog) => dialog.name === name)
+  const DialogComponent = dialogMeta ? dialogComponentsByName[dialogMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -236,6 +241,18 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <InputComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (dialogMeta && DialogComponent) {
+      // Get default props for the dialog
+      const defaultProps = Object.fromEntries(
+        Object.entries(dialogMeta.props).map(([key, prop]) => [key, prop.default])
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <DialogComponent {...defaultProps} />
         </div>
       )
     }
