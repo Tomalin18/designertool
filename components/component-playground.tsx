@@ -52,6 +52,8 @@ import { inputSections } from "@/lib/input-sections"
 import { inputComponentsByName } from "@/components/customize/inputs"
 import { dialogSections } from "@/lib/dialog-sections"
 import { dialogComponentsByName } from "@/components/customize/dialogs"
+import { toggleSections } from "@/lib/toggle-sections"
+import { toggleComponentsByName } from "@/components/customize/toggles"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -111,6 +113,11 @@ const inputNameToMeta = inputSections.reduce<Record<string, (typeof inputSection
 
 const dialogNameToMeta = dialogSections.reduce<Record<string, (typeof dialogSections)[number]>>((acc, dialog) => {
   acc[dialog.name] = dialog
+  return acc
+}, {})
+
+const toggleNameToMeta = toggleSections.reduce<Record<string, (typeof toggleSections)[number]>>((acc, toggle) => {
+  acc[toggle.name] = toggle
   return acc
 }, {})
 
@@ -2032,6 +2039,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add toggle sections to configs
+  toggleSections.forEach((toggle) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = toggleComponentsByName[toggle.componentName]
+    if (!Component) {
+      console.warn(`Toggle component not found: ${toggle.componentName}. Available components:`, Object.keys(toggleComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(toggle.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[toggle.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from toggleComponentsByName (re-fetch to ensure it's available)
+        const Component = toggleComponentsByName[toggle.componentName]
+        
+        if (!Component) {
+          console.error(`Toggle component ${toggle.componentName} is not available in toggleComponentsByName. Available:`, Object.keys(toggleComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {toggle.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from toggle.props definition
+        Object.keys(toggle.props).forEach((key) => {
+          const propConfig = toggle.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in toggle.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center p-8">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${toggle.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2069,6 +2199,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.log(`Found input config by slug: ${slug} -> ${inputMeta.name}`)
       } else {
         console.warn(`Input meta found but config not found: ${inputMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+
+    const toggleMeta = toggleSections.find(t => t.slug === slug)
+    if (toggleMeta) {
+      config = componentConfigs[toggleMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = toggleMeta.name
+        console.log(`Found toggle config by slug: ${slug} -> ${toggleMeta.name}`)
+      } else {
+        console.warn(`Toggle meta found but config not found: ${toggleMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
   }
@@ -2121,6 +2263,22 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const cardMetaBySlug = cardSections.find(c => c.slug === slug)
     if (cardMetaBySlug) {
       cardMeta = cardNameToMeta[cardMetaBySlug.name]
+    }
+  }
+  // For dialog components, find by slug if not found by componentName
+  let dialogMeta = dialogNameToMeta[actualComponentName]
+  if (!dialogMeta) {
+    const dialogMetaBySlug = dialogSections.find(d => d.slug === slug)
+    if (dialogMetaBySlug) {
+      dialogMeta = dialogNameToMeta[dialogMetaBySlug.name]
+    }
+  }
+  // For toggle components, find by slug if not found by componentName
+  let toggleMeta = toggleNameToMeta[actualComponentName]
+  if (!toggleMeta) {
+    const toggleMetaBySlug = toggleSections.find(t => t.slug === slug)
+    if (toggleMetaBySlug) {
+      toggleMeta = toggleNameToMeta[toggleMetaBySlug.name]
     }
   }
   const [copied, setCopied] = React.useState(false)
@@ -2336,51 +2494,273 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const children = props.children || ""
 
     if (componentName === "Accordion") {
-      return `<Accordion${propsString ? " " + propsString : ""}>\n  <AccordionItem value="item-1">\n    <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It adheres to the WAI-ARIA design pattern.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value="item-2">\n    <AccordionTrigger className="text-xl py-6">Is it styled?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It comes with default styles that you can override.\n    </AccordionContent>\n  </AccordionItem>\n  <AccordionItem value="item-3">\n    <AccordionTrigger className="text-xl py-6">Is it animated?</AccordionTrigger>\n    <AccordionContent className="text-lg pb-6">\n      Yes. It's animated by default, but you can disable it if you prefer.\n    </AccordionContent>\n  </AccordionItem>\n</Accordion>`
+      return `import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
+export default function AccordionExample() {
+  return (
+    <Accordion${propsString ? " " + propsString : ""}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger className="text-xl py-6">Is it accessible?</AccordionTrigger>
+        <AccordionContent className="text-lg pb-6">
+          Yes. It adheres to the WAI-ARIA design pattern.
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger className="text-xl py-6">Is it styled?</AccordionTrigger>
+        <AccordionContent className="text-lg pb-6">
+          Yes. It comes with default styles that you can override.
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-3">
+        <AccordionTrigger className="text-xl py-6">Is it animated?</AccordionTrigger>
+        <AccordionContent className="text-lg pb-6">
+          Yes. It's animated by default, but you can disable it if you prefer.
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  )
+}`
     }
 
     if (componentName === "Dialog") {
-      return `<Dialog>\n  <DialogTrigger asChild>\n    <Button className="text-xl px-8 py-6 h-auto">Open Dialog</Button>\n  </DialogTrigger>\n  <DialogContent className="sm:max-w-3xl p-10">\n    <DialogHeader>\n      <DialogTitle className="text-3xl">${props.title}</DialogTitle>\n      <DialogDescription className="text-lg mt-4">${props.description}</DialogDescription>\n    </DialogHeader>\n    <DialogFooter className="mt-8 gap-4">\n      <Button variant="outline" className="text-lg px-6 py-5 h-auto">Cancel</Button>\n      <Button className="text-lg px-6 py-5 h-auto">Continue</Button>\n    </DialogFooter>\n  </DialogContent>\n</Dialog>`
+      return `import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+export default function DialogExample() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="text-xl px-8 py-6 h-auto">Open Dialog</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-3xl p-10">
+        <DialogHeader>
+          <DialogTitle className="text-3xl">${props.title || "Dialog Title"}</DialogTitle>
+          <DialogDescription className="text-lg mt-4">${props.description || "Dialog description goes here."}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="mt-8 gap-4">
+          <Button variant="outline" className="text-lg px-6 py-5 h-auto">Cancel</Button>
+          <Button className="text-lg px-6 py-5 h-auto">Continue</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}`
     }
 
     if (componentName === "Dropdown Menu") {
-      return `<DropdownMenu>\n  <DropdownMenuTrigger asChild>\n    <Button variant="outline" className="text-xl px-8 py-6 h-auto">${props.triggerText}</Button>\n  </DropdownMenuTrigger>\n  <DropdownMenuContent className="w-80">\n    ${Array.from({ length: props.itemCount }).map((_, i) => `<DropdownMenuItem key={${i}} className="text-lg py-4 px-4">Item ${i + 1}</DropdownMenuItem>\n`).join("")}\n  </DropdownMenuContent>\n</DropdownMenu>`
+      const itemCount = props.itemCount || 3
+      return `import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+export default function DropdownMenuExample() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="text-xl px-8 py-6 h-auto">${props.triggerText || "Open Menu"}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-80">
+        ${Array.from({ length: itemCount }).map((_, i) => `        <DropdownMenuItem key={${i}} className="text-lg py-4 px-4">Item ${i + 1}</DropdownMenuItem>`).join("\n")}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}`
     }
 
     if (componentName === "Label") {
-      return `<div className="space-y-4">\n  <Label htmlFor="email" className="text-xl">\n    ${props.text}\n    ${props.required ? '<span className="text-destructive ml-1">*</span>' : ''}\n  </Label>\n  <Input id="email" type="email" placeholder="m@example.com" className="text-xl h-16 px-6" />\n</div>`
+      return `import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+
+export default function LabelExample() {
+  return (
+    <div className="space-y-4">
+      <Label htmlFor="email" className="text-xl">
+        ${props.text || "Email"}
+        ${props.required ? '<span className="text-destructive ml-1">*</span>' : ''}
+      </Label>
+      <Input id="email" type="email" placeholder="m@example.com" className="text-xl h-16 px-6" />
+    </div>
+  )
+}`
     }
 
     if (componentName === "Select") {
-      return `<Select disabled={${props.disabled}}>\n  <SelectTrigger className="w-[560px] text-xl h-16 px-6" style={{ borderRadius: "${props.borderRadius}px" }}>\n    <SelectValue placeholder="${props.placeholder}" />\n  </SelectTrigger>\n  <SelectContent>\n    <SelectItem value="apple" className="text-xl py-4">Apple</SelectItem>\n    <SelectItem value="banana" className="text-xl py-4">Banana</SelectItem>\n    <SelectItem value="orange" className="text-xl py-4">Orange</SelectItem>\n    <SelectItem value="grape" className="text-xl py-4">Grape</SelectItem>\n  </SelectContent>\n</Select>`
+      return `import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+export default function SelectExample() {
+  return (
+    <Select disabled={${props.disabled || false}}>
+      <SelectTrigger className="w-[560px] text-xl h-16 px-6" style={{ borderRadius: "${props.borderRadius || 8}px" }}>
+        <SelectValue placeholder="${props.placeholder || "Select a fruit"}" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple" className="text-xl py-4">Apple</SelectItem>
+        <SelectItem value="banana" className="text-xl py-4">Banana</SelectItem>
+        <SelectItem value="orange" className="text-xl py-4">Orange</SelectItem>
+        <SelectItem value="grape" className="text-xl py-4">Grape</SelectItem>
+      </SelectContent>
+    </Select>
+  )
+}`
     }
 
     if (componentName === "Separator") {
-      return `<div className="${props.orientation === "horizontal" ? "w-full space-y-8" : "flex h-40 space-x-8"}">\n  <div className="${props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}">\n    <h4 className="text-xl font-medium leading-none">Radix Primitives</h4>\n    <p className="text-lg text-muted-foreground">An open-source UI component library.</p>\n  </div>\n  <Separator orientation="${props.orientation}" className="${props.orientation === "horizontal" ? "h-[2px]" : "w-[2px]"}" />\n  <div className="${props.orientation === "horizontal" ? "space-y-2" : "space-y-2"}">\n    <h4 className="text-xl font-medium leading-none">Shadcn UI</h4>\n    <p className="text-lg text-muted-foreground">Beautifully designed components.</p>\n  </div>\n</div>`
+      const orientation = props.orientation || "horizontal"
+      return `import { Separator } from "@/components/ui/separator"
+
+export default function SeparatorExample() {
+  return (
+    <div className="${orientation === "horizontal" ? "w-full space-y-8" : "flex h-40 space-x-8"}">
+      <div className="${orientation === "horizontal" ? "space-y-2" : "space-y-2"}">
+        <h4 className="text-xl font-medium leading-none">Radix Primitives</h4>
+        <p className="text-lg text-muted-foreground">An open-source UI component library.</p>
+      </div>
+      <Separator orientation="${orientation}" className="${orientation === "horizontal" ? "h-[2px]" : "w-[2px]"}" />
+      <div className="${orientation === "horizontal" ? "space-y-2" : "space-y-2"}">
+        <h4 className="text-xl font-medium leading-none">Shadcn UI</h4>
+        <p className="text-lg text-muted-foreground">Beautifully designed components.</p>
+      </div>
+    </div>
+  )
+}`
     }
 
     if (componentName === "Skeleton") {
-      return `<div className="space-y-6 w-full max-w-3xl">\n  ${Array.from({ length: props.count }).map((_, i) => `<Skeleton key={${i}} style={{ height: "${props.height * 2}px" }} className="w-full" />\n`).join("")}\n</div>`
+      const count = props.count || 3
+      const height = props.height || 20
+      return `import { Skeleton } from "@/components/ui/skeleton"
+
+export default function SkeletonExample() {
+  return (
+    <div className="space-y-6 w-full max-w-3xl">
+      ${Array.from({ length: count }).map((_, i) => `      <Skeleton key={${i}} style={{ height: "${height * 2}px" }} className="w-full" />`).join("\n")}
+    </div>
+  )
+}`
     }
 
     if (componentName === "Tabs") {
-      return `<Tabs defaultValue="${props.defaultValue}" className="w-[800px]">\n  <TabsList className="grid w-full h-16" style={{ gridTemplateColumns: \`repeat(${props.tabCount}, 1fr)\` }}>\n    ${Array.from({ length: props.tabCount }).map((_, i) => `<TabsTrigger key={${i}} value="tab${i + 1}" className="text-xl">Tab ${i + 1}</TabsTrigger>\n`).join("")}\n  </TabsList>\n  ${Array.from({ length: props.tabCount }).map((_, i) => `<TabsContent key={${i}} value="tab${i + 1}" className="space-y-4 p-6">\n    <h3 className="text-2xl font-medium">Content for Tab ${i + 1}</h3>\n    <p className="text-lg text-muted-foreground">\n      This is the content area for tab ${i + 1}. You can add any content here.\n    </p>\n  </TabsContent>\n`).join("")}\n</Tabs>`
+      const tabCount = props.tabCount || 3
+      const defaultValue = props.defaultValue || "tab1"
+      return `import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export default function TabsExample() {
+  return (
+    <Tabs defaultValue="${defaultValue}" className="w-[800px]">
+      <TabsList className="grid w-full h-16" style={{ gridTemplateColumns: \`repeat(${tabCount}, 1fr)\` }}>
+        ${Array.from({ length: tabCount }).map((_, i) => `        <TabsTrigger key={${i}} value="tab${i + 1}" className="text-xl">Tab ${i + 1}</TabsTrigger>`).join("\n")}
+      </TabsList>
+      ${Array.from({ length: tabCount }).map((_, i) => `      <TabsContent key={${i}} value="tab${i + 1}" className="space-y-4 p-6">
+        <h3 className="text-2xl font-medium">Content for Tab ${i + 1}</h3>
+        <p className="text-lg text-muted-foreground">
+          This is the content area for tab ${i + 1}. You can add any content here.
+        </p>
+      </TabsContent>`).join("\n")}
+    </Tabs>
+  )
+}`
     }
 
     if (componentName === "Textarea") {
-      return `<Textarea placeholder="${props.placeholder}" rows={${props.rows}} disabled={${props.disabled}} className="max-w-3xl text-xl p-6" style={{ borderRadius: "${props.borderRadius}px", borderWidth: "${props.borderWidth}px" }} />`
+      return `import { Textarea } from "@/components/ui/textarea"
+
+export default function TextareaExample() {
+  return (
+    <Textarea 
+      placeholder="${props.placeholder || "Type your message here..."}" 
+      rows={${props.rows || 4}} 
+      disabled={${props.disabled || false}} 
+      className="max-w-3xl text-xl p-6" 
+      style={{ borderRadius: "${props.borderRadius || 8}px", borderWidth: "${props.borderWidth || 1}px" }} 
+    />
+  )
+}`
     }
 
     if (componentName === "Toast") {
-      return `<div className="max-w-2xl">\n  <Alert className="p-8">\n    <Terminal className="h-8 w-8" />\n    <AlertTitle className="text-2xl">${props.title}</AlertTitle>\n    <AlertDescription className="text-lg mt-2">${props.description}</AlertDescription>\n  </Alert>\n  <p className="text-base text-muted-foreground mt-4">\n    Note: This is a preview. Actual toast will appear as a notification.\n  </p>\n</div>`
+      return `import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Terminal } from "lucide-react"
+
+export default function ToastExample() {
+  return (
+    <div className="max-w-2xl">
+      <Alert className="p-8">
+        <Terminal className="h-8 w-8" />
+        <AlertTitle className="text-2xl">${props.title || "Heads up!"}</AlertTitle>
+        <AlertDescription className="text-lg mt-2">${props.description || "You can add components to your app."}</AlertDescription>
+      </Alert>
+      <p className="text-base text-muted-foreground mt-4">
+        Note: This is a preview. Actual toast will appear as a notification.
+      </p>
+    </div>
+  )
+}`
     }
 
     if (componentName === "Toggle") {
-      return `<Toggle variant="${props.variant}" size="${props.size}" disabled={${props.disabled}} aria-label="Toggle italic" className="h-16 w-16">\n  <span className="font-bold text-3xl">B</span>\n</Toggle>`
+      return `import { Toggle } from "@/components/ui/toggle"
+
+export default function ToggleExample() {
+  return (
+    <Toggle 
+      variant="${props.variant || "default"}" 
+      size="${props.size || "default"}" 
+      disabled={${props.disabled || false}} 
+      aria-label="Toggle italic" 
+      className="h-16 w-16"
+    >
+      <span className="font-bold text-3xl">B</span>
+    </Toggle>
+  )
+}`
     }
 
     if (componentName === "Tooltip") {
-      return `<TooltipProvider>\n  <Tooltip>\n    <TooltipTrigger asChild>\n      <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>\n    </TooltipTrigger>\n    <TooltipContent side="${props.side}" className="text-lg p-4">\n      <p>${props.text}</p>\n    </TooltipContent>\n  </Tooltip>\n</TooltipProvider>`
+      return `import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
+export default function TooltipExample() {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" className="text-xl px-8 py-6 h-auto">Hover me</Button>
+        </TooltipTrigger>
+        <TooltipContent side="${props.side || "top"}" className="text-lg p-4">
+          <p>${props.text || "Tooltip content"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}`
     }
 
     if (componentName === "MediaPlayer") {
@@ -4010,10 +4390,12 @@ export const GlassAuthForm: React.FC<GlassAuthFormProps> = ({
         ? `\n  ${propsList.join("\n  ")}\n`
         : ""
 
-      return `import React from "react"
+      return `"use client"
+
+import React from "react"
 import { cn } from "@/lib/utils"
 import { MapPin, Link as LinkIcon, Twitter, Users, MessageCircle } from "lucide-react"
-import { ShinyButton } from "./ShinyButton"
+import { ShinyButton } from "@/components/customize/ShinyButton"
 
 interface SocialProfileCardProps {
   className?: string
@@ -4409,9 +4791,15 @@ const iconMap = {
     }
 
     if (heroMeta) {
-      return `import { ${heroMeta.componentName} } from "@/components/customize/heroes"
+      return `"use client"
 
-<${heroMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${heroMeta.componentName} } from "@/components/customize/heroes"
+
+export default function ${heroMeta.componentName}Example() {
+  return (
+    <${heroMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // Feature section code generation with initialCode (full component)
@@ -4452,9 +4840,15 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 
     // Feature section code generation (simple import)
     if (featureMeta) {
-      return `import { ${featureMeta.componentName} } from "@/components/customize/features"
+      return `"use client"
 
-<${featureMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${featureMeta.componentName} } from "@/components/customize/features"
+
+export default function ${featureMeta.componentName}Example() {
+  return (
+    <${featureMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // Payment section code generation with initialCode (full component)
@@ -4496,9 +4890,15 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 
     // Payment section code generation (simple import)
     if (paymentMeta) {
-      return `import { ${paymentMeta.componentName} } from "@/components/customize/payments"
+      return `"use client"
 
-<${paymentMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${paymentMeta.componentName} } from "@/components/customize/payments"
+
+export default function ${paymentMeta.componentName}Example() {
+  return (
+    <${paymentMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // CTA section code generation with initialCode (full component)
@@ -4539,9 +4939,15 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 
     // CTA section code generation (simple import)
     if (ctaMeta) {
-      return `import { ${ctaMeta.componentName} } from "@/components/customize/ctas"
+      return `"use client"
 
-<${ctaMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${ctaMeta.componentName} } from "@/components/customize/ctas"
+
+export default function ${ctaMeta.componentName}Example() {
+  return (
+    <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // Footer section code generation with initialCode (full component)
@@ -4583,9 +4989,15 @@ import { ShinyButton } from "@/components/customize/ShinyButton"
 
     // Footer section code generation (simple import)
     if (footerMeta) {
-      return `import { ${footerMeta.componentName} } from "@/components/customize/footers"
+      return `"use client"
 
-<${footerMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${footerMeta.componentName} } from "@/components/customize/footers"
+
+export default function ${footerMeta.componentName}Example() {
+  return (
+    <${footerMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // Header section code generation with initialCode (full component)
@@ -4627,46 +5039,34 @@ import {
 
     // Header section code generation (simple import)
     if (headerMeta) {
-      return `import { ${headerMeta.componentName} } from "@/components/customize/headers"
+      return `"use client"
 
-<${headerMeta.componentName}${propsString ? " " + propsString : ""} />`
+import { ${headerMeta.componentName} } from "@/components/customize/headers"
+
+export default function ${headerMeta.componentName}Example() {
+  return (
+    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
     }
 
     // Button section code generation with initialCode (full component)
     if (buttonMeta && initialCode) {
-      // Convert hex to rgb for color props (like UrlInput does)
-      const hexToRgb = (hex: string) => {
-        if (!hex || !hex.startsWith('#')) return hex
-        const r = parseInt(hex.slice(1, 3), 16)
-        const g = parseInt(hex.slice(3, 5), 16)
-        const b = parseInt(hex.slice(5, 7), 16)
-        return `rgb(${r} ${g} ${b})`
-      }
-
-      // Build props list for usage example - show all props with their current values (including defaults)
-      const propsList: string[] = []
-      Object.entries(props).forEach(([key, value]) => {
-        if (value === undefined || value === "") return
-        const propConfig = config.props[key]
-        if (!propConfig) return
-        
-        // Convert color props to rgb format (like UrlInput)
-        if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
-          propsList.push(`${key}="${hexToRgb(value)}"`)
-        } else if (typeof value === "boolean") {
-          propsList.push(`${key}={${value}}`)
-        } else if (typeof value === "string") {
-          propsList.push(`${key}="${value}"`)
-        } else {
-          propsList.push(`${key}={${JSON.stringify(value)}}`)
-        }
-      })
-
-      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
-      const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
-
       // Use the initialCode directly (it already contains the full component)
-      return initialCode
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports at the top
+        const imports = `"use client"
+
+import React from "react";
+import { cn } from "@/lib/utils";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
+      }
     }
 
     // Button section code generation (simple import)
@@ -4702,9 +5102,15 @@ import {
       const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
       const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
 
-      return `import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
+      return `"use client"
 
-<${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>`
+import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
+
+export default function ${buttonMeta.componentName}Example() {
+  return (
+    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>
+  )
+}`
     }
 
     // Input section code generation - try both componentName and actualComponentName
@@ -4714,6 +5120,23 @@ import {
       const inputMetaBySlug = inputSections.find(i => i.slug === slug)
       if (inputMetaBySlug) {
         inputMeta = inputNameToMeta[inputMetaBySlug.name]
+      }
+    }
+    if (inputMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports at the top
+        const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
       }
     }
     if (inputMeta) {
@@ -4757,9 +5180,17 @@ import {
         }
       })
 
-      return `import { ${inputMeta.componentName} } from "@/components/customize/inputs"
+      return `"use client"
 
-<${inputMeta.componentName}${propsList.length > 0 ? ` ${propsList.join(" ")}` : ""} />`
+import { ${inputMeta.componentName} } from "@/components/customize/inputs"
+
+export default function ${inputMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${inputMeta.componentName}${propsList.length > 0 ? ` ${propsList.join(" ")}` : ""} />
+    </div>
+  )
+}`
     }
 
     // Badge section code generation - try both componentName and actualComponentName
@@ -4769,6 +5200,23 @@ import {
       const badgeMetaBySlug = badgeSections.find(b => b.slug === slug)
       if (badgeMetaBySlug) {
         badgeMeta = badgeNameToMeta[badgeMetaBySlug.name]
+      }
+    }
+    if (badgeMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports at the top
+        const imports = `"use client"
+
+import React from "react";
+import { cn } from "@/lib/utils";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
       }
     }
     if (badgeMeta) {
@@ -4806,11 +5254,15 @@ import {
 
       const propsString = propsList.length > 0 ? `\n  ${propsList.join("\n  ")}\n` : ""
 
-      return `import { ${badgeMeta.componentName} } from "@/components/customize/badges"
+      return `"use client"
 
-export function ${badgeMeta.componentName}Demo() {
+import { ${badgeMeta.componentName} } from "@/components/customize/badges"
+
+export default function ${badgeMeta.componentName}Example() {
   return (
-    <${badgeMeta.componentName}${propsString} />
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${badgeMeta.componentName}${propsString} />
+    </div>
   )
 }`
     }
@@ -4822,6 +5274,23 @@ export function ${badgeMeta.componentName}Demo() {
       const cardMetaBySlug = cardSections.find(c => c.slug === slug)
       if (cardMetaBySlug) {
         cardMeta = cardNameToMeta[cardMetaBySlug.name]
+      }
+    }
+    if (cardMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports at the top
+        const imports = `"use client"
+
+import React from "react";
+import { cn } from "@/lib/utils";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
       }
     }
     if (cardMeta) {
@@ -4893,22 +5362,253 @@ export function ${badgeMeta.componentName}Demo() {
 
       const propsString = propsList.length > 0 ? `\n  ${propsList.join("\n  ")}\n` : ""
 
-      return `import { ${cardMeta.componentName} } from "@/components/customize/cards"
+      return `"use client"
 
-export function ${cardMeta.componentName}Demo() {
+import { ${cardMeta.componentName} } from "@/components/customize/cards"
+
+export default function ${cardMeta.componentName}Example() {
   return (
-    <div className="max-w-sm">
-      <${cardMeta.componentName}${propsString} />
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <div className="max-w-sm w-full">
+        <${cardMeta.componentName}${propsString} />
+      </div>
     </div>
   )
 }`
     }
 
-    if (children) {
-      return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
+    // Dialog section code generation - try both componentName and actualComponentName
+    let dialogMeta = dialogNameToMeta[componentName] || dialogNameToMeta[actualComponentName]
+    if (!dialogMeta) {
+      // Try to find by slug
+      const dialogMetaBySlug = dialogSections.find(d => d.slug === slug)
+      if (dialogMetaBySlug) {
+        dialogMeta = dialogNameToMeta[dialogMetaBySlug.name]
+      }
+    }
+    if (dialogMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports at the top
+        const imports = `"use client"
+
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
+      }
+    }
+    if (dialogMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "buttonColor" || key === "buttonHoverColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${dialogMeta.componentName} } from "@/components/customize/dialogs"
+
+export default function ${dialogMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${dialogMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
     }
 
-    return `<${componentName}${propsString ? " " + propsString : ""} />`
+    // Toggle section code generation with initialCode (full component)
+    let toggleMeta = toggleNameToMeta[componentName] || toggleNameToMeta[actualComponentName]
+    if (!toggleMeta) {
+      // Try to find by slug
+      const toggleMetaBySlug = toggleSections.find(t => t.slug === slug)
+      if (toggleMetaBySlug) {
+        toggleMeta = toggleNameToMeta[toggleMetaBySlug.name]
+      }
+    }
+    if (toggleMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // The initialCode from the file includes the component definition and interface
+      // We need to add the necessary imports and helper functions at the top
+      // Check if initialCode already has imports (it shouldn't, as we extract only the component)
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { 
+  Sun, 
+  Moon, 
+  Check, 
+  X, 
+  Lock, 
+  Unlock, 
+  Power, 
+  Volume2, 
+  VolumeX, 
+  Wifi, 
+  WifiOff 
+} from "lucide-react";
+
+// Helper function to convert hex to rgb
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined;
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+  if (!result) return hex; // Return as-is if not a valid hex
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return \`rgb(\${r} \${g} \${b})\`;
+};
+
+// Common toggle props interface
+export interface ToggleProps {
+  className?: string;
+  defaultChecked?: boolean;
+  activeColor?: string;
+  inactiveColor?: string;
+  thumbColor?: string;
+}
+
+`
+
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
+      }
+    }
+
+    // Toggle section code generation (simple import)
+    if (toggleMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "thumbColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${toggleMeta.componentName} } from "@/components/customize/toggles"
+
+export default function ${toggleMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${toggleMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // Default code generation for components without specific handlers
+    // Try to determine if it's a shadcn component or custom component
+    const shadcnComponents = ["Button", "Badge", "Checkbox", "Progress", "Switch", "Input", "Card", "Alert", "Avatar"]
+    const isShadcnComponent = shadcnComponents.includes(componentName)
+    
+    // Get import path based on component type
+    let importPath = ""
+    if (isShadcnComponent) {
+      const componentPathMap: Record<string, string> = {
+        Button: "@/components/ui/button",
+        Badge: "@/components/ui/badge",
+        Checkbox: "@/components/ui/checkbox",
+        Progress: "@/components/ui/progress",
+        Switch: "@/components/ui/switch",
+        Input: "@/components/ui/input",
+        Card: "@/components/ui/card",
+        Alert: "@/components/ui/alert",
+        Avatar: "@/components/ui/avatar",
+      }
+      importPath = componentPathMap[componentName] || "@/components/ui/" + componentName.toLowerCase()
+    } else {
+      // For custom components, try to infer the import path
+      importPath = `@/components/customize/${componentName.toLowerCase()}s`
+    }
+
+    if (children) {
+      return `import { ${componentName} } from "${importPath}"
+
+export default function ${componentName}Example() {
+  return (
+    <${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>
+  )
+}`
+    }
+
+    return `import { ${componentName} } from "${importPath}"
+
+export default function ${componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${componentName}${propsString ? " " + propsString : ""} />
+    </div>
+  )
+}`
   }
 
   const handleCopy = async () => {

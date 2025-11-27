@@ -48,6 +48,8 @@ import { inputSections } from "@/lib/input-sections"
 import { inputComponentsByName } from "@/components/customize/inputs"
 import { dialogSections } from "@/lib/dialog-sections"
 import { dialogComponentsByName } from "@/components/customize/dialogs"
+import { toggleSections } from "@/lib/toggle-sections"
+import { toggleComponentsByName } from "@/components/customize/toggles"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -96,10 +98,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const dialogMeta = dialogSections.find((dialog) => dialog.name === name)
   const DialogComponent = dialogMeta ? dialogComponentsByName[dialogMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta
+  const toggleMeta = toggleSections.find((toggle) => toggle.name === name)
+  const ToggleComponent = toggleMeta ? toggleComponentsByName[toggleMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -253,6 +258,18 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <DialogComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (toggleMeta && ToggleComponent) {
+      // Get default props for the toggle
+      const defaultProps = Object.fromEntries(
+        Object.entries(toggleMeta.props).map(([key, prop]) => [key, prop.default])
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <ToggleComponent {...defaultProps} />
         </div>
       )
     }

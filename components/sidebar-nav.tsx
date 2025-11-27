@@ -13,13 +13,14 @@ interface SidebarNavProps {
     href: string
     items?: { title: string; href: string }[]
   }[]
+  defaultExpanded?: string[]
 }
 
-export function SidebarNav({ items }: SidebarNavProps) {
+export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
   const pathname = usePathname()
   const { colorPalette, theme } = useTheme()
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set()
+    new Set(defaultExpanded)
   )
   const [isMounted, setIsMounted] = useState(false)
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light")
@@ -94,6 +95,23 @@ export function SidebarNav({ items }: SidebarNavProps) {
   }
 
   const isExpanded = (title: string) => expandedSections.has(title)
+
+  // Auto-expand section if current pathname matches any item in that section
+  useEffect(() => {
+    if (!pathname) return
+    
+    items.forEach((section) => {
+      if (section.items) {
+        const hasActiveItem = section.items.some(item => item.href === pathname)
+        if (hasActiveItem) {
+          setExpandedSections(prev => {
+            if (prev.has(section.title)) return prev
+            return new Set([...prev, section.title])
+          })
+        }
+      }
+    })
+  }, [pathname, items])
 
   return (
     <nav className="grid gap-2">

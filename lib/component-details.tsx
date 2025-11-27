@@ -7,6 +7,7 @@ import { headerSections } from "./header-sections"
 import { buttonSections } from "./button-sections"
 import { cardSections } from "./card-sections"
 import { badgeSections } from "./badge-sections"
+import { toggleSections } from "./toggle-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2456,6 +2457,42 @@ export function ${card.componentName}Demo() {
       <${card.componentName} />
     </div>
   )
+}`,
+      },
+    ],
+  }
+})
+
+toggleSections.forEach((toggle) => {
+  componentDetails[toggle.slug] = {
+    name: toggle.name,
+    description: toggle.description,
+    category: "Form",
+    hasPlayground: true,
+    installation: "Copy the toggle component from the code example below.",
+    usage: `import { ${toggle.componentName} } from "@/components/customize/toggles"
+
+export function ${toggle.componentName}Demo() {
+  return <${toggle.componentName} />
+}`,
+    tags: toggle.tags,
+    props: Object.entries(toggle.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.options ? prop.options.join(" | ") : (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : prop.control === "number" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+    examples: [
+      {
+        title: "Basic Usage",
+        description: `A simple ${toggle.name.toLowerCase()} component with default settings.`,
+        code: `import { ${toggle.componentName} } from "@/components/customize/toggles"
+
+export function ${toggle.componentName}Demo() {
+  return <${toggle.componentName} />
 }`,
       },
     ],

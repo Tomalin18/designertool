@@ -22,6 +22,7 @@ import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
 import { dialogSections } from "@/lib/dialog-sections"
+import { toggleSections } from "@/lib/toggle-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -127,10 +128,17 @@ export function ComponentsPageClient() {
             href: `/components/${dialog.slug}`,
             category: "Dialog",
             tags: dialog.tags || [],
+        })),
+        ...toggleSections.map(toggle => ({
+            name: toggle.name,
+            description: toggle.description,
+            href: `/components/${toggle.slug}`,
+            category: "Toggle",
+            tags: toggle.tags || [],
         }))
     ]
 
-    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Switch", "Tabs"]
+    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs"]
 
     // Calculate tag frequency from custom components
     const tagFrequency = new Map<string, number>()
@@ -316,6 +324,10 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Dialog")
     }
 
+    const getToggleComponents = () => {
+        return customComponents.filter(c => c.category === "Toggle")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -391,9 +403,9 @@ export function ComponentsPageClient() {
             ],
         },
         {
-            title: "Switch",
+            title: "Toggle",
             href: "/components",
-            items: componentsData.filter(c => c.name === "Switch").map((component) => ({
+            items: getToggleComponents().map((component) => ({
                 title: component.name,
                 href: component.href,
             })),
