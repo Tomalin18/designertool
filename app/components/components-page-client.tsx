@@ -20,6 +20,7 @@ import { footerSections } from "@/lib/footer-sections"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
+import { inputSections } from "@/lib/input-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -118,6 +119,13 @@ export function ComponentsPageClient() {
             href: `/components/${badge.slug}`,
             category: "Badge",
             tags: badge.tags || [],
+        })),
+        ...inputSections.map(input => ({
+            name: input.name,
+            description: input.description,
+            href: `/components/${input.slug}`,
+            category: "Input",
+            tags: input.tags || [],
         }))
     ]
 
