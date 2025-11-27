@@ -17,6 +17,8 @@ import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
 import { dialogSections } from "@/lib/dialog-sections"
+import { toggleSections } from "@/lib/toggle-sections"
+import { ComponentInfo } from "@/lib/components-data"
 import fs from 'fs'
 import path from 'path'
 
@@ -24,7 +26,8 @@ export function generateStaticParams() {
   const componentSlugs = Object.keys(componentDetails)
   const inputSlugs = inputSections.map(input => input.slug)
   const dialogSlugs = dialogSections.map(dialog => dialog.slug)
-  return [...componentSlugs, ...inputSlugs, ...dialogSlugs].map((slug) => ({
+  const toggleSlugs = toggleSections.map(toggle => toggle.slug)
+  return [...componentSlugs, ...inputSlugs, ...dialogSlugs, ...toggleSlugs].map((slug) => ({
     slug,
   }))
 }
@@ -49,8 +52,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const badgeMeta = badgeSections.find(b => b.slug === slug)
   const inputMeta = inputSections.find(i => i.slug === slug)
   const dialogMeta = dialogSections.find(d => d.slug === slug)
+  const toggleMeta = toggleSections.find(t => t.slug === slug)
 
-  // Get component from componentDetails or create from inputMeta/dialogMeta
+  // Get component from componentDetails or create from inputMeta/dialogMeta/toggleMeta
   let component = componentDetails[slug]
   
   // For input components, create component detail if not in componentDetails
@@ -83,6 +87,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       usage: `<${dialogMeta.componentName} />`,
       tags: dialogMeta.tags,
       props: Object.entries(dialogMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+
+  // For toggle components, create component detail if not in componentDetails
+  if (toggleMeta && !component) {
+    component = {
+      name: toggleMeta.name,
+      description: toggleMeta.description,
+      category: "Toggle",
+      hasPlayground: true,
+      installation: `import { ${toggleMeta.componentName} } from "@/components/customize/toggles"`,
+      usage: `<${toggleMeta.componentName} />`,
+      tags: toggleMeta.tags,
+      props: Object.entries(toggleMeta.props).map(([key, prop]) => ({
         name: key,
         type: prop.control,
         default: String(prop.default || ""),
@@ -388,22 +411,362 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  // Read Toggle component code if it's a toggle section
+  if (toggleMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'toggles', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${toggleMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading toggle component code:", e)
+    }
+  }
+
+  // Build customComponents array (same as components-page-client.tsx)
+  const customComponents: ComponentInfo[] = [
+    {
+      name: "MediaPlayer",
+      description: "A beautiful media player component with album art, playback controls, and progress bar.",
+      href: "/components/media-player",
+      category: "Card",
+      tags: componentDetails["media-player"]?.tags || [],
+    },
+    {
+      name: "ChatInterface",
+      description: "A modern chat interface component with message bubbles, typing indicator, and input area.",
+      href: "/components/chat-interface",
+      category: "Card",
+      tags: componentDetails["chat-interface"]?.tags || [],
+    },
+    {
+      name: "SocialProfileCard",
+      description: "A beautiful social profile card component with avatar, stats, and action buttons.",
+      href: "/components/social-profile-card",
+      category: "Card",
+      tags: componentDetails["social-profile-card"]?.tags || [],
+    },
+    {
+      name: "GlassAuthForm",
+      description: "A beautiful glassmorphism authentication form component with floating label inputs and social login buttons.",
+      href: "/components/glass-auth-form",
+      category: "Card",
+      tags: componentDetails["glass-auth-form"]?.tags || [],
+    },
+    ...buttonSections.map(button => ({
+      name: button.name,
+      description: button.description,
+      href: `/components/${button.slug}`,
+      category: "Button",
+      tags: button.tags || [],
+    })),
+    ...cardSections.map(card => ({
+      name: card.name,
+      description: card.description,
+      href: `/components/${card.slug}`,
+      category: "Card",
+      tags: componentDetails[card.slug]?.tags || card.tags || [],
+    })),
+    ...badgeSections.map(badge => ({
+      name: badge.name,
+      description: badge.description,
+      href: `/components/${badge.slug}`,
+      category: "Badge",
+      tags: badge.tags || [],
+    })),
+    ...inputSections.map(input => ({
+      name: input.name,
+      description: input.description,
+      href: `/components/${input.slug}`,
+      category: "Input",
+      tags: input.tags || [],
+    })),
+    ...dialogSections.map(dialog => ({
+      name: dialog.name,
+      description: dialog.description,
+      href: `/components/${dialog.slug}`,
+      category: "Dialog",
+      tags: dialog.tags || [],
+    })),
+    ...toggleSections.map(toggle => ({
+      name: toggle.name,
+      description: toggle.description,
+      href: `/components/${toggle.slug}`,
+      category: "Toggle",
+      tags: toggle.tags || [],
+    }))
+  ]
+
+  // Helper functions (same as components-page-client.tsx)
+  const getSpecialComponents = () => {
+    return customComponents.filter(c => 
+      c.name === "MediaPlayer" || 
+      c.name === "ChatInterface" || 
+      c.name === "SocialProfileCard" || 
+      c.name === "GlassAuthForm"
+    )
+  }
+
+  const getButtonComponents = () => {
+    return customComponents.filter(c => c.category === "Button")
+  }
+
+  const getCardComponents = () => {
+    return customComponents.filter(c => c.category === "Card")
+  }
+
+  const getInputComponents = () => {
+    return customComponents.filter(c => c.category === "Input")
+  }
+
+  const getDialogComponents = () => {
+    return customComponents.filter(c => c.category === "Dialog")
+  }
+
+  const getToggleComponents = () => {
+    return customComponents.filter(c => c.category === "Toggle")
+  }
+
+  const getBadgeComponents = () => {
+    return customComponents.filter(c => c.category === "Badge")
+  }
+
+  const allFilteredSections = [
+    ...headerSections.map(header => ({
+      slug: header.slug,
+      name: header.name,
+      description: header.description,
+      type: 'header' as const,
+    })),
+    ...heroSections.map(hero => ({
+      slug: hero.slug,
+      name: hero.name,
+      description: hero.description,
+      type: 'hero' as const,
+    })),
+    ...featureSections.map(feature => ({
+      slug: feature.slug,
+      name: feature.name,
+      description: feature.description,
+      type: 'feature' as const,
+    })),
+    ...paymentSections.map(payment => ({
+      slug: payment.slug,
+      name: payment.name,
+      description: payment.description,
+      type: 'payment' as const,
+    })),
+    ...ctaSections.map(cta => ({
+      slug: cta.slug,
+      name: cta.name,
+      description: cta.description,
+      type: 'cta' as const,
+    })),
+    ...footerSections.map(footer => ({
+      slug: footer.slug,
+      name: footer.name,
+      description: footer.description,
+      type: 'footer' as const,
+    })),
+    ...buttonSections.map(button => ({
+      slug: button.slug,
+      name: button.name,
+      description: button.description,
+      type: 'button' as const,
+    })),
+  ]
+
+  const getSectionComponentsByType = (type: string) => {
+    return allFilteredSections
+      .filter(section => section.type === type)
+      .map(section => ({
+        name: section.name,
+        href: `/components/${section.slug}`,
+      }))
+  }
+
+  // Build sidebar items (same structure as components-page-client.tsx)
   const sidebarItems = [
     {
-      title: "Components",
+      title: "Special",
       href: "/components",
-      items: componentsData.map((c) => ({
-        title: c.name,
-        href: c.href,
+      items: getSpecialComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Button",
+      href: "/components",
+      items: getButtonComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Card",
+      href: "/components",
+      items: getCardComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Badge",
+      href: "/components",
+      items: [
+        ...componentsData.filter(c => c.name === "Badge").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+        ...getBadgeComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
+    },
+    {
+      title: "Input",
+      href: "/components",
+      items: getInputComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Dialog",
+      href: "/components",
+      items: [
+        ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+        ...getDialogComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
+    },
+    {
+      title: "Toggle",
+      href: "/components",
+      items: getToggleComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Tabs",
+      href: "/components",
+      items: componentsData.filter(c => c.name === "Tabs").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Header",
+      href: "/components",
+      items: getSectionComponentsByType("header").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Hero",
+      href: "/components",
+      items: getSectionComponentsByType("hero").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Feature",
+      href: "/components",
+      items: getSectionComponentsByType("feature").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Payment",
+      href: "/components",
+      items: getSectionComponentsByType("payment").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "CTA",
+      href: "/components",
+      items: getSectionComponentsByType("cta").map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+    {
+      title: "Footer",
+      href: "/components",
+      items: getSectionComponentsByType("footer").map((component) => ({
+        title: component.name,
+        href: component.href,
       })),
     },
   ]
+
+  // Determine which sidebar section should be expanded based on component category
+  const getDefaultExpanded = (): string[] => {
+    const category = component.category
+    
+    // Map component category to sidebar section title
+    const categoryToSection: Record<string, string> = {
+      "Toggle": "Toggle",
+      "Button": "Button",
+      "Card": "Card",
+      "Badge": "Badge",
+      "Input": "Input",
+      "Dialog": "Dialog",
+      "Sections": heroMeta ? "Hero" : featureMeta ? "Feature" : paymentMeta ? "Payment" : ctaMeta ? "CTA" : footerMeta ? "Footer" : headerMeta ? "Header" : "",
+    }
+    
+    // For section components, determine the specific section type
+    if (heroMeta) return ["Hero"]
+    if (featureMeta) return ["Feature"]
+    if (paymentMeta) return ["Payment"]
+    if (ctaMeta) return ["CTA"]
+    if (footerMeta) return ["Footer"]
+    if (headerMeta) return ["Header"]
+    
+    // For other categories, use the mapping
+    const sectionTitle = categoryToSection[category]
+    if (sectionTitle) {
+      return [sectionTitle]
+    }
+    
+    return []
+  }
+
+  const defaultExpanded = getDefaultExpanded()
 
   return (
     <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
       <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
         <div className="py-6 pl-6 pr-6 lg:py-8 lg:pl-8">
-          <SidebarNav items={sidebarItems} />
+          <SidebarNav items={sidebarItems} defaultExpanded={defaultExpanded} />
         </div>
       </aside>
 
@@ -433,6 +796,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             cardMeta={cardMeta}
             badgeMeta={badgeMeta}
             inputMeta={inputMeta}
+            toggleMeta={toggleMeta}
           />
         </div>
 

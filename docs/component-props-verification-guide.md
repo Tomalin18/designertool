@@ -241,6 +241,95 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 
 ### 5. Code Generation (`components/component-playground.tsx`)
 
+#### ✅ Complete Code Generation Mechanism
+
+All components should generate **complete, ready-to-use code** that can be directly copied and used. There are two scenarios:
+
+**Scenario 1: With `initialCode` (Full Component Implementation)**
+- When a component has `initialCode` (read from source file in detail page), display the complete component code
+- Check if `initialCode` already has imports:
+  ```typescript
+  if (componentMeta && initialCode) {
+    if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      // Add necessary imports at the top
+      const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+// ... other necessary imports
+
+// Helper functions if needed
+const hexToRgb = (hex: string): string | undefined => {
+  // ... helper implementation
+};
+
+// Common interfaces if needed
+export interface ComponentProps {
+  // ... interface definition
+}
+
+`
+      return `${imports}${initialCode}`
+    } else {
+      // initialCode already has imports, use it as-is
+      return initialCode
+    }
+  }
+  ```
+
+**Scenario 2: Without `initialCode` (Usage Example)**
+- Generate a complete usage example with all necessary imports and component structure
+- Include all current prop values
+- Format: Complete component file with imports, component definition, and usage
+
+**Example for components with initialCode support:**
+```typescript
+// Toggle, Input, Badge, Card, Dialog, Button components
+if (componentMeta && initialCode) {
+  // Check if initialCode already has imports
+  if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+    const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+// ... component-specific imports
+
+`
+    return `${imports}${initialCode}`
+  } else {
+    return initialCode
+  }
+}
+
+// Fallback: Generate usage example
+if (componentMeta) {
+  // ... generate complete usage example
+}
+```
+
+**Example for special components (MediaPlayer, ChatInterface, etc.):**
+```typescript
+// These components generate complete component code directly
+if (componentName === "MediaPlayer") {
+  return `"use client"
+
+import React, { useState, useEffect, useRef } from "react"
+import { cn } from "@/lib/utils"
+// ... imports
+
+interface MediaPlayerProps {
+  // ... complete interface
+}
+
+// ... helper functions
+
+export const MediaPlayer = ({ ... }) => {
+  // ... complete component implementation
+}
+`
+}
+```
+
 #### ✅ Props Inclusion
 - [ ] All props with values are included in generated code
 - [ ] Empty props are excluded from generated code
@@ -257,6 +346,21 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Component name matches metadata `componentName`
 - [ ] Props are formatted correctly (strings, numbers, booleans)
 - [ ] Children prop is handled correctly
+- [ ] Code includes `"use client"` directive when needed (for components using hooks)
+- [ ] Code includes all necessary imports (React, hooks, utilities, icons, etc.)
+- [ ] Code includes helper functions if needed (e.g., `hexToRgb`, `timeToSeconds`)
+- [ ] Code includes interface/type definitions if needed
+- [ ] Generated code is a complete, standalone file that can be copied directly
+
+#### ✅ Code Generation Checklist
+- [ ] Component generates complete code (not just JSX snippet)
+- [ ] Code includes proper imports
+- [ ] Code includes `"use client"` if component uses hooks
+- [ ] Code includes helper functions if component uses them
+- [ ] Code includes interface definitions if component has custom props
+- [ ] Color props are converted from hex to rgb format
+- [ ] All current prop values are included in generated code
+- [ ] Generated code can be copied and used directly without modification
 
 ### 6. Component Preview Integration (`components/component-preview.tsx`)
 
@@ -400,6 +504,347 @@ When adding a new component, test the following:
 - Ensure responsive props are applied
 - Verify navigation/config props are parsed correctly
 
+### 10. Components Page and Sidebar Integration
+
+#### ✅ Components Data Registration (`lib/components-data.ts`)
+- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Create component entries array:
+  ```typescript
+  const toggleComponentEntries: ComponentInfo[] = toggleSections.map((toggle) => ({
+    name: toggle.name,
+    description: toggle.description,
+    href: `/components/${toggle.slug}`,
+    category: "Toggle",
+    tags: toggle.tags,
+  }))
+  ```
+- [ ] Add entries to `componentsData` array:
+  ```typescript
+  export const componentsData: ComponentInfo[] = [
+    ...baseComponents,
+    ...heroComponentEntries,
+    ...toggleComponentEntries, // Add your component entries
+    // ... other entries
+  ]
+  ```
+- [ ] Add category to `categories` array:
+  ```typescript
+  export const categories = [
+    "All",
+    "Display",
+    "Forms",
+    "Toggle", // Add your category
+    // ... other categories
+  ] as const
+  ```
+
+#### ✅ Components Page Sidebar (`app/components/components-page-client.tsx`)
+- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Add component sections to `customComponents` array:
+  ```typescript
+  const customComponents: ComponentInfo[] = [
+    // ... other components
+    ...toggleSections.map(toggle => ({
+      name: toggle.name,
+      description: toggle.description,
+      href: `/components/${toggle.slug}`,
+      category: "Toggle",
+      tags: toggle.tags || [],
+    }))
+  ]
+  ```
+- [ ] Create filter function:
+  ```typescript
+  const getToggleComponents = () => {
+    return customComponents.filter(c => c.category === "Toggle")
+  }
+  ```
+- [ ] Add sidebar section in `sidebarItems`:
+  ```typescript
+  const sidebarItems = [
+    // ... other sections
+    {
+      title: "Toggle",
+      href: "/components",
+      items: getToggleComponents().map((component) => ({
+        title: component.name,
+        href: component.href,
+      })),
+    },
+  ]
+  ```
+- [ ] Add category to `customCategories` if needed:
+  ```typescript
+  const customCategories = [
+    "All",
+    "Special",
+    "Button",
+    "Toggle", // Add your category
+    // ... other categories
+  ]
+  ```
+
+#### ✅ Component Detail Page (`app/components/[slug]/page.tsx`)
+- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Add to `generateStaticParams`:
+  ```typescript
+  export function generateStaticParams() {
+    const componentSlugs = Object.keys(componentDetails)
+    const toggleSlugs = toggleSections.map(toggle => toggle.slug)
+    return [...componentSlugs, ...toggleSlugs].map((slug) => ({
+      slug,
+    }))
+  }
+  ```
+- [ ] Find component meta:
+  ```typescript
+  const toggleMeta = toggleSections.find(t => t.slug === slug)
+  ```
+- [ ] Create component detail if not in `componentDetails`:
+  ```typescript
+  if (toggleMeta && !component) {
+    component = {
+      name: toggleMeta.name,
+      description: toggleMeta.description,
+      category: "Toggle",
+      hasPlayground: true,
+      installation: `import { ${toggleMeta.componentName} } from "@/components/customize/toggles"`,
+      usage: `<${toggleMeta.componentName} />`,
+      tags: toggleMeta.tags,
+      props: Object.entries(toggleMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+  ```
+- [ ] **Add code reading logic (CRITICAL for complete code generation):**
+  ```typescript
+  if (toggleMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'toggles', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+      
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${toggleMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+      
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+        
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading toggle component code:", e)
+    }
+  }
+  ```
+  **Note:** This `initialCode` will be passed to `ComponentPlayground` and used to display the complete component implementation code.
+- [ ] Pass `initialCode` to `ComponentPlayground`:
+  ```typescript
+  <ComponentPlayground
+    componentName={component.name}
+    slug={slug}
+    initialCode={initialCode}  // Pass the read code
+  />
+  ```
+- [ ] Pass meta to `ComponentNavigation`:
+  ```typescript
+  <ComponentNavigation
+    currentSlug={slug}
+    toggleMeta={toggleMeta}
+    // ... other metas
+  />
+  ```
+
+#### ✅ Component Navigation (`components/component-navigation.tsx`)
+- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Add to interface:
+  ```typescript
+  interface ComponentNavigationProps {
+    // ... other props
+    toggleMeta?: typeof toggleSections[number]
+  }
+  ```
+- [ ] Add to function parameters:
+  ```typescript
+  export function ComponentNavigation({
+    // ... other params
+    toggleMeta,
+  }: ComponentNavigationProps) {
+  ```
+- [ ] Add to section array type:
+  ```typescript
+  let sectionArray: typeof heroSections | ... | typeof toggleSections
+  ```
+- [ ] Add lookup logic:
+  ```typescript
+  if (toggleMeta) {
+    currentSection = toggleMeta
+    sectionArray = toggleSections
+  }
+  ```
+
+#### ✅ Playground Sidebar (`components/playground/sidebar.tsx`)
+- [ ] Add component to `sidebarSections`:
+  ```typescript
+  {
+    id: "components",
+    name: "Components",
+    icon: Component,
+    items: [
+      // ... other items
+      { id: "toggle", name: "Toggle", type: "component" },
+    ],
+  }
+  ```
+
+### 11. Complete Code Generation Verification
+
+#### ✅ Code Generation Requirements
+- [ ] **All components must generate complete, ready-to-use code**
+- [ ] Code includes `"use client"` directive when component uses React hooks
+- [ ] Code includes all necessary imports (React, hooks, utilities, icons, etc.)
+- [ ] Code includes helper functions if component uses them (e.g., `hexToRgb`, `timeToSeconds`)
+- [ ] Code includes interface/type definitions if needed
+- [ ] Color props are converted from hex to rgb format in generated code
+- [ ] Generated code can be copied and used directly without modification
+
+#### ✅ Components with `initialCode` Support
+These components read their source code from files and display complete implementation:
+- **Section components:** Hero, Feature, Payment, CTA, Footer, Header
+- **Custom components:** Button, Input, Badge, Card, Dialog, Toggle
+
+**Implementation pattern:**
+```typescript
+// In component-playground.tsx
+if (componentMeta && initialCode) {
+  // Check if initialCode already has imports
+  if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+    // Add necessary imports and helper functions
+    const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+// ... component-specific imports
+
+// Helper functions if needed
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined;
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+  if (!result) return hex;
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return \`rgb(\${r} \${g} \${b})\`;
+};
+
+// Common interfaces if needed
+export interface ComponentProps {
+  className?: string;
+  // ... other props
+}
+
+`
+    return `${imports}${initialCode}`
+  } else {
+    // initialCode already has imports, use as-is
+    return initialCode
+  }
+}
+
+// Fallback: Generate usage example if no initialCode
+if (componentMeta) {
+  // Generate complete usage example with imports and props
+  return `"use client"
+
+import { ${componentMeta.componentName} } from "@/components/customize/[path]"
+
+export default function ${componentMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${componentMeta.componentName}${propsString} />
+    </div>
+  )
+}`
+}
+```
+
+#### ✅ Components without `initialCode` Support
+These components generate complete component code directly:
+- **Special components:** MediaPlayer, ChatInterface, UrlInput, SocialProfileCard, GlassAuthForm
+- **Base shadcn components:** Accordion, Dialog, Dropdown Menu, Label, Select, Separator, Skeleton, Tabs, Textarea, Toast, Toggle, Tooltip
+
+**Implementation pattern:**
+```typescript
+// Generate complete component code directly
+if (componentName === "MediaPlayer") {
+  return `"use client"
+
+import React, { useState, useEffect, useRef } from "react"
+import { cn } from "@/lib/utils"
+import { Play, Pause, SkipBack, SkipForward, Heart, Repeat, Shuffle, Upload } from "lucide-react"
+
+interface MediaPlayerProps {
+  // ... complete interface with all props
+}
+
+// Helper functions
+const timeToSeconds = (time: string): number => {
+  const parts = time.split(':')
+  if (parts.length === 2) {
+    return parseInt(parts[0]) * 60 + parseInt(parts[1])
+  }
+  return 0
+}
+
+const secondsToTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return \`\${mins}:\${secs.toString().padStart(2, '0')}\`
+}
+
+// Complete component implementation
+export const MediaPlayer = ({
+  className,
+  trackTitle = "${props.trackTitle || "Midnight City"}",
+  // ... all props with current values
+}: MediaPlayerProps) => {
+  // ... full component implementation code
+}
+`
+}
+```
+
+#### ✅ Code Generation Checklist
+- [ ] Component generates complete code (not just JSX snippet)
+- [ ] Code includes proper imports (React, hooks, utilities, icons)
+- [ ] Code includes `"use client"` if component uses hooks
+- [ ] Code includes helper functions if component uses them
+- [ ] Code includes interface definitions if component has custom props
+- [ ] Color props are converted from hex to rgb format
+- [ ] All current prop values are included in generated code
+- [ ] Generated code can be copied and used directly without modification
+- [ ] Generated code is syntactically correct
+- [ ] Generated code produces the same visual result as the playground preview
+
+#### ✅ Code Generation Testing
+- [ ] Copy generated code to a new file
+- [ ] Verify code runs without errors
+- [ ] Verify code produces the same visual result as playground
+- [ ] Check all imports are correct and available
+- [ ] Verify helper functions work correctly
+- [ ] Test with different prop combinations
+
 ## Quick Reference: Prop Control Types
 
 | Control Type | Use Case | Example |
@@ -435,8 +880,22 @@ When adding new components:
 4. ✅ Filter props in CustomizePanel to show only defined props
 5. ✅ Handle color props with proper conversion and empty value handling
 6. ✅ Add component preview support in `component-preview.tsx` (import metadata, component map, add render case)
-7. ✅ Test all props update component correctly
-8. ✅ Verify generated code includes all relevant props
+7. ✅ Register component in `component-playground.tsx` (add to componentConfigs, add render function, add code generation)
+8. ✅ **Implement complete code generation** - ensure component generates complete, ready-to-use code:
+   - If component has `initialCode` support: Check for imports and add if missing
+   - If component doesn't have `initialCode`: Generate complete usage example with all imports
+   - Include `"use client"` directive when needed
+   - Include all necessary imports, helper functions, and interfaces
+   - Convert color props from hex to rgb format
+   - Ensure generated code can be copied and used directly
+9. ✅ Add component to components data (`lib/components-data.ts`)
+10. ✅ Add component to components page sidebar (`app/components/components-page-client.tsx`)
+11. ✅ Add component to detail page (`app/components/[slug]/page.tsx` - generateStaticParams, meta lookup, code reading)
+12. ✅ Add component to navigation (`components/component-navigation.tsx`)
+13. ✅ Add component to playground sidebar (`components/playground/sidebar.tsx`)
+14. ✅ Test all props update component correctly
+15. ✅ Verify generated code includes all relevant props
+16. ✅ **Verify generated code is complete and usable** - test copying and using the generated code
 
-Following this guide ensures all component props are properly connected and functional throughout the component library system.
+Following this guide ensures all component props are properly connected and functional throughout the component library system, components are accessible from all navigation points, and **all components generate complete, ready-to-use code that can be directly copied and used**.
 

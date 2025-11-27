@@ -11,7 +11,7 @@ const components = [
   { id: "input", name: "Input", category: "Form" },
   { id: "select", name: "Select", category: "Form" },
   { id: "textarea", name: "Textarea", category: "Form" },
-  { id: "switch", name: "Switch", category: "Form" },
+  { id: "toggle", name: "Toggle", category: "Form" },
   { id: "checkbox", name: "Checkbox", category: "Form" },
   { id: "radio", name: "Radio", category: "Form" },
   { id: "badge", name: "Badge", category: "Display" },

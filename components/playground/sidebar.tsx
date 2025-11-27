@@ -84,7 +84,7 @@ const sidebarSections = [
       { id: "input", name: "Input", type: "component" },
       { id: "select", name: "Select", type: "component" },
       { id: "textarea", name: "Textarea", type: "component" },
-      { id: "switch", name: "Switch", type: "component" },
+      { id: "toggle", name: "Toggle", type: "component" },
       { id: "checkbox", name: "Checkbox", type: "component" },
       { id: "radio", name: "Radio", type: "component" },
       { id: "badge", name: "Badge", type: "component" },
