@@ -52,26 +52,65 @@ export function CardsGrid() {
 
 ## Props and Customization
 
-Each card component has its own set of customizable props. The props definitions and defaults are documented in:
+Each card component has its own set of customizable props, designed with comprehensive customization options similar to `SocialProfileCard`. The props definitions and defaults are documented in:
 - The component detail pages (`/components/[slug]`)
 - The Component Playground (interactive customization)
 - The `lib/card-sections.ts` file
 
 ### Common Props
 
-Most cards support common styling props:
+All cards support a comprehensive set of styling and content props:
+
+#### Basic Styling Props
 - `className`: Additional CSS classes
 - `backgroundColor`: Background color (hex format, automatically converted to rgb in the component)
 - `borderColor`: Border color (hex format, automatically converted to rgb in the component)
 - `textColor`: Text color (hex format, automatically converted to rgb in the component)
 - `borderRadius`: Border radius in pixels (slider control, 0-48)
-- `padding`: Inner padding in pixels (slider control, 0-32)
+- `padding`: Inner padding in pixels (slider control, 0-48, varies by card)
+
+#### Individual Element Colors
+Most cards support granular color control for different text elements:
+- `titleColor`: Title text color (optional, uses textColor if empty)
+- `descriptionColor`: Description text color (optional, uses textColor if empty)
+- `linkColor`: Link/button text color
+- `iconColor`: Icon color
+- `buttonColor`: Button background color
+- `buttonTextColor`: Button text color
+- And more element-specific colors depending on the card type
+
+#### Display Control Props
+Many cards include boolean props to show/hide specific elements:
+- `showLink`, `showButton`, `showCategory`, `showAuthor`, `showRating`, `showIcon`, etc.
+- These allow fine-grained control over what content is displayed
+
+#### Spacing and Layout Props
+- `padding`: Card inner padding (slider, 0-48px)
+- `gap`, `featureGap`, `skillGap`, `rowGap`, `itemGap`, `buttonGap`: Spacing between elements (slider controls)
+- `imageHeight`, `imageWidth`, `avatarSize`, `iconSize`: Element dimensions (slider controls)
+- `imageAspectRatio`: Image aspect ratio (select: square, portrait, landscape)
+
+#### Hover and Animation Props
+- `hoverEffect`: Enable/disable hover effects (boolean)
+- `animationSpeed`: Animation speed in milliseconds (slider, for animated cards)
+- `gradientAnimated`: Enable animated gradient (boolean, for gradient cards)
+- `gradientWidth`: Gradient border width (slider, for gradient border cards)
+
+#### Advanced Style Props
+- `borderWidth`: Border width in pixels (slider, 0-8)
+- `shadow`: Box shadow size (select: none, sm, md, lg, xl)
+- `backdropBlur`: Backdrop blur amount (slider, 0-24)
+- `overlayOpacity`: Overlay opacity percentage (slider, 0-100)
+- `glowIntensity`: Glow effect intensity (slider, 0-100)
+- `shadowOffsetX`, `shadowOffsetY`: Shadow offset values (slider, for neo-brutalist cards)
 
 **Implementation Details:**
 - Color props accept hex values (e.g., `#171717`) and are automatically converted to RGB format (`rgb(23 23 23)`) for use in inline styles
 - Style props use conditional spreading (similar to `SocialProfileCard`): only applied when values are provided
 - Empty or undefined color values allow components to use their default styling
-- Slider props (borderRadius, padding) are passed as numbers directly
+- Slider props (borderRadius, padding, etc.) are passed as numbers directly
+- Boolean props control visibility and behavior of card elements
+- Select props provide predefined options for specific styling choices
 
 ### Special Props
 
@@ -91,6 +130,64 @@ Some cards have special prop types:
 - Color props are converted from hex to rgb format automatically
 - Array/object props are parsed from string format (textarea input) to their expected data structures
 - Type conversion ensures correct prop types (numbers for sliders, booleans for switches, etc.)
+
+### Special Props Handling in Playground
+
+The playground's customize panel provides specialized editors for complex prop types to enhance the editing experience:
+
+**Array Editors (for props stored as newline-separated strings in `lib/card-sections.ts`):**
+- `features` (PricingCard): Edited via a dedicated `FeaturesEditor` where each feature is an editable item with add/remove functionality.
+- `skills` (SkillCard): Edited via a dedicated `SkillsEditor` for individual skill entries with add/remove functionality.
+
+**Object Array Editors (for props stored as structured strings in `lib/card-sections.ts`):**
+- `rows` (ComparisonCard): Edited via `ComparisonRowsEditor`, allowing direct input for "Label", "Left Value", and "Right Value" for each comparison row.
+- `items` (RoadmapCard): Edited via `RoadmapItemsEditor`, providing fields for "Title", "Status" (select), and "Color" (select) for each roadmap item.
+- `hourlyForecast` (WeatherCard): Edited via `HourlyForecastEditor`, with inputs for "Time" and "Temperature" for each forecast entry.
+
+**Color Props:**
+- Color inputs (`backgroundColor`, `borderColor`, `textColor`, `accentColor`, `titleColor`, `descriptionColor`, `iconColor`, `buttonColor`, etc.) are handled by a `ColorPicker` component.
+- Hex color values entered in the panel are automatically converted to `rgb()` format when passed to the component's `style` prop, ensuring consistent rendering.
+- If a color prop is left empty, the component will use its internal default styling or fall back to parent color props (e.g., `titleColor` falls back to `textColor`).
+
+**Slider Props:**
+- Numeric props like `borderRadius`, `padding`, `gradientWidth`, `imageHeight`, `avatarSize`, `iconSize`, `gap`, `featureGap`, `skillGap`, `rowGap`, `itemGap`, `buttonGap`, `animationSpeed`, `overlayOpacity`, `glowIntensity`, `shadowOffsetX`, `shadowOffsetY` are controlled by `Slider` components.
+- Each slider has defined min/max ranges and provides visual feedback for value adjustment.
+
+**Boolean Props:**
+- Toggle switches (`Switch` component) are used for boolean props like:
+  - Display controls: `showLink`, `showButton`, `showCategory`, `showAuthor`, `showRating`, `showIcon`, `showChange`, `showStats`, `showSocialLinks`, `showOnlineStatus`, `showFavorite`, `showComments`, `showPriority`, `showControls`, `showProgress`, `showTime`, `showChannel`, `showViews`, `showDuration`, `showHourlyForecast`, `showHighLow`, `showDeclineButton`, etc.
+  - Behavior controls: `isPlaying`, `isFavorite`, `isOnline`, `popular`, `hoverEffect`, `gradientAnimated`, etc.
+
+**Select Props:**
+- Dropdown selects are used for props with predefined options:
+  - `shadow`: none, sm, md, lg, xl
+  - `imageAspectRatio`: square, portrait, landscape
+  - `variant`: warning, info, error, success (for AlertCard)
+
+### Customize Panel Grouping
+
+The customize panel for card components is organized into tabs and subcategories for better usability:
+
+- **Content Tab**: Contains general text, number, boolean, and select props. For cards with array/object array props, this tab includes dedicated subcategories for their respective editors:
+    - **Features** (PricingCard): Dedicated editor for feature list
+    - **Skills** (SkillCard): Dedicated editor for skills list
+    - **Comparison Rows** (ComparisonCard): Dedicated editor for comparison data
+    - **Roadmap Items** (RoadmapCard): Dedicated editor for roadmap timeline items
+    - **Hourly Forecast** (WeatherCard): Dedicated editor for weather forecast data
+    - **General**: All other content-related props (text, number, boolean, select)
+
+- **Style Tab**: Contains all styling-related props, further categorized into:
+    - **Colors**: All color-related props including:
+        - Base colors: `backgroundColor`, `borderColor`, `textColor`
+        - Element colors: `titleColor`, `descriptionColor`, `linkColor`, `iconColor`, `buttonColor`, `buttonTextColor`, `accentColor`, `categoryColor`, `badgeColor`, `ratingColor`, etc.
+        - Special colors: `glowColor1`, `glowColor2`, `revealColor`, `gradientFrom`, `gradientTo`, etc.
+    - **Spacing**: Props like `padding`, `gap`, `featureGap`, `skillGap`, `rowGap`, `itemGap`, `buttonGap`, `forecastGap`
+    - **Border**: Props like `borderRadius`, `borderWidth`, `gradientWidth`
+    - **Other**: Miscellaneous style props such as:
+        - Effects: `backdropBlur`, `overlayOpacity`, `glowIntensity`, `shadow`, `shadowOffsetX`, `shadowOffsetY`
+        - Animations: `gradientAnimated`, `animationSpeed`, `hoverEffect`
+        - Dimensions: `imageHeight`, `imageWidth`, `avatarSize`, `iconSize`, `cardHeight`
+        - Layout: `imageAspectRatio`
 
 ## Available Card Components
 
@@ -303,13 +400,40 @@ The customize panel (`CustomizePanel`) provides:
 
 ## Best Practices
 
-1. **Use appropriate card types** for your content (e.g., ProductCard for e-commerce, PricingCard for pricing)
-2. **Customize colors** to match your brand using the color props (hex format, e.g., `#171717`)
-3. **Provide meaningful defaults** - all cards have sensible defaults that work when props are undefined
-4. **Use the playground** to experiment with different configurations before implementing
-5. **Check component detail pages** for complete prop documentation
-6. **Leave color props empty** if you want to use the component's default styling
-7. **Use slider controls** for numeric values (borderRadius, padding) - they provide visual feedback and proper number conversion
+1. **Use appropriate card types** for your content (e.g., ProductCard for e-commerce, PricingCard for pricing, NewsCard for articles)
 
-Refer to the playground for exact props and defaults for each card variant.
+2. **Customize colors** to match your brand using the color props (hex format, e.g., `#171717`):
+   - Use base colors (`backgroundColor`, `borderColor`, `textColor`) for overall styling
+   - Use element-specific colors (`titleColor`, `descriptionColor`, `iconColor`, etc.) for fine-grained control
+   - Leave color props empty to use component defaults or fallback to parent colors
+
+3. **Control visibility** with display props (`showX` boolean props) to show/hide specific elements without removing them from the component structure
+
+4. **Adjust spacing** using padding and gap props to create the desired layout density:
+   - Use `padding` for card inner spacing
+   - Use `gap`, `featureGap`, `skillGap`, etc. for spacing between elements
+
+5. **Enable hover effects** with `hoverEffect` prop for interactive cards that respond to user interaction
+
+6. **Use the playground** to experiment with different configurations before implementing - the customize panel provides real-time preview of all changes
+
+7. **Check component detail pages** (`/components/[slug]`) for complete prop documentation and examples
+
+8. **Leverage element-specific colors** for better visual hierarchy:
+   - Use `titleColor` to make titles stand out
+   - Use `descriptionColor` for subtler text
+   - Use `accentColor` or `buttonColor` for call-to-action elements
+
+9. **Control dimensions** with slider props (`imageHeight`, `avatarSize`, `iconSize`) to match your design requirements
+
+10. **Use boolean props** to customize card behavior:
+    - `hoverEffect`: Enable/disable hover animations
+    - `gradientAnimated`: Control gradient animations
+    - Display controls: Show/hide elements as needed
+
+11. **Provide meaningful defaults** - all cards have sensible defaults that work when props are undefined
+
+12. **Use slider controls** for numeric values - they provide visual feedback and proper number conversion
+
+Refer to the playground for exact props and defaults for each card variant. Each card's customize panel is organized into Content and Style tabs, with Style further divided into Colors, Spacing, Border, and Other subcategories for easy navigation.
 

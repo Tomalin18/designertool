@@ -137,6 +137,10 @@ export interface HorizontalCardProps {
   imageUrl?: string;
   authorName?: string;
   authorAvatar?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const HorizontalCard = ({
@@ -146,8 +150,20 @@ export const HorizontalCard = ({
   imageUrl = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1000&auto=format&fit=crop",
   authorName = "Alex Chen",
   authorAvatar,
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: HorizontalCardProps) => (
-  <div className={cn("flex w-full flex-col overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/50 sm:flex-row hover:bg-neutral-900 transition-colors", className)}>
+  <div 
+    className={cn("flex w-full flex-col overflow-hidden border sm:flex-row hover:bg-neutral-900 transition-colors", className)}
+    style={{
+      ...(backgroundColor && { backgroundColor }),
+      ...(borderColor && { borderColor }),
+      ...(textColor && { color: textColor }),
+      ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+    }}
+  >
     <div className="h-48 w-full shrink-0 sm:h-auto sm:w-48">
       <img 
         src={imageUrl} 
@@ -181,6 +197,8 @@ export interface OverlayCardProps {
   title?: string;
   description?: string;
   imageUrl?: string;
+  overlayOpacity?: number;
+  borderRadius?: number;
 }
 
 export const OverlayCard = ({
@@ -189,12 +207,22 @@ export const OverlayCard = ({
   title = "Morning Mist",
   description = "Discover the serenity of early mornings.",
   imageUrl = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?q=80&w=1000&auto=format&fit=crop",
+  overlayOpacity = 60,
+  borderRadius = 12,
 }: OverlayCardProps) => (
-  <div className={cn("group relative h-64 w-full overflow-hidden rounded-xl bg-neutral-900", className)}>
+  <div 
+    className={cn("group relative h-64 w-full overflow-hidden bg-neutral-900", className)}
+    style={{
+      borderRadius: `${borderRadius}px`,
+    }}
+  >
     <img 
       src={imageUrl} 
       alt={title} 
-      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60"
+      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+      style={{
+        opacity: overlayOpacity / 100,
+      }}
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
     <div className="absolute bottom-0 left-0 p-6">
@@ -218,6 +246,10 @@ export interface GlassCardProps {
   buttonText?: string;
   glowColor1?: string;
   glowColor2?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  backdropBlur?: number;
+  borderRadius?: number;
 }
 
 export const GlassCard = ({
@@ -228,10 +260,22 @@ export const GlassCard = ({
   buttonText = "Explore",
   glowColor1 = "rgb(168 85 247 / 0.2)",
   glowColor2 = "rgb(59 130 246 / 0.2)",
+  backgroundColor,
+  borderColor,
+  backdropBlur = 12,
+  borderRadius = 12,
 }: GlassCardProps) => {
   const IconComponent = icon || <Zap size={20} />;
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur-xl", className)}>
+    <div 
+      className={cn("relative w-full overflow-hidden border border-white/10 bg-white/5 p-6 shadow-xl", className)}
+      style={{
+        ...(backgroundColor && { backgroundColor }),
+        ...(borderColor && { borderColor }),
+        ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+        backdropFilter: `blur(${backdropBlur}px)`,
+      }}
+    >
       <div 
         className="absolute -right-10 -top-10 h-32 w-32 rounded-full blur-2xl" 
         style={{ backgroundColor: glowColor1 }}
@@ -265,6 +309,9 @@ export interface NeoBrutalistCardProps {
   description?: string;
   backgroundColor?: string;
   textColor?: string;
+  borderColor?: string;
+  borderRadius?: number;
+  padding?: number;
 }
 
 export const NeoBrutalistCard = ({
@@ -274,10 +321,19 @@ export const NeoBrutalistCard = ({
   description = "Bold colors and high contrast.",
   backgroundColor = "#ff90e8",
   textColor = "#000000",
+  borderColor = "#000000",
+  borderRadius = 12,
+  padding = 24,
 }: NeoBrutalistCardProps) => (
   <div 
-    className={cn("w-full border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all", className)}
-    style={{ backgroundColor, color: textColor }}
+    className={cn("w-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all", className)}
+    style={{ 
+      backgroundColor, 
+      color: textColor,
+      borderColor: borderColor,
+      borderRadius: `${borderRadius}px`,
+      padding: `${padding}px`,
+    }}
   >
     <div className="mb-4 border-2 border-black bg-white p-2 w-fit font-bold text-xs uppercase">
       {badge}
@@ -302,6 +358,10 @@ export interface ProfileCardProps {
   following?: number;
   projects?: number;
   showSocialLinks?: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const ProfileCard = ({
@@ -314,8 +374,20 @@ export const ProfileCard = ({
   following = 842,
   projects = 12,
   showSocialLinks = true,
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: ProfileCardProps) => (
-  <div className={cn("flex w-full flex-col items-center rounded-xl border border-neutral-800 bg-neutral-900 p-6 text-center", className)}>
+  <div 
+    className={cn("flex w-full flex-col items-center border p-6 text-center", className)}
+    style={{
+      ...(backgroundColor && { backgroundColor }),
+      ...(borderColor && { borderColor }),
+      ...(textColor && { color: textColor }),
+      ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+    }}
+  >
     <div className="relative mb-4">
       <img 
         src={avatarUrl} 
@@ -460,6 +532,10 @@ export interface ProductCardProps {
   imageUrl?: string;
   badge?: string;
   isFavorite?: boolean;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const ProductCard = ({
@@ -471,11 +547,23 @@ export const ProductCard = ({
   imageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000&auto=format&fit=crop",
   badge = "NEW",
   isFavorite = false,
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: ProductCardProps) => {
   const [favorite, setFavorite] = useState(isFavorite);
   
   return (
-    <div className={cn("group w-full rounded-xl bg-white p-3 shadow-sm transition-all hover:shadow-md", className)}>
+    <div 
+      className={cn("group w-full p-3 shadow-sm transition-all hover:shadow-md", className)}
+      style={{
+        ...(backgroundColor && { backgroundColor }),
+        ...(borderColor && { borderColor }),
+        ...(textColor && { color: textColor }),
+        ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+      }}
+    >
       <div className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-neutral-100">
         <img 
           src={imageUrl} 
@@ -519,6 +607,10 @@ export interface NewsCardProps {
   authorAvatar?: string;
   readTime?: string;
   categoryColor?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const NewsCard = ({
@@ -531,8 +623,20 @@ export const NewsCard = ({
   authorAvatar,
   readTime = "5 min",
   categoryColor = "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: NewsCardProps) => (
-  <div className={cn("w-full rounded-xl bg-neutral-900 p-6 border border-neutral-800 hover:bg-neutral-800/50 transition-colors group cursor-pointer", className)}>
+  <div 
+    className={cn("w-full p-6 border hover:bg-neutral-800/50 transition-colors group cursor-pointer", className)}
+    style={{
+      ...(backgroundColor && { backgroundColor }),
+      ...(borderColor && { borderColor }),
+      ...(textColor && { color: textColor }),
+      ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+    }}
+  >
     <div className="mb-4 flex items-center gap-2 text-xs">
       <span className={cn("rounded px-2 py-0.5 border", categoryColor)}>{category}</span>
       <span className="text-neutral-500">{date}</span>
@@ -565,6 +669,10 @@ export interface StatsCardProps {
   icon?: React.ReactNode;
   iconColor?: string;
   changeColor?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const StatsCard = ({
@@ -575,10 +683,22 @@ export const StatsCard = ({
   icon,
   iconColor = "text-neutral-400",
   changeColor = "text-green-500",
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: StatsCardProps) => {
   const IconComponent = icon || <TrendingUp size={20} />;
   return (
-    <div className={cn("w-full rounded-xl border border-neutral-800 bg-neutral-900 p-6", className)}>
+    <div 
+      className={cn("w-full border p-6", className)}
+      style={{
+        ...(backgroundColor && { backgroundColor }),
+        ...(borderColor && { borderColor }),
+        ...(textColor && { color: textColor }),
+        ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+      }}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className={cn("rounded-lg bg-neutral-800 p-2", iconColor)}>
           {IconComponent}
@@ -601,6 +721,10 @@ export interface TestimonialCardProps {
   authorName?: string;
   authorRole?: string;
   authorAvatar?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  textColor?: string;
+  borderRadius?: number;
 }
 
 export const TestimonialCard = ({
@@ -610,8 +734,20 @@ export const TestimonialCard = ({
   authorName = "Emily Watson",
   authorRole = "CTO at TechFlow",
   authorAvatar = "https://i.pravatar.cc/100?img=33",
+  backgroundColor,
+  borderColor,
+  textColor,
+  borderRadius = 12,
 }: TestimonialCardProps) => (
-  <div className={cn("w-full rounded-xl bg-neutral-50 p-6 border border-neutral-200", className)}>
+  <div 
+    className={cn("w-full p-6 border", className)}
+    style={{
+      ...(backgroundColor && { backgroundColor }),
+      ...(borderColor && { borderColor }),
+      ...(textColor && { color: textColor }),
+      ...(borderRadius && { borderRadius: `${borderRadius}px` }),
+    }}
+  >
     <div className="mb-4 flex text-yellow-400">
       {[...Array(5)].map((_, i) => (
         <Star key={i} size={16} fill={i < rating ? "currentColor" : "none"} />

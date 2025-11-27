@@ -1515,6 +1515,7 @@ const componentConfigs: Record<string, any> = (() => {
         const processedProps: any = {}
         
         // Process all props from card.props definition
+        // First, ensure all props from card.props are in processedProps
         Object.keys(card.props).forEach((key) => {
           const propConfig = card.props[key]
           const propValue = props[key]
@@ -1549,11 +1550,27 @@ const componentConfigs: Record<string, any> = (() => {
           }
           // Handle text/textarea/select props
           else {
+            // Always pass the prop value if it exists (even if empty string)
+            // Only use default if propValue is truly undefined or null
             if (propValue !== undefined && propValue !== null) {
               processedProps[key] = propValue
             } else {
-              processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              // For text/textarea, use default if available, otherwise empty string
+              // For select, use default or first option
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
             }
+          }
+        })
+        
+        // Also include any props from props that might not be in card.props (for backward compatibility)
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            // Include props that are not in card.props but are in props (might be added dynamically)
+            processedProps[key] = props[key]
           }
         })
         
