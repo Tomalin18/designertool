@@ -385,9 +385,9 @@ export function ComponentsPageClient() {
                     href: component.href,
                 })),
                 ...getDialogComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                title: component.name,
+                href: component.href,
+            })),
             ],
         },
         {

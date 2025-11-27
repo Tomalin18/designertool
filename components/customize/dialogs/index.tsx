@@ -40,7 +40,7 @@ const hexToRgb = (hex: string): string | undefined => {
 
 // Helper to simulate the modal container
 const DialogContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("flex min-h-[300px] w-full items-center justify-center rounded-xl border border-neutral-800 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-neutral-950/50 p-6 overflow-auto", className)}>
+  <div className={cn("flex min-h-[300px] w-full items-center justify-center p-6 overflow-auto", className)}>
     <div className="w-full max-w-full flex items-center justify-center">
       {children}
     </div>
