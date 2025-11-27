@@ -65,13 +65,6 @@ export function ComponentsPageClient() {
 
     const customComponents: ComponentInfo[] = [
         {
-            name: "UrlInput",
-            description: "A URL input component with gradient border effect and generate button.",
-            href: "/components/url-input",
-            category: "Input",
-            tags: componentDetails["url-input"]?.tags || [],
-        },
-        {
             name: "MediaPlayer",
             description: "A beautiful media player component with album art, playback controls, and progress bar.",
             href: "/components/media-player",
@@ -292,7 +285,6 @@ export function ComponentsPageClient() {
     // Organize sidebar items by category
     const getSpecialComponents = () => {
         return customComponents.filter(c => 
-            c.name === "UrlInput" || 
             c.name === "MediaPlayer" || 
             c.name === "ChatInterface" || 
             c.name === "SocialProfileCard" || 
