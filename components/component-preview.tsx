@@ -52,6 +52,8 @@ import { toggleSections } from "@/lib/toggle-sections"
 import { toggleComponentsByName } from "@/components/customize/toggles"
 import { tabsSections } from "@/lib/tabs-sections"
 import { tabsComponentsByName } from "@/components/customize/tabs"
+import { sidebarSections } from "@/lib/sidebar-sections"
+import { sidebarComponentsByName } from "@/components/customize/sidebars"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -64,7 +66,9 @@ interface ComponentPreviewProps {
   className?: string
 }
 
-export function ComponentPreview({ name, href, tags, className }: ComponentPreviewProps) {
+export function ComponentPreview(props: ComponentPreviewProps) {
+  // Destructure only the props we need, ignoring any extra props that might be passed
+  const { name, href, tags, className } = props
   const [selectOpen, setSelectOpen] = useState(false)
 
   const heroMeta = heroSections.find((hero) => hero.name === name)
@@ -106,10 +110,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const tabsMeta = tabsSections.find((tab) => tab.name === name)
   const TabsComponent = tabsMeta ? tabsComponentsByName[tabsMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta
+  const sidebarMeta = sidebarSections.find((sidebar) => sidebar.name === name)
+  const SidebarComponent = sidebarMeta ? sidebarComponentsByName[sidebarMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -287,6 +294,20 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <TabsComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (sidebarMeta && SidebarComponent) {
+      // Get default props for the sidebar, filtering out undefined values
+      const defaultProps = Object.fromEntries(
+        Object.entries(sidebarMeta.props)
+          .map(([key, prop]) => [key, prop.default])
+          .filter(([_, value]) => value !== undefined && value !== null)
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <SidebarComponent {...defaultProps} />
         </div>
       )
     }

@@ -19,6 +19,7 @@ import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
 import { tabsSections } from "@/lib/tabs-sections"
+import { sidebarSections } from "@/lib/sidebar-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -137,6 +138,157 @@ const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string
       {displayTabs[displayTabs.length - 1]?.trim() !== "" && (
         <Button variant="outline" size="sm" onClick={addTab} className="w-full h-8 text-xs gap-1">
           <Plus size={12} /> Add Tab
+        </Button>
+      )}
+    </div>
+  )
+}
+
+const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  // Parse items from newline-separated string
+  const parseItems = (val: string): Array<{ label: string; badge?: string }> => {
+    if (!val || val.trim() === "") return []
+    
+    try {
+      // Try to parse as JSON first
+      const parsed = JSON.parse(val)
+      if (Array.isArray(parsed)) {
+        return parsed.map(item => {
+          if (typeof item === 'string') {
+            const parts = item.split(':')
+            return { label: parts[0]?.trim() || "", badge: parts[1]?.trim() || undefined }
+          }
+          return { label: item.label || item.title || "", badge: item.badge }
+        })
+      }
+    } catch (e) {
+      // Not JSON, treat as newline-separated string
+    }
+    
+    // Fallback to newline-separated string
+    return val.split("\n").filter(item => item.trim() !== "").map(item => {
+      const parts = item.split(':')
+      return { label: parts[0]?.trim() || "", badge: parts[1]?.trim() || undefined }
+    })
+  }
+
+  // Initialize state with parsed items + one empty item for adding
+  const [displayItems, setDisplayItems] = React.useState<Array<{ label: string; badge?: string }>>(() => {
+    const items = parseItems(value)
+    return items.length === 0 ? [{ label: "", badge: undefined }] : [...items, { label: "", badge: undefined }]
+  })
+
+  // Track the last value we processed to avoid unnecessary updates
+  const lastValueRef = React.useRef(value)
+
+  // Update state when value prop changes (from external source), but only if it's different from what we last processed
+  React.useEffect(() => {
+    if (value !== lastValueRef.current) {
+      lastValueRef.current = value
+      const items = parseItems(value)
+      setDisplayItems(items.length === 0 ? [{ label: "", badge: undefined }] : [...items, { label: "", badge: undefined }])
+    }
+  }, [value])
+
+  const updateItems = (newItems: Array<{ label: string; badge?: string }>) => {
+    // Remove empty items except the last one (for adding new items)
+    const nonEmptyItems = newItems.filter((item, index) => {
+      // Always keep the last item (for adding new items)
+      if (index === newItems.length - 1) return false
+      // Keep non-empty items
+      return item.label.trim() !== ""
+    })
+    
+    // Convert to newline-separated string format: "Label" or "Label:Badge"
+    const formatted = nonEmptyItems.map(item => {
+      if (item.badge && item.badge.trim() !== "") {
+        return `${item.label}:${item.badge}`
+      }
+      return item.label
+    }).join("\n")
+    
+    onChange(formatted)
+  }
+
+  const updateItem = (index: number, field: "label" | "badge", val: string) => {
+    const newItems = [...displayItems]
+    newItems[index] = { ...newItems[index], [field]: val }
+    // Update local state immediately for UI responsiveness
+    setDisplayItems(newItems)
+    // Trigger onChange to save to parent component immediately
+    updateItems(newItems)
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = displayItems.filter((_, i) => i !== index)
+    // Ensure at least one empty input remains
+    if (newItems.length === 0) {
+      newItems.push({ label: "", badge: undefined })
+    }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const addItem = () => {
+    const newItems = [...displayItems]
+    // If the last item is not empty, add a new empty one
+    if (newItems[newItems.length - 1].label.trim() !== "") {
+      newItems.push({ label: "", badge: undefined })
+    }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-4">
+      {displayItems.map((item, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-2 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Input
+              value={item.label}
+              onChange={(e) => updateItem(index, "label", e.target.value)}
+              placeholder="Item label"
+              className="h-8 flex-1"
+              onKeyDown={(e) => {
+                // Allow Enter to add a new item
+                if (e.key === "Enter" && item.label.trim() !== "") {
+                  e.preventDefault()
+                  addItem()
+                }
+                // Allow Backspace to remove empty items
+                if (e.key === "Backspace" && item.label.trim() === "" && displayItems.length > 1) {
+                  e.preventDefault()
+                  removeItem(index)
+                }
+              }}
+            />
+            {item.label.trim() !== "" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeItem(index)}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 size={14} />
+              </Button>
+            )}
+          </div>
+          {item.label.trim() !== "" && (
+            <div className="flex items-center gap-2">
+              <Input
+                value={item.badge || ""}
+                onChange={(e) => updateItem(index, "badge", e.target.value)}
+                placeholder="Badge (optional)"
+                className="h-7 text-xs flex-1"
+              />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Badge</span>
+            </div>
+          )}
+        </div>
+      ))}
+      {displayItems[displayItems.length - 1]?.label.trim() !== "" && (
+        <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+          <Plus size={12} /> Add Item
         </Button>
       )}
     </div>
@@ -669,6 +821,23 @@ export function CustomizePanel({
       )
     }
 
+    // Special editor for sidebar navigation items (textarea type with "Items" in key name)
+    if ((key === "overviewItems" || key === "managementItems" || key.endsWith("Items")) && propConfig.type === "textarea") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <SidebarNavigationEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
     // Special editor for tabs prop (textarea type)
     if (key === "tabs" && propConfig.type === "textarea") {
       return (
@@ -861,6 +1030,17 @@ export function CustomizePanel({
               {props[key] !== undefined ? props[key] : propConfig.default}
             </div>
           </div>
+        )}
+
+        {propConfig.type === "number" && (
+          <Input
+            type="number"
+            value={props[key] !== undefined ? props[key] : propConfig.default || 0}
+            onChange={(e) => updateProp(key, e.target.value === "" ? undefined : parseFloat(e.target.value) || 0)}
+            placeholder={propConfig.default?.toString() || "0"}
+            min={propConfig.min}
+            max={propConfig.max}
+          />
         )}
 
         {propConfig.type === "color" && (
@@ -1388,6 +1568,142 @@ export function CustomizePanel({
           type: "tabs",
           tabs
         }
+      }
+    }
+
+    // For Sidebar components, use detailed grouping (similar to Tabs components)
+    // Try to find by componentName first, then by name
+    const sidebarSection = sidebarSections.find((sidebar: { componentName: string; name: string }) =>
+      sidebar.componentName === componentName || sidebar.name === componentName
+    )
+    if (sidebarSection) {
+      // Define style-related keys for sidebars
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'activeColor', 'inactiveColor',
+        'hoverColor', 'iconColor', 'accentColor', 'gradientFrom', 'gradientTo'
+      ]
+      const spacingKeys = ['padding', 'margin', 'gap', 'width']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = ['backdropBlur', 'opacity', 'shadow']
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in sidebarSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!sidebarSection.props[key]) {
+          return // Skip props not in metadata
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Spacing props: explicit spacing keys or keys containing spacing keywords
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        // Border props: explicit border keys or keys containing 'border' or 'radius'
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        // Other style props: explicit other style keys or keys containing style keywords
+        else if (
+          otherStyleKeys.includes(key) || 
+          lowerKey.includes('blur') || 
+          lowerKey.includes('opacity') || 
+          lowerKey.includes('gradient') ||
+          lowerKey.includes('shadow') ||
+          (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width')))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
+        else {
+          contentProps.push(key)
+        }
+      })
+      
+      // Debug: Log if no props were found
+      if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
+        console.warn(`Sidebar ${componentName}: No props found in config.props that match sidebarSection.props.`, {
+          configProps: Object.keys(config.props),
+          sidebarSectionProps: Object.keys(sidebarSection.props),
+        })
+      }
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      // If no tabs were created (e.g., only className prop), create a simple tab structure
+      if (tabs.length === 0) {
+        // Collect all props that are defined in sidebarSection.props
+        const allProps: string[] = []
+        Object.entries(config.props).forEach(([key]) => {
+          // Only include props that are actually defined in sidebarSection.props
+          if (sidebarSection.props[key]) {
+            allProps.push(key)
+          }
+        })
+        
+        if (allProps.length > 0) {
+          tabs.push({ name: "general", label: "General", keys: allProps })
+        } else {
+          // If still no props, something is wrong - log for debugging
+          console.warn(`Sidebar ${componentName}: No props found after filtering.`, {
+            configProps: Object.keys(config.props),
+            sidebarSectionProps: Object.keys(sidebarSection.props),
+            sidebarSectionName: sidebarSection.name,
+            sidebarSectionComponentName: sidebarSection.componentName,
+          })
+        }
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      } else {
+        // Fallback: return empty grouping to trigger fallback rendering
+        console.warn(`Sidebar ${componentName}: No tabs created, falling back to default rendering.`)
       }
     }
 
