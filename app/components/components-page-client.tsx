@@ -250,11 +250,147 @@ export function ComponentsPageClient() {
         ...buttonSections.flatMap(button => button.tags),
     ])).sort()
 
+    // Organize sidebar items by category
+    const getSpecialComponents = () => {
+        return customComponents.filter(c => 
+            c.name === "UrlInput" || 
+            c.name === "MediaPlayer" || 
+            c.name === "ChatInterface" || 
+            c.name === "SocialProfileCard" || 
+            c.name === "GlassAuthForm"
+        )
+    }
+
+    const getButtonComponents = () => {
+        return customComponents.filter(c => c.category === "Button")
+    }
+
+    const getCardComponents = () => {
+        return customComponents.filter(c => c.category === "Card")
+    }
+
+    const getInputComponents = () => {
+        return customComponents.filter(c => c.category === "Input")
+    }
+
+    const getSectionComponentsByType = (type: string) => {
+        return allFilteredSections
+            .filter(section => section.type === type)
+            .map(section => ({
+                name: section.name,
+                href: `/components/${section.slug}`,
+            }))
+    }
+
     const sidebarItems = [
         {
-            title: "Components",
+            title: "Special",
             href: "/components",
-            items: componentsData.map((component) => ({
+            items: getSpecialComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Button",
+            href: "/components",
+            items: getButtonComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Card",
+            href: "/components",
+            items: getCardComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Badge",
+            href: "/components",
+            items: componentsData.filter(c => c.name === "Badge").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Input",
+            href: "/components",
+            items: getInputComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Dialog",
+            href: "/components",
+            items: componentsData.filter(c => c.name === "Dialog").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Switch",
+            href: "/components",
+            items: componentsData.filter(c => c.name === "Switch").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Tabs",
+            href: "/components",
+            items: componentsData.filter(c => c.name === "Tabs").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Header",
+            href: "/components",
+            items: getSectionComponentsByType("header").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Hero",
+            href: "/components",
+            items: getSectionComponentsByType("hero").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Feature",
+            href: "/components",
+            items: getSectionComponentsByType("feature").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Payment",
+            href: "/components",
+            items: getSectionComponentsByType("payment").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "CTA",
+            href: "/components",
+            items: getSectionComponentsByType("cta").map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Footer",
+            href: "/components",
+            items: getSectionComponentsByType("footer").map((component) => ({
                 title: component.name,
                 href: component.href,
             })),
