@@ -1,4 +1,3 @@
-import withPWA from 'next-pwa'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
@@ -18,12 +17,17 @@ const nextConfig = {
   },
 }
 
-const pwaConfig = withPWA({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
+// Only enable PWA in production build to avoid workbox-webpack-plugin issues in development
+let pwaConfig = nextConfig
+if (process.env.NODE_ENV === 'production') {
+  try {
+    const withPWA = (await import('next-pwa')).default
+    pwaConfig = withPWA({
+      dest: 'public',
+      disable: false,
+      register: true,
+      skipWaiting: true,
+      runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.(?:gstatic)\.com\/.*/i,
       handler: 'CacheFirst',
@@ -136,6 +140,10 @@ const pwaConfig = withPWA({
       }
     }
   ]
-})
+    })(nextConfig)
+  } catch (error) {
+    console.warn('PWA configuration failed, continuing without PWA:', error.message)
+  }
+}
 
-export default pwaConfig(nextConfig)
+export default pwaConfig

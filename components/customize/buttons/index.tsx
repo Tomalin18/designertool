@@ -9,8 +9,78 @@ import {
     Settings, Send, RefreshCw, Lock
 } from "lucide-react";
 
+// Common button props interface (like UrlInput)
+interface CommonButtonProps {
+    children?: React.ReactNode;
+    className?: string;
+    style?: React.CSSProperties;
+    size?: string;
+    borderRadius?: number;
+    paddingX?: number;
+    paddingY?: number;
+    backgroundColor?: string;
+    textColor?: string;
+    borderColor?: string;
+    borderWidth?: number;
+}
+
+// Helper function to build style from props (like UrlInput does)
+const buildButtonStyle = (props: CommonButtonProps, additionalStyle?: React.CSSProperties): React.CSSProperties => {
+    const {
+        borderRadius,
+        paddingX,
+        paddingY,
+        backgroundColor,
+        textColor,
+        borderColor,
+        borderWidth,
+        style,
+    } = props;
+
+    return {
+        ...(borderRadius !== undefined && borderRadius !== null && { borderRadius: `${borderRadius}px` }),
+        ...(paddingX !== undefined && paddingX !== null && { paddingLeft: `${paddingX}px`, paddingRight: `${paddingX}px` }),
+        ...(paddingY !== undefined && paddingY !== null && { paddingTop: `${paddingY}px`, paddingBottom: `${paddingY}px` }),
+        ...(backgroundColor && { backgroundColor }),
+        ...(textColor && { color: textColor }),
+        ...(borderColor && { borderColor }),
+        ...(borderWidth !== undefined && borderWidth !== null && { borderWidth: `${borderWidth}px`, borderStyle: 'solid' }),
+        ...style,
+        ...additionalStyle,
+    };
+};
+
+// Helper function to get size class
+const getSizeClass = (size?: string): string => {
+    return size === 'sm' ? 'text-sm' : size === 'lg' ? 'text-lg' : '';
+};
+
 // 1. Magnetic Button
-export const MagneticButton = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+export const MagneticButton = ({ 
+    children, 
+    className,
+    style,
+    size,
+    borderRadius,
+    paddingX,
+    paddingY,
+    backgroundColor,
+    textColor,
+    borderColor,
+    borderWidth,
+}: { 
+    children: React.ReactNode; 
+    className?: string;
+    style?: React.CSSProperties;
+    size?: string;
+    borderRadius?: number;
+    paddingX?: number;
+    paddingY?: number;
+    backgroundColor?: string;
+    textColor?: string;
+    borderColor?: string;
+    borderWidth?: number;
+}) => {
     const btnRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
@@ -26,14 +96,23 @@ export const MagneticButton = ({ children, className }: { children: React.ReactN
         setPosition({ x: 0, y: 0 });
     };
 
+    // Build style object from props (like UrlInput does)
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style }, {
+        transform: `translate(${position.x}px, ${position.y}px)`,
+    });
+
+    // Handle size prop
+    const sizeClass = getSizeClass(size);
+
     return (
         <button
             ref={btnRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+            style={buttonStyle}
             className={cn(
                 "rounded-full bg-white px-8 py-3 font-medium text-black transition-transform duration-100 ease-out hover:bg-neutral-200",
+                sizeClass,
                 className
             )}
         >
@@ -43,9 +122,16 @@ export const MagneticButton = ({ children, className }: { children: React.ReactN
 };
 
 // 2. Glitch Button
-export const GlitchButton = ({ children }: { children: React.ReactNode }) => {
+export const GlitchButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+
     return (
-        <button className="group relative px-8 py-3 font-bold text-white transition-colors hover:bg-transparent">
+        <button 
+            className={cn("group relative px-8 py-3 font-bold text-white transition-colors hover:bg-transparent", sizeClass, className)}
+            style={buttonStyle}
+        >
             <div className="absolute inset-0 bg-cyan-500 translate-x-1 translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" />
             <div className="absolute inset-0 bg-red-500 -translate-x-1 -translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" />
             <div className="relative border border-white bg-black px-8 py-3 uppercase tracking-wider z-10">
@@ -56,9 +142,16 @@ export const GlitchButton = ({ children }: { children: React.ReactNode }) => {
 };
 
 // 3. Liquid Hover Button
-export const LiquidHoverButton = ({ children }: { children: React.ReactNode }) => {
+export const LiquidHoverButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+
     return (
-        <button className="group relative overflow-hidden rounded-lg border border-indigo-500 bg-transparent px-8 py-3 font-medium text-indigo-500 transition-colors hover:text-white">
+        <button 
+            className={cn("group relative overflow-hidden rounded-lg border border-indigo-500 bg-transparent px-8 py-3 font-medium text-indigo-500 transition-colors hover:text-white", sizeClass, className)}
+            style={buttonStyle}
+        >
             <div className="absolute inset-0 -translate-x-full bg-indigo-500 transition-transform duration-300 ease-out group-hover:translate-x-0" />
             <span className="relative z-10">{children}</span>
         </button>
@@ -66,18 +159,30 @@ export const LiquidHoverButton = ({ children }: { children: React.ReactNode }) =
 };
 
 // 4. Neumorphic Button
-export const NeumorphicButton = ({ children }: { children: React.ReactNode }) => {
+export const NeumorphicButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="rounded-xl bg-[#e0e5ec] px-8 py-3 font-bold text-[#4d5b7c] shadow-[6px_6px_12px_#b8b9be,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[inset_6px_6px_12px_#b8b9be,inset_-6px_-6px_12px_#ffffff] active:scale-95">
+        <button 
+            className={cn("rounded-xl bg-[#e0e5ec] px-8 py-3 font-bold text-[#4d5b7c] shadow-[6px_6px_12px_#b8b9be,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[inset_6px_6px_12px_#b8b9be,inset_-6px_-6px_12px_#ffffff] active:scale-95", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
 };
 
 // 5. Gradient Border Button
-export const GradientBorderButton = ({ children }: { children: React.ReactNode }) => {
+export const GradientBorderButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="group relative rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-[2px] transition-transform active:scale-95">
+        <button 
+            className={cn("group relative rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-[2px] transition-transform active:scale-95", sizeClass, className)}
+            style={buttonStyle}
+        >
             <div className="relative rounded-[6px] bg-black px-8 py-3 transition-colors group-hover:bg-transparent">
                 <span className="font-medium text-white">{children}</span>
             </div>
@@ -86,9 +191,15 @@ export const GradientBorderButton = ({ children }: { children: React.ReactNode }
 };
 
 // 6. Shimmer Button
-export const ShimmerButton = ({ children }: { children: React.ReactNode }) => {
+export const ShimmerButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 font-medium text-white transition-colors hover:bg-neutral-700">
+        <button 
+            className={cn("relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 font-medium text-white transition-colors hover:bg-neutral-700", sizeClass, className)}
+            style={buttonStyle}
+        >
             <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             {children}
         </button>
@@ -96,9 +207,15 @@ export const ShimmerButton = ({ children }: { children: React.ReactNode }) => {
 };
 
 // 7. Pulse Glow Button
-export const PulseGlowButton = ({ children }: { children: React.ReactNode }) => {
+export const PulseGlowButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="relative rounded-full bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-indigo-500">
+        <button 
+            className={cn("relative rounded-full bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-indigo-500", sizeClass, className)}
+            style={buttonStyle}
+        >
             <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-indigo-600 opacity-75" />
             {children}
         </button>
@@ -106,9 +223,15 @@ export const PulseGlowButton = ({ children }: { children: React.ReactNode }) => 
 };
 
 // 8. Slide Arrow Button
-export const SlideArrowButton = ({ children }: { children: React.ReactNode }) => {
+export const SlideArrowButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="group flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-black transition-all hover:gap-4">
+        <button 
+            className={cn("group flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-medium text-black transition-all hover:gap-4", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
             <ArrowRight size={18} className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
         </button>
@@ -116,16 +239,23 @@ export const SlideArrowButton = ({ children }: { children: React.ReactNode }) =>
 };
 
 // 9. 3D Press Button
-export const ThreeDPressButton = ({ children }: { children: React.ReactNode }) => {
+export const ThreeDPressButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="rounded-lg border-b-4 border-blue-700 bg-blue-500 px-8 py-3 font-bold text-white transition-all active:border-b-0 active:translate-y-1">
+        <button 
+            className={cn("rounded-lg border-b-4 border-blue-700 bg-blue-500 px-8 py-3 font-bold text-white transition-all active:border-b-0 active:translate-y-1", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
 };
 
 // 10. Ripple Button
-export const RippleButton = ({ children }: { children: React.ReactNode }) => {
+export const RippleButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [coords, setCoords] = useState({ x: -1, y: -1 });
     const [isRippling, setIsRippling] = useState(false);
 
@@ -142,9 +272,13 @@ export const RippleButton = ({ children }: { children: React.ReactNode }) => {
         if (!isRippling) setCoords({ x: -1, y: -1 });
     }, [isRippling]);
 
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+
     return (
         <button
-            className="relative overflow-hidden rounded-lg bg-emerald-500 px-8 py-3 font-medium text-white shadow hover:bg-emerald-600"
+            className={cn("relative overflow-hidden rounded-lg bg-emerald-500 px-8 py-3 font-medium text-white shadow hover:bg-emerald-600", sizeClass, className)}
+            style={buttonStyle}
             onClick={e => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 setCoords({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -168,16 +302,23 @@ export const RippleButton = ({ children }: { children: React.ReactNode }) => {
 };
 
 // 11. Ghost Hover Button
-export const GhostHoverButton = ({ children }: { children: React.ReactNode }) => {
+export const GhostHoverButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="rounded-lg border border-white/20 bg-transparent px-8 py-3 font-medium text-white transition-all hover:bg-white hover:text-black hover:scale-105">
+        <button 
+            className={cn("rounded-lg border border-white/20 bg-transparent px-8 py-3 font-medium text-white transition-all hover:bg-white hover:text-black hover:scale-105", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
 };
 
 // 12. Status Loading Button
-export const StatusLoadingButton = () => {
+export const StatusLoadingButton = (props: CommonButtonProps) => {
+    const { buttonText, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
     const handleClick = () => {
@@ -188,6 +329,9 @@ export const StatusLoadingButton = () => {
         }, 1500);
     };
 
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+
     return (
         <button
             onClick={handleClick}
@@ -196,10 +340,13 @@ export const StatusLoadingButton = () => {
                 "flex min-w-[140px] items-center justify-center rounded-lg px-6 py-3 font-medium text-white transition-all",
                 status === 'idle' && "bg-indigo-600 hover:bg-indigo-500",
                 status === 'loading' && "bg-indigo-400 cursor-wait",
-                status === 'success' && "bg-green-500"
+                status === 'success' && "bg-green-500",
+                sizeClass,
+                className
             )}
+            style={buttonStyle}
         >
-            {status === 'idle' && "Submit"}
+            {status === 'idle' && (buttonText || "Submit")}
             {status === 'loading' && <Loader2 className="animate-spin" />}
             {status === 'success' && <Check />}
         </button>
@@ -207,7 +354,8 @@ export const StatusLoadingButton = () => {
 };
 
 // 13. Spotlight Button
-export const SpotlightButton = ({ children }: { children: React.ReactNode }) => {
+export const SpotlightButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const btnRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [opacity, setOpacity] = useState(0);
@@ -218,13 +366,17 @@ export const SpotlightButton = ({ children }: { children: React.ReactNode }) => 
         setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     };
 
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+
     return (
         <button
             ref={btnRef}
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setOpacity(1)}
             onMouseLeave={() => setOpacity(0)}
-            className="relative overflow-hidden rounded-lg bg-neutral-900 px-8 py-3 text-neutral-200"
+            className={cn("relative overflow-hidden rounded-lg bg-neutral-900 px-8 py-3 text-neutral-200", sizeClass, className)}
+            style={buttonStyle}
         >
             <span
                 className="pointer-events-none absolute -inset-px opacity-0 transition duration-300"
@@ -241,9 +393,15 @@ export const SpotlightButton = ({ children }: { children: React.ReactNode }) => 
 };
 
 // 14. Pixel Art Button
-export const PixelArtButton = ({ children }: { children: React.ReactNode }) => {
+export const PixelArtButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="relative px-6 py-3 font-mono font-bold uppercase text-black transition-transform active:translate-y-1 active:shadow-none">
+        <button 
+            className={cn("relative px-6 py-3 font-mono font-bold uppercase text-black transition-transform active:translate-y-1 active:shadow-none", sizeClass, className)}
+            style={buttonStyle}
+        >
             <div className="absolute inset-0 bg-neutral-300 translate-y-1 translate-x-1" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }} />
             <div className="absolute inset-0 border-2 border-black bg-yellow-400" />
             <span className="relative z-10">{children}</span>
@@ -252,27 +410,45 @@ export const PixelArtButton = ({ children }: { children: React.ReactNode }) => {
 };
 
 // 15. Glassmorphism Button
-export const GlassmorphismButton = ({ children }: { children: React.ReactNode }) => {
+export const GlassmorphismButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="rounded-lg border border-white/20 bg-white/10 px-8 py-3 font-medium text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105">
+        <button 
+            className={cn("rounded-lg border border-white/20 bg-white/10 px-8 py-3 font-medium text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
 };
 
 // 16. Neon Flicker Button
-export const NeonFlickerButton = ({ children }: { children: React.ReactNode }) => {
+export const NeonFlickerButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="group rounded-lg border border-cyan-400 bg-transparent px-8 py-3 font-medium text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.8)]">
+        <button 
+            className={cn("group rounded-lg border border-cyan-400 bg-transparent px-8 py-3 font-medium text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.8)]", sizeClass, className)}
+            style={buttonStyle}
+        >
             <span className="group-hover:animate-pulse">{children}</span>
         </button>
     );
 };
 
 // 17. Elastic Button
-export const ElasticButton = ({ children }: { children: React.ReactNode }) => {
+export const ElasticButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <button className="rounded-2xl bg-orange-500 px-8 py-3 font-bold text-white transition-transform hover:scale-110 active:scale-90 duration-300 cubic-bezier(0.175, 0.885, 0.32, 1.275)">
+        <button 
+            className={cn("rounded-2xl bg-orange-500 px-8 py-3 font-bold text-white transition-transform hover:scale-110 active:scale-90 duration-300 cubic-bezier(0.175, 0.885, 0.32, 1.275)", sizeClass, className)}
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
@@ -364,28 +540,43 @@ export const DownloadProgressButton = () => {
 // --- NEW BUTTONS (21-70) ---
 
 // 21. Swipe Right Button
-export const SwipeRightButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all">
-        <span className="relative z-10">{children}</span>
-        <div className="absolute inset-0 h-full w-full translate-x-[-100%] bg-blue-600 transition-transform duration-300 group-hover:translate-x-0" />
-    </button>
-);
+export const SwipeRightButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
+            <span className="relative z-10">{children}</span>
+            <div className="absolute inset-0 h-full w-full translate-x-[-100%] bg-blue-600 transition-transform duration-300 group-hover:translate-x-0" />
+        </button>
+    );
+};
 
 // 22. Swipe Up Button
-export const SwipeUpButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all">
-        <span className="relative z-10">{children}</span>
-        <div className="absolute inset-0 h-full w-full translate-y-[100%] bg-purple-600 transition-transform duration-300 group-hover:translate-y-0" />
-    </button>
-);
+export const SwipeUpButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
+            <span className="relative z-10">{children}</span>
+            <div className="absolute inset-0 h-full w-full translate-y-[100%] bg-purple-600 transition-transform duration-300 group-hover:translate-y-0" />
+        </button>
+    );
+};
 
 // 23. Scale Up Button
-export const ScaleUpButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all">
-        <span className="relative z-10">{children}</span>
-        <div className="absolute inset-0 h-full w-full scale-0 rounded-lg bg-pink-600 transition-transform duration-300 group-hover:scale-100" />
-    </button>
-);
+export const ScaleUpButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
+            <span className="relative z-10">{children}</span>
+            <div className="absolute inset-0 h-full w-full scale-0 rounded-lg bg-pink-600 transition-transform duration-300 group-hover:scale-100" />
+        </button>
+    );
+};
 
 // 24. Draw Border Button
 export const DrawBorderButton = ({ children }: { children: React.ReactNode }) => (

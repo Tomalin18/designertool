@@ -14,6 +14,7 @@ import { ColorPicker } from "@/components/ui/color-picker"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, GripVertical } from "lucide-react"
+import { buttonSections } from "@/lib/button-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -559,6 +560,49 @@ export function CustomizePanel({
           { name: "general", label: "General", keys: generalProps },
           { name: "color", label: "Color", keys: colorProps },
         ],
+      }
+    }
+
+    // For Button components, group props into General and Style tabs
+    const isButtonComponent = buttonSections.some((button: { name: string }) => button.name === componentName)
+    if (isButtonComponent) {
+      // Style-related keys (appearance and styling)
+      const styleRelatedKeys = [
+        'className',
+        'size',
+        'borderRadius',
+        'paddingX',
+        'paddingY',
+        'backgroundColor',
+        'textColor',
+        'borderColor',
+        'borderWidth',
+      ]
+
+      const generalProps: string[] = []
+      const styleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key]) => {
+        if (styleRelatedKeys.includes(key)) {
+          styleProps.push(key)
+        } else {
+          // Content-related props go to General (children, buttonText, copyText, etc.)
+          generalProps.push(key)
+        }
+      })
+
+      const tabs = []
+      if (generalProps.length > 0) {
+        tabs.push({ name: "general", label: "General", keys: generalProps })
+      }
+      if (styleProps.length > 0) {
+        tabs.push({ name: "style", label: "Style", keys: styleProps })
+      }
+
+      // If no style props, still show General tab
+      return {
+        type: "tabs",
+        tabs: tabs.length > 0 ? tabs : [{ name: "general", label: "General", keys: generalProps }],
       }
     }
 

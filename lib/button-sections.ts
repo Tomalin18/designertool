@@ -33,6 +33,74 @@ const defaultButtonProps: Record<string, ButtonPropDefinition> = {
     },
 }
 
+const buttonWithClassNameProps: Record<string, ButtonPropDefinition> = {
+    ...defaultButtonProps,
+    className: {
+        control: "text",
+        default: "",
+        description: "Additional CSS classes to apply to the button.",
+    },
+}
+
+// Extended props for buttons that support more customization
+const extendedButtonProps: Record<string, ButtonPropDefinition> = {
+    ...defaultButtonProps,
+    className: {
+        control: "text",
+        default: "",
+        description: "Additional CSS classes to apply to the button.",
+    },
+    size: {
+        control: "select",
+        default: "default",
+        options: ["sm", "default", "lg"],
+        description: "The size of the button.",
+    },
+    borderRadius: {
+        control: "slider",
+        default: 8,
+        min: 0,
+        max: 24,
+        description: "Border radius in pixels.",
+    },
+    paddingX: {
+        control: "slider",
+        default: 32,
+        min: 8,
+        max: 64,
+        description: "Horizontal padding in pixels.",
+    },
+    paddingY: {
+        control: "slider",
+        default: 12,
+        min: 4,
+        max: 32,
+        description: "Vertical padding in pixels.",
+    },
+    backgroundColor: {
+        control: "color",
+        default: "",
+        description: "Background color of the button.",
+    },
+    textColor: {
+        control: "color",
+        default: "",
+        description: "Text color of the button.",
+    },
+    borderColor: {
+        control: "color",
+        default: "",
+        description: "Border color of the button.",
+    },
+    borderWidth: {
+        control: "slider",
+        default: 0,
+        min: 0,
+        max: 4,
+        description: "Border width in pixels.",
+    },
+}
+
 export const buttonSections: ButtonSectionMeta[] = [
     {
         slug: "magnetic-button",
@@ -40,7 +108,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "MagneticButton",
         description: "A button that magnetically follows the cursor movement.",
         tags: ["button", "magnetic", "hover", "interaction"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -49,7 +117,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GlitchButton",
         description: "A button with a digital glitch effect on hover.",
         tags: ["button", "glitch", "effect", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -58,7 +126,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "LiquidHoverButton",
         description: "A button with a liquid fill effect on hover.",
         tags: ["button", "liquid", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -67,7 +135,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "NeumorphicButton",
         description: "A button designed with soft UI / neumorphism style.",
         tags: ["button", "neumorphic", "soft-ui", "shadow"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -76,7 +144,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GradientBorderButton",
         description: "A button with a gradient border.",
         tags: ["button", "gradient", "border", "colorful"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -85,7 +153,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ShimmerButton",
         description: "A button with a shimmering light effect.",
         tags: ["button", "shimmer", "shine", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -94,7 +162,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PulseGlowButton",
         description: "A button that pulses with a glowing effect.",
         tags: ["button", "pulse", "glow", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -103,7 +171,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SlideArrowButton",
         description: "A button where an arrow slides in on hover.",
         tags: ["button", "arrow", "slide", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -112,7 +180,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ThreeDPressButton",
         description: "A button with a 3D press effect.",
         tags: ["button", "3d", "press", "click"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -121,7 +189,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "RippleButton",
         description: "A button with a material design ripple effect.",
         tags: ["button", "ripple", "material", "click"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -130,7 +198,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GhostHoverButton",
         description: "A transparent button that fills on hover.",
         tags: ["button", "ghost", "hover", "transparent"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -139,7 +207,13 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "StatusLoadingButton",
         description: "A button that shows loading and success states.",
         tags: ["button", "loading", "status", "feedback"],
-        props: {},
+        props: {
+            buttonText: {
+                control: "text",
+                default: "Submit",
+                description: "The text to display when the button is idle.",
+            },
+        },
         category: "Button",
     },
     {
@@ -148,7 +222,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SpotlightButton",
         description: "A button with a spotlight effect that follows the cursor.",
         tags: ["button", "spotlight", "hover", "light"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -157,7 +231,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PixelArtButton",
         description: "A retro pixel art style button.",
         tags: ["button", "pixel", "retro", "8bit"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -166,7 +240,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GlassmorphismButton",
         description: "A button with a frosted glass effect.",
         tags: ["button", "glassmorphism", "glass", "blur"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -175,7 +249,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "NeonFlickerButton",
         description: "A button with a neon flickering text effect.",
         tags: ["button", "neon", "flicker", "glow"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -184,7 +258,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ElasticButton",
         description: "A button with an elastic scaling effect.",
         tags: ["button", "elastic", "scale", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -193,7 +267,13 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "CopyClipboardButton",
         description: "A button to copy text to clipboard with feedback.",
         tags: ["button", "copy", "clipboard", "utility"],
-        props: {},
+        props: {
+            copyText: {
+                control: "text",
+                default: "Copy Code",
+                description: "The text to display on the button.",
+            },
+        },
         category: "Button",
     },
     {
@@ -202,7 +282,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SocialShareButton",
         description: "A button that expands to show social share icons.",
         tags: ["button", "social", "share", "expand"],
-        props: {},
+        props: buttonWithClassNameProps,
         category: "Button",
     },
     {
@@ -211,7 +291,13 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DownloadProgressButton",
         description: "A button that visualizes download progress.",
         tags: ["button", "download", "progress", "animation"],
-        props: {},
+        props: {
+            downloadText: {
+                control: "text",
+                default: "Download",
+                description: "The text to display on the button.",
+            },
+        },
         category: "Button",
     },
     {
@@ -220,7 +306,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SwipeRightButton",
         description: "A button with a swipe right fill effect.",
         tags: ["button", "swipe", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -229,7 +315,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SwipeUpButton",
         description: "A button with a swipe up fill effect.",
         tags: ["button", "swipe", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -238,7 +324,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ScaleUpButton",
         description: "A button with a scale up fill effect.",
         tags: ["button", "scale", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -247,7 +333,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DrawBorderButton",
         description: "A button where the border is drawn on hover.",
         tags: ["button", "border", "draw", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -256,7 +342,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DottedBorderButton",
         description: "A button with a dotted border that changes on hover.",
         tags: ["button", "border", "dotted", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -265,7 +351,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GradientRingButton",
         description: "A button with a gradient ring border.",
         tags: ["button", "gradient", "ring", "border"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -274,7 +360,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "CyberButton",
         description: "A cyberpunk style button with clipped corners.",
         tags: ["button", "cyber", "cyberpunk", "futuristic"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -283,7 +369,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "Retro95Button",
         description: "A Windows 95 style retro button.",
         tags: ["button", "retro", "95", "windows"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -292,7 +378,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ClayButton",
         description: "A button with a claymorphism style.",
         tags: ["button", "clay", "claymorphism", "soft"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -301,7 +387,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SkeuoButton",
         description: "A skeuomorphic button with depth.",
         tags: ["button", "skeuomorphic", "depth", "3d"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -310,7 +396,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ShakeErrorButton",
         description: "A button that shakes to indicate an error.",
         tags: ["button", "shake", "error", "feedback"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -319,7 +405,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ConfettiButton",
         description: "A button that triggers a confetti burst.",
         tags: ["button", "confetti", "celebration", "animation"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -328,7 +414,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "HoldButton",
         description: "A button that requires holding to confirm.",
         tags: ["button", "hold", "confirm", "interaction"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -337,7 +423,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DeleteButton",
         description: "A delete button with a confirmation step.",
         tags: ["button", "delete", "confirm", "danger"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -346,7 +432,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "LikeButton",
         description: "A like button with heart animation.",
         tags: ["button", "like", "heart", "toggle"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -355,7 +441,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SkewButton",
         description: "A skewed button style.",
         tags: ["button", "skew", "transform", "style"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -364,7 +450,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "BlobButton",
         description: "A button with an organic blob shape.",
         tags: ["button", "blob", "organic", "shape"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -373,7 +459,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "UnderlineButton",
         description: "A button with an animated underline.",
         tags: ["button", "underline", "hover", "text"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -382,7 +468,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "BracketButton",
         description: "A button with animated brackets.",
         tags: ["button", "bracket", "hover", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -391,7 +477,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "CurtainButton",
         description: "A button with a curtain reveal effect.",
         tags: ["button", "curtain", "reveal", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -400,7 +486,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SliceButton",
         description: "A button with a slicing effect.",
         tags: ["button", "slice", "hover", "effect"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -409,7 +495,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "WetPaintButton",
         description: "A button that looks like wet paint.",
         tags: ["button", "wet", "paint", "style"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -418,7 +504,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ParticleButton",
         description: "A button with particle effects.",
         tags: ["button", "particle", "effect", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -427,7 +513,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "IsometricButton",
         description: "An isometric 3D button.",
         tags: ["button", "isometric", "3d", "perspective"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -436,7 +522,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PaperFoldButton",
         description: "A button that looks like folded paper.",
         tags: ["button", "paper", "fold", "style"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -445,7 +531,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "TextFillButton",
         description: "A button where the text fills with color.",
         tags: ["button", "text", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -454,7 +540,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "IconSlideButton",
         description: "A button where an icon slides in.",
         tags: ["button", "icon", "slide", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -463,7 +549,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "MultiLayerButton",
         description: "A button with multiple layers.",
         tags: ["button", "layer", "stack", "3d"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -472,7 +558,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "UploadButton",
         description: "A button designed for file uploads.",
         tags: ["button", "upload", "file", "action"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -481,7 +567,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ToggleSwitchButton",
         description: "A toggle switch button.",
         tags: ["button", "toggle", "switch", "control"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -490,7 +576,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SwipeLeftButton",
         description: "A button with a swipe left fill effect.",
         tags: ["button", "swipe", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -499,7 +585,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SwipeDownButton",
         description: "A button with a swipe down fill effect.",
         tags: ["button", "swipe", "fill", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -508,7 +594,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DoubleBorderButton",
         description: "A button with a double border.",
         tags: ["button", "border", "double", "style"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -517,7 +603,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SpinningBorderButton",
         description: "A button with a spinning border effect.",
         tags: ["button", "border", "spin", "animation"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -526,7 +612,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "LetterSpacingButton",
         description: "A button that increases letter spacing on hover.",
         tags: ["button", "text", "spacing", "hover"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -535,7 +621,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "BlurRevealButton",
         description: "A button that reveals content from blur.",
         tags: ["button", "blur", "reveal", "effect"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -544,7 +630,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "VaporwaveButton",
         description: "A vaporwave aesthetic button.",
         tags: ["button", "vaporwave", "aesthetic", "retro"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -553,7 +639,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SaveButton",
         description: "A standard save button with icon.",
         tags: ["button", "save", "icon", "action"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -562,7 +648,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PrintButton",
         description: "A standard print button with icon.",
         tags: ["button", "print", "icon", "action"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -571,7 +657,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "NotificationButton",
         description: "A notification button with a badge.",
         tags: ["button", "notification", "badge", "icon"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -580,7 +666,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "CircleToSquareButton",
         description: "A button that morphs from circle to square.",
         tags: ["button", "morph", "shape", "animation"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -589,7 +675,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "MorphFabButton",
         description: "A floating action button that morphs on hover.",
         tags: ["button", "fab", "morph", "floating"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -598,7 +684,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ShinyReflectionButton",
         description: "A button with a shiny reflection effect.",
         tags: ["button", "shiny", "reflection", "effect"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -607,7 +693,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "DotHoverButton",
         description: "A button with a dot indicator on hover.",
         tags: ["button", "dot", "hover", "indicator"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -616,7 +702,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "TextMarqueeButton",
         description: "A button with scrolling marquee text.",
         tags: ["button", "marquee", "text", "scroll"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -625,7 +711,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ScrambleTextButton",
         description: "A button with scrambled text effect.",
         tags: ["button", "scramble", "text", "effect"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -634,7 +720,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "TypewriterButton",
         description: "A button with typewriter text effect.",
         tags: ["button", "typewriter", "text", "effect"],
-        props: {},
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -643,7 +729,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "LiquidBlobButton",
         description: "A button with a liquid blob background.",
         tags: ["button", "liquid", "blob", "background"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -652,7 +738,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "CyberPunkGlitch2Button",
         description: "Another cyberpunk style glitch button.",
         tags: ["button", "cyberpunk", "glitch", "effect"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
     {
@@ -661,7 +747,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "RoundedCornerMorphButton",
         description: "A button that morphs corner radius on hover.",
         tags: ["button", "morph", "corner", "radius"],
-        props: defaultButtonProps,
+        props: extendedButtonProps,
         category: "Button",
     },
 ]

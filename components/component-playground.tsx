@@ -1240,11 +1240,55 @@ const componentConfigs: Record<string, any> = (() => {
 
     configs[button.name] = {
       props: propConfig,
-      render: (props: any) => (
-        <div className="flex items-center justify-center p-8 w-full">
-          <Component {...props} />
-        </div>
-      ),
+      render: (props: any) => {
+        // Convert hex to rgb for backgroundColor, textColor, borderColor (like UrlInput does)
+        const hexToRgb = (hex: string) => {
+          if (!hex || !hex.startsWith('#')) return hex
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+
+        // Extract and process props (like UrlInput does)
+        const {
+          size,
+          borderRadius,
+          paddingX,
+          paddingY,
+          backgroundColor,
+          textColor,
+          borderColor,
+          borderWidth,
+          className,
+          children,
+          buttonText,
+          copyText,
+          downloadText,
+          ...restProps
+        } = props
+
+        // Prepare props to pass to component (pass all props directly, like UrlInput)
+        const componentProps: any = {
+          children: children || buttonText || copyText || downloadText || 'Button',
+          className,
+          size,
+          borderRadius,
+          paddingX,
+          paddingY,
+          backgroundColor: backgroundColor ? hexToRgb(backgroundColor) : undefined,
+          textColor: textColor ? hexToRgb(textColor) : undefined,
+          borderColor: borderColor ? hexToRgb(borderColor) : undefined,
+          borderWidth,
+          ...restProps,
+        }
+
+        return (
+          <div className="flex items-center justify-center p-8 w-full">
+            <Component {...componentProps} />
+          </div>
+        )
+      },
     }
   })
 
@@ -3746,6 +3790,85 @@ import {
 export function ${headerMeta.componentName}Demo() {
   return (
     <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
+  )
+}`
+    }
+
+    // Button section code generation with initialCode (full component)
+    if (buttonMeta && initialCode) {
+      // Convert hex to rgb for color props (like UrlInput does)
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list for usage example - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        // Convert color props to rgb format (like UrlInput)
+        if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          propsList.push(`${key}="${value}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
+      const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
+
+      // Use the initialCode directly (it already contains the full component)
+      return `${initialCode}\n\n// Usage example:\nexport function ${buttonMeta.componentName}Demo() {\n  return (\n    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>\n  )\n}`
+    }
+
+    // Button section code generation (simple import)
+    if (buttonMeta) {
+      // Convert hex to rgb for color props (like UrlInput does)
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        // Convert color props to rgb format (like UrlInput)
+        if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          propsList.push(`${key}="${value}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
+      const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
+
+      return `import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
+
+export function ${buttonMeta.componentName}Demo() {
+  return (
+    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>
   )
 }`
     }
