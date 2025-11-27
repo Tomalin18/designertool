@@ -39,6 +39,194 @@ interface CommonButtonProps {
     shimmerColor?: string;
     hoverColor?: string;
     fillColor?: string;
+    // Button-specific color props
+    shadowColor?: string;
+    accentColor?: string;
+    hoverFillColor?: string;
+    innerBackgroundColor?: string;
+    // Pixel Art Button
+    shadowLayerColor?: string;
+    mainButtonColor?: string;
+    pixelBorderColor?: string;
+    // Glitch Button
+    glitchColor1?: string;
+    glitchColor2?: string;
+    glitchBackgroundColor?: string;
+    // Neumorphic Button
+    neumorphicBgColor?: string;
+    neumorphicTextColor?: string;
+    neumorphicShadowLight?: string;
+    neumorphicShadowDark?: string;
+    // Gradient Border Button
+    gradientFrom?: string;
+    gradientVia?: string;
+    gradientTo?: string;
+    innerBgColor?: string;
+    // Swipe Buttons
+    swipeFillColor?: string;
+    // Clay Button
+    shadowLightColor?: string;
+    shadowDarkColor?: string;
+    // 3D Press Button
+    pressBorderColor?: string;
+    pressShadowColor?: string;
+    // Ripple Button
+    rippleColor?: string;
+    // Ghost Hover Button
+    ghostBorderColor?: string;
+    // Spotlight Button
+    spotlightColor?: string;
+    // Glassmorphism Button
+    glassBorderColor?: string;
+    glassBgColor?: string;
+    // Elastic Button
+    elasticBgColor?: string;
+    // Status Loading Button
+    idleBgColor?: string;
+    loadingBgColor?: string;
+    successBgColor?: string;
+    // Copy Clipboard Button
+    copyBorderColor?: string;
+    copyBgColor?: string;
+    copiedBorderColor?: string;
+    copiedBgColor?: string;
+    // Download Progress Button
+    progressBgColor?: string;
+    // Social Share Button
+    socialBgColor?: string;
+    // Swipe Right/Up/Left/Down/Scale Up Buttons
+    swipeRightFillColor?: string;
+    swipeUpFillColor?: string;
+    swipeLeftFillColor?: string;
+    swipeDownFillColor?: string;
+    scaleUpFillColor?: string;
+    // Draw Border Button
+    drawBorderColor?: string;
+    // Dotted Border Button
+    dottedBorderColor?: string;
+    // Gradient Ring Button
+    gradientRingFrom?: string;
+    gradientRingVia?: string;
+    gradientRingTo?: string;
+    // Cyber Button
+    cyberBorderColor?: string;
+    cyberBgColor?: string;
+    cyberAccentColor?: string;
+    // Retro 95 Button
+    retroBgColor?: string;
+    retroBorderLightColor?: string;
+    retroBorderDarkColor?: string;
+    // Skeuo Button
+    skeuoGradientFrom?: string;
+    skeuoGradientTo?: string;
+    skeuoBorderColor?: string;
+    // Shake Error Button
+    errorBgColor?: string;
+    // Confetti Button
+    confettiGradientFrom?: string;
+    confettiGradientTo?: string;
+    // Hold Button
+    holdProgressColor?: string;
+    // Delete Button
+    deleteIdleBgColor?: string;
+    deleteConfirmBgColor?: string;
+    // Like Button
+    likeBorderColor?: string;
+    likeBgColor?: string;
+    likedBorderColor?: string;
+    likedBgColor?: string;
+    likedTextColor?: string;
+    // Skew Button
+    skewBorderColor?: string;
+    // Blob Button
+    blobBgColor?: string;
+    // Underline Button
+    underlineColor?: string;
+    // Bracket Button
+    bracketColor?: string;
+    // Curtain Button
+    curtainBgColor?: string;
+    curtainRevealBgColor?: string;
+    curtainRevealTextColor?: string;
+    // Slice Button
+    sliceBgColor?: string;
+    // Wet Paint Button
+    wetPaintBgColor?: string;
+    // Particle Button
+    particleColor?: string;
+    // Isometric Button
+    isometricBgColor?: string;
+    isometricBorderColor?: string;
+    isometricShadowColor?: string;
+    // Paper Fold Button
+    paperFoldBgColor?: string;
+    paperFoldAccentColor?: string;
+    // Text Fill Button
+    textFillBorderColor?: string;
+    textFillBgColor?: string;
+    // Icon Slide Button
+    iconSlideBgColor?: string;
+    // Multi Layer Button
+    multiLayerColor1?: string;
+    multiLayerColor2?: string;
+    multiLayerBgColor?: string;
+    multiLayerBorderColor?: string;
+    // Upload Button
+    uploadBgColor?: string;
+    // Toggle Switch Button
+    toggleOnColor?: string;
+    toggleOffColor?: string;
+    // Double Border Button
+    doubleBorderColor?: string;
+    // Spinning Border Button
+    spinningBorderGradientFrom?: string;
+    spinningBorderGradientVia?: string;
+    spinningBorderGradientTo?: string;
+    // Letter Spacing Button
+    letterSpacingBorderColor?: string;
+    // Blur Reveal Button
+    blurRevealColor?: string;
+    // Vaporwave Button
+    vaporwaveGradientFrom?: string;
+    vaporwaveGradientTo?: string;
+    vaporwaveShadowColor?: string;
+    // Save Button
+    saveBgColor?: string;
+    // Print Button
+    printBorderColor?: string;
+    printBgColor?: string;
+    // Notification Button
+    notificationBgColor?: string;
+    notificationBadgeColor?: string;
+    // Circle to Square Button
+    circleToSquareBgColor?: string;
+    // Morph FAB Button
+    morphFabBgColor?: string;
+    morphFabHoverBgColor?: string;
+    // Shiny Reflection Button
+    shinyReflectionBgColor?: string;
+    shinyReflectionBorderColor?: string;
+    // Dot Hover Button
+    dotHoverColor?: string;
+    // Text Marquee Button
+    marqueeBorderColor?: string;
+    // Scramble Text Button
+    scrambleTextColor?: string;
+    scrambleBorderColor?: string;
+    // Typewriter Button
+    typewriterBgColor?: string;
+    typewriterBorderColor?: string;
+    typewriterCursorColor?: string;
+    // Liquid Blob Button
+    liquidBlobBgColor?: string;
+    // CyberPunk Glitch 2 Button
+    cyberPunkBorderColor?: string;
+    cyberPunkBgColor?: string;
+    cyberPunkTextColor?: string;
+    cyberPunkAccentColor?: string;
+    // Rounded Corner Morph Button
+    roundedCornerMorphBgColor?: string;
+    roundedCornerMorphHoverBgColor?: string;
 }
 
 // Helper function to build style from props (like UrlInput does)
@@ -130,18 +318,52 @@ export const MagneticButton = (props: CommonButtonProps) => {
 
 // 2. Glitch Button
 export const GlitchButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        glitchColor1 = "#06b6d4",
+        glitchColor2 = "#ef4444",
+        glitchBackgroundColor = "#000000"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
 
     return (
         <button 
             className={cn("group relative px-8 py-3 font-bold text-white transition-colors hover:bg-transparent", sizeClass, className)}
             style={buttonStyle}
         >
-            <div className="absolute inset-0 bg-cyan-500 translate-x-1 translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" />
-            <div className="absolute inset-0 bg-red-500 -translate-x-1 -translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" />
-            <div className="relative border border-white bg-black px-8 py-3 uppercase tracking-wider z-10">
+            <div 
+                className="absolute inset-0 translate-x-1 translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" 
+                style={{ backgroundColor: hexToRgb(glitchColor1) }}
+            />
+            <div 
+                className="absolute inset-0 -translate-x-1 -translate-y-1 opacity-0 transition-opacity group-hover:opacity-100 mix-blend-screen" 
+                style={{ backgroundColor: hexToRgb(glitchColor2) }}
+            />
+            <div 
+                className="relative border border-white px-8 py-3 uppercase tracking-wider z-10"
+                style={{ backgroundColor: hexToRgb(glitchBackgroundColor) }}
+            >
                 {children}
             </div>
         </button>
@@ -174,13 +396,61 @@ export const LiquidHoverButton = (props: CommonButtonProps) => {
 
 // 4. Neumorphic Button
 export const NeumorphicButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        neumorphicBgColor = "#e0e5ec",
+        neumorphicTextColor = "#4d5b7c",
+        neumorphicShadowLight = "#ffffff",
+        neumorphicShadowDark = "#b8b9be"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to hex string for shadow
+    const hexToHex = (hex: string): string => {
+        if (hex.startsWith('#')) return hex;
+        if (hex.startsWith('rgb')) {
+            const match = hex.match(/\d+/g);
+            if (match && match.length >= 3) {
+                const r = parseInt(match[0]).toString(16).padStart(2, '0');
+                const g = parseInt(match[1]).toString(16).padStart(2, '0');
+                const b = parseInt(match[2]).toString(16).padStart(2, '0');
+                return `#${r}${g}${b}`;
+            }
+        }
+        return hex;
+    };
+    
+    const bgHex = hexToHex(neumorphicBgColor);
+    const textHex = hexToHex(neumorphicTextColor);
+    const shadowLightHex = hexToHex(neumorphicShadowLight);
+    const shadowDarkHex = hexToHex(neumorphicShadowDark);
+    
     return (
         <button 
-            className={cn("rounded-xl bg-[#e0e5ec] px-8 py-3 font-bold text-[#4d5b7c] shadow-[6px_6px_12px_#b8b9be,-6px_-6px_12px_#ffffff] transition-all hover:shadow-[inset_6px_6px_12px_#b8b9be,inset_-6px_-6px_12px_#ffffff] active:scale-95", sizeClass, className)}
-            style={buttonStyle}
+            className={cn("rounded-xl px-8 py-3 font-bold transition-all active:scale-95", sizeClass, className)}
+            style={{
+                ...buttonStyle,
+                backgroundColor: bgHex,
+                color: textHex,
+                boxShadow: `6px 6px 12px ${shadowDarkHex}, -6px -6px 12px ${shadowLightHex}`,
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `inset 6px 6px 12px ${shadowDarkHex}, inset -6px -6px 12px ${shadowLightHex}`;
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = `6px 6px 12px ${shadowDarkHex}, -6px -6px 12px ${shadowLightHex}`;
+            }}
         >
             {children}
         </button>
@@ -189,15 +459,53 @@ export const NeumorphicButton = (props: CommonButtonProps) => {
 
 // 5. Gradient Border Button
 export const GradientBorderButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        gradientFrom = "#ec4899",
+        gradientVia = "#a855f7",
+        gradientTo = "#6366f1",
+        innerBgColor = "#000000"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
+    
+    const fromRgb = hexToRgb(gradientFrom);
+    const viaRgb = hexToRgb(gradientVia);
+    const toRgb = hexToRgb(gradientTo);
+    const innerRgb = hexToRgb(innerBgColor);
+    
     return (
         <button 
-            className={cn("group relative rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-[2px] transition-transform active:scale-95", sizeClass, className)}
-            style={buttonStyle}
+            className={cn("group relative rounded-lg p-[2px] transition-transform active:scale-95", sizeClass, className)}
+            style={{
+                ...buttonStyle,
+                background: `linear-gradient(to right, ${fromRgb}, ${viaRgb}, ${toRgb})`,
+            }}
         >
-            <div className="relative rounded-[6px] bg-black px-8 py-3 transition-colors group-hover:bg-transparent">
+            <div 
+                className="relative rounded-[6px] px-8 py-3 transition-colors group-hover:bg-transparent"
+                style={{ backgroundColor: innerRgb }}
+            >
                 <span className="font-medium text-white">{children}</span>
             </div>
         </button>
@@ -444,16 +752,54 @@ export const SpotlightButton = (props: CommonButtonProps) => {
 
 // 14. Pixel Art Button
 export const PixelArtButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        shadowLayerColor = "#d4d4d4",
+        mainButtonColor = "#facc15",
+        pixelBorderColor = "#000000"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
+    
     return (
         <button 
             className={cn("relative px-6 py-3 font-mono font-bold uppercase text-black transition-transform active:translate-y-1 active:shadow-none", sizeClass, className)}
             style={buttonStyle}
         >
-            <div className="absolute inset-0 bg-neutral-300 translate-y-1 translate-x-1" style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }} />
-            <div className="absolute inset-0 border-2 border-black bg-yellow-400" />
+            <div 
+                className="absolute inset-0 translate-y-1 translate-x-1" 
+                style={{ 
+                    clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                    backgroundColor: hexToRgb(shadowLayerColor)
+                }} 
+            />
+            <div 
+                className="absolute inset-0 border-2" 
+                style={{ 
+                    borderColor: hexToRgb(pixelBorderColor),
+                    backgroundColor: hexToRgb(mainButtonColor)
+                }} 
+            />
             <span className="relative z-10">{children}</span>
         </button>
     );
@@ -637,39 +983,120 @@ export const DownloadProgressButton = (props: CommonButtonProps) => {
 
 // 21. Swipe Right Button
 export const SwipeRightButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        swipeRightFillColor = "#2563eb"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
+    
     return (
         <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
             <span className="relative z-10">{children}</span>
-            <div className="absolute inset-0 h-full w-full translate-x-[-100%] bg-blue-600 transition-transform duration-300 group-hover:translate-x-0" />
+            <div 
+                className="absolute inset-0 h-full w-full translate-x-[-100%] transition-transform duration-300 group-hover:translate-x-0" 
+                style={{ backgroundColor: hexToRgb(swipeRightFillColor) }}
+            />
         </button>
     );
 };
 
 // 22. Swipe Up Button
 export const SwipeUpButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        swipeUpFillColor = "#9333ea"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
+    
     return (
         <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
             <span className="relative z-10">{children}</span>
-            <div className="absolute inset-0 h-full w-full translate-y-[100%] bg-purple-600 transition-transform duration-300 group-hover:translate-y-0" />
+            <div 
+                className="absolute inset-0 h-full w-full translate-y-[100%] transition-transform duration-300 group-hover:translate-y-0" 
+                style={{ backgroundColor: hexToRgb(swipeUpFillColor) }}
+            />
         </button>
     );
 };
 
 // 23. Scale Up Button
 export const ScaleUpButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        scaleUpFillColor = "#db2777"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to rgb string for inline styles
+    const hexToRgb = (hex: string): string => {
+        if (hex.startsWith('rgb')) return hex;
+        if (!hex.startsWith('#')) return hex;
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    };
+    
     return (
         <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
             <span className="relative z-10">{children}</span>
-            <div className="absolute inset-0 h-full w-full scale-0 rounded-lg bg-pink-600 transition-transform duration-300 group-hover:scale-100" />
+            <div 
+                className="absolute inset-0 h-full w-full scale-0 rounded-lg transition-transform duration-300 group-hover:scale-100" 
+                style={{ backgroundColor: hexToRgb(scaleUpFillColor) }}
+            />
         </button>
     );
 };
@@ -745,11 +1172,56 @@ export const Retro95Button = (props: CommonButtonProps) => {
 
 // 29. Clay Button
 export const ClayButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { 
+        children, 
+        className, 
+        style, 
+        size, 
+        borderRadius, 
+        paddingX, 
+        paddingY, 
+        backgroundColor, 
+        textColor, 
+        borderColor, 
+        borderWidth,
+        shadowLightColor = "#ffffff",
+        shadowDarkColor = "#d1d1d4"
+    } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    
+    // Helper to convert hex/rgb to hex string for shadow
+    const hexToHex = (hex: string): string => {
+        if (hex.startsWith('#')) return hex;
+        if (hex.startsWith('rgb')) {
+            const match = hex.match(/\d+/g);
+            if (match && match.length >= 3) {
+                const r = parseInt(match[0]).toString(16).padStart(2, '0');
+                const g = parseInt(match[1]).toString(16).padStart(2, '0');
+                const b = parseInt(match[2]).toString(16).padStart(2, '0');
+                return `#${r}${g}${b}`;
+            }
+        }
+        return hex;
+    };
+    
+    const shadowLightHex = hexToHex(shadowLightColor);
+    const shadowDarkHex = hexToHex(shadowDarkColor);
+    
     return (
-        <button className={cn("rounded-2xl bg-[#f0f0f3] px-8 py-3 font-bold text-neutral-600 shadow-[10px_10px_20px_#d1d1d4,-10px_-10px_20px_#ffffff] transition-transform hover:scale-95 active:shadow-[inset_10px_10px_20px_#d1d1d4,inset_-10px_-10px_20px_#ffffff]", sizeClass, className)} style={buttonStyle}>
+        <button 
+            className={cn("rounded-2xl bg-[#f0f0f3] px-8 py-3 font-bold text-neutral-600 transition-transform hover:scale-95", sizeClass, className)} 
+            style={{
+                ...buttonStyle,
+                boxShadow: `10px 10px 20px ${shadowDarkHex}, -10px -10px 20px ${shadowLightHex}`,
+            }}
+            onMouseDown={(e) => {
+                e.currentTarget.style.boxShadow = `inset 10px 10px 20px ${shadowDarkHex}, inset -10px -10px 20px ${shadowLightHex}`;
+            }}
+            onMouseUp={(e) => {
+                e.currentTarget.style.boxShadow = `10px 10px 20px ${shadowDarkHex}, -10px -10px 20px ${shadowLightHex}`;
+            }}
+        >
             {children}
         </button>
     );

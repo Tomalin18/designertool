@@ -124,10 +124,24 @@ export function ColorPicker({
   defaultColor = "#000000",
   className = "",
 }: ColorPickerProps) {
-  const hexValue = getHexValue(value, defaultColor)
+  // Get the actual hex value for display
+  // If value is empty, use defaultColor only for display, but don't auto-update the prop
+  const hasValue = value && value.trim() !== ""
+  const hexValue = hasValue ? getHexValue(value, defaultColor) : defaultColor
+  
+  // Track if this is the initial render to prevent auto-updating on mount
+  const isInitialMount = React.useRef(true)
+  React.useEffect(() => {
+    isInitialMount.current = false
+  }, [])
   
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHex = e.target.value
+    // Don't update on initial mount to prevent auto-setting colors
+    if (isInitialMount.current) {
+      return
+    }
+    // Always update when user explicitly changes the color
     onChange(formatOutput(newHex, outputFormat, gradientPrefix))
   }
   
@@ -151,7 +165,11 @@ export function ColorPicker({
     
     // Convert to output format
     if (inputValue.length === 7 && /^#[0-9A-Fa-f]{6}$/.test(inputValue)) {
-      onChange(formatOutput(inputValue, outputFormat, gradientPrefix))
+      // Only update if the color actually changed
+      const formattedValue = formatOutput(inputValue, outputFormat, gradientPrefix)
+      if (formattedValue !== value) {
+        onChange(formattedValue)
+      }
     } else if (inputValue.length > 1 && inputValue.length < 7) {
       // Don't update while user is still typing (wait for complete hex)
       return

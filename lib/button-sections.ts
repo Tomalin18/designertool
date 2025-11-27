@@ -217,6 +217,680 @@ const colorProps = {
     },
 }
 
+// Button-specific color props
+const buttonSpecificProps = {
+    // Pixel Art Button
+    shadowLayerColor: {
+        control: "color",
+        default: "#d4d4d4",
+        description: "Shadow layer color for pixel art effect.",
+    },
+    mainButtonColor: {
+        control: "color",
+        default: "#facc15",
+        description: "Main button color.",
+    },
+    pixelBorderColor: {
+        control: "color",
+        default: "#000000",
+        description: "Pixel border color.",
+    },
+    // Glitch Button
+    glitchColor1: {
+        control: "color",
+        default: "#06b6d4",
+        description: "First glitch effect color.",
+    },
+    glitchColor2: {
+        control: "color",
+        default: "#ef4444",
+        description: "Second glitch effect color.",
+    },
+    glitchBackgroundColor: {
+        control: "color",
+        default: "#000000",
+        description: "Glitch button background color.",
+    },
+    // Neumorphic Button
+    neumorphicBgColor: {
+        control: "color",
+        default: "#e0e5ec",
+        description: "Neumorphic background color.",
+    },
+    neumorphicTextColor: {
+        control: "color",
+        default: "#4d5b7c",
+        description: "Neumorphic text color.",
+    },
+    neumorphicShadowLight: {
+        control: "color",
+        default: "#ffffff",
+        description: "Neumorphic light shadow color.",
+    },
+    neumorphicShadowDark: {
+        control: "color",
+        default: "#b8b9be",
+        description: "Neumorphic dark shadow color.",
+    },
+    // Gradient Border Button
+    gradientFrom: {
+        control: "color",
+        default: "#ec4899",
+        description: "Gradient start color.",
+    },
+    gradientVia: {
+        control: "color",
+        default: "#a855f7",
+        description: "Gradient middle color.",
+    },
+    gradientTo: {
+        control: "color",
+        default: "#6366f1",
+        description: "Gradient end color.",
+    },
+    innerBgColor: {
+        control: "color",
+        default: "#000000",
+        description: "Inner background color.",
+    },
+    // Swipe Buttons
+    swipeFillColor: {
+        control: "color",
+        default: "",
+        description: "Swipe fill color on hover.",
+    },
+    swipeRightFillColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Swipe right fill color.",
+    },
+    swipeUpFillColor: {
+        control: "color",
+        default: "#9333ea",
+        description: "Swipe up fill color.",
+    },
+    swipeLeftFillColor: {
+        control: "color",
+        default: "#dc2626",
+        description: "Swipe left fill color.",
+    },
+    swipeDownFillColor: {
+        control: "color",
+        default: "#ea580c",
+        description: "Swipe down fill color.",
+    },
+    scaleUpFillColor: {
+        control: "color",
+        default: "#db2777",
+        description: "Scale up fill color.",
+    },
+    // Clay Button
+    shadowLightColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Light shadow color.",
+    },
+    shadowDarkColor: {
+        control: "color",
+        default: "#d1d1d4",
+        description: "Dark shadow color.",
+    },
+    // 3D Press Button
+    pressBorderColor: {
+        control: "color",
+        default: "#1e40af",
+        description: "3D press border color.",
+    },
+    pressShadowColor: {
+        control: "color",
+        default: "#1e40af",
+        description: "3D press shadow color.",
+    },
+    // Ripple Button
+    rippleColor: {
+        control: "color",
+        default: "#10b981",
+        description: "Ripple button background color.",
+    },
+    // Ghost Hover Button
+    ghostBorderColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.2)",
+        description: "Ghost button border color.",
+    },
+    // Spotlight Button
+    spotlightColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.15)",
+        description: "Spotlight effect color.",
+    },
+    // Glassmorphism Button
+    glassBorderColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.2)",
+        description: "Glass border color.",
+    },
+    glassBgColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.1)",
+        description: "Glass background color.",
+    },
+    // Elastic Button
+    elasticBgColor: {
+        control: "color",
+        default: "#f97316",
+        description: "Elastic button background color.",
+    },
+    // Status Loading Button
+    idleBgColor: {
+        control: "color",
+        default: "#4f46e5",
+        description: "Idle state background color.",
+    },
+    loadingBgColor: {
+        control: "color",
+        default: "#818cf8",
+        description: "Loading state background color.",
+    },
+    successBgColor: {
+        control: "color",
+        default: "#22c55e",
+        description: "Success state background color.",
+    },
+    // Copy Clipboard Button
+    copyBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Copy button border color.",
+    },
+    copyBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Copy button background color.",
+    },
+    copiedBorderColor: {
+        control: "color",
+        default: "#22c55e",
+        description: "Copied state border color.",
+    },
+    copiedBgColor: {
+        control: "color",
+        default: "rgba(34, 197, 94, 0.1)",
+        description: "Copied state background color.",
+    },
+    // Download Progress Button
+    progressBgColor: {
+        control: "color",
+        default: "#16a34a",
+        description: "Download progress background color.",
+    },
+    // Social Share Button
+    socialBgColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Social share button background color.",
+    },
+    // Draw Border Button
+    drawBorderColor: {
+        control: "color",
+        default: "#60a5fa",
+        description: "Draw border color.",
+    },
+    // Dotted Border Button
+    dottedBorderColor: {
+        control: "color",
+        default: "#525252",
+        description: "Dotted border color.",
+    },
+    // Gradient Ring Button
+    gradientRingFrom: {
+        control: "color",
+        default: "#ec4899",
+        description: "Gradient ring start color.",
+    },
+    gradientRingVia: {
+        control: "color",
+        default: "#ef4444",
+        description: "Gradient ring middle color.",
+    },
+    gradientRingTo: {
+        control: "color",
+        default: "#eab308",
+        description: "Gradient ring end color.",
+    },
+    // Cyber Button
+    cyberBorderColor: {
+        control: "color",
+        default: "#facc15",
+        description: "Cyber button border color.",
+    },
+    cyberBgColor: {
+        control: "color",
+        default: "rgba(250, 204, 21, 0.1)",
+        description: "Cyber button background color.",
+    },
+    cyberAccentColor: {
+        control: "color",
+        default: "#facc15",
+        description: "Cyber button accent color.",
+    },
+    // Retro 95 Button
+    retroBgColor: {
+        control: "color",
+        default: "#d4d4d4",
+        description: "Retro 95 button background color.",
+    },
+    retroBorderLightColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Retro 95 light border color.",
+    },
+    retroBorderDarkColor: {
+        control: "color",
+        default: "#171717",
+        description: "Retro 95 dark border color.",
+    },
+    // Skeuo Button
+    skeuoGradientFrom: {
+        control: "color",
+        default: "#737373",
+        description: "Skeuo gradient start color.",
+    },
+    skeuoGradientTo: {
+        control: "color",
+        default: "#525252",
+        description: "Skeuo gradient end color.",
+    },
+    skeuoBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Skeuo border color.",
+    },
+    // Shake Error Button
+    errorBgColor: {
+        control: "color",
+        default: "#dc2626",
+        description: "Error button background color.",
+    },
+    // Confetti Button
+    confettiGradientFrom: {
+        control: "color",
+        default: "#60a5fa",
+        description: "Confetti gradient start color.",
+    },
+    confettiGradientTo: {
+        control: "color",
+        default: "#a855f7",
+        description: "Confetti gradient end color.",
+    },
+    // Hold Button
+    holdProgressColor: {
+        control: "color",
+        default: "#16a34a",
+        description: "Hold progress color.",
+    },
+    // Delete Button
+    deleteIdleBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Delete button idle background color.",
+    },
+    deleteConfirmBgColor: {
+        control: "color",
+        default: "#dc2626",
+        description: "Delete button confirm background color.",
+    },
+    // Like Button
+    likeBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Like button border color.",
+    },
+    likeBgColor: {
+        control: "color",
+        default: "transparent",
+        description: "Like button background color.",
+    },
+    likedBorderColor: {
+        control: "color",
+        default: "#ec4899",
+        description: "Liked state border color.",
+    },
+    likedBgColor: {
+        control: "color",
+        default: "#fdf2f8",
+        description: "Liked state background color.",
+    },
+    likedTextColor: {
+        control: "color",
+        default: "#ec4899",
+        description: "Liked state text color.",
+    },
+    // Skew Button
+    skewBorderColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Skew button border color.",
+    },
+    // Blob Button
+    blobBgColor: {
+        control: "color",
+        default: "#6366f1",
+        description: "Blob button background color.",
+    },
+    // Underline Button
+    underlineColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Underline color.",
+    },
+    // Bracket Button
+    bracketColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Bracket color.",
+    },
+    // Curtain Button
+    curtainBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Curtain button background color.",
+    },
+    curtainRevealBgColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Curtain reveal background color.",
+    },
+    curtainRevealTextColor: {
+        control: "color",
+        default: "#000000",
+        description: "Curtain reveal text color.",
+    },
+    // Slice Button
+    sliceBgColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Slice button background color.",
+    },
+    // Wet Paint Button
+    wetPaintBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Wet paint button background color.",
+    },
+    // Particle Button
+    particleColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Particle color.",
+    },
+    // Isometric Button
+    isometricBgColor: {
+        control: "color",
+        default: "#e5e7eb",
+        description: "Isometric button background color.",
+    },
+    isometricBorderColor: {
+        control: "color",
+        default: "#d1d5db",
+        description: "Isometric button border color.",
+    },
+    isometricShadowColor: {
+        control: "color",
+        default: "rgba(0, 0, 0, 0.2)",
+        description: "Isometric button shadow color.",
+    },
+    // Paper Fold Button
+    paperFoldBgColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Paper fold button background color.",
+    },
+    paperFoldAccentColor: {
+        control: "color",
+        default: "#d1d5db",
+        description: "Paper fold accent color.",
+    },
+    // Text Fill Button
+    textFillBorderColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text fill border color.",
+    },
+    textFillBgColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text fill background color.",
+    },
+    // Icon Slide Button
+    iconSlideBgColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Icon slide button background color.",
+    },
+    // Multi Layer Button
+    multiLayerColor1: {
+        control: "color",
+        default: "#ec4899",
+        description: "Multi layer first color.",
+    },
+    multiLayerColor2: {
+        control: "color",
+        default: "#3b82f6",
+        description: "Multi layer second color.",
+    },
+    multiLayerBgColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Multi layer button background color.",
+    },
+    multiLayerBorderColor: {
+        control: "color",
+        default: "#000000",
+        description: "Multi layer button border color.",
+    },
+    // Upload Button
+    uploadBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Upload button background color.",
+    },
+    // Toggle Switch Button
+    toggleOnColor: {
+        control: "color",
+        default: "#22c55e",
+        description: "Toggle switch on color.",
+    },
+    toggleOffColor: {
+        control: "color",
+        default: "#525252",
+        description: "Toggle switch off color.",
+    },
+    // Double Border Button
+    doubleBorderColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Double border color.",
+    },
+    // Spinning Border Button
+    spinningBorderGradientFrom: {
+        control: "color",
+        default: "#000000",
+        description: "Spinning border gradient start color.",
+    },
+    spinningBorderGradientVia: {
+        control: "color",
+        default: "#ffffff",
+        description: "Spinning border gradient middle color.",
+    },
+    spinningBorderGradientTo: {
+        control: "color",
+        default: "#000000",
+        description: "Spinning border gradient end color.",
+    },
+    // Letter Spacing Button
+    letterSpacingBorderColor: {
+        control: "color",
+        default: "#737373",
+        description: "Letter spacing button border color.",
+    },
+    // Blur Reveal Button
+    blurRevealColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.2)",
+        description: "Blur reveal effect color.",
+    },
+    // Vaporwave Button
+    vaporwaveGradientFrom: {
+        control: "color",
+        default: "#ec4899",
+        description: "Vaporwave gradient start color.",
+    },
+    vaporwaveGradientTo: {
+        control: "color",
+        default: "#06b6d4",
+        description: "Vaporwave gradient end color.",
+    },
+    vaporwaveShadowColor: {
+        control: "color",
+        default: "#000000",
+        description: "Vaporwave shadow color.",
+    },
+    // Save Button
+    saveBgColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Save button background color.",
+    },
+    // Print Button
+    printBorderColor: {
+        control: "color",
+        default: "#525252",
+        description: "Print button border color.",
+    },
+    printBgColor: {
+        control: "color",
+        default: "transparent",
+        description: "Print button background color.",
+    },
+    // Notification Button
+    notificationBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Notification button background color.",
+    },
+    notificationBadgeColor: {
+        control: "color",
+        default: "#ef4444",
+        description: "Notification badge color.",
+    },
+    // Circle to Square Button
+    circleToSquareBgColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Circle to square button background color.",
+    },
+    // Morph FAB Button
+    morphFabBgColor: {
+        control: "color",
+        default: "#4f46e5",
+        description: "Morph FAB button background color.",
+    },
+    morphFabHoverBgColor: {
+        control: "color",
+        default: "#dc2626",
+        description: "Morph FAB button hover background color.",
+    },
+    // Shiny Reflection Button
+    shinyReflectionBgColor: {
+        control: "color",
+        default: "#262626",
+        description: "Shiny reflection button background color.",
+    },
+    shinyReflectionBorderColor: {
+        control: "color",
+        default: "#404040",
+        description: "Shiny reflection button border color.",
+    },
+    // Dot Hover Button
+    dotHoverColor: {
+        control: "color",
+        default: "#818cf8",
+        description: "Dot hover indicator color.",
+    },
+    // Text Marquee Button
+    marqueeBorderColor: {
+        control: "color",
+        default: "rgba(255, 255, 255, 0.2)",
+        description: "Text marquee border color.",
+    },
+    // Scramble Text Button
+    scrambleTextColor: {
+        control: "color",
+        default: "#22c55e",
+        description: "Scramble text color.",
+    },
+    scrambleBorderColor: {
+        control: "color",
+        default: "rgba(34, 197, 94, 0.5)",
+        description: "Scramble text border color.",
+    },
+    // Typewriter Button
+    typewriterBgColor: {
+        control: "color",
+        default: "#171717",
+        description: "Typewriter button background color.",
+    },
+    typewriterBorderColor: {
+        control: "color",
+        default: "#262626",
+        description: "Typewriter button border color.",
+    },
+    typewriterCursorColor: {
+        control: "color",
+        default: "#737373",
+        description: "Typewriter cursor color.",
+    },
+    // Liquid Blob Button
+    liquidBlobBgColor: {
+        control: "color",
+        default: "#6366f1",
+        description: "Liquid blob button background color.",
+    },
+    // CyberPunk Glitch 2 Button
+    cyberPunkBorderColor: {
+        control: "color",
+        default: "#fde047",
+        description: "CyberPunk glitch 2 border color.",
+    },
+    cyberPunkBgColor: {
+        control: "color",
+        default: "#000000",
+        description: "CyberPunk glitch 2 background color.",
+    },
+    cyberPunkTextColor: {
+        control: "color",
+        default: "#fde047",
+        description: "CyberPunk glitch 2 text color.",
+    },
+    cyberPunkAccentColor: {
+        control: "color",
+        default: "#fde047",
+        description: "CyberPunk glitch 2 accent color.",
+    },
+    // Rounded Corner Morph Button
+    roundedCornerMorphBgColor: {
+        control: "color",
+        default: "#e5e7eb",
+        description: "Rounded corner morph button background color.",
+    },
+    roundedCornerMorphHoverBgColor: {
+        control: "color",
+        default: "#d1d5db",
+        description: "Rounded corner morph button hover background color.",
+    },
+}
+
 // Helper function to generate grouping config for a button
 function getButtonGroupingConfig(
     props: Record<string, ButtonPropDefinition>
@@ -246,6 +920,133 @@ function getButtonGroupingConfig(
         'shimmerColor',
         'hoverColor',
         'fillColor',
+        // Button-specific color props
+        'shadowColor',
+        'accentColor',
+        'hoverFillColor',
+        'innerBackgroundColor',
+        'shadowLayerColor',
+        'mainButtonColor',
+        'pixelBorderColor',
+        'glitchColor1',
+        'glitchColor2',
+        'glitchBackgroundColor',
+        'neumorphicBgColor',
+        'neumorphicTextColor',
+        'neumorphicShadowLight',
+        'neumorphicShadowDark',
+        'gradientFrom',
+        'gradientVia',
+        'gradientTo',
+        'innerBgColor',
+        'swipeFillColor',
+        'swipeRightFillColor',
+        'swipeUpFillColor',
+        'swipeLeftFillColor',
+        'swipeDownFillColor',
+        'scaleUpFillColor',
+        'shadowLightColor',
+        'shadowDarkColor',
+        'pressBorderColor',
+        'pressShadowColor',
+        'rippleColor',
+        'ghostBorderColor',
+        'spotlightColor',
+        'glassBorderColor',
+        'glassBgColor',
+        'elasticBgColor',
+        'idleBgColor',
+        'loadingBgColor',
+        'successBgColor',
+        'copyBorderColor',
+        'copyBgColor',
+        'copiedBorderColor',
+        'copiedBgColor',
+        'progressBgColor',
+        'socialBgColor',
+        'drawBorderColor',
+        'dottedBorderColor',
+        'gradientRingFrom',
+        'gradientRingVia',
+        'gradientRingTo',
+        'cyberBorderColor',
+        'cyberBgColor',
+        'cyberAccentColor',
+        'retroBgColor',
+        'retroBorderLightColor',
+        'retroBorderDarkColor',
+        'skeuoGradientFrom',
+        'skeuoGradientTo',
+        'skeuoBorderColor',
+        'errorBgColor',
+        'confettiGradientFrom',
+        'confettiGradientTo',
+        'holdProgressColor',
+        'deleteIdleBgColor',
+        'deleteConfirmBgColor',
+        'likeBorderColor',
+        'likeBgColor',
+        'likedBorderColor',
+        'likedBgColor',
+        'likedTextColor',
+        'skewBorderColor',
+        'blobBgColor',
+        'underlineColor',
+        'bracketColor',
+        'curtainBgColor',
+        'curtainRevealBgColor',
+        'curtainRevealTextColor',
+        'sliceBgColor',
+        'wetPaintBgColor',
+        'particleColor',
+        'isometricBgColor',
+        'isometricBorderColor',
+        'isometricShadowColor',
+        'paperFoldBgColor',
+        'paperFoldAccentColor',
+        'textFillBorderColor',
+        'textFillBgColor',
+        'iconSlideBgColor',
+        'multiLayerColor1',
+        'multiLayerColor2',
+        'multiLayerBgColor',
+        'multiLayerBorderColor',
+        'uploadBgColor',
+        'toggleOnColor',
+        'toggleOffColor',
+        'doubleBorderColor',
+        'spinningBorderGradientFrom',
+        'spinningBorderGradientVia',
+        'spinningBorderGradientTo',
+        'letterSpacingBorderColor',
+        'blurRevealColor',
+        'vaporwaveGradientFrom',
+        'vaporwaveGradientTo',
+        'vaporwaveShadowColor',
+        'saveBgColor',
+        'printBorderColor',
+        'printBgColor',
+        'notificationBgColor',
+        'notificationBadgeColor',
+        'circleToSquareBgColor',
+        'morphFabBgColor',
+        'morphFabHoverBgColor',
+        'shinyReflectionBgColor',
+        'shinyReflectionBorderColor',
+        'dotHoverColor',
+        'marqueeBorderColor',
+        'scrambleTextColor',
+        'scrambleBorderColor',
+        'typewriterBgColor',
+        'typewriterBorderColor',
+        'typewriterCursorColor',
+        'liquidBlobBgColor',
+        'cyberPunkBorderColor',
+        'cyberPunkBgColor',
+        'cyberPunkTextColor',
+        'cyberPunkAccentColor',
+        'roundedCornerMorphBgColor',
+        'roundedCornerMorphHoverBgColor',
     ]
     
     const animationKeys = [
@@ -336,9 +1137,19 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "GlitchButton",
         description: "A button with a digital glitch effect on hover.",
         tags: ["button", "glitch", "effect", "hover"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            glitchColor1: buttonSpecificProps.glitchColor1,
+            glitchColor2: buttonSpecificProps.glitchColor2,
+            glitchBackgroundColor: buttonSpecificProps.glitchBackgroundColor,
+        },
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            glitchColor1: buttonSpecificProps.glitchColor1,
+            glitchColor2: buttonSpecificProps.glitchColor2,
+            glitchBackgroundColor: buttonSpecificProps.glitchBackgroundColor,
+        }),
     },
     {
         slug: "liquid-hover-button",
@@ -364,9 +1175,21 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "NeumorphicButton",
         description: "A button designed with soft UI / neumorphism style.",
         tags: ["button", "neumorphic", "soft-ui", "shadow"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            neumorphicBgColor: buttonSpecificProps.neumorphicBgColor,
+            neumorphicTextColor: buttonSpecificProps.neumorphicTextColor,
+            neumorphicShadowLight: buttonSpecificProps.neumorphicShadowLight,
+            neumorphicShadowDark: buttonSpecificProps.neumorphicShadowDark,
+        },
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            neumorphicBgColor: buttonSpecificProps.neumorphicBgColor,
+            neumorphicTextColor: buttonSpecificProps.neumorphicTextColor,
+            neumorphicShadowLight: buttonSpecificProps.neumorphicShadowLight,
+            neumorphicShadowDark: buttonSpecificProps.neumorphicShadowDark,
+        }),
     },
     {
         slug: "gradient-border-button",
@@ -376,6 +1199,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "gradient", "border", "colorful"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "shimmer-button",
@@ -433,6 +1257,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "3d", "press", "click"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "ripple-button",
@@ -460,6 +1285,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "ghost", "hover", "transparent"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "status-loading-button",
@@ -468,6 +1294,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         description: "A button that shows loading and success states.",
         tags: ["button", "loading", "status", "feedback"],
         props: {
+            ...extendedButtonProps,
             buttonText: {
                 control: "text",
                 default: "Submit",
@@ -476,6 +1303,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         },
         category: "Button",
         groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
             buttonText: {
                 control: "text",
                 default: "Submit",
@@ -499,9 +1327,19 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PixelArtButton",
         description: "A retro pixel art style button.",
         tags: ["button", "pixel", "retro", "8bit"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            shadowLayerColor: buttonSpecificProps.shadowLayerColor,
+            mainButtonColor: buttonSpecificProps.mainButtonColor,
+            pixelBorderColor: buttonSpecificProps.pixelBorderColor,
+        },
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            shadowLayerColor: buttonSpecificProps.shadowLayerColor,
+            mainButtonColor: buttonSpecificProps.mainButtonColor,
+            pixelBorderColor: buttonSpecificProps.pixelBorderColor,
+        }),
     },
     {
         slug: "glassmorphism-button",
@@ -511,6 +1349,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "glassmorphism", "glass", "blur"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "neon-flicker-button",
@@ -555,6 +1394,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         description: "A button to copy text to clipboard with feedback.",
         tags: ["button", "copy", "clipboard", "utility"],
         props: {
+            ...extendedButtonProps,
             copyText: {
                 control: "text",
                 default: "Copy Code",
@@ -563,6 +1403,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         },
         category: "Button",
         groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
             copyText: {
                 control: "text",
                 default: "Copy Code",
@@ -576,9 +1417,9 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SocialShareButton",
         description: "A button that expands to show social share icons.",
         tags: ["button", "social", "share", "expand"],
-        props: buttonWithClassNameProps,
+        props: extendedButtonProps,
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(buttonWithClassNameProps),
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "download-progress-button",
@@ -587,6 +1428,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         description: "A button that visualizes download progress.",
         tags: ["button", "download", "progress", "animation"],
         props: {
+            ...extendedButtonProps,
             downloadText: {
                 control: "text",
                 default: "Download",
@@ -595,6 +1437,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         },
         category: "Button",
         groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
             downloadText: {
                 control: "text",
                 default: "Download",
@@ -608,9 +1451,15 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SwipeRightButton",
         description: "A button with a swipe right fill effect.",
         tags: ["button", "swipe", "fill", "hover"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            swipeRightFillColor: buttonSpecificProps.swipeRightFillColor,
+        },
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            swipeRightFillColor: buttonSpecificProps.swipeRightFillColor,
+        }),
     },
     {
         slug: "swipe-up-button",
@@ -628,9 +1477,15 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ScaleUpButton",
         description: "A button with a scale up fill effect.",
         tags: ["button", "scale", "fill", "hover"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            scaleUpFillColor: buttonSpecificProps.scaleUpFillColor,
+        },
         category: "Button",
-        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            scaleUpFillColor: buttonSpecificProps.scaleUpFillColor,
+        }),
     },
     {
         slug: "draw-border-button",
@@ -936,6 +1791,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "border", "double", "style"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "spinning-border-button",
