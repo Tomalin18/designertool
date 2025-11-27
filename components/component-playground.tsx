@@ -46,6 +46,8 @@ import { buttonSections } from "@/lib/button-sections"
 import { buttonComponentsByName } from "@/components/customize/buttons"
 import { cardSections } from "@/lib/card-sections"
 import { cardComponentsByName } from "@/components/customize/cards"
+import { badgeSections } from "@/lib/badge-sections"
+import { badgeComponentsByName } from "@/components/customize/badges"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -80,6 +82,11 @@ const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSect
 
 const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
   acc[header.name] = header
+  return acc
+}, {})
+
+const badgeNameToMeta = badgeSections.reduce<Record<string, (typeof badgeSections)[number]>>((acc, badge) => {
+  acc[badge.name] = badge
   return acc
 }, {})
 
@@ -1459,6 +1466,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add badge sections to configs
+  badgeSections.forEach((badge) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = badgeComponentsByName[badge.componentName]
+    if (!Component) {
+      console.warn(`Badge component not found: ${badge.componentName}. Available components:`, Object.keys(badgeComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(badge.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[badge.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from badgeComponentsByName (re-fetch to ensure it's available)
+        const Component = badgeComponentsByName[badge.componentName]
+        
+        if (!Component) {
+          console.error(`Badge component ${badge.componentName} is not available in badgeComponentsByName. Available:`, Object.keys(badgeComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {badge.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from badge.props definition
+        Object.keys(badge.props).forEach((key) => {
+          const propConfig = badge.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in badge.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${badge.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   // Add card sections to configs
   cardSections.forEach((card) => {
     // Get Component dynamically to avoid circular dependency issues
@@ -1654,6 +1784,21 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   let config = componentConfigs[componentName]
   let actualComponentName = componentName
   
+  // If not found, try to find by slug (for badge components)
+  if (!config) {
+    const badgeMeta = badgeSections.find(b => b.slug === slug)
+    if (badgeMeta) {
+      config = componentConfigs[badgeMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = badgeMeta.name
+        console.log(`Found badge config by slug: ${slug} -> ${badgeMeta.name}`)
+      } else {
+        console.warn(`Badge meta found but config not found: ${badgeMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+  }
+  
   // If not found, try to find by slug (for card components)
   if (!config) {
     const cardMeta = cardSections.find(c => c.slug === slug)
@@ -1681,6 +1826,14 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const headerMeta = headerNameToMeta[actualComponentName]
   const buttonMeta = buttonNameToMeta[actualComponentName]
   // For card components, find by slug if not found by componentName
+  let badgeMeta = badgeNameToMeta[actualComponentName]
+  if (!badgeMeta) {
+    const badgeMetaBySlug = badgeSections.find(b => b.slug === slug)
+    if (badgeMetaBySlug) {
+      badgeMeta = badgeNameToMeta[badgeMetaBySlug.name]
+    }
+  }
+  
   let cardMeta = cardNameToMeta[actualComponentName]
   if (!cardMeta) {
     const cardMetaBySlug = cardSections.find(c => c.slug === slug)
@@ -4272,6 +4425,59 @@ import {
 <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>`
     }
 
+    // Badge section code generation - try both componentName and actualComponentName
+    let badgeMeta = badgeNameToMeta[componentName] || badgeNameToMeta[actualComponentName]
+    if (!badgeMeta) {
+      // Try to find by slug
+      const badgeMetaBySlug = badgeSections.find(b => b.slug === slug)
+      if (badgeMetaBySlug) {
+        badgeMeta = badgeNameToMeta[badgeMetaBySlug.name]
+      }
+    }
+    if (badgeMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "gradientFrom" || key === "gradientTo" || key === "glowColor" || key === "pulseColor" || key === "iconColor" || key === "shadowColor" || key === "dotColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n  ${propsList.join("\n  ")}\n` : ""
+
+      return `import { ${badgeMeta.componentName} } from "@/components/customize/badges"
+
+export function ${badgeMeta.componentName}Demo() {
+  return (
+    <${badgeMeta.componentName}${propsString} />
+  )
+}`
+    }
+
     // Card section code generation - try both componentName and actualComponentName
     let cardMeta = cardNameToMeta[componentName] || cardNameToMeta[actualComponentName]
     if (!cardMeta) {
@@ -4561,7 +4767,7 @@ export function ${cardMeta.componentName}Demo() {
           <div className="p-6">
             {config && (
               <CustomizePanel
-                componentName={componentName}
+                componentName={actualComponentName}
                 props={props}
                 config={config}
                 updateProp={updateProp}

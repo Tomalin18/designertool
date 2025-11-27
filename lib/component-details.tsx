@@ -6,6 +6,7 @@ import { footerSections } from "./footer-sections"
 import { headerSections } from "./header-sections"
 import { buttonSections } from "./button-sections"
 import { cardSections } from "./card-sections"
+import { badgeSections } from "./badge-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2382,6 +2383,42 @@ export function ${button.componentName}Demo() {
           : String(prop.default),
       description: prop.description,
     })),
+  }
+})
+
+badgeSections.forEach((badge) => {
+  componentDetails[badge.slug] = {
+    name: badge.name,
+    description: badge.description,
+    category: "Display",
+    hasPlayground: true,
+    installation: "Copy the badge component from the code example below.",
+    usage: `import { ${badge.componentName} } from "@/components/customize/badges"
+
+export function ${badge.componentName}Demo() {
+  return <${badge.componentName} />
+}`,
+    tags: badge.tags,
+    props: Object.entries(badge.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.options ? prop.options.join(" | ") : (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : prop.control === "number" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+    examples: [
+      {
+        title: "Basic Usage",
+        description: `A simple ${badge.name.toLowerCase()} component with default settings.`,
+        code: `import { ${badge.componentName} } from "@/components/customize/badges"
+
+export function ${badge.componentName}Demo() {
+  return <${badge.componentName} />
+}`,
+      },
+    ],
   }
 })
 

@@ -78,7 +78,13 @@ const extractHexFromTailwind = (value: string): string | null => {
 
 // Get hex value for color picker
 const getHexValue = (value: string, defaultColor: string = "#000000"): string => {
-  if (!value) return defaultColor
+  if (!value) {
+    // If defaultColor is empty, return empty string (don't show color)
+    if (!defaultColor || defaultColor.trim() === "") {
+      return ""
+    }
+    return defaultColor
+  }
   
   // If it's already a hex value
   if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
@@ -91,6 +97,10 @@ const getHexValue = (value: string, defaultColor: string = "#000000"): string =>
     return hex
   }
   
+  // If defaultColor is empty, return empty string
+  if (!defaultColor || defaultColor.trim() === "") {
+    return ""
+  }
   return defaultColor
 }
 
@@ -127,7 +137,7 @@ export function ColorPicker({
   // Get the actual hex value for display
   // If value is empty, use defaultColor only for display, but don't auto-update the prop
   const hasValue = value && value.trim() !== ""
-  const hexValue = hasValue ? getHexValue(value, defaultColor) : defaultColor
+  const hexValue = hasValue ? getHexValue(value, defaultColor) : (defaultColor && defaultColor.trim() !== "" ? defaultColor : "")
   
   // Track if this is the initial render to prevent auto-updating on mount
   const isInitialMount = React.useRef(true)
@@ -180,18 +190,23 @@ export function ColorPicker({
     // Don't clear if empty - keep current value to avoid resetting to black
   }
   
+  // Use a light gray placeholder color when hexValue is empty (for optional colors)
+  const displayColor = hexValue && hexValue.trim() !== "" ? hexValue : "#f3f4f6"
+  
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <input
         type="color"
-        value={hexValue}
+        value={displayColor}
         onChange={handleColorChange}
         className="h-10 w-20 rounded border border-input cursor-pointer"
+        style={!hexValue || hexValue.trim() === "" ? { opacity: 0.5 } : undefined}
+        title={!hexValue || hexValue.trim() === "" ? "Click to set color (optional)" : undefined}
       />
       <Input
         value={hexValue}
         onChange={handleInputChange}
-        placeholder={placeholder}
+        placeholder={placeholder || "Optional (uses default)"}
         className="flex-1 text-xs font-mono"
       />
     </div>

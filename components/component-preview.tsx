@@ -42,6 +42,8 @@ import { buttonSections } from "@/lib/button-sections"
 import { buttonComponentsByName } from "@/components/customize/buttons"
 import { cardSections } from "@/lib/card-sections"
 import { cardComponentsByName } from "@/components/customize/cards"
+import { badgeSections } from "@/lib/badge-sections"
+import { badgeComponentsByName } from "@/components/customize/badges"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -81,10 +83,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const cardMeta = cardSections.find((card) => card.name === name)
   const CardComponent = cardMeta ? cardComponentsByName[cardMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta
+  const badgeMeta = badgeSections.find((badge) => badge.name === name)
+  const BadgeComponent = badgeMeta ? badgeComponentsByName[badgeMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -202,6 +207,18 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="w-full max-w-sm mx-auto">
           <CardComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (badgeMeta && BadgeComponent) {
+      // Get default props for the badge
+      const defaultProps = Object.fromEntries(
+        Object.entries(badgeMeta.props).map(([key, prop]) => [key, prop.default])
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <BadgeComponent {...defaultProps} />
         </div>
       )
     }

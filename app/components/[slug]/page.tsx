@@ -14,6 +14,7 @@ import { footerSections } from "@/lib/footer-sections"
 import { headerSections } from "@/lib/header-sections"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
+import { badgeSections } from "@/lib/badge-sections"
 import fs from 'fs'
 import path from 'path'
 
@@ -45,6 +46,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const headerMeta = headerSections.find(h => h.slug === slug)
   const cardMeta = cardSections.find(c => c.slug === slug)
   const buttonMeta = buttonSections.find(b => b.slug === slug)
+  const badgeMeta = badgeSections.find(b => b.slug === slug)
 
   if (heroMeta) {
     try {
@@ -258,6 +260,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  // Read Badge component code if it's a badge section
+  if (badgeMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'badges', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${badgeMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading badge component code:", e)
+    }
+  }
+
   const sidebarItems = [
     {
       title: "Components",
@@ -280,8 +309,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       <div className="py-8 md:py-12">
         <div className="mb-6">
           <BackToComponentsButton
-            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta || buttonMeta || cardMeta ? "/components?tab=section" : "/components"}
-            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta || buttonMeta || cardMeta)}
+            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
+            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
           />
           <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
             {component.category}
@@ -301,6 +330,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             headerMeta={headerMeta}
             buttonMeta={buttonMeta}
             cardMeta={cardMeta}
+            badgeMeta={badgeMeta}
           />
         </div>
 
