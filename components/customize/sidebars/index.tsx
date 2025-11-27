@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { cn } from "../../../lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
   Search, 
@@ -165,6 +166,15 @@ export const SimpleSidebar = ({
 
   const menuItemsList = menuItems ? menuItems.split("\n").filter(item => item.trim() !== "") : [];
 
+  // Parse items with badge support (format: "Item:badge")
+  const parseItemWithBadge = (item: string) => {
+    const parts = item.split(":");
+    return {
+      label: parts[0]?.trim() || "",
+      badge: parts[1]?.trim() || null,
+    };
+  };
+
   return (
     <SidebarFrame>
       <div 
@@ -190,29 +200,37 @@ export const SimpleSidebar = ({
           <div className="h-6 w-6 rounded" style={{ backgroundColor: activeRgb }} /> {logoText}
         </div>
         <nav className="space-y-1">
-          {menuItemsList.map((item) => (
-            <a 
-              key={item} 
-              href="#" 
-              className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-neutral-900"
-              style={{
-                color: textRgb,
-              }}
-              onMouseEnter={(e) => {
-                if (activeRgb) {
-                  e.currentTarget.style.color = activeRgb;
-                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = textRgb;
-                e.currentTarget.style.backgroundColor = "transparent";
-              }}
-            >
-              <div className="h-4 w-4 rounded bg-neutral-800" />
-              {item.trim()}
-            </a>
-          ))}
+          {menuItemsList.map((item, index) => {
+            const { label, badge } = parseItemWithBadge(item);
+            return (
+              <a 
+                key={`${label}-${index}`} 
+                href="#" 
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-neutral-900"
+                style={{
+                  color: textRgb,
+                }}
+                onMouseEnter={(e) => {
+                  if (activeRgb) {
+                    e.currentTarget.style.color = activeRgb;
+                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = textRgb;
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                <div className="h-4 w-4 rounded bg-neutral-800" />
+                <span className="flex-1">{label}</span>
+                {badge && (
+                  <Badge className="ml-auto text-[10px] h-5 px-1.5" style={{ backgroundColor: activeRgb, color: bgRgb }}>
+                    {badge}
+                  </Badge>
+                )}
+              </a>
+            );
+          })}
         </nav>
         <div className="mt-auto border-t pt-4" style={{ borderColor: borderRgb }}>
           <a 
@@ -390,9 +408,9 @@ export const SaasDarkSidebar = ({
                   >
                     <Icon size={18} /> {label}
                     {badge && (
-                      <span className="ml-auto rounded-full px-1.5 py-0.5 text-[10px]" style={{ backgroundColor: activeRgb, color: hoverRgb }}>
+                      <Badge className="ml-auto text-[10px] h-5 px-1.5" style={{ backgroundColor: activeRgb, color: hoverRgb }}>
                         {badge}
-                      </span>
+                      </Badge>
                     )}
                   </a>
                 );
@@ -1367,7 +1385,11 @@ export const TaskSidebar = ({
             return (
               <a key={index} href="#" className={cn("flex items-center justify-between rounded-lg px-4 py-2.5 font-medium", isActive ? "bg-indigo-50 text-indigo-700" : "text-neutral-600 hover:bg-neutral-50")}>
                 <span className="flex items-center gap-3"><Icon size={18} /> {label}</span>
-                {badge && <span className={cn("text-xs", isActive ? "" : "text-neutral-400")}>{badge}</span>}
+                {badge && (
+                  <Badge variant="secondary" className={cn("text-xs", isActive ? "" : "text-neutral-400")}>
+                    {badge}
+                  </Badge>
+                )}
               </a>
             );
           })}
