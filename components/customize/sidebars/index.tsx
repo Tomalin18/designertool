@@ -522,7 +522,15 @@ export const IconSidebar = ({
 };
 
 // 4. Double Rail Sidebar (Discord-ish)
-export interface DoubleRailSidebarProps extends SidebarProps {}
+export interface DoubleRailSidebarProps extends SidebarProps {
+  workspaceName?: string;
+  channelSectionTitle?: string;
+  channelItems?: string;
+  voiceChannelSectionTitle?: string;
+  voiceChannelItems?: string;
+  userName?: string;
+  userTag?: string;
+}
 
 export const DoubleRailSidebar = ({
   className,
@@ -535,7 +543,16 @@ export const DoubleRailSidebar = ({
   borderRadius = 0,
   borderWidth = 0,
   borderColor = "#262626",
+  workspaceName = "Design Team",
+  channelSectionTitle = "General",
+  channelItems = "announcements\ngeneral\noff-topic",
+  voiceChannelSectionTitle = "Voice Channels",
+  voiceChannelItems = "Lounge",
+  userName = "User Name",
+  userTag = "#1234",
 }: DoubleRailSidebarProps) => {
+  const channelItemsList = channelItems ? channelItems.split("\n").filter(item => item.trim() !== "") : [];
+  const voiceChannelItemsList = voiceChannelItems ? voiceChannelItems.split("\n").filter(item => item.trim() !== "") : [];
   const bgRgb = backgroundColor && backgroundColor.trim() !== "" 
     ? (backgroundColor.startsWith("rgb") ? backgroundColor : (hexToRgb(backgroundColor) || backgroundColor))
     : "#1e1f22";
@@ -603,24 +620,55 @@ export const DoubleRailSidebar = ({
       {/* Rail 2: Channels */}
       <div className="flex w-60 flex-col bg-[#2b2d31] p-0">
         <div className="flex h-12 items-center justify-between px-4 shadow-sm font-bold text-white hover:bg-neutral-700/50 cursor-pointer">
-          Design Team <ChevronDown size={16} />
+          {workspaceName} <ChevronDown size={16} />
         </div>
         <div className="p-2 space-y-0.5 overflow-y-auto flex-1">
-          <div className="px-2 pt-2 pb-1 text-[10px] font-bold uppercase text-neutral-400 hover:text-neutral-300 cursor-pointer flex items-center gap-1"><ChevronDown size={10} /> General</div>
-          <div className="rounded px-2 py-1 text-neutral-400 hover:bg-[#3f4147] hover:text-neutral-200 cursor-pointer flex items-center gap-2"><Hash size={18} className="text-neutral-500"/> announcements</div>
-          <div className="rounded px-2 py-1 text-white bg-[#3f4147] cursor-pointer flex items-center gap-2"><Hash size={18} className="text-neutral-400"/> general</div>
-          <div className="rounded px-2 py-1 text-neutral-400 hover:bg-[#3f4147] hover:text-neutral-200 cursor-pointer flex items-center gap-2"><Hash size={18} className="text-neutral-500"/> off-topic</div>
+          {channelSectionTitle && (
+            <>
+              <div className="px-2 pt-2 pb-1 text-[10px] font-bold uppercase text-neutral-400 hover:text-neutral-300 cursor-pointer flex items-center gap-1">
+                <ChevronDown size={10} /> {channelSectionTitle}
+              </div>
+              {channelItemsList.map((item, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "rounded px-2 py-1 cursor-pointer flex items-center gap-2",
+                    index === 1 ? "text-white bg-[#3f4147]" : "text-neutral-400 hover:bg-[#3f4147] hover:text-neutral-200"
+                  )}
+                >
+                  <Hash size={18} className={index === 1 ? "text-neutral-400" : "text-neutral-500"} />
+                  {item.trim()}
+                </div>
+              ))}
+            </>
+          )}
           
-          <div className="px-2 pt-4 pb-1 text-[10px] font-bold uppercase text-neutral-400 hover:text-neutral-300 cursor-pointer flex items-center gap-1"><ChevronDown size={10} /> Voice Channels</div>
-          <div className="rounded px-2 py-1 text-neutral-400 hover:bg-[#3f4147] hover:text-neutral-200 cursor-pointer flex items-center gap-2"><Music size={18} className="text-neutral-500"/> Lounge</div>
+          {voiceChannelSectionTitle && (
+            <>
+              <div className="px-2 pt-4 pb-1 text-[10px] font-bold uppercase text-neutral-400 hover:text-neutral-300 cursor-pointer flex items-center gap-1">
+                <ChevronDown size={10} /> {voiceChannelSectionTitle}
+              </div>
+              {voiceChannelItemsList.map((item, index) => (
+                <div
+                  key={index}
+                  className="rounded px-2 py-1 text-neutral-400 hover:bg-[#3f4147] hover:text-neutral-200 cursor-pointer flex items-center gap-2"
+                >
+                  <Music size={18} className="text-neutral-500" />
+                  {item.trim()}
+                </div>
+              ))}
+            </>
+          )}
         </div>
         <div className="bg-[#232428] p-2 flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-green-500 relative">
-            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-[#232428] flex items-center justify-center"><div className="h-2 w-2 rounded-full bg-green-500" /></div>
+            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-[#232428] flex items-center justify-center">
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+            </div>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-bold text-white truncate">User Name</div>
-            <div className="text-[10px] text-neutral-400 truncate">#1234</div>
+            <div className="text-xs font-bold text-white truncate">{userName}</div>
+            <div className="text-[10px] text-neutral-400 truncate">{userTag}</div>
           </div>
           <div className="flex gap-1">
             <button className="p-1 hover:bg-neutral-700 rounded"><Mic size={14} className="text-neutral-300" /></button>
@@ -917,6 +965,7 @@ export interface GradientSidebarProps extends SidebarProps {
   secondaryMenuItems?: string;
   profileName?: string;
   profileRole?: string;
+  profileImage?: string;
 }
 
 export const GradientSidebar = ({
@@ -926,6 +975,7 @@ export const GradientSidebar = ({
   secondaryMenuItems = "Settings\nHelp\nLogout",
   profileName = "Sarah J.",
   profileRole = "Premium User",
+  profileImage,
 }: GradientSidebarProps) => {
   const primaryItems = primaryMenuItems ? primaryMenuItems.split("\n").filter(item => item.trim() !== "") : [];
   const secondaryItems = secondaryMenuItems ? secondaryMenuItems.split("\n").filter(item => item.trim() !== "") : [];
@@ -955,7 +1005,13 @@ export const GradientSidebar = ({
         </nav>
         <div className="p-4 bg-black/20">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500" />
+            {profileImage ? (
+              <div className="h-10 w-10 rounded-full overflow-hidden">
+                <img src={profileImage} alt={profileName} className="h-full w-full object-cover" />
+              </div>
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500" />
+            )}
             <div>
               <div className="text-sm font-bold text-white">{profileName}</div>
               <div className="text-xs">{profileRole}</div>
@@ -971,6 +1027,7 @@ export const GradientSidebar = ({
 export interface ProfileSidebarProps extends SidebarProps {
   profileName?: string;
   profileRole?: string;
+  profileImage?: string;
   menuSectionTitle?: string;
   menuItems?: string;
   upgradeTitle?: string;
@@ -982,6 +1039,7 @@ export const ProfileSidebar = ({
   className,
   profileName = "Alex Morgan",
   profileRole = "Product Designer",
+  profileImage,
   menuSectionTitle = "Menu",
   menuItems = "My Profile\nMy Work\nSaved Items\nBilling",
   upgradeTitle = "Upgrade to Pro",
@@ -990,13 +1048,14 @@ export const ProfileSidebar = ({
 }: ProfileSidebarProps) => {
   const menuItemsList = menuItems ? menuItems.split("\n").filter(item => item.trim() !== "") : [];
   const menuIcons = [User, Briefcase, Heart, CreditCard];
+  const defaultImage = "https://i.pravatar.cc/100?img=32";
 
   return (
     <SidebarFrame>
       <div className={cn("flex w-72 flex-col bg-neutral-50 border-r border-neutral-200", className)}>
         <div className="flex flex-col items-center pt-8 pb-6 border-b border-neutral-200">
-          <div className="h-20 w-20 rounded-full border-4 border-white shadow-lg mb-4">
-            <img src="https://i.pravatar.cc/100?img=32" className="h-full w-full rounded-full" alt="User" />
+          <div className="h-20 w-20 rounded-full border-4 border-white shadow-lg mb-4 overflow-hidden">
+            <img src={profileImage || defaultImage} className="h-full w-full object-cover" alt="User" />
           </div>
           <h3 className="font-bold text-neutral-900 text-lg">{profileName}</h3>
           <p className="text-sm text-neutral-500">{profileRole}</p>
@@ -1082,157 +1141,346 @@ export const CollapsibleSidebar = ({
 };
 
 // 12. Tree/Folder Structure
-export interface TreeSidebarProps extends SidebarProps {}
+export interface TreeSidebarProps extends SidebarProps {
+  title?: string;
+  treeItems?: string;
+}
 
 export const TreeSidebar = ({
   className,
-}: TreeSidebarProps) => (
-  <SidebarFrame>
-    <div className={cn("flex w-64 flex-col border-r border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700", className)}>
-      <div className="mb-4 font-bold text-neutral-900 px-2">Documentation</div>
-      <div className="space-y-1">
-        <div className="flex items-center gap-1 font-medium text-neutral-900 px-2 py-1"><ChevronDown size={14} /> Getting Started</div>
-        <div className="pl-6 space-y-1 border-l border-neutral-200 ml-4">
-          <a href="#" className="block py-1 text-indigo-600 font-medium">Installation</a>
-          <a href="#" className="block py-1 text-neutral-600 hover:text-black">Project Structure</a>
-          <a href="#" className="block py-1 text-neutral-600 hover:text-black">Changelog</a>
+  title = "Documentation",
+  treeItems = "Getting Started:Installation,Project Structure,Changelog\nComponents\nAPI Reference\nIntegration",
+}: TreeSidebarProps) => {
+  const parseTreeItems = (items: string) => {
+    return items.split("\n").filter(item => item.trim() !== "").map(item => {
+      const parts = item.split(":");
+      if (parts.length > 1) {
+        const children = parts[1].split(",").map(c => c.trim()).filter(c => c !== "");
+        return { parent: parts[0].trim(), children };
+      }
+      return { parent: parts[0].trim(), children: [] };
+    });
+  };
+
+  const treeItemsList = parseTreeItems(treeItems);
+  
+  // Track expanded state for each item
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set([0])); // Default: first item expanded
+
+  const toggleExpanded = (index: number) => {
+    setExpandedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  return (
+    <SidebarFrame>
+      <div className={cn("flex w-64 flex-col border-r border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700", className)}>
+        <div className="mb-4 font-bold text-neutral-900 px-2">{title}</div>
+        <div className="space-y-1">
+          {treeItemsList.map((item, index) => {
+            const hasChildren = item.children.length > 0;
+            const isExpanded = expandedItems.has(index);
+            return (
+              <div key={index}>
+                <div 
+                  onClick={() => hasChildren && toggleExpanded(index)}
+                  className={cn(
+                    "flex items-center gap-1 font-medium px-2 py-1 rounded transition-colors",
+                    hasChildren ? "cursor-pointer hover:bg-neutral-100" : "",
+                    isExpanded ? "text-neutral-900" : "text-neutral-600"
+                  )}
+                >
+                  {hasChildren ? (isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <span className="w-[14px]" />}
+                  {item.parent}
+                </div>
+                {isExpanded && hasChildren && (
+                  <div className="pl-6 space-y-1 border-l border-neutral-200 ml-4">
+                    {item.children.map((child, childIndex) => (
+                      <a
+                        key={childIndex}
+                        href="#"
+                        className={cn(
+                          "block py-1 transition-colors",
+                          childIndex === 0 ? "text-indigo-600 font-medium" : "text-neutral-600 hover:text-black"
+                        )}
+                      >
+                        {child}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-        <div className="flex items-center gap-1 font-medium text-neutral-600 px-2 py-1 mt-2 hover:bg-neutral-100 rounded cursor-pointer"><ChevronRight size={14} /> Components</div>
-        <div className="flex items-center gap-1 font-medium text-neutral-600 px-2 py-1 hover:bg-neutral-100 rounded cursor-pointer"><ChevronRight size={14} /> API Reference</div>
-        <div className="flex items-center gap-1 font-medium text-neutral-600 px-2 py-1 hover:bg-neutral-100 rounded cursor-pointer"><ChevronRight size={14} /> Integration</div>
       </div>
-    </div>
-  </SidebarFrame>
-);
+    </SidebarFrame>
+  );
+};
 
 // 13. Notion Style
-export interface NotionStyleSidebarProps extends SidebarProps {}
+export interface NotionStyleSidebarProps extends SidebarProps {
+  workspaceName?: string;
+  quickActions?: string;
+  favoritesTitle?: string;
+  favoritesItems?: string;
+  privateTitle?: string;
+  privateItems?: string;
+  addPageText?: string;
+}
 
 const Clock = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 
 export const NotionStyleSidebar = ({
   className,
-}: NotionStyleSidebarProps) => (
-  <SidebarFrame>
-    <div className={cn("flex w-60 flex-col bg-[#F7F7F5] text-[#37352F] text-sm font-medium", className)}>
-      <div className="flex items-center gap-2 p-3 hover:bg-[#EFEFED] cursor-pointer m-1 rounded transition-colors">
-        <div className="h-5 w-5 rounded bg-orange-400 flex items-center justify-center text-xs text-white">W</div>
-        <span className="flex-1 truncate font-bold">Workspace</span>
-        <div className="flex gap-1 text-[#37352F]/40">
-          <ChevronDown size={14} />
-        </div>
-      </div>
-      <div className="px-2 space-y-0.5">
-        <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-600">
-          <Search size={16} /> Search
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-600">
-          <Clock size={16} /> Updates
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-600">
-          <Settings size={16} /> Settings
-        </div>
-      </div>
-      <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">Favorites</div>
-      <div className="px-2 space-y-0.5">
-        {["Product Roadmap", "Meeting Notes", "Design System"].map((item, i) => (
-          <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
-            <span className="text-lg leading-none">📄</span> {item}
+  workspaceName = "Workspace",
+  quickActions = "Search\nUpdates\nSettings",
+  favoritesTitle = "Favorites",
+  favoritesItems = "Product Roadmap\nMeeting Notes\nDesign System",
+  privateTitle = "Private",
+  privateItems = "Personal Goals\nReading List",
+  addPageText = "Add a page",
+}: NotionStyleSidebarProps) => {
+  const quickActionsList = quickActions ? quickActions.split("\n").filter(item => item.trim() !== "") : [];
+  const favoritesItemsList = favoritesItems ? favoritesItems.split("\n").filter(item => item.trim() !== "") : [];
+  const privateItemsList = privateItems ? privateItems.split("\n").filter(item => item.trim() !== "") : [];
+  const quickActionIcons = [Search, Clock, Settings];
+
+  return (
+    <SidebarFrame>
+      <div className={cn("flex w-60 flex-col bg-[#F7F7F5] text-[#37352F] text-sm font-medium", className)}>
+        <div className="flex items-center gap-2 p-3 hover:bg-[#EFEFED] cursor-pointer m-1 rounded transition-colors">
+          <div className="h-5 w-5 rounded bg-orange-400 flex items-center justify-center text-xs text-white">
+            {workspaceName.charAt(0).toUpperCase()}
           </div>
-        ))}
-      </div>
-      <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">Private</div>
-      <div className="px-2 space-y-0.5">
-        {["Personal Goals", "Reading List"].map((item, i) => (
-          <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
-            <span className="text-lg leading-none">📄</span> {item}
+          <span className="flex-1 truncate font-bold">{workspaceName}</span>
+          <div className="flex gap-1 text-[#37352F]/40">
+            <ChevronDown size={14} />
           </div>
-        ))}
-        <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-500">
-          <Plus size={16} /> Add a page
         </div>
+        <div className="px-2 space-y-0.5">
+          {quickActionsList.map((action, index) => {
+            const Icon = quickActionIcons[index] || Search;
+            return (
+              <div key={index} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-600">
+                <Icon size={16} /> {action.trim()}
+              </div>
+            );
+          })}
+        </div>
+        {favoritesTitle && (
+          <>
+            <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">{favoritesTitle}</div>
+            <div className="px-2 space-y-0.5">
+              {favoritesItemsList.map((item, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
+                  <span className="text-lg leading-none">📄</span> {item.trim()}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {privateTitle && (
+          <>
+            <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">{privateTitle}</div>
+            <div className="px-2 space-y-0.5">
+              {privateItemsList.map((item, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
+                  <span className="text-lg leading-none">📄</span> {item.trim()}
+                </div>
+              ))}
+              <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-500">
+                <Plus size={16} /> {addPageText}
+              </div>
+            </div>
+          </>
+        )}
       </div>
-    </div>
-  </SidebarFrame>
-);
+    </SidebarFrame>
+  );
+};
 
 // 14. Spotify Style
-export interface SpotifyStyleSidebarProps extends SidebarProps {}
+export interface SpotifyStyleSidebarProps extends SidebarProps {
+  mainMenuItems?: string;
+  libraryTitle?: string;
+  libraryFilterButtons?: string;
+  libraryItems?: string;
+}
 
 export const SpotifyStyleSidebar = ({
   className,
-}: SpotifyStyleSidebarProps) => (
-  <SidebarFrame>
-    <div className={cn("flex w-64 flex-col bg-black text-[#b3b3b3] p-2 gap-2 font-medium", className)}>
-      <div className="bg-[#121212] rounded-lg p-4 space-y-4">
-        <a href="#" className="flex items-center gap-4 text-white"><Home size={24} className="fill-current"/> Home</a>
-        <a href="#" className="flex items-center gap-4 hover:text-white transition-colors"><Search size={24} /> Search</a>
-      </div>
-      <div className="bg-[#121212] rounded-lg flex-1 flex flex-col overflow-hidden">
-        <div className="p-4 shadow-lg z-10 flex justify-between items-center text-neutral-400">
-          <button className="flex items-center gap-2 hover:text-white transition-colors"><Layers size={24} className="-rotate-90"/> Your Library</button>
-          <div className="flex gap-4">
-            <Plus size={20} className="hover:text-white cursor-pointer"/>
-            <ArrowRightIcon size={20} className="hover:text-white cursor-pointer"/>
-          </div>
+  mainMenuItems = "Home\nSearch",
+  libraryTitle = "Your Library",
+  libraryFilterButtons = "Playlists\nArtists",
+  libraryItems = "Liked Songs:Playlist • 432 songs:❤️\nDiscover Weekly:Playlist • Spotify:🎵\nSynthwave Mix:Playlist • Alex:🎹\nCoding Focus:Playlist • Spotify:💻\nOn Repeat:Playlist • Spotify:🔁",
+}: SpotifyStyleSidebarProps) => {
+  const mainMenuItemsList = mainMenuItems ? mainMenuItems.split("\n").filter(item => item.trim() !== "") : [];
+  const libraryFilterButtonsList = libraryFilterButtons ? libraryFilterButtons.split("\n").filter(item => item.trim() !== "") : [];
+  const libraryItemsList = libraryItems ? libraryItems.split("\n").filter(item => item.trim() !== "") : [];
+  const mainMenuIcons = [Home, Search];
+
+  const parseLibraryItem = (item: string) => {
+    const parts = item.split(":");
+    return {
+      title: parts[0]?.trim() || "",
+      subtitle: parts[1]?.trim() || "",
+      icon: parts[2]?.trim() || "🎵",
+    };
+  };
+
+  return (
+    <SidebarFrame>
+      <div className={cn("flex w-64 flex-col bg-black text-[#b3b3b3] p-2 gap-2 font-medium", className)}>
+        <div className="bg-[#121212] rounded-lg p-4 space-y-4">
+          {mainMenuItemsList.map((item, index) => {
+            const Icon = mainMenuIcons[index] || Home;
+            return (
+              <a key={index} href="#" className={cn(
+                "flex items-center gap-4 transition-colors",
+                index === 0 ? "text-white" : "hover:text-white"
+              )}>
+                <Icon size={24} className={index === 0 ? "fill-current" : ""} /> {item.trim()}
+              </a>
+            );
+          })}
         </div>
-        <div className="px-2 pb-2 space-y-2 overflow-y-auto">
-          <div className="flex gap-2">
-            <button className="rounded-full bg-[#2a2a2a] px-3 py-1 text-sm text-white hover:bg-[#3a3a3a]">Playlists</button>
-            <button className="rounded-full bg-[#2a2a2a] px-3 py-1 text-sm text-white hover:bg-[#3a3a3a]">Artists</button>
-          </div>
-          {[
-            { t: "Liked Songs", s: "Playlist • 432 songs", i: "❤️", active: true },
-            { t: "Discover Weekly", s: "Playlist • Spotify", i: "🎵" },
-            { t: "Synthwave Mix", s: "Playlist • Alex", i: "🎹" },
-            { t: "Coding Focus", s: "Playlist • Spotify", i: "💻" },
-            { t: "On Repeat", s: "Playlist • Spotify", i: "🔁" },
-          ].map((item, i) => (
-            <div key={i} className={cn("flex items-center gap-3 p-2 rounded-md hover:bg-[#1a1a1a] cursor-pointer", item.active && "bg-[#1a1a1a]")}>
-              <div className={cn("h-12 w-12 rounded flex items-center justify-center text-xl", item.active ? "bg-gradient-to-br from-indigo-700 to-blue-300" : "bg-[#282828]")}>{item.i}</div>
-              <div>
-                <div className={cn("text-white truncate", item.active && "text-green-500")}>{item.t}</div>
-                <div className="text-sm truncate">{item.s}</div>
-              </div>
+        <div className="bg-[#121212] rounded-lg flex-1 flex flex-col overflow-hidden">
+          <div className="p-4 shadow-lg z-10 flex justify-between items-center text-neutral-400">
+            <button className="flex items-center gap-2 hover:text-white transition-colors">
+              <Layers size={24} className="-rotate-90" /> {libraryTitle}
+            </button>
+            <div className="flex gap-4">
+              <Plus size={20} className="hover:text-white cursor-pointer"/>
+              <ArrowRightIcon size={20} className="hover:text-white cursor-pointer"/>
             </div>
-          ))}
+          </div>
+          <div className="px-2 pb-2 space-y-2 overflow-y-auto">
+            {libraryFilterButtonsList.length > 0 && (
+              <div className="flex gap-2">
+                {libraryFilterButtonsList.map((button, index) => (
+                  <button key={index} className="rounded-full bg-[#2a2a2a] px-3 py-1 text-sm text-white hover:bg-[#3a3a3a]">
+                    {button.trim()}
+                  </button>
+                ))}
+              </div>
+            )}
+            {libraryItemsList.map((item, i) => {
+              const parsed = parseLibraryItem(item);
+              const isActive = i === 0;
+              return (
+                <div key={i} className={cn("flex items-center gap-3 p-2 rounded-md hover:bg-[#1a1a1a] cursor-pointer", isActive && "bg-[#1a1a1a]")}>
+                  <div className={cn("h-12 w-12 rounded flex items-center justify-center text-xl", isActive ? "bg-gradient-to-br from-indigo-700 to-blue-300" : "bg-[#282828]")}>
+                    {parsed.icon}
+                  </div>
+                  <div>
+                    <div className={cn("text-white truncate", isActive && "text-green-500")}>{parsed.title}</div>
+                    {parsed.subtitle && <div className="text-sm truncate">{parsed.subtitle}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
-  </SidebarFrame>
-);
+    </SidebarFrame>
+  );
+};
 
 // 15. Linear Style (Clean Workspace)
-export interface LinearStyleSidebarProps extends SidebarProps {}
+export interface LinearStyleSidebarProps extends SidebarProps {
+  logoText?: string;
+  workspaceName?: string;
+  mainMenuItems?: string;
+  teamsTitle?: string;
+  teamItems?: string;
+}
 
 export const LinearStyleSidebar = ({
   className,
-}: LinearStyleSidebarProps) => (
-  <SidebarFrame>
-    <div className={cn("flex w-60 flex-col border-r border-white/5 bg-[#1C1C1F] text-[#D0D6E0] p-3 text-[13px]", className)}>
-      <div className="flex items-center gap-2 px-2 py-1 mb-4 hover:bg-white/5 rounded cursor-pointer">
-        <div className="h-4 w-4 rounded bg-indigo-500 flex items-center justify-center text-[10px] text-white font-bold">L</div>
-        <span className="font-medium text-white">Linear</span>
-        <ChevronDown size={12} className="ml-auto opacity-50" />
-      </div>
-      
-      <div className="space-y-0.5 mb-6">
-        <div className="flex items-center gap-2 px-2 py-1 rounded bg-[#2D2E33] text-white font-medium cursor-pointer"><div className="h-1.5 w-1.5 rounded-full bg-blue-400" /> Inbox</div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer"><div className="h-1.5 w-1.5 rounded-full border border-neutral-500" /> My Issues</div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer"><div className="h-1.5 w-1.5 rounded-full border border-neutral-500" /> Views</div>
-      </div>
+  logoText = "L",
+  workspaceName = "Linear",
+  mainMenuItems = "Inbox\nMy Issues\nViews",
+  teamsTitle = "Your Teams",
+  teamItems = "Engineering:E\nDesign:D\nMarketing:M",
+}: LinearStyleSidebarProps) => {
+  const mainMenuItemsList = mainMenuItems ? mainMenuItems.split("\n").filter(item => item.trim() !== "") : [];
+  const teamItemsList = teamItems ? teamItems.split("\n").filter(item => item.trim() !== "") : [];
 
-      <div className="px-2 mb-1 font-medium text-neutral-500 flex justify-between group">
-        Your Teams <Plus size={12} className="opacity-0 group-hover:opacity-100 hover:text-white cursor-pointer" />
+  const parseTeamItem = (item: string) => {
+    const parts = item.split(":");
+    return {
+      name: parts[0]?.trim() || "",
+      initial: parts[1]?.trim() || parts[0]?.charAt(0).toUpperCase() || "",
+    };
+  };
+
+  return (
+    <SidebarFrame>
+      <div className={cn("flex w-60 flex-col border-r border-white/5 bg-[#1C1C1F] text-[#D0D6E0] p-3 text-[13px]", className)}>
+        <div className="flex items-center gap-2 px-2 py-1 mb-4 hover:bg-white/5 rounded cursor-pointer">
+          <div className="h-4 w-4 rounded bg-indigo-500 flex items-center justify-center text-[10px] text-white font-bold">
+            {logoText}
+          </div>
+          <span className="font-medium text-white">{workspaceName}</span>
+          <ChevronDown size={12} className="ml-auto opacity-50" />
+        </div>
+        
+        <div className="space-y-0.5 mb-6">
+          {mainMenuItemsList.map((item, index) => (
+            <div
+              key={index}
+              className={cn(
+                "flex items-center gap-2 px-2 py-1 rounded cursor-pointer",
+                index === 0 ? "bg-[#2D2E33] text-white font-medium" : "hover:bg-white/5"
+              )}
+            >
+              <div className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                index === 0 ? "bg-blue-400" : "border border-neutral-500"
+              )} />
+              {item.trim()}
+            </div>
+          ))}
+        </div>
+
+        {teamsTitle && (
+          <>
+            <div className="px-2 mb-1 font-medium text-neutral-500 flex justify-between group">
+              {teamsTitle} <Plus size={12} className="opacity-0 group-hover:opacity-100 hover:text-white cursor-pointer" />
+            </div>
+            <div className="space-y-0.5">
+              {teamItemsList.map((item, index) => {
+                const { name, initial } = parseTeamItem(item);
+                const colors = [
+                  { bg: "bg-purple-500/20", text: "text-purple-400" },
+                  { bg: "bg-orange-500/20", text: "text-orange-400" },
+                  { bg: "bg-blue-500/20", text: "text-blue-400" },
+                ];
+                const color = colors[index % colors.length];
+                return (
+                  <div key={index} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer">
+                    <div className={cn("h-3 w-3 rounded flex items-center justify-center text-[8px]", color.bg, color.text)}>
+                      {initial}
+                    </div>
+                    {name}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
-      <div className="space-y-0.5">
-        <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer"><div className="h-3 w-3 rounded bg-purple-500/20 text-purple-400 flex items-center justify-center text-[8px]">E</div> Engineering</div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer"><div className="h-3 w-3 rounded bg-orange-500/20 text-orange-400 flex items-center justify-center text-[8px]">D</div> Design</div>
-        <div className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer"><div className="h-3 w-3 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-[8px]">M</div> Marketing</div>
-      </div>
-    </div>
-  </SidebarFrame>
-);
+    </SidebarFrame>
+  );
+};
 
 // 16. Gaming / Cyberpunk Sidebar
 export interface GamingSidebarProps extends SidebarProps {
@@ -1410,6 +1658,8 @@ export interface FloatingSidebarProps extends SidebarProps {
   menuItems?: string;
   profileName?: string;
   profileRole?: string;
+  profileImage?: string;
+  logoImage?: string;
 }
 
 export const FloatingSidebar = ({
@@ -1418,6 +1668,8 @@ export const FloatingSidebar = ({
   menuItems = "Dashboard\nContent\nMedia\nComments",
   profileName = "Jane Doe",
   profileRole = "Admin",
+  profileImage,
+  logoImage,
 }: FloatingSidebarProps) => {
   const menuItemsList = menuItems ? menuItems.split("\n").filter(item => item.trim() !== "") : [];
 
@@ -1425,7 +1677,13 @@ export const FloatingSidebar = ({
     <SidebarFrame className="bg-neutral-100 items-center pl-6">
       <div className={cn("flex h-[90%] w-64 flex-col rounded-2xl bg-white shadow-2xl p-4", className)}>
         <div className="flex items-center gap-3 mb-8 px-2 mt-2">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-orange-500" />
+          {logoImage ? (
+            <div className="h-8 w-8 rounded-full overflow-hidden">
+              <img src={logoImage} alt={brandName} className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-orange-500" />
+          )}
           <span className="font-bold text-neutral-800">{brandName}</span>
         </div>
         <nav className="flex-1 space-y-2">
@@ -1438,7 +1696,13 @@ export const FloatingSidebar = ({
         </nav>
         <div className="mt-auto rounded-xl bg-neutral-50 p-4">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-neutral-200" />
+            {profileImage ? (
+              <div className="h-8 w-8 rounded-full overflow-hidden">
+                <img src={profileImage} alt={profileName} className="h-full w-full object-cover" />
+              </div>
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-neutral-200" />
+            )}
             <div className="flex-1 overflow-hidden">
               <div className="truncate text-sm font-bold">{profileName}</div>
               <div className="truncate text-xs text-neutral-500">{profileRole}</div>

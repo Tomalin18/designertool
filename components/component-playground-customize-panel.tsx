@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2, GripVertical } from "lucide-react"
+import { Plus, Trash2, GripVertical, Upload, X } from "lucide-react"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
@@ -138,6 +138,198 @@ const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string
       {displayTabs[displayTabs.length - 1]?.trim() !== "" && (
         <Button variant="outline" size="sm" onClick={addTab} className="w-full h-8 text-xs gap-1">
           <Plus size={12} /> Add Tab
+        </Button>
+      )}
+    </div>
+  )
+}
+
+const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  // Parse tree items from format "Parent:Child1,Child2" or "Parent"
+  const parseTreeItems = (val: string): Array<{ parent: string; children: string[] }> => {
+    if (!val || val.trim() === "") return []
+    
+    return val.split("\n").filter(item => item.trim() !== "").map(item => {
+      const parts = item.split(":")
+      if (parts.length > 1) {
+        const children = parts[1].split(",").map(c => c.trim()).filter(c => c !== "")
+        return { parent: parts[0]?.trim() || "", children }
+      }
+      return { parent: parts[0]?.trim() || "", children: [] }
+    })
+  }
+
+  // Initialize state with parsed items + one empty item for adding
+  const [displayItems, setDisplayItems] = React.useState<Array<{ parent: string; children: string[] }>>(() => {
+    const items = parseTreeItems(value)
+    return items.length === 0 ? [{ parent: "", children: [] }] : [...items, { parent: "", children: [] }]
+  })
+
+  // Track the last value we processed to avoid unnecessary updates
+  const lastValueRef = React.useRef(value)
+
+  // Update state when value prop changes (from external source)
+  React.useEffect(() => {
+    if (value !== lastValueRef.current) {
+      lastValueRef.current = value
+      const items = parseTreeItems(value)
+      setDisplayItems(items.length === 0 ? [{ parent: "", children: [] }] : [...items, { parent: "", children: [] }])
+    }
+  }, [value])
+
+  const updateItems = (newItems: Array<{ parent: string; children: string[] }>) => {
+    // Remove empty items except the last one (for adding new items)
+    const nonEmptyItems = newItems.filter((item, index) => {
+      // Always keep the last item (for adding new items)
+      if (index === newItems.length - 1) return false
+      // Keep non-empty items
+      return item.parent.trim() !== ""
+    })
+    
+    // Convert to format: "Parent:Child1,Child2" or "Parent"
+    const formatted = nonEmptyItems.map(item => {
+      if (item.children.length > 0) {
+        return `${item.parent}:${item.children.join(",")}`
+      }
+      return item.parent
+    }).join("\n")
+    
+    onChange(formatted)
+  }
+
+  const updateParent = (index: number, val: string) => {
+    const newItems = [...displayItems]
+    newItems[index] = { ...newItems[index], parent: val }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const updateChild = (parentIndex: number, childIndex: number, val: string) => {
+    const newItems = [...displayItems]
+    const children = [...newItems[parentIndex].children]
+    children[childIndex] = val
+    newItems[parentIndex] = { ...newItems[parentIndex], children }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const addChild = (parentIndex: number) => {
+    const newItems = [...displayItems]
+    const children = [...newItems[parentIndex].children, ""]
+    newItems[parentIndex] = { ...newItems[parentIndex], children }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const removeChild = (parentIndex: number, childIndex: number) => {
+    const newItems = [...displayItems]
+    const children = newItems[parentIndex].children.filter((_, i) => i !== childIndex)
+    newItems[parentIndex] = { ...newItems[parentIndex], children }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = displayItems.filter((_, i) => i !== index)
+    if (newItems.length === 0) {
+      newItems.push({ parent: "", children: [] })
+    }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  const addItem = () => {
+    const newItems = [...displayItems]
+    if (newItems[newItems.length - 1].parent.trim() !== "") {
+      newItems.push({ parent: "", children: [] })
+    }
+    setDisplayItems(newItems)
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-4">
+      {displayItems.map((item, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-2 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Input
+              value={item.parent}
+              onChange={(e) => updateParent(index, e.target.value)}
+              placeholder="Parent item"
+              className="h-8 flex-1"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && item.parent.trim() !== "") {
+                  e.preventDefault()
+                  addItem()
+                }
+                if (e.key === "Backspace" && item.parent.trim() === "" && displayItems.length > 1) {
+                  e.preventDefault()
+                  removeItem(index)
+                }
+              }}
+            />
+            {item.parent.trim() !== "" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeItem(index)}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 size={14} />
+              </Button>
+            )}
+          </div>
+          {item.parent.trim() !== "" && (
+            <div className="space-y-2 pl-4 border-l-2 border-muted">
+              <div className="space-y-2">
+                {item.children.map((child, childIndex) => (
+                  <div key={childIndex} className="flex items-center gap-2">
+                    <Input
+                      value={child}
+                      onChange={(e) => updateChild(index, childIndex, e.target.value)}
+                      placeholder="Child item"
+                      className="h-7 text-xs flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && child.trim() !== "") {
+                          e.preventDefault()
+                          addChild(index)
+                        }
+                        if (e.key === "Backspace" && child.trim() === "" && item.children.length > 1) {
+                          e.preventDefault()
+                          removeChild(index, childIndex)
+                        }
+                      }}
+                    />
+                    {item.children.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeChild(index, childIndex)}
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      >
+                        <X size={12} />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                {item.children.length === 0 || item.children[item.children.length - 1]?.trim() !== "" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addChild(index)}
+                    className="w-full h-7 text-xs gap-1"
+                  >
+                    <Plus size={12} /> Add Child
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+      {displayItems[displayItems.length - 1]?.parent.trim() !== "" && (
+        <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+          <Plus size={12} /> Add Item
         </Button>
       )}
     </div>
@@ -821,6 +1013,23 @@ export function CustomizePanel({
       )
     }
 
+    // Special editor for tree items (tree sidebar)
+    if (key === "treeItems" && propConfig.type === "textarea") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <TreeItemsEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
     // Special editor for sidebar navigation items (textarea type with "Items" in key name)
     if ((key === "overviewItems" || key === "managementItems" || key.endsWith("Items")) && propConfig.type === "textarea") {
       return (
@@ -1041,6 +1250,67 @@ export function CustomizePanel({
             min={propConfig.min}
             max={propConfig.max}
           />
+        )}
+
+        {propConfig.type === "file" && (
+          <div className="space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  const reader = new FileReader()
+                  reader.onloadend = () => {
+                    const result = reader.result as string
+                    updateProp(key, result)
+                  }
+                  reader.readAsDataURL(file)
+                }
+              }}
+              className="hidden"
+              id={`file-upload-${key}`}
+            />
+            {props[key] ? (
+              <div className="relative">
+                <div className="relative w-full h-32 border rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={props[key]}
+                    alt={label}
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 h-6 w-6"
+                    onClick={() => updateProp(key, "")}
+                  >
+                    <X size={12} />
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2"
+                  onClick={() => {
+                    document.getElementById(`file-upload-${key}`)?.click()
+                  }}
+                >
+                  <Upload size={14} className="mr-2" />
+                  Change Image
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor={`file-upload-${key}`}
+                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80 transition-colors"
+              >
+                <Upload size={24} className="mb-2 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Click to upload image</span>
+                <span className="text-xs text-muted-foreground mt-1">or drag and drop</span>
+              </label>
+            )}
+          </div>
         )}
 
         {propConfig.type === "color" && (

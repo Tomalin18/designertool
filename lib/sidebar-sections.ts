@@ -6,6 +6,7 @@ export type SidebarPropControl =
   | "color"
   | "number"
   | "textarea"
+  | "file"
 
 export interface SidebarPropDefinition {
   control: SidebarPropControl
@@ -472,6 +473,11 @@ export const sidebarSections: SidebarSectionMeta[] = [
         default: "Premium User",
         description: "Profile role or subscription tier.",
       },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
+      },
     },
   },
   {
@@ -491,6 +497,11 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "Product Designer",
         description: "User's role or job title.",
+      },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
       },
       menuSectionTitle: {
         control: "text",
@@ -786,6 +797,16 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "Admin",
         description: "User's role or job title.",
+      },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
+      },
+      logoImage: {
+        control: "file",
+        default: "",
+        description: "Logo image URL or uploaded image (data URL).",
       },
     },
   },
