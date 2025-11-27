@@ -3,8 +3,9 @@ import { ComponentPlayground } from "@/components/component-playground"
 import { componentDetails } from "@/lib/component-details"
 import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
-import { Badge } from "@/components/ui/badge"
+import { TagsList } from "@/components/tags-list"
 import { BackToComponentsButton } from "@/components/back-to-components-button"
+import { ComponentNavigation } from "@/components/component-navigation"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -259,14 +260,18 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <h1 className="text-3xl font-bold tracking-tight mb-2">{component.name}</h1>
           <p className="text-muted-foreground mb-4">{component.description}</p>
           {component.tags && component.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {component.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            <TagsList tags={component.tags} defaultVisible={10} />
           )}
+          <ComponentNavigation
+            currentSlug={slug}
+            heroMeta={heroMeta}
+            featureMeta={featureMeta}
+            paymentMeta={paymentMeta}
+            ctaMeta={ctaMeta}
+            footerMeta={footerMeta}
+            headerMeta={headerMeta}
+            buttonMeta={buttonMeta}
+          />
         </div>
 
         <ComponentPlayground

@@ -333,7 +333,24 @@ export function CustomizePanel({
             onChange={(value) => updateProp(key, value)}
             placeholder={propConfig.default || "#000000"}
             outputFormat="hex"
-            defaultColor={propConfig.default || "#000000"}
+            defaultColor={(() => {
+              // If value exists and is hex, use it
+              if (props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key])) {
+                return props[key]
+              }
+              // If value is rgb format, convert to hex
+              if (props[key] && props[key].includes('rgb')) {
+                const rgbMatch = props[key].match(/\d+/g)
+                if (rgbMatch && rgbMatch.length >= 3) {
+                  const r = parseInt(rgbMatch[0]).toString(16).padStart(2, '0')
+                  const g = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
+                  const b = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
+                  return `#${r}${g}${b}`
+                }
+              }
+              // Fallback to default or black
+              return propConfig.default || "#000000"
+            })()}
           />
         )}
 
@@ -563,47 +580,10 @@ export function CustomizePanel({
       }
     }
 
-    // For Button components, group props into General and Style tabs
-    const isButtonComponent = buttonSections.some((button: { name: string }) => button.name === componentName)
-    if (isButtonComponent) {
-      // Style-related keys (appearance and styling)
-      const styleRelatedKeys = [
-        'className',
-        'size',
-        'borderRadius',
-        'paddingX',
-        'paddingY',
-        'backgroundColor',
-        'textColor',
-        'borderColor',
-        'borderWidth',
-      ]
-
-      const generalProps: string[] = []
-      const styleProps: string[] = []
-
-      Object.entries(config.props).forEach(([key]) => {
-        if (styleRelatedKeys.includes(key)) {
-          styleProps.push(key)
-        } else {
-          // Content-related props go to General (children, buttonText, copyText, etc.)
-          generalProps.push(key)
-        }
-      })
-
-      const tabs = []
-      if (generalProps.length > 0) {
-        tabs.push({ name: "general", label: "General", keys: generalProps })
-      }
-      if (styleProps.length > 0) {
-        tabs.push({ name: "style", label: "Style", keys: styleProps })
-      }
-
-      // If no style props, still show General tab
-      return {
-        type: "tabs",
-        tabs: tabs.length > 0 ? tabs : [{ name: "general", label: "General", keys: generalProps }],
-      }
+    // For Button components, use the grouping config from buttonSections if available
+    const buttonSection = buttonSections.find((button: { componentName: string }) => button.componentName === componentName)
+    if (buttonSection && buttonSection.groupingConfig) {
+      return buttonSection.groupingConfig
     }
 
     // For ChatInterface, group props into General and Color tabs

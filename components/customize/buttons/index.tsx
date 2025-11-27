@@ -22,6 +22,23 @@ interface CommonButtonProps {
     textColor?: string;
     borderColor?: string;
     borderWidth?: number;
+    // Animation props
+    animationDuration?: number;
+    animationSpeed?: number;
+    shimmerSpeed?: number;
+    pulseSpeed?: number;
+    glowIntensity?: number;
+    magneticStrength?: number;
+    rippleSize?: number;
+    holdDuration?: number;
+    spinSpeed?: number;
+    flickerSpeed?: number;
+    elasticScale?: number;
+    // Color props
+    glowColor?: string;
+    shimmerColor?: string;
+    hoverColor?: string;
+    fillColor?: string;
 }
 
 // Helper function to build style from props (like UrlInput does)
@@ -56,39 +73,29 @@ const getSizeClass = (size?: string): string => {
 };
 
 // 1. Magnetic Button
-export const MagneticButton = ({ 
-    children, 
-    className,
-    style,
-    size,
-    borderRadius,
-    paddingX,
-    paddingY,
-    backgroundColor,
-    textColor,
-    borderColor,
-    borderWidth,
-}: { 
-    children: React.ReactNode; 
-    className?: string;
-    style?: React.CSSProperties;
-    size?: string;
-    borderRadius?: number;
-    paddingX?: number;
-    paddingY?: number;
-    backgroundColor?: string;
-    textColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-}) => {
+export const MagneticButton = (props: CommonButtonProps) => {
+    const { 
+        children, 
+        className,
+        style,
+        size,
+        borderRadius,
+        paddingX,
+        paddingY,
+        backgroundColor,
+        textColor,
+        borderColor,
+        borderWidth,
+        magneticStrength = 0.3,
+    } = props;
     const btnRef = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 
     const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!btnRef.current) return;
         const { left, top, width, height } = btnRef.current.getBoundingClientRect();
-        const x = (e.clientX - (left + width / 2)) * 0.3;
-        const y = (e.clientY - (top + height / 2)) * 0.3;
+        const x = (e.clientX - (left + width / 2)) * magneticStrength;
+        const y = (e.clientY - (top + height / 2)) * magneticStrength;
         setPosition({ x, y });
     };
 
@@ -143,16 +150,23 @@ export const GlitchButton = (props: CommonButtonProps) => {
 
 // 3. Liquid Hover Button
 export const LiquidHoverButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, animationDuration = 300, fillColor } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    const fillColorValue = fillColor || "#4f46e5";
 
     return (
         <button 
             className={cn("group relative overflow-hidden rounded-lg border border-indigo-500 bg-transparent px-8 py-3 font-medium text-indigo-500 transition-colors hover:text-white", sizeClass, className)}
             style={buttonStyle}
         >
-            <div className="absolute inset-0 -translate-x-full bg-indigo-500 transition-transform duration-300 ease-out group-hover:translate-x-0" />
+            <div 
+                className="absolute inset-0 -translate-x-full transition-transform ease-out group-hover:translate-x-0"
+                style={{
+                    backgroundColor: fillColorValue,
+                    transitionDuration: `${animationDuration}ms`,
+                }}
+            />
             <span className="relative z-10">{children}</span>
         </button>
     );
@@ -192,15 +206,28 @@ export const GradientBorderButton = (props: CommonButtonProps) => {
 
 // 6. Shimmer Button
 export const ShimmerButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, shimmerSpeed = 2, shimmerColor } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    const shimmerColorStyle = shimmerColor ? { backgroundColor: shimmerColor } : {};
     return (
         <button 
             className={cn("relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 font-medium text-white transition-colors hover:bg-neutral-700", sizeClass, className)}
             style={buttonStyle}
         >
-            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <style>{`
+                @keyframes shimmer {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
+            <div 
+                className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                style={{
+                    animation: `shimmer ${shimmerSpeed}s infinite`,
+                    ...shimmerColorStyle,
+                }}
+            />
             {children}
         </button>
     );
@@ -208,15 +235,31 @@ export const ShimmerButton = (props: CommonButtonProps) => {
 
 // 7. Pulse Glow Button
 export const PulseGlowButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, pulseSpeed = 1, glowIntensity = 0.5, glowColor } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    const glowColorValue = glowColor || backgroundColor || "#4f46e5";
+    const animationDuration = `${2 / pulseSpeed}s`;
+    const opacity = glowIntensity * 0.75;
     return (
         <button 
             className={cn("relative rounded-full bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-indigo-500", sizeClass, className)}
             style={buttonStyle}
         >
-            <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-indigo-600 opacity-75" />
+            <style>{`
+                @keyframes pulse-glow {
+                    0%, 100% { transform: scale(1); opacity: ${opacity}; }
+                    50% { transform: scale(1.1); opacity: ${opacity * 0.5}; }
+                }
+            `}</style>
+            <span 
+                className="absolute inset-0 -z-10 rounded-full"
+                style={{
+                    backgroundColor: glowColorValue,
+                    opacity: opacity,
+                    animation: `pulse-glow ${animationDuration} cubic-bezier(0.4, 0, 0.6, 1) infinite`,
+                }}
+            />
             {children}
         </button>
     );
@@ -255,18 +298,18 @@ export const ThreeDPressButton = (props: CommonButtonProps) => {
 
 // 10. Ripple Button
 export const RippleButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, rippleSize = 500, animationDuration = 600 } = props;
     const [coords, setCoords] = useState({ x: -1, y: -1 });
     const [isRippling, setIsRippling] = useState(false);
 
     useEffect(() => {
         if (coords.x !== -1 && coords.y !== -1) {
             setIsRippling(true);
-            setTimeout(() => setIsRippling(false), 500);
+            setTimeout(() => setIsRippling(false), animationDuration);
         } else {
             setIsRippling(false);
         }
-    }, [coords]);
+    }, [coords, animationDuration]);
 
     useEffect(() => {
         if (!isRippling) setCoords({ x: -1, y: -1 });
@@ -286,15 +329,22 @@ export const RippleButton = (props: CommonButtonProps) => {
         >
             {isRippling && (
                 <span
-                    className="absolute animate-[ripple_600ms_linear] rounded-full bg-white/30"
-                    style={{ left: coords.x, top: coords.y, width: 20, height: 20, transform: 'translate(-50%, -50%)' }}
+                    className="absolute rounded-full bg-white/30"
+                    style={{ 
+                        left: coords.x, 
+                        top: coords.y, 
+                        width: 20, 
+                        height: 20, 
+                        transform: 'translate(-50%, -50%)',
+                        animation: `ripple ${animationDuration}ms linear`,
+                    }}
                 />
             )}
             <span className="relative z-10">{children}</span>
             <style>{`
                 @keyframes ripple {
                     0% { width: 0; height: 0; opacity: 0.5; }
-                    100% { width: 500px; height: 500px; opacity: 0; }
+                    100% { width: ${rippleSize}px; height: ${rippleSize}px; opacity: 0; }
                 }
             `}</style>
         </button>
@@ -426,28 +476,57 @@ export const GlassmorphismButton = (props: CommonButtonProps) => {
 
 // 16. Neon Flicker Button
 export const NeonFlickerButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, flickerSpeed = 0.1, glowColor } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    const glowColorValue = glowColor || "#22d3ee";
+    const glowRgb = glowColorValue.startsWith('#') 
+        ? `${parseInt(glowColorValue.slice(1, 3), 16)}, ${parseInt(glowColorValue.slice(3, 5), 16)}, ${parseInt(glowColorValue.slice(5, 7), 16)}`
+        : "34, 211, 238";
+    
     return (
         <button 
-            className={cn("group rounded-lg border border-cyan-400 bg-transparent px-8 py-3 font-medium text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all hover:bg-cyan-400 hover:text-black hover:shadow-[0_0_20px_rgba(34,211,238,0.8)]", sizeClass, className)}
-            style={buttonStyle}
+            className={cn("group rounded-lg border bg-transparent px-8 py-3 font-medium transition-all hover:bg-cyan-400 hover:text-black", sizeClass, className)}
+            style={{
+                ...buttonStyle,
+                borderColor: glowColorValue,
+                color: glowColorValue,
+                boxShadow: `0 0 10px rgba(${glowRgb}, 0.5)`,
+            }}
         >
-            <span className="group-hover:animate-pulse">{children}</span>
+            <style>{`
+                @keyframes flicker {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                .neon-flicker {
+                    animation: flicker ${flickerSpeed}s infinite;
+                }
+            `}</style>
+            <span className="neon-flicker">{children}</span>
         </button>
     );
 };
 
 // 17. Elastic Button
 export const ElasticButton = (props: CommonButtonProps) => {
-    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, elasticScale = 1.1, animationDuration = 300 } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
     return (
         <button 
-            className={cn("rounded-2xl bg-orange-500 px-8 py-3 font-bold text-white transition-transform hover:scale-110 active:scale-90 duration-300 cubic-bezier(0.175, 0.885, 0.32, 1.275)", sizeClass, className)}
-            style={buttonStyle}
+            className={cn("rounded-2xl bg-orange-500 px-8 py-3 font-bold text-white transition-transform active:scale-90", sizeClass, className)}
+            style={{
+                ...buttonStyle,
+                transitionDuration: `${animationDuration}ms`,
+                transitionTimingFunction: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = `scale(${elasticScale})`;
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+            }}
         >
             {children}
         </button>
@@ -455,13 +534,18 @@ export const ElasticButton = (props: CommonButtonProps) => {
 };
 
 // 18. Copy Clipboard Button
-export const CopyClipboardButton = () => {
+export const CopyClipboardButton = (props: CommonButtonProps) => {
+    const { copyText, children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [copied, setCopied] = useState(false);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
 
     const handleCopy = () => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     }
+
+    const displayText = copyText || children || "Copy Code";
 
     return (
         <button
@@ -470,19 +554,25 @@ export const CopyClipboardButton = () => {
                 "flex items-center gap-2 rounded-lg border px-6 py-3 font-medium transition-all",
                 copied
                     ? "border-green-500 bg-green-500/10 text-green-500"
-                    : "border-neutral-700 bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
+                    : "border-neutral-700 bg-neutral-800 text-neutral-300 hover:bg-neutral-700",
+                sizeClass,
+                className
             )}
+            style={buttonStyle}
         >
             {copied ? <Check size={18} /> : <Copy size={18} />}
-            {copied ? "Copied!" : "Copy Code"}
+            {copied ? "Copied!" : displayText}
         </button>
     );
 };
 
 // 19. Social Share Button
-export const SocialShareButton = () => {
+export const SocialShareButton = (props: CommonButtonProps) => {
+    const { className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
-        <div className="group flex items-center overflow-hidden rounded-full bg-blue-600 text-white transition-all hover:w-48 w-12 h-12">
+        <div className={cn("group flex items-center overflow-hidden rounded-full bg-blue-600 text-white transition-all hover:w-48 w-12 h-12", sizeClass, className)} style={buttonStyle}>
             <div className="flex h-12 w-12 shrink-0 items-center justify-center">
                 <Share2 size={20} />
             </div>
@@ -496,9 +586,12 @@ export const SocialShareButton = () => {
 };
 
 // 20. Download Progress Button
-export const DownloadProgressButton = () => {
+export const DownloadProgressButton = (props: CommonButtonProps) => {
+    const { downloadText, children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState<'idle' | 'downloading' | 'complete'>('idle');
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
 
     const startDownload = () => {
         if (status !== 'idle') return;
@@ -519,17 +612,20 @@ export const DownloadProgressButton = () => {
         }, 100);
     };
 
+    const displayText = downloadText || children || "Download";
+
     return (
         <button
             onClick={startDownload}
-            className="relative h-12 w-40 overflow-hidden rounded-lg bg-neutral-800 font-medium text-white"
+            className={cn("relative h-12 w-40 overflow-hidden rounded-lg bg-neutral-800 font-medium text-white", sizeClass, className)}
+            style={buttonStyle}
         >
             <div
                 className="absolute inset-0 bg-green-600 transition-all duration-100 ease-linear"
                 style={{ width: `${progress}%` }}
             />
             <div className="relative z-10 flex items-center justify-center gap-2">
-                {status === 'idle' && <><Download size={18} /> Download</>}
+                {status === 'idle' && <><Download size={18} /> {displayText}</>}
                 {status === 'downloading' && `${Math.round(progress)}%`}
                 {status === 'complete' && <><Check size={18} /> Done</>}
             </div>
@@ -579,84 +675,129 @@ export const ScaleUpButton = (props: CommonButtonProps) => {
 };
 
 // 24. Draw Border Button
-export const DrawBorderButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-8 py-3 text-blue-400 transition-colors hover:text-blue-300">
-        {children}
-        <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-blue-400 transition-all duration-300 group-hover:w-full" />
-        <span className="absolute bottom-0 left-0 h-0 w-[2px] bg-blue-400 transition-all duration-300 group-hover:h-full" />
-        <span className="absolute top-0 right-0 h-[2px] w-0 bg-blue-400 transition-all duration-300 group-hover:w-full" />
-        <span className="absolute top-0 right-0 h-0 w-[2px] bg-blue-400 transition-all duration-300 group-hover:h-full" />
-    </button>
-);
+export const DrawBorderButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const borderColorValue = borderColor || textColor || "#60a5fa";
+    return (
+        <button className={cn("group relative px-8 py-3 text-blue-400 transition-colors hover:text-blue-300", sizeClass, className)} style={buttonStyle}>
+            {children}
+            <span className="absolute bottom-0 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: borderColorValue }} />
+            <span className="absolute bottom-0 left-0 h-0 w-[2px] transition-all duration-300 group-hover:h-full" style={{ backgroundColor: borderColorValue }} />
+            <span className="absolute top-0 right-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full" style={{ backgroundColor: borderColorValue }} />
+            <span className="absolute top-0 right-0 h-0 w-[2px] transition-all duration-300 group-hover:h-full" style={{ backgroundColor: borderColorValue }} />
+        </button>
+    );
+};
 
 // 25. Dotted Border Button
-export const DottedBorderButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-lg border-2 border-dashed border-neutral-600 px-8 py-3 text-neutral-400 transition-all hover:border-white hover:text-white hover:tracking-wider">
-        {children}
-    </button>
-);
+export const DottedBorderButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-lg border-2 border-dashed border-neutral-600 px-8 py-3 text-neutral-400 transition-all hover:border-white hover:text-white hover:tracking-wider", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 26. Gradient Ring Button
-export const GradientRingButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] transition-transform hover:scale-105">
-        <div className="rounded-full bg-black px-8 py-3 text-white transition-colors hover:bg-opacity-90">
-            {children}
-        </div>
-    </button>
-);
+export const GradientRingButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("relative rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px] transition-transform hover:scale-105", sizeClass, className)} style={buttonStyle}>
+            <div className="rounded-full bg-black px-8 py-3 text-white transition-colors hover:bg-opacity-90">
+                {children}
+            </div>
+        </button>
+    );
+};
 
 // 27. Cyber Button
-export const CyberButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative border border-yellow-400 bg-yellow-400/10 px-8 py-3 font-mono text-yellow-400 clip-path-polygon-[0_0,100%_0,100%_70%,85%_100%,0_100%] hover:bg-yellow-400 hover:text-black">
-        {children}
-        <div className="absolute bottom-0 right-0 h-2 w-2 bg-yellow-400" />
-    </button>
-);
+export const CyberButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const borderColorValue = borderColor || "#facc15";
+    return (
+        <button className={cn("relative border bg-yellow-400/10 px-8 py-3 font-mono clip-path-polygon-[0_0,100%_0,100%_70%,85%_100%,0_100%] hover:bg-yellow-400 hover:text-black", sizeClass, className)} style={{ ...buttonStyle, borderColor: borderColorValue, color: textColor || borderColorValue }}>
+            {children}
+            <div className="absolute bottom-0 right-0 h-2 w-2" style={{ backgroundColor: borderColorValue }} />
+        </button>
+    );
+};
 
 // 28. Retro 95 Button
-export const Retro95Button = ({ children }: { children: React.ReactNode }) => (
-    <button className="border-t-2 border-l-2 border-b-4 border-r-4 border-t-white border-l-white border-b-neutral-800 border-r-neutral-800 bg-neutral-300 px-6 py-2 font-sans font-bold text-black active:border-t-neutral-800 active:border-l-neutral-800 active:border-b-white active:border-r-white">
-        {children}
-    </button>
-);
+export const Retro95Button = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("border-t-2 border-l-2 border-b-4 border-r-4 border-t-white border-l-white border-b-neutral-800 border-r-neutral-800 bg-neutral-300 px-6 py-2 font-sans font-bold text-black active:border-t-neutral-800 active:border-l-neutral-800 active:border-b-white active:border-r-white", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 29. Clay Button
-export const ClayButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-2xl bg-[#f0f0f3] px-8 py-3 font-bold text-neutral-600 shadow-[10px_10px_20px_#d1d1d4,-10px_-10px_20px_#ffffff] transition-transform hover:scale-95 active:shadow-[inset_10px_10px_20px_#d1d1d4,inset_-10px_-10px_20px_#ffffff]">
-        {children}
-    </button>
-);
+export const ClayButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-2xl bg-[#f0f0f3] px-8 py-3 font-bold text-neutral-600 shadow-[10px_10px_20px_#d1d1d4,-10px_-10px_20px_#ffffff] transition-transform hover:scale-95 active:shadow-[inset_10px_10px_20px_#d1d1d4,inset_-10px_-10px_20px_#ffffff]", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 30. Skeuo Button
-export const SkeuoButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-lg border-b-4 border-neutral-700 bg-gradient-to-b from-neutral-500 to-neutral-600 px-8 py-3 font-bold text-white shadow-lg active:mt-1 active:border-b-0">
-        {children}
-    </button>
-);
+export const SkeuoButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-lg border-b-4 border-neutral-700 bg-gradient-to-b from-neutral-500 to-neutral-600 px-8 py-3 font-bold text-white shadow-lg active:mt-1 active:border-b-0", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 31. Shake Error Button
-export const ShakeErrorButton = () => {
+export const ShakeErrorButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [shaking, setShaking] = useState(false);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
         <button
             onClick={() => { setShaking(true); setTimeout(() => setShaking(false), 500); }}
-            className={cn("rounded-lg bg-red-600 px-8 py-3 font-medium text-white hover:bg-red-700", shaking && "animate-[shake_0.5s_ease-in-out]")}
+            className={cn("rounded-lg bg-red-600 px-8 py-3 font-medium text-white hover:bg-red-700", shaking && "animate-[shake_0.5s_ease-in-out]", sizeClass, className)}
+            style={buttonStyle}
         >
             <style>{`@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }`}</style>
-            Error Shake
+            {children || "Error Shake"}
         </button>
     );
 };
 
 // 32. Confetti Button (CSS Burst)
-export const ConfettiButton = () => {
+export const ConfettiButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [burst, setBurst] = useState(false);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
         <button
             onClick={() => { setBurst(true); setTimeout(() => setBurst(false), 500); }}
-            className="relative rounded-lg bg-gradient-to-r from-blue-400 to-purple-500 px-8 py-3 font-bold text-white"
+            className={cn("relative rounded-lg bg-gradient-to-r from-blue-400 to-purple-500 px-8 py-3 font-bold text-white", sizeClass, className)}
+            style={buttonStyle}
         >
-            Celebration
+            {children || "Celebration"}
             {burst && (
                 <>
                     <div className="absolute top-0 left-1/2 h-2 w-2 -translate-x-1/2 -translate-y-10 rounded-full bg-yellow-400 animate-[ping_0.5s_ease-out]" />
@@ -669,13 +810,17 @@ export const ConfettiButton = () => {
 };
 
 // 33. Hold to Confirm
-export const HoldButton = () => {
+export const HoldButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, holdDuration = 1000 } = props;
     const [progress, setProgress] = useState(0);
     const intervalRef = useRef<any>(null);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
 
     const start = () => {
+        const increment = 100 / (holdDuration / 20);
         intervalRef.current = setInterval(() => {
-            setProgress(p => p >= 100 ? 100 : p + 2);
+            setProgress(p => p >= 100 ? 100 : p + increment);
         }, 20);
     };
 
@@ -689,174 +834,264 @@ export const HoldButton = () => {
             onMouseDown={start}
             onMouseUp={stop}
             onMouseLeave={stop}
-            className="relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 font-medium text-white select-none"
+            className={cn("relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 font-medium text-white select-none", sizeClass, className)}
+            style={buttonStyle}
         >
             <div className="absolute inset-0 bg-green-600 transition-all duration-75 ease-linear" style={{ width: `${progress}%` }} />
-            <span className="relative z-10">{progress >= 100 ? "Confirmed!" : "Hold to Confirm"}</span>
+            <span className="relative z-10">{progress >= 100 ? "Confirmed!" : (children || "Hold to Confirm")}</span>
         </button>
     );
 };
 
 // 34. Delete Confirm
-export const DeleteButton = () => {
+export const DeleteButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [step, setStep] = useState(0);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
         <button
             onClick={() => setStep(step === 0 ? 1 : 0)}
             className={cn(
                 "flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors",
-                step === 0 ? "bg-neutral-800 text-white hover:bg-neutral-700" : "bg-red-600 text-white hover:bg-red-700"
+                step === 0 ? "bg-neutral-800 text-white hover:bg-neutral-700" : "bg-red-600 text-white hover:bg-red-700",
+                sizeClass,
+                className
             )}
+            style={buttonStyle}
         >
             <Trash size={18} />
-            {step === 0 ? "Delete" : "Are you sure?"}
+            {step === 0 ? (children || "Delete") : "Are you sure?"}
         </button>
     );
 };
 
 // 35. Like Heart Button
-export const LikeButton = () => {
+export const LikeButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [liked, setLiked] = useState(false);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
         <button
             onClick={() => setLiked(!liked)}
             className={cn(
                 "flex items-center gap-2 rounded-full border px-6 py-2 transition-all",
-                liked ? "border-pink-500 bg-pink-50 text-pink-500" : "border-neutral-700 bg-transparent text-neutral-400 hover:border-neutral-500"
+                liked ? "border-pink-500 bg-pink-50 text-pink-500" : "border-neutral-700 bg-transparent text-neutral-400 hover:border-neutral-500",
+                sizeClass,
+                className
             )}
+            style={buttonStyle}
         >
             <Heart size={18} className={cn("transition-all", liked && "fill-current scale-110")} />
-            {liked ? "Liked" : "Like"}
+            {liked ? "Liked" : (children || "Like")}
         </button>
     );
 };
 
 // 36. Skew Button
-export const SkewButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group -skew-x-12 border border-white px-8 py-3 text-white transition-colors hover:bg-white hover:text-black">
-        <div className="skew-x-12">{children}</div>
-    </button>
-);
+export const SkewButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group -skew-x-12 border border-white px-8 py-3 text-white transition-colors hover:bg-white hover:text-black", sizeClass, className)} style={buttonStyle}>
+            <div className="skew-x-12">{children}</div>
+        </button>
+    );
+};
 
 // 37. Blob Button
-export const BlobButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] bg-indigo-500 px-8 py-4 font-bold text-white transition-all hover:rounded-[70%_30%_30%_70%_/_70%_70%_30%_30%] hover:bg-indigo-600">
-        {children}
-    </button>
-);
-
-// 38. Underline Button
-export const UnderlineButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-4 py-2 text-white">
-        {children}
-        <span className="absolute bottom-0 left-0 h-[2px] w-full scale-x-0 bg-white transition-transform duration-300 group-hover:scale-x-100" />
-    </button>
-);
-
-// 39. Bracket Button
-export const BracketButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-6 py-2 text-white">
-        <span className="absolute left-0 top-0 h-full w-2 border-l-2 border-white transition-all group-hover:h-full group-hover:border-l-4 opacity-0 group-hover:opacity-100" />
-        <span className="absolute right-0 top-0 h-full w-2 border-r-2 border-white transition-all group-hover:h-full group-hover:border-r-4 opacity-0 group-hover:opacity-100" />
-        [ {children} ]
-    </button>
-);
-
-// 40. Curtain Button
-export const CurtainButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden bg-neutral-800 px-8 py-3 text-white">
-        <div className="absolute inset-0 z-10 flex items-center justify-center font-bold transition-transform duration-300 group-hover:-translate-y-full">
-            {children}
-        </div>
-        <div className="absolute inset-0 z-10 flex translate-y-full items-center justify-center font-bold text-black transition-transform duration-300 group-hover:translate-y-0 bg-white">
-            {children}
-        </div>
-    </button>
-);
-
-// 41. Slice Button
-export const SliceButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-8 py-3 font-bold text-white">
-        <span className="absolute inset-0 bg-blue-600 transition-transform duration-300 group-hover:skew-x-12" />
-        <span className="relative">{children}</span>
-    </button>
-);
-
-// 42. Wet Paint Button
-export const WetPaintButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all hover:shadow-[0_10px_20px_rgba(0,0,0,0.5),0_6px_6px_rgba(0,0,0,0.5)] hover:translate-y-[-2px]">
-        {children}
-    </button>
-);
-
-// 43. Particle Button (Simplified visual)
-export const ParticleButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative rounded-full border border-white/20 bg-black px-8 py-3 text-white">
-        <span className="absolute -top-1 left-1/4 h-1 w-1 rounded-full bg-white opacity-0 transition-all duration-500 group-hover:top-[-10px] group-hover:opacity-100" />
-        <span className="absolute -bottom-1 right-1/4 h-1 w-1 rounded-full bg-white opacity-0 transition-all duration-500 group-hover:bottom-[-10px] group-hover:opacity-100" />
-        {children}
-    </button>
-);
-
-// 44. Isometric Button
-export const IsometricButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="transform rotate-[-5deg] skew-x-[-5deg] bg-neutral-200 border border-neutral-300 px-8 py-3 text-neutral-800 shadow-[5px_5px_0px_rgba(0,0,0,0.2)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_rgba(0,0,0,0.2)] transition-all">
-        {children}
-    </button>
-);
-
-// 45. Paper Fold Button
-export const PaperFoldButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative bg-white px-8 py-3 text-black shadow-md transition-transform hover:-rotate-2 hover:scale-105">
-        <div className="absolute top-0 right-0 h-4 w-4 bg-neutral-300" style={{ clipPath: "polygon(0 0, 0% 100%, 100% 100%)" }} />
-        {children}
-    </button>
-);
-
-// 46. Text Fill Button
-export const TextFillButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative border border-white px-8 py-3 font-bold text-transparent bg-clip-text bg-white transition-colors hover:text-black">
-        <span className="absolute inset-0 bg-white scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100 -z-10" />
-        {children}
-    </button>
-);
-
-// 47. Icon Slide Button
-export const IconSlideButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group flex items-center gap-2 overflow-hidden rounded-lg bg-blue-600 px-6 py-3 text-white">
-        <span className="-translate-x-4 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-            <ArrowRight size={18} />
-        </span>
-        <span className="-translate-x-2 transition-all duration-300 group-hover:translate-x-0">{children}</span>
-    </button>
-);
-
-// 48. Multi Layer Button
-export const MultiLayerButton = ({ children }: { children: React.ReactNode }) => (
-    <div className="relative group cursor-pointer">
-        <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-lg bg-pink-500 transition-transform group-hover:translate-x-2 group-hover:translate-y-2" />
-        <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-lg bg-blue-500 transition-transform group-hover:translate-x-4 group-hover:translate-y-4" />
-        <button className="relative rounded-lg bg-white px-8 py-3 font-bold text-black border-2 border-black">
+export const BlobButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%] bg-indigo-500 px-8 py-4 font-bold text-white transition-all hover:rounded-[70%_30%_30%_70%_/_70%_70%_30%_30%] hover:bg-indigo-600", sizeClass, className)} style={buttonStyle}>
             {children}
         </button>
-    </div>
-);
+    );
+};
+
+// 38. Underline Button
+export const UnderlineButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const underlineColor = borderColor || textColor || "#ffffff";
+    return (
+        <button className={cn("group relative px-4 py-2 text-white", sizeClass, className)} style={buttonStyle}>
+            {children}
+            <span className="absolute bottom-0 left-0 h-[2px] w-full scale-x-0 transition-transform duration-300 group-hover:scale-x-100" style={{ backgroundColor: underlineColor }} />
+        </button>
+    );
+};
+
+// 39. Bracket Button
+export const BracketButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const bracketColor = borderColor || textColor || "#ffffff";
+    return (
+        <button className={cn("group relative px-6 py-2 text-white", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute left-0 top-0 h-full w-2 border-l-2 transition-all group-hover:h-full group-hover:border-l-4 opacity-0 group-hover:opacity-100" style={{ borderColor: bracketColor }} />
+            <span className="absolute right-0 top-0 h-full w-2 border-r-2 transition-all group-hover:h-full group-hover:border-r-4 opacity-0 group-hover:opacity-100" style={{ borderColor: bracketColor }} />
+            [ {children} ]
+        </button>
+    );
+};
+
+// 40. Curtain Button
+export const CurtainButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden bg-neutral-800 px-8 py-3 text-white", sizeClass, className)} style={buttonStyle}>
+            <div className="absolute inset-0 z-10 flex items-center justify-center font-bold transition-transform duration-300 group-hover:-translate-y-full">
+                {children}
+            </div>
+            <div className="absolute inset-0 z-10 flex translate-y-full items-center justify-center font-bold text-black transition-transform duration-300 group-hover:translate-y-0 bg-white">
+                {children}
+            </div>
+        </button>
+    );
+};
+
+// 41. Slice Button
+export const SliceButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const bgColor = backgroundColor || "#2563eb";
+    return (
+        <button className={cn("group relative px-8 py-3 font-bold text-white", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute inset-0 transition-transform duration-300 group-hover:skew-x-12" style={{ backgroundColor: bgColor }} />
+            <span className="relative">{children}</span>
+        </button>
+    );
+};
+
+// 42. Wet Paint Button
+export const WetPaintButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all hover:shadow-[0_10px_20px_rgba(0,0,0,0.5),0_6px_6px_rgba(0,0,0,0.5)] hover:translate-y-[-2px]", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
+
+// 43. Particle Button (Simplified visual)
+export const ParticleButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative rounded-full border border-white/20 bg-black px-8 py-3 text-white", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute -top-1 left-1/4 h-1 w-1 rounded-full bg-white opacity-0 transition-all duration-500 group-hover:top-[-10px] group-hover:opacity-100" />
+            <span className="absolute -bottom-1 right-1/4 h-1 w-1 rounded-full bg-white opacity-0 transition-all duration-500 group-hover:bottom-[-10px] group-hover:opacity-100" />
+            {children}
+        </button>
+    );
+};
+
+// 44. Isometric Button
+export const IsometricButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("transform rotate-[-5deg] skew-x-[-5deg] bg-neutral-200 border border-neutral-300 px-8 py-3 text-neutral-800 shadow-[5px_5px_0px_rgba(0,0,0,0.2)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_rgba(0,0,0,0.2)] transition-all", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
+
+// 45. Paper Fold Button
+export const PaperFoldButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("relative bg-white px-8 py-3 text-black shadow-md transition-transform hover:-rotate-2 hover:scale-105", sizeClass, className)} style={buttonStyle}>
+            <div className="absolute top-0 right-0 h-4 w-4 bg-neutral-300" style={{ clipPath: "polygon(0 0, 0% 100%, 100% 100%)" }} />
+            {children}
+        </button>
+    );
+};
+
+// 46. Text Fill Button
+export const TextFillButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative border border-white px-8 py-3 font-bold text-transparent bg-clip-text bg-white transition-colors hover:text-black", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute inset-0 bg-white scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100 -z-10" />
+            {children}
+        </button>
+    );
+};
+
+// 47. Icon Slide Button
+export const IconSlideButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group flex items-center gap-2 overflow-hidden rounded-lg bg-blue-600 px-6 py-3 text-white", sizeClass, className)} style={buttonStyle}>
+            <span className="-translate-x-4 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                <ArrowRight size={18} />
+            </span>
+            <span className="-translate-x-2 transition-all duration-300 group-hover:translate-x-0">{children}</span>
+        </button>
+    );
+};
+
+// 48. Multi Layer Button
+export const MultiLayerButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <div className="relative group cursor-pointer">
+            <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-lg bg-pink-500 transition-transform group-hover:translate-x-2 group-hover:translate-y-2" />
+            <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-lg bg-blue-500 transition-transform group-hover:translate-x-4 group-hover:translate-y-4" />
+            <button className={cn("relative rounded-lg bg-white px-8 py-3 font-bold text-black border-2 border-black", sizeClass, className)} style={buttonStyle}>
+                {children}
+            </button>
+        </div>
+    );
+};
 
 // 49. Upload Button
-export const UploadButton = () => (
-    <button className="group flex items-center gap-2 rounded-lg bg-neutral-800 px-6 py-3 text-white transition-all hover:bg-neutral-700">
-        <Upload size={18} className="transition-transform duration-300 group-hover:-translate-y-1" />
-        Upload
-    </button>
-);
+export const UploadButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group flex items-center gap-2 rounded-lg bg-neutral-800 px-6 py-3 text-white transition-all hover:bg-neutral-700", sizeClass, className)} style={buttonStyle}>
+            <Upload size={18} className="transition-transform duration-300 group-hover:-translate-y-1" />
+            {children || "Upload"}
+        </button>
+    );
+};
 
 // 50. Toggle Switch Button
-export const ToggleSwitchButton = () => {
+export const ToggleSwitchButton = (props: CommonButtonProps) => {
+    const { className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const [on, setOn] = useState(false);
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
     return (
         <button
             onClick={() => setOn(!on)}
-            className={cn("relative h-8 w-14 rounded-full transition-colors", on ? "bg-green-500" : "bg-neutral-600")}
+            className={cn("relative h-8 w-14 rounded-full transition-colors", on ? "bg-green-500" : "bg-neutral-600", sizeClass, className)}
+            style={buttonStyle}
         >
             <div className={cn("absolute top-1 h-6 w-6 rounded-full bg-white transition-all", on ? "left-7" : "left-1")} />
         </button>
@@ -864,162 +1099,274 @@ export const ToggleSwitchButton = () => {
 };
 
 // 51. Swipe Left Button
-export const SwipeLeftButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all">
-        <span className="relative z-10">{children}</span>
-        <div className="absolute inset-0 h-full w-full translate-x-[100%] bg-red-600 transition-transform duration-300 group-hover:translate-x-0" />
-    </button>
-);
+export const SwipeLeftButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
+            <span className="relative z-10">{children}</span>
+            <div className="absolute inset-0 h-full w-full translate-x-[100%] bg-red-600 transition-transform duration-300 group-hover:translate-x-0" />
+        </button>
+    );
+};
 
 // 52. Swipe Down Button
-export const SwipeDownButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all">
-        <span className="relative z-10">{children}</span>
-        <div className="absolute inset-0 h-full w-full -translate-y-[100%] bg-orange-600 transition-transform duration-300 group-hover:translate-y-0" />
-    </button>
-);
+export const SwipeDownButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white transition-all", sizeClass, className)} style={buttonStyle}>
+            <span className="relative z-10">{children}</span>
+            <div className="absolute inset-0 h-full w-full -translate-y-[100%] bg-orange-600 transition-transform duration-300 group-hover:translate-y-0" />
+        </button>
+    );
+};
 
 // 53. Double Border Button
-export const DoubleBorderButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-lg border-4 border-double border-white px-8 py-2 font-bold text-white hover:bg-white hover:text-black transition-colors">
-        {children}
-    </button>
-);
+export const DoubleBorderButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-lg border-4 border-double border-white px-8 py-2 font-bold text-white hover:bg-white hover:text-black transition-colors", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 54. Spinning Border Button
-export const SpinningBorderButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative overflow-hidden rounded-lg bg-neutral-900 px-8 py-3 text-white">
-        <span className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#000000_0%,#ffffff_50%,#000000_100%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-        <span className="relative block rounded bg-neutral-900 px-4 py-1 z-10">{children}</span>
-    </button>
-);
+export const SpinningBorderButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, spinSpeed = 2 } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button 
+            className={cn("group relative overflow-hidden rounded-lg bg-neutral-900 px-8 py-3 text-white", sizeClass, className)}
+            style={buttonStyle}
+        >
+            <span 
+                className="absolute inset-[-100%] bg-[conic-gradient(from_90deg_at_50%_50%,#000000_0%,#ffffff_50%,#000000_100%)] opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{
+                    animation: `spin ${spinSpeed}s linear infinite`,
+                }}
+            />
+            <span className="relative block rounded bg-neutral-900 px-4 py-1 z-10">{children}</span>
+        </button>
+    );
+};
 
 // 55. Letter Spacing Button
-export const LetterSpacingButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-lg border border-neutral-500 px-8 py-3 text-neutral-300 transition-all hover:tracking-[0.5em] hover:text-white hover:border-white">
-        {children}
-    </button>
-);
+export const LetterSpacingButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-lg border border-neutral-500 px-8 py-3 text-neutral-300 transition-all hover:tracking-[0.5em] hover:text-white hover:border-white", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 56. Blur Reveal Button
-export const BlurRevealButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-8 py-3 text-white">
-        <span className="absolute inset-0 blur-md bg-white/20 scale-50 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
-        <span className="relative">{children}</span>
-    </button>
-);
+export const BlurRevealButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative px-8 py-3 text-white", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute inset-0 blur-md bg-white/20 scale-50 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
+            <span className="relative">{children}</span>
+        </button>
+    );
+};
 
 // 57. Vaporwave Button
-export const VaporwaveButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="bg-gradient-to-r from-pink-500 to-cyan-500 px-8 py-3 font-bold text-white italic shadow-[4px_4px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000000] transition-all">
-        {children}
-    </button>
-);
+export const VaporwaveButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("bg-gradient-to-r from-pink-500 to-cyan-500 px-8 py-3 font-bold text-white italic shadow-[4px_4px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000000] transition-all", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // 58. Save Button
-export const SaveButton = () => (
-    <button className="flex items-center gap-2 rounded-md bg-blue-600 px-6 py-2 text-white shadow-md hover:bg-blue-700 active:bg-blue-800">
-        <Save size={16} /> Save
-    </button>
-);
+export const SaveButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("flex items-center gap-2 rounded-md bg-blue-600 px-6 py-2 text-white shadow-md hover:bg-blue-700 active:bg-blue-800", sizeClass, className)} style={buttonStyle}>
+            <Save size={16} /> {children || "Save"}
+        </button>
+    );
+};
 
 // 59. Print Button
-export const PrintButton = () => (
-    <button className="flex items-center gap-2 rounded-md border border-neutral-600 bg-transparent px-6 py-2 text-neutral-300 hover:bg-neutral-800 hover:text-white">
-        <Printer size={16} /> Print
-    </button>
-);
+export const PrintButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("flex items-center gap-2 rounded-md border border-neutral-600 bg-transparent px-6 py-2 text-neutral-300 hover:bg-neutral-800 hover:text-white", sizeClass, className)} style={buttonStyle}>
+            <Printer size={16} /> {children || "Print"}
+        </button>
+    );
+};
 
 // 60. Notification Button
-export const NotificationButton = () => (
-    <button className="relative rounded-full bg-neutral-800 p-3 text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors">
-        <Bell size={20} />
-        <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500 border-2 border-neutral-900" />
-    </button>
-);
+export const NotificationButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("relative rounded-full bg-neutral-800 p-3 text-neutral-400 hover:bg-neutral-700 hover:text-white transition-colors", sizeClass, className)} style={buttonStyle}>
+            <Bell size={20} />
+            <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-500 border-2 border-neutral-900" />
+            {children}
+        </button>
+    );
+};
 
 // 61. Circle to Square Button
-export const CircleToSquareButton = () => (
-    <button className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white text-black transition-all duration-300 hover:w-32 hover:rounded-lg">
-        <Plus size={24} className="shrink-0" />
-        <span className="ml-2 w-0 overflow-hidden opacity-0 whitespace-nowrap transition-all duration-300 hover:w-auto hover:opacity-100">Add New</span>
-    </button>
-);
+export const CircleToSquareButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white text-black transition-all duration-300 hover:w-32 hover:rounded-lg", sizeClass, className)} style={buttonStyle}>
+            <Plus size={24} className="shrink-0" />
+            <span className="ml-2 w-0 overflow-hidden opacity-0 whitespace-nowrap transition-all duration-300 hover:w-auto hover:opacity-100">{children || "Add New"}</span>
+        </button>
+    );
+};
 
 // 62. Morph FAB Button
-export const MorphFabButton = () => (
-    <button className="group flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-all hover:rotate-90 hover:bg-red-500">
-        <Plus size={24} className="transition-transform group-hover:rotate-45" />
-    </button>
-);
+export const MorphFabButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-all hover:rotate-90 hover:bg-red-500", sizeClass, className)} style={buttonStyle}>
+            {children || <Plus size={24} className="transition-transform group-hover:rotate-45" />}
+        </button>
+    );
+};
 
 // 63. Shiny Reflection Button
-export const ShinyReflectionButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white border border-neutral-700">
-        <div className="absolute top-0 -inset-full h-full w-1/2 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
-        <span className="relative">{children}</span>
-    </button>
-);
+export const ShinyReflectionButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative overflow-hidden rounded-lg bg-neutral-800 px-8 py-3 text-white border border-neutral-700", sizeClass, className)} style={buttonStyle}>
+            <div className="absolute top-0 -inset-full h-full w-1/2 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine" />
+            <span className="relative">{children}</span>
+        </button>
+    );
+};
 
 // 64. Dot Hover Button
-export const DotHoverButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group relative px-8 py-3 text-white transition-all hover:text-indigo-400">
-        <span className="absolute left-2 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-indigo-400 opacity-0 transition-all group-hover:left-4 group-hover:opacity-100" />
-        {children}
-    </button>
-);
+export const DotHoverButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const dotColor = borderColor || textColor || "#818cf8";
+    return (
+        <button className={cn("group relative px-8 py-3 text-white transition-all hover:text-indigo-400", sizeClass, className)} style={buttonStyle}>
+            <span className="absolute left-2 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full opacity-0 transition-all group-hover:left-4 group-hover:opacity-100" style={{ backgroundColor: dotColor }} />
+            {children}
+        </button>
+    );
+};
 
 // 65. Text Marquee Button
-export const TextMarqueeButton = () => (
-    <button className="group relative w-32 overflow-hidden rounded-full border border-white/20 py-2 text-white">
-        <div className="flex w-full justify-center transition-transform duration-300 group-hover:-translate-y-[150%]">
-            Start
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center translate-y-[150%] transition-transform duration-300 group-hover:translate-y-0">
-            Let's Go!
-        </div>
-    </button>
-);
+export const TextMarqueeButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const displayText = children || "Start";
+    return (
+        <button className={cn("group relative w-32 overflow-hidden rounded-full border border-white/20 py-2 text-white", sizeClass, className)} style={buttonStyle}>
+            <div className="flex w-full justify-center transition-transform duration-300 group-hover:-translate-y-[150%]">
+                {displayText}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center translate-y-[150%] transition-transform duration-300 group-hover:translate-y-0">
+                Let's Go!
+            </div>
+        </button>
+    );
+};
 
 // 66. Scramble Text Button (Simulated)
-export const ScrambleTextButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="group font-mono px-8 py-3 text-green-500 border border-green-500/50 hover:bg-green-500/10">
-        <span className="group-hover:hidden">{children}</span>
-        <span className="hidden group-hover:inline">#{children}*</span>
-    </button>
-);
+export const ScrambleTextButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group font-mono px-8 py-3 text-green-500 border border-green-500/50 hover:bg-green-500/10", sizeClass, className)} style={buttonStyle}>
+            <span className="group-hover:hidden">{children}</span>
+            <span className="hidden group-hover:inline">#{children}*</span>
+        </button>
+    );
+};
 
 // 67. Typewriter Button
-export const TypewriterButton = () => (
-    <button className="group flex items-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-neutral-300 border border-neutral-800 hover:border-neutral-600">
-        <Terminal size={16} />
-        <span className="border-r-2 border-neutral-500 pr-1 animate-pulse">Execute</span>
-    </button>
-);
+export const TypewriterButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group flex items-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-neutral-300 border border-neutral-800 hover:border-neutral-600", sizeClass, className)} style={buttonStyle}>
+            <Terminal size={16} />
+            <span className="border-r-2 border-neutral-500 pr-1 animate-pulse">{children || "Execute"}</span>
+        </button>
+    );
+};
 
 // 68. Liquid Blob Button (SVG Filter needed, simplified here)
-export const LiquidBlobButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative rounded-lg bg-indigo-500 px-8 py-3 text-white transition-transform hover:scale-110">
-        <div className="absolute inset-0 -z-10 rounded-lg bg-indigo-500 blur-md opacity-50 group-hover:opacity-100 transition-opacity" />
-        {children}
-    </button>
-);
+export const LiquidBlobButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("group relative rounded-lg bg-indigo-500 px-8 py-3 text-white transition-transform hover:scale-110", sizeClass, className)} style={buttonStyle}>
+            <div className="absolute inset-0 -z-10 rounded-lg bg-indigo-500 blur-md opacity-50 group-hover:opacity-100 transition-opacity" />
+            {children}
+        </button>
+    );
+};
 
 // 69. CyberPunk Glitch 2
-export const CyberPunkGlitch2Button = ({ children }: { children: React.ReactNode }) => (
-    <button className="relative border-2 border-yellow-300 bg-black px-6 py-2 font-bold uppercase text-yellow-300 hover:bg-yellow-300 hover:text-black transition-colors">
-        <span className="absolute -top-1 -left-1 block h-2 w-2 bg-yellow-300" />
-        <span className="absolute -bottom-1 -right-1 block h-2 w-2 bg-yellow-300" />
-        {children}
-    </button>
-);
+export const CyberPunkGlitch2Button = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    const accentColor = borderColor || "#fde047";
+    return (
+        <button className={cn("relative border-2 bg-black px-6 py-2 font-bold uppercase transition-colors hover:bg-yellow-300 hover:text-black", sizeClass, className)} style={{ ...buttonStyle, borderColor: accentColor, color: textColor || accentColor }}>
+            <span className="absolute -top-1 -left-1 block h-2 w-2" style={{ backgroundColor: accentColor }} />
+            <span className="absolute -bottom-1 -right-1 block h-2 w-2" style={{ backgroundColor: accentColor }} />
+            {children}
+        </button>
+    );
+};
 
 // 70. Rounded Corner Morph
-export const RoundedCornerMorphButton = ({ children }: { children: React.ReactNode }) => (
-    <button className="rounded-sm bg-neutral-200 px-8 py-3 text-black transition-all duration-500 hover:rounded-full hover:bg-neutral-300">
-        {children}
-    </button>
-);
+export const RoundedCornerMorphButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    return (
+        <button className={cn("rounded-sm bg-neutral-200 px-8 py-3 text-black transition-all duration-500 hover:rounded-full hover:bg-neutral-300", sizeClass, className)} style={buttonStyle}>
+            {children}
+        </button>
+    );
+};
 
 // Export all components by name for the component library
 export const buttonComponentsByName: Record<string, React.ComponentType<any>> = {

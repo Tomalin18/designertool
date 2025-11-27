@@ -1265,6 +1265,23 @@ const componentConfigs: Record<string, any> = (() => {
           buttonText,
           copyText,
           downloadText,
+          // Animation props
+          animationDuration,
+          animationSpeed,
+          shimmerSpeed,
+          pulseSpeed,
+          glowIntensity,
+          magneticStrength,
+          rippleSize,
+          holdDuration,
+          spinSpeed,
+          flickerSpeed,
+          elasticScale,
+          // Color props
+          glowColor,
+          shimmerColor,
+          hoverColor,
+          fillColor,
           ...restProps
         } = props
 
@@ -1280,6 +1297,27 @@ const componentConfigs: Record<string, any> = (() => {
           textColor: textColor ? hexToRgb(textColor) : undefined,
           borderColor: borderColor ? hexToRgb(borderColor) : undefined,
           borderWidth,
+          // Special text props
+          buttonText,
+          copyText,
+          downloadText,
+          // Animation props
+          animationDuration,
+          animationSpeed,
+          shimmerSpeed,
+          pulseSpeed,
+          glowIntensity,
+          magneticStrength,
+          rippleSize,
+          holdDuration,
+          spinSpeed,
+          flickerSpeed,
+          elasticScale,
+          // Color props
+          glowColor: glowColor ? hexToRgb(glowColor) : undefined,
+          shimmerColor: shimmerColor ? hexToRgb(shimmerColor) : undefined,
+          hoverColor: hoverColor ? hexToRgb(hoverColor) : undefined,
+          fillColor: fillColor ? hexToRgb(fillColor) : undefined,
           ...restProps,
         }
 
@@ -1390,6 +1428,85 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       return updated
     })
   }, [config, componentName])
+
+  // Extract actual colors from rendered button component after mount
+  const playgroundRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!config || !buttonMeta || typeof window === 'undefined') return
+
+    // Wait for component to render
+    const timeoutId = setTimeout(() => {
+      if (!playgroundRef.current) return
+
+      // Find the rendered button element
+      const buttonElement = playgroundRef.current.querySelector('button')
+      if (!buttonElement) return
+
+      const computedStyle = window.getComputedStyle(buttonElement)
+
+      // Helper to convert rgb/rgba to hex
+      const rgbToHex = (rgb: string): string | null => {
+        if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') return null
+        const match = rgb.match(/\d+/g)
+        if (match && match.length >= 3) {
+          const r = Math.min(255, Math.max(0, parseInt(match[0]))).toString(16).padStart(2, '0')
+          const g = Math.min(255, Math.max(0, parseInt(match[1]))).toString(16).padStart(2, '0')
+          const b = Math.min(255, Math.max(0, parseInt(match[2]))).toString(16).padStart(2, '0')
+          const hex = `#${r}${g}${b}`
+          if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+            return hex
+          }
+        }
+        return null
+      }
+
+      setProps((prev) => {
+        const updated = { ...prev }
+        let hasChanges = false
+        
+        // Only update if the value is empty (default) and hasn't been set yet
+        if ((!prev.backgroundColor || prev.backgroundColor === '') && !prev._colorsExtracted) {
+          const bgColor = computedStyle.backgroundColor
+          const bgHex = rgbToHex(bgColor)
+          // Only set if it's a valid color and not transparent/black
+          if (bgHex && bgHex !== '#000000' && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+            updated.backgroundColor = bgHex
+            hasChanges = true
+          }
+        }
+
+        if ((!prev.textColor || prev.textColor === '') && !prev._colorsExtracted) {
+          const textColor = computedStyle.color
+          const textHex = rgbToHex(textColor)
+          if (textHex && textHex !== '#000000') {
+            updated.textColor = textHex
+            hasChanges = true
+          }
+        }
+
+        if ((!prev.borderColor || prev.borderColor === '') && !prev._colorsExtracted) {
+          const borderColor = computedStyle.borderColor
+          const borderWidth = computedStyle.borderWidth
+          if (borderWidth !== '0px' && borderColor !== 'rgba(0, 0, 0, 0)') {
+            const borderHex = rgbToHex(borderColor)
+            if (borderHex && borderHex !== '#000000') {
+              updated.borderColor = borderHex
+              hasChanges = true
+            }
+          }
+        }
+
+        // Mark as extracted to prevent re-extraction
+        if (hasChanges) {
+          updated._colorsExtracted = true
+        }
+
+        return hasChanges ? updated : prev
+      })
+    }, 300) // Delay to ensure component is fully rendered
+
+    return () => clearTimeout(timeoutId)
+  }, [config, componentName, buttonMeta])
 
   const updateProp = (key: string, value: any) => {
     setProps((prev) => {
@@ -3897,7 +4014,7 @@ export function ${buttonMeta.componentName}Demo() {
   return (
     <div className="relative w-full">
       <div className="flex flex-col gap-6 min-w-0 w-full">
-        <div className="relative">
+        <div className="relative" ref={playgroundRef} data-playground>
           <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
             {config.render(props, setProps)}
           </Card>
@@ -4042,6 +4159,7 @@ export function ${buttonMeta.componentName}Demo() {
                 props={props}
                 config={config}
                 updateProp={updateProp}
+                groupingConfig={buttonMeta?.groupingConfig}
               />
             )}
           </div>

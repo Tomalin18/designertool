@@ -15,6 +15,16 @@ export interface ButtonPropDefinition {
     max?: number
 }
 
+export interface ButtonGroupingConfig {
+    type: "tabs"
+    tabs: {
+        name: string
+        label: string
+        keys: string[]
+    }[]
+    hiddenProps?: string[]
+}
+
 export interface ButtonSectionMeta {
     slug: string
     name: string
@@ -23,6 +33,7 @@ export interface ButtonSectionMeta {
     tags: string[]
     props: Record<string, ButtonPropDefinition>
     category: string
+    groupingConfig?: ButtonGroupingConfig
 }
 
 const defaultButtonProps: Record<string, ButtonPropDefinition> = {
@@ -101,6 +112,207 @@ const extendedButtonProps: Record<string, ButtonPropDefinition> = {
     },
 }
 
+// Animation-related props for specific buttons
+const animationProps = {
+    animationDuration: {
+        control: "slider",
+        default: 300,
+        min: 100,
+        max: 2000,
+        description: "Animation duration in milliseconds.",
+    },
+    animationSpeed: {
+        control: "slider",
+        default: 1,
+        min: 0.5,
+        max: 3,
+        description: "Animation speed multiplier.",
+    },
+    shimmerSpeed: {
+        control: "slider",
+        default: 2,
+        min: 0.5,
+        max: 5,
+        description: "Shimmer animation speed in seconds.",
+    },
+    pulseSpeed: {
+        control: "slider",
+        default: 1,
+        min: 0.5,
+        max: 3,
+        description: "Pulse animation speed multiplier.",
+    },
+    glowIntensity: {
+        control: "slider",
+        default: 0.5,
+        min: 0,
+        max: 1,
+        description: "Glow effect intensity.",
+    },
+    magneticStrength: {
+        control: "slider",
+        default: 0.3,
+        min: 0.1,
+        max: 1,
+        description: "Magnetic effect strength.",
+    },
+    rippleSize: {
+        control: "slider",
+        default: 500,
+        min: 200,
+        max: 1000,
+        description: "Ripple effect size in pixels.",
+    },
+    holdDuration: {
+        control: "slider",
+        default: 1000,
+        min: 500,
+        max: 3000,
+        description: "Hold duration in milliseconds.",
+    },
+    spinSpeed: {
+        control: "slider",
+        default: 2,
+        min: 0.5,
+        max: 5,
+        description: "Spin animation speed in seconds.",
+    },
+    flickerSpeed: {
+        control: "slider",
+        default: 0.1,
+        min: 0.05,
+        max: 0.5,
+        description: "Flicker animation speed in seconds.",
+    },
+    elasticScale: {
+        control: "slider",
+        default: 1.1,
+        min: 1.05,
+        max: 1.5,
+        description: "Elastic scale multiplier on hover.",
+    },
+}
+
+// Color props for specific buttons
+const colorProps = {
+    glowColor: {
+        control: "color",
+        default: "",
+        description: "Glow effect color.",
+    },
+    shimmerColor: {
+        control: "color",
+        default: "",
+        description: "Shimmer effect color.",
+    },
+    hoverColor: {
+        control: "color",
+        default: "",
+        description: "Hover state color.",
+    },
+    fillColor: {
+        control: "color",
+        default: "",
+        description: "Fill effect color.",
+    },
+}
+
+// Helper function to generate grouping config for a button
+function getButtonGroupingConfig(
+    props: Record<string, ButtonPropDefinition>
+): ButtonGroupingConfig {
+    // Define prop categories
+    const generalKeys = [
+        'children',
+        'buttonText',
+        'copyText',
+        'downloadText',
+        'className',
+    ]
+    
+    const sizeSpacingKeys = [
+        'size',
+        'borderRadius',
+        'paddingX',
+        'paddingY',
+    ]
+    
+    const colorKeys = [
+        'backgroundColor',
+        'textColor',
+        'borderColor',
+        'borderWidth',
+        'glowColor',
+        'shimmerColor',
+        'hoverColor',
+        'fillColor',
+    ]
+    
+    const animationKeys = [
+        'animationDuration',
+        'animationSpeed',
+        'shimmerSpeed',
+        'pulseSpeed',
+        'glowIntensity',
+        'magneticStrength',
+        'rippleSize',
+        'holdDuration',
+        'spinSpeed',
+        'flickerSpeed',
+        'elasticScale',
+    ]
+    
+    // Categorize props
+    const generalProps: string[] = []
+    const sizeSpacingProps: string[] = []
+    const colorProps: string[] = []
+    const animationProps: string[] = []
+    const otherProps: string[] = []
+    
+    Object.keys(props).forEach((key) => {
+        if (generalKeys.includes(key)) {
+            generalProps.push(key)
+        } else if (sizeSpacingKeys.includes(key)) {
+            sizeSpacingProps.push(key)
+        } else if (colorKeys.includes(key)) {
+            colorProps.push(key)
+        } else if (animationKeys.includes(key)) {
+            animationProps.push(key)
+        } else {
+            otherProps.push(key)
+        }
+    })
+    
+    // Build tabs array (only include tabs that have props)
+    const tabs: { name: string; label: string; keys: string[] }[] = []
+    
+    if (generalProps.length > 0) {
+        tabs.push({ name: "general", label: "General", keys: generalProps })
+    }
+    if (sizeSpacingProps.length > 0) {
+        tabs.push({ name: "size", label: "Size & Spacing", keys: sizeSpacingProps })
+    }
+    if (colorProps.length > 0) {
+        tabs.push({ name: "colors", label: "Colors", keys: colorProps })
+    }
+    if (animationProps.length > 0) {
+        tabs.push({ name: "animation", label: "Animation", keys: animationProps })
+    }
+    if (otherProps.length > 0) {
+        tabs.push({ name: "other", label: "Other", keys: otherProps })
+    }
+    
+    // Always have at least a General tab
+    if (tabs.length === 0) {
+        tabs.push({ name: "general", label: "General", keys: [] })
+    }
+    
+    return {
+        type: "tabs",
+        tabs,
+    }
+}
+
 export const buttonSections: ButtonSectionMeta[] = [
     {
         slug: "magnetic-button",
@@ -108,8 +320,15 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "MagneticButton",
         description: "A button that magnetically follows the cursor movement.",
         tags: ["button", "magnetic", "hover", "interaction"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            magneticStrength: animationProps.magneticStrength,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            magneticStrength: animationProps.magneticStrength,
+        }),
     },
     {
         slug: "glitch-button",
@@ -119,6 +338,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "glitch", "effect", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "liquid-hover-button",
@@ -126,8 +346,17 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "LiquidHoverButton",
         description: "A button with a liquid fill effect on hover.",
         tags: ["button", "liquid", "fill", "hover"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            animationDuration: animationProps.animationDuration,
+            fillColor: colorProps.fillColor,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            animationDuration: animationProps.animationDuration,
+            fillColor: colorProps.fillColor,
+        }),
     },
     {
         slug: "neumorphic-button",
@@ -137,6 +366,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "neumorphic", "soft-ui", "shadow"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "gradient-border-button",
@@ -153,8 +383,17 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ShimmerButton",
         description: "A button with a shimmering light effect.",
         tags: ["button", "shimmer", "shine", "animation"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            shimmerSpeed: animationProps.shimmerSpeed,
+            shimmerColor: colorProps.shimmerColor,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            shimmerSpeed: animationProps.shimmerSpeed,
+            shimmerColor: colorProps.shimmerColor,
+        }),
     },
     {
         slug: "pulse-glow-button",
@@ -162,8 +401,19 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "PulseGlowButton",
         description: "A button that pulses with a glowing effect.",
         tags: ["button", "pulse", "glow", "animation"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            pulseSpeed: animationProps.pulseSpeed,
+            glowIntensity: animationProps.glowIntensity,
+            glowColor: colorProps.glowColor,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            pulseSpeed: animationProps.pulseSpeed,
+            glowIntensity: animationProps.glowIntensity,
+            glowColor: colorProps.glowColor,
+        }),
     },
     {
         slug: "slide-arrow-button",
@@ -173,6 +423,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "arrow", "slide", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "three-d-press-button",
@@ -189,8 +440,17 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "RippleButton",
         description: "A button with a material design ripple effect.",
         tags: ["button", "ripple", "material", "click"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            rippleSize: animationProps.rippleSize,
+            animationDuration: animationProps.animationDuration,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            rippleSize: animationProps.rippleSize,
+            animationDuration: animationProps.animationDuration,
+        }),
     },
     {
         slug: "ghost-hover-button",
@@ -215,6 +475,13 @@ export const buttonSections: ButtonSectionMeta[] = [
             },
         },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            buttonText: {
+                control: "text",
+                default: "Submit",
+                description: "The text to display when the button is idle.",
+            },
+        }),
     },
     {
         slug: "spotlight-button",
@@ -224,6 +491,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "spotlight", "hover", "light"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "pixel-art-button",
@@ -233,6 +501,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "pixel", "retro", "8bit"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "glassmorphism-button",
@@ -249,8 +518,17 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "NeonFlickerButton",
         description: "A button with a neon flickering text effect.",
         tags: ["button", "neon", "flicker", "glow"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            flickerSpeed: animationProps.flickerSpeed,
+            glowColor: colorProps.glowColor,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            flickerSpeed: animationProps.flickerSpeed,
+            glowColor: colorProps.glowColor,
+        }),
     },
     {
         slug: "elastic-button",
@@ -258,8 +536,17 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "ElasticButton",
         description: "A button with an elastic scaling effect.",
         tags: ["button", "elastic", "scale", "animation"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            elasticScale: animationProps.elasticScale,
+            animationDuration: animationProps.animationDuration,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            elasticScale: animationProps.elasticScale,
+            animationDuration: animationProps.animationDuration,
+        }),
     },
     {
         slug: "copy-clipboard-button",
@@ -275,6 +562,13 @@ export const buttonSections: ButtonSectionMeta[] = [
             },
         },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            copyText: {
+                control: "text",
+                default: "Copy Code",
+                description: "The text to display on the button.",
+            },
+        }),
     },
     {
         slug: "social-share-button",
@@ -284,6 +578,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "social", "share", "expand"],
         props: buttonWithClassNameProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(buttonWithClassNameProps),
     },
     {
         slug: "download-progress-button",
@@ -299,6 +594,13 @@ export const buttonSections: ButtonSectionMeta[] = [
             },
         },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            downloadText: {
+                control: "text",
+                default: "Download",
+                description: "The text to display on the button.",
+            },
+        }),
     },
     {
         slug: "swipe-right-button",
@@ -308,6 +610,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "swipe", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "swipe-up-button",
@@ -317,6 +620,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "swipe", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "scale-up-button",
@@ -326,6 +630,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "scale", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "draw-border-button",
@@ -335,6 +640,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "border", "draw", "animation"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "dotted-border-button",
@@ -344,6 +650,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "border", "dotted", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "gradient-ring-button",
@@ -353,6 +660,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "gradient", "ring", "border"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "cyber-button",
@@ -362,6 +670,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "cyber", "cyberpunk", "futuristic"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "retro-95-button",
@@ -371,6 +680,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "retro", "95", "windows"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "clay-button",
@@ -380,6 +690,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "clay", "claymorphism", "soft"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "skeuo-button",
@@ -389,6 +700,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "skeuomorphic", "depth", "3d"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "shake-error-button",
@@ -398,6 +710,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "shake", "error", "feedback"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "confetti-button",
@@ -407,6 +720,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "confetti", "celebration", "animation"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "hold-button",
@@ -414,8 +728,15 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "HoldButton",
         description: "A button that requires holding to confirm.",
         tags: ["button", "hold", "confirm", "interaction"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            holdDuration: animationProps.holdDuration,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            holdDuration: animationProps.holdDuration,
+        }),
     },
     {
         slug: "delete-button",
@@ -425,6 +746,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "delete", "confirm", "danger"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "like-button",
@@ -434,6 +756,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "like", "heart", "toggle"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "skew-button",
@@ -443,6 +766,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "skew", "transform", "style"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "blob-button",
@@ -452,6 +776,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "blob", "organic", "shape"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "underline-button",
@@ -461,6 +786,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "underline", "hover", "text"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "bracket-button",
@@ -470,6 +796,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "bracket", "hover", "animation"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "curtain-button",
@@ -479,6 +806,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "curtain", "reveal", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "slice-button",
@@ -488,6 +816,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "slice", "hover", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "wet-paint-button",
@@ -497,6 +826,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "wet", "paint", "style"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "particle-button",
@@ -506,6 +836,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "particle", "effect", "animation"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "isometric-button",
@@ -515,6 +846,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "isometric", "3d", "perspective"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "paper-fold-button",
@@ -524,6 +856,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "paper", "fold", "style"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "text-fill-button",
@@ -533,6 +866,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "text", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "icon-slide-button",
@@ -542,6 +876,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "icon", "slide", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "multi-layer-button",
@@ -551,6 +886,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "layer", "stack", "3d"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "upload-button",
@@ -560,6 +896,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "upload", "file", "action"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "toggle-switch-button",
@@ -569,6 +906,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "toggle", "switch", "control"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "swipe-left-button",
@@ -578,6 +916,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "swipe", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "swipe-down-button",
@@ -587,6 +926,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "swipe", "fill", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "double-border-button",
@@ -603,8 +943,15 @@ export const buttonSections: ButtonSectionMeta[] = [
         componentName: "SpinningBorderButton",
         description: "A button with a spinning border effect.",
         tags: ["button", "border", "spin", "animation"],
-        props: extendedButtonProps,
+        props: {
+            ...extendedButtonProps,
+            spinSpeed: animationProps.spinSpeed,
+        },
         category: "Button",
+        groupingConfig: getButtonGroupingConfig({
+            ...extendedButtonProps,
+            spinSpeed: animationProps.spinSpeed,
+        }),
     },
     {
         slug: "letter-spacing-button",
@@ -614,6 +961,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "text", "spacing", "hover"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "blur-reveal-button",
@@ -623,6 +971,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "blur", "reveal", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "vaporwave-button",
@@ -632,6 +981,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "vaporwave", "aesthetic", "retro"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "save-button",
@@ -641,6 +991,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "save", "icon", "action"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "print-button",
@@ -650,6 +1001,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "print", "icon", "action"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "notification-button",
@@ -659,6 +1011,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "notification", "badge", "icon"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "circle-to-square-button",
@@ -668,6 +1021,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "morph", "shape", "animation"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "morph-fab-button",
@@ -677,6 +1031,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "fab", "morph", "floating"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "shiny-reflection-button",
@@ -686,6 +1041,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "shiny", "reflection", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "dot-hover-button",
@@ -695,6 +1051,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "dot", "hover", "indicator"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "text-marquee-button",
@@ -704,6 +1061,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "marquee", "text", "scroll"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "scramble-text-button",
@@ -713,6 +1071,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "scramble", "text", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "typewriter-button",
@@ -722,6 +1081,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "typewriter", "text", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "liquid-blob-button",
@@ -731,6 +1091,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "liquid", "blob", "background"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "cyber-punk-glitch-2-button",
@@ -740,6 +1101,7 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "cyberpunk", "glitch", "effect"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
     {
         slug: "rounded-corner-morph-button",
@@ -749,5 +1111,6 @@ export const buttonSections: ButtonSectionMeta[] = [
         tags: ["button", "morph", "corner", "radius"],
         props: extendedButtonProps,
         category: "Button",
+        groupingConfig: getButtonGroupingConfig(extendedButtonProps),
     },
 ]
