@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, GripVertical } from "lucide-react"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
+import { badgeSections } from "@/lib/badge-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -759,7 +760,7 @@ export function CustomizePanel({
           <ColorPicker
             value={props[key] || ""}
             onChange={(value) => updateProp(key, value)}
-            placeholder={propConfig.default || "#000000"}
+            placeholder={propConfig.default && propConfig.default.trim() !== "" ? propConfig.default : ""}
             outputFormat="hex"
             defaultColor={(() => {
               // If value exists and is hex, use it
@@ -776,8 +777,13 @@ export function CustomizePanel({
                   return `#${r}${g}${b}`
                 }
               }
-              // Fallback to default or black
-              return propConfig.default || "#000000"
+              // If default is empty string, don't show a color (use transparent/empty)
+              // Only use default color if it's actually a color value
+              if (propConfig.default && propConfig.default.trim() !== "" && propConfig.default.startsWith('#')) {
+                return propConfig.default
+              }
+              // For empty defaults, return empty string so ColorPicker shows as empty
+              return ""
             })()}
           />
         )}
@@ -1017,8 +1023,112 @@ export function CustomizePanel({
       return buttonSection.groupingConfig
     }
 
+    // For Badge components, use detailed grouping (similar to Card components)
+    // Try to find by componentName first, then by name
+    const badgeSection = badgeSections.find((badge: { componentName: string; name: string }) => 
+      badge.componentName === componentName || badge.name === componentName
+    )
+    if (badgeSection) {
+      // Define style-related keys for badges
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'iconColor', 'dotColor',
+        'glowColor', 'pulseColor', 'shadowColor', 'gradientFrom', 'gradientTo'
+      ]
+      const spacingKeys = ['padding']
+      const borderKeys = ['borderRadius', 'borderWidth', 'borderOpacity']
+      const otherStyleKeys = [
+        'backdropBlur', 'glowIntensity', 'pulseSpeed', 'shadowOffsetX', 'shadowOffsetY',
+        'size', 'maxCount'
+      ]
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in badgeSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!badgeSection.props[key]) {
+          return
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        else if (
+          otherStyleKeys.includes(key) || 
+          lowerKey.includes('blur') || 
+          lowerKey.includes('opacity') || 
+          lowerKey.includes('gradient') ||
+          lowerKey.includes('shadow') ||
+          lowerKey.includes('speed') ||
+          lowerKey.includes('intensity') ||
+          (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width') || lowerKey.includes('speed') || lowerKey.includes('intensity')))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        else {
+          contentProps.push(key)
+        }
+      })
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      }
+    }
+
     // For Card components, use detailed grouping
-    const cardSection = cardSections.find((card: { componentName: string }) => card.componentName === componentName)
+    // Try to find by componentName first, then by name
+    const cardSection = cardSections.find((card: { componentName: string; name: string }) => 
+      card.componentName === componentName || card.name === componentName
+    )
     if (cardSection) {
       // Define style-related keys
       const colorKeys = [

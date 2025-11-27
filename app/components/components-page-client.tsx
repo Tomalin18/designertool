@@ -19,6 +19,7 @@ import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
+import { badgeSections } from "@/lib/badge-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -110,15 +111,33 @@ export function ComponentsPageClient() {
             href: `/components/${card.slug}`,
             category: "Card",
             tags: componentDetails[card.slug]?.tags || card.tags || [],
+        })),
+        ...badgeSections.map(badge => ({
+            name: badge.name,
+            description: badge.description,
+            href: `/components/${badge.slug}`,
+            category: "Badge",
+            tags: badge.tags || [],
         }))
     ]
 
     const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Switch", "Tabs"]
 
-    // Get all unique tags from custom components
-    const allTags = Array.from(new Set(
-        customComponents.flatMap(component => component.tags || [])
-    )).sort()
+    // Calculate tag frequency from custom components
+    const tagFrequency = new Map<string, number>()
+    customComponents.forEach(component => {
+        (component.tags || []).forEach(tag => {
+            tagFrequency.set(tag, (tagFrequency.get(tag) || 0) + 1)
+        })
+    })
+
+    // Filter tags: only show high frequency (50+) and medium-high frequency (10-49)
+    // Lowered threshold to 10 to show more relevant tags
+    const allTags = Array.from(tagFrequency.entries())
+        .filter(([_, count]) => count >= 10)
+        .sort((a, b) => b[1] - a[1]) // Sort by frequency descending
+        .map(([tag]) => tag)
+        .sort() // Then sort alphabetically
 
     const filteredCustomComponents = customComponents.filter((component) => {
         const matchesCategory = selectedCustomCategory === "All" || component.category === selectedCustomCategory
@@ -239,8 +258,9 @@ export function ComponentsPageClient() {
         })),
     ]
 
-    // Get all unique tags from sections
-    const allSectionTags = Array.from(new Set([
+    // Calculate tag frequency from sections
+    const sectionTagFrequency = new Map<string, number>()
+    const allSectionTagsArray = [
         ...headerSections.flatMap(header => header.tags),
         ...heroSections.flatMap(hero => hero.tags),
         ...featureSections.flatMap(feature => feature.tags),
@@ -248,7 +268,18 @@ export function ComponentsPageClient() {
         ...ctaSections.flatMap(cta => cta.tags),
         ...footerSections.flatMap(footer => footer.tags),
         ...buttonSections.flatMap(button => button.tags),
-    ])).sort()
+    ]
+    allSectionTagsArray.forEach(tag => {
+        sectionTagFrequency.set(tag, (sectionTagFrequency.get(tag) || 0) + 1)
+    })
+
+    // Filter tags: only show high frequency (50+) and medium-high frequency (10-49)
+    // Lowered threshold to 10 to show more relevant tags
+    const allSectionTags = Array.from(sectionTagFrequency.entries())
+        .filter(([_, count]) => count >= 10)
+        .sort((a, b) => b[1] - a[1]) // Sort by frequency descending
+        .map(([tag]) => tag)
+        .sort() // Then sort alphabetically
 
     // Organize sidebar items by category
     const getSpecialComponents = () => {
@@ -271,6 +302,10 @@ export function ComponentsPageClient() {
 
     const getInputComponents = () => {
         return customComponents.filter(c => c.category === "Input")
+    }
+
+    const getBadgeComponents = () => {
+        return customComponents.filter(c => c.category === "Badge")
     }
 
     const getSectionComponentsByType = (type: string) => {
@@ -310,10 +345,16 @@ export function ComponentsPageClient() {
         {
             title: "Badge",
             href: "/components",
-            items: componentsData.filter(c => c.name === "Badge").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                ...componentsData.filter(c => c.name === "Badge").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+                ...getBadgeComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Input",
