@@ -21,6 +21,7 @@ import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
+import { dialogSections } from "@/lib/dialog-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -119,6 +120,13 @@ export function ComponentsPageClient() {
             href: `/components/${input.slug}`,
             category: "Input",
             tags: input.tags || [],
+        })),
+        ...dialogSections.map(dialog => ({
+            name: dialog.name,
+            description: dialog.description,
+            href: `/components/${dialog.slug}`,
+            category: "Dialog",
+            tags: dialog.tags || [],
         }))
     ]
 
@@ -304,6 +312,10 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Input")
     }
 
+    const getDialogComponents = () => {
+        return customComponents.filter(c => c.category === "Dialog")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -367,10 +379,16 @@ export function ComponentsPageClient() {
         {
             title: "Dialog",
             href: "/components",
-            items: componentsData.filter(c => c.name === "Dialog").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+                ...getDialogComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Switch",
