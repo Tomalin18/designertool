@@ -19,7 +19,7 @@ export function SidebarNav({ items }: SidebarNavProps) {
   const pathname = usePathname()
   const { colorPalette, theme } = useTheme()
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(items.map(item => item.title))
+    new Set()
   )
   const [isMounted, setIsMounted] = useState(false)
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light")
