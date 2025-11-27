@@ -386,12 +386,12 @@ export const ChatInterface = ({
   const statusIndicatorRgb = statusIndicatorHex ? hexToRgb(`#${statusIndicatorHex}`) : null
 
   // Helper function to extract hex from Tailwind class and convert to RGB
-  const getColorFromTailwind = (tailwindClass: string): string | undefined => {
+  const getColorFromTailwind = (tailwindClass: string | undefined): string | undefined => {
     if (!tailwindClass) return undefined
     // Extract hex from bg-[#hex] or text-[#hex] format
     const hexMatch = tailwindClass.match(/\[#([0-9A-Fa-f]{6})\]/)
     if (hexMatch) {
-      return hexToRgb(`#${hexMatch[1]}`)
+      return hexToRgb(`#${hexMatch[1]}`) || undefined
     }
     // Try color map
     const colorMap: Record<string, string> = {
