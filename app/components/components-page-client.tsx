@@ -18,6 +18,7 @@ import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
 import { buttonSections } from "@/lib/button-sections"
+import { cardSections } from "@/lib/card-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -102,6 +103,13 @@ export function ComponentsPageClient() {
             href: `/components/${button.slug}`,
             category: "Button",
             tags: button.tags || [],
+        })),
+        ...cardSections.map(card => ({
+            name: card.name,
+            description: card.description,
+            href: `/components/${card.slug}`,
+            category: "Card",
+            tags: componentDetails[card.slug]?.tags || card.tags || [],
         }))
     ]
 

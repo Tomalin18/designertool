@@ -44,6 +44,8 @@ import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName } from "@/components/customize/footers"
 import { buttonSections } from "@/lib/button-sections"
 import { buttonComponentsByName } from "@/components/customize/buttons"
+import { cardSections } from "@/lib/card-sections"
+import { cardComponentsByName } from "@/components/customize/cards"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -78,6 +80,11 @@ const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSect
 
 const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
   acc[header.name] = header
+  return acc
+}, {})
+
+const cardNameToMeta = cardSections.reduce<Record<string, (typeof cardSections)[number]>>((acc, card) => {
+  acc[card.name] = card
   return acc
 }, {})
 
@@ -1452,6 +1459,187 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add card sections to configs
+  cardSections.forEach((card) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = cardComponentsByName[card.componentName]
+    if (!Component) {
+      console.warn(`Card component not found: ${card.componentName}. Available components:`, Object.keys(cardComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(card.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[card.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from cardComponentsByName (re-fetch to ensure it's available)
+        const Component = cardComponentsByName[card.componentName]
+        
+        if (!Component) {
+          console.error(`Card component ${card.componentName} is not available in cardComponentsByName. Available:`, Object.keys(cardComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {card.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling (like arrays, objects, etc.)
+        // Helper to convert hex to rgb (same as SocialProfileCard)
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps similar to SocialProfileCard - explicitly pass each prop
+        const processedProps: any = {}
+        
+        // Process all props from card.props definition
+        // First, ensure all props from card.props are in processedProps
+        Object.keys(card.props).forEach((key) => {
+          const propConfig = card.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed (like SocialProfileCard)
+          // Match SocialProfileCard: backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              // Convert hex to rgb if it's a hex value, otherwise pass as-is
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              // If empty or undefined, pass undefined (not empty string) to match SocialProfileCard behavior
+              // This allows the component to use its default styling
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            // Always pass the prop value if it exists (even if empty string)
+            // Only use default if propValue is truly undefined or null
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              // For text/textarea, use default if available, otherwise empty string
+              // For select, use default or first option
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in card.props (for backward compatibility)
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            // Include props that are not in card.props but are in props (might be added dynamically)
+            processedProps[key] = props[key]
+          }
+        })
+        
+        // Handle features array for PricingCard
+        if (card.componentName === "PricingCard" && props.features) {
+          processedProps.features = typeof props.features === "string" 
+            ? props.features.split("\n").filter((f: string) => f.trim())
+            : props.features
+        }
+        
+        // Handle skills array for SkillCard
+        if (card.componentName === "SkillCard" && props.skills) {
+          processedProps.skills = typeof props.skills === "string"
+            ? props.skills.split("\n").filter((s: string) => s.trim())
+            : props.skills
+        }
+        
+        // Handle comparison rows for ComparisonCard
+        if (card.componentName === "ComparisonCard" && props.rows) {
+          if (typeof props.rows === "string") {
+            processedProps.rows = props.rows.split("\n").map((row: string) => {
+              const [label, left, right] = row.split(":")
+              return { label: label?.trim() || "", left: left?.trim() || "", right: right?.trim() || "" }
+            }).filter((r: any) => r.label)
+          }
+        }
+        
+        // Handle roadmap items for RoadmapCard
+        if (card.componentName === "RoadmapCard" && props.items) {
+          if (typeof props.items === "string") {
+            processedProps.items = props.items.split("\n").map((item: string) => {
+              const [title, status, color] = item.split(":")
+              return { 
+                title: title?.trim() || "", 
+                status: status?.trim() || "", 
+                color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
+              }
+            }).filter((i: any) => i.title)
+          }
+        }
+        
+        // Handle hourly forecast for WeatherCard
+        if (card.componentName === "WeatherCard" && props.hourlyForecast) {
+          if (typeof props.hourlyForecast === "string") {
+            processedProps.hourlyForecast = props.hourlyForecast.split("\n").map((forecast: string) => {
+              const [time, temp] = forecast.split(":")
+              return { time: time?.trim() || "", temp: parseInt(temp?.trim() || "0") }
+            }).filter((f: any) => f.time)
+          }
+        }
+
+        try {
+          return (
+            <div className="w-full max-w-sm mx-auto">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${card.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -1462,17 +1650,44 @@ interface PlaygroundProps {
 }
 
 export function ComponentPlayground({ componentName, slug, initialCode }: PlaygroundProps) {
-  const config = componentConfigs[componentName]
+  // Try to find config by componentName first
+  let config = componentConfigs[componentName]
+  let actualComponentName = componentName
+  
+  // If not found, try to find by slug (for card components)
   if (!config) {
+    const cardMeta = cardSections.find(c => c.slug === slug)
+    if (cardMeta) {
+      config = componentConfigs[cardMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = cardMeta.name
+        console.log(`Found card config by slug: ${slug} -> ${cardMeta.name}`)
+      } else {
+        console.warn(`Card meta found but config not found: ${cardMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+  }
+  
+  if (!config) {
+    console.warn(`Component config not found for: ${componentName} (slug: ${slug}). Available card configs:`, Object.keys(componentConfigs).filter(k => k.includes('Card')).slice(0, 10))
   }
 
-  const heroMeta = heroNameToMeta[componentName]
-  const featureMeta = featureNameToMeta[componentName]
-  const paymentMeta = paymentNameToMeta[componentName]
-  const ctaMeta = ctaNameToMeta[componentName]
-  const footerMeta = footerNameToMeta[componentName]
-  const headerMeta = headerNameToMeta[componentName]
-  const buttonMeta = buttonNameToMeta[componentName]
+  const heroMeta = heroNameToMeta[actualComponentName]
+  const featureMeta = featureNameToMeta[actualComponentName]
+  const paymentMeta = paymentNameToMeta[actualComponentName]
+  const ctaMeta = ctaNameToMeta[actualComponentName]
+  const footerMeta = footerNameToMeta[actualComponentName]
+  const headerMeta = headerNameToMeta[actualComponentName]
+  const buttonMeta = buttonNameToMeta[actualComponentName]
+  // For card components, find by slug if not found by componentName
+  let cardMeta = cardNameToMeta[actualComponentName]
+  if (!cardMeta) {
+    const cardMetaBySlug = cardSections.find(c => c.slug === slug)
+    if (cardMetaBySlug) {
+      cardMeta = cardNameToMeta[cardMetaBySlug.name]
+    }
+  }
   const [copied, setCopied] = React.useState(false)
   const [showSidebar, setShowSidebar] = React.useState(true)
 
@@ -1496,8 +1711,14 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         propConfig.type === "color-tailwind-gradient") {
         // Ensure color inputs always have a string value (never undefined)
         initialProps[key] = propConfig.default || ""
+      } else if (propConfig.type === "slider") {
+        // Ensure slider always has a number value
+        initialProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+      } else if (propConfig.type === "number") {
+        // Ensure number always has a number value
+        initialProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : 0
       } else {
-        initialProps[key] = propConfig.default
+        initialProps[key] = propConfig.default !== undefined ? propConfig.default : ""
       }
     })
     return initialProps
@@ -4051,6 +4272,95 @@ import {
 <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>`
     }
 
+    // Card section code generation - try both componentName and actualComponentName
+    let cardMeta = cardNameToMeta[componentName] || cardNameToMeta[actualComponentName]
+    if (!cardMeta) {
+      // Try to find by slug
+      const cardMetaBySlug = cardSections.find(c => c.slug === slug)
+      if (cardMetaBySlug) {
+        cardMeta = cardNameToMeta[cardMetaBySlug.name]
+      }
+    }
+    if (cardMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        // Handle special cases for card props
+        if (key === "features" && typeof value === "string") {
+          // Convert newline-separated string to array
+          const features = value.split("\n").filter((f: string) => f.trim())
+          propsList.push(`features={${JSON.stringify(features)}}`)
+        } else if (key === "skills" && typeof value === "string") {
+          // Convert newline-separated string to array
+          const skills = value.split("\n").filter((s: string) => s.trim())
+          propsList.push(`skills={${JSON.stringify(skills)}}`)
+        } else if (key === "rows" && typeof value === "string") {
+          // Convert comparison rows format: "Label:Left:Right"
+          const rows = value.split("\n").map((row: string) => {
+            const [label, left, right] = row.split(":")
+            return { label: label?.trim() || "", left: left?.trim() || "", right: right?.trim() || "" }
+          }).filter((r: any) => r.label)
+          propsList.push(`rows={${JSON.stringify(rows)}}`)
+        } else if (key === "items" && typeof value === "string") {
+          // Convert roadmap items format: "Title:Status:Color"
+          const items = value.split("\n").map((item: string) => {
+            const [title, status, color] = item.split(":")
+            return { 
+              title: title?.trim() || "", 
+              status: status?.trim() || "", 
+              color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
+            }
+          }).filter((i: any) => i.title)
+          propsList.push(`items={${JSON.stringify(items)}}`)
+        } else if (key === "hourlyForecast" && typeof value === "string") {
+          // Convert hourly forecast format: "Time:Temp"
+          const forecast = value.split("\n").map((f: string) => {
+            const [time, temp] = f.split(":")
+            return { time: time?.trim() || "", temp: parseInt(temp?.trim() || "0") }
+          }).filter((f: any) => f.time)
+          propsList.push(`hourlyForecast={${JSON.stringify(forecast)}}`)
+        } else if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "revealColor" || key === "gradientFrom" || key === "gradientTo") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n  ${propsList.join("\n  ")}\n` : ""
+
+      return `import { ${cardMeta.componentName} } from "@/components/customize/cards"
+
+export function ${cardMeta.componentName}Demo() {
+  return (
+    <div className="max-w-sm">
+      <${cardMeta.componentName}${propsString} />
+    </div>
+  )
+}`
+    }
+
     if (children) {
       return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
     }
@@ -4077,7 +4387,42 @@ import {
       <div className="flex flex-col gap-6 min-w-0 w-full">
         <div className="relative" ref={playgroundRef} data-playground>
           <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-            {config.render(props, setProps)}
+            {config && config.render ? (
+              (() => {
+                try {
+                  const rendered = config.render(props, setProps)
+                  if (!rendered) {
+                    console.warn(`Render function returned null for ${componentName}`)
+                    return (
+                      <div className="text-center text-muted-foreground">
+                        Component returned null
+                      </div>
+                    )
+                  }
+                  return rendered
+                } catch (error) {
+                  console.error(`Error in render function for ${componentName}:`, error)
+                  return (
+                    <div className="text-center text-muted-foreground p-4">
+                      <div>Error rendering component</div>
+                      <div className="text-xs mt-2">{String(error)}</div>
+                    </div>
+                  )
+                }
+              })()
+            ) : (
+              <div className="text-center text-muted-foreground">
+                {!config ? (
+                  <div>
+                    <div>Config not found for: {componentName}</div>
+                    <div className="text-xs mt-2">Slug: {slug}</div>
+                    <div className="text-xs mt-1">Available card configs: {Object.keys(componentConfigs).filter(k => k.includes('Card')).slice(0, 5).join(', ')}</div>
+                  </div>
+                ) : (
+                  <div>Render function not available</div>
+                )}
+              </div>
+            )}
           </Card>
           <Button
             variant="outline"

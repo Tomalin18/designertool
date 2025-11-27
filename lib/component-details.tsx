@@ -5,6 +5,7 @@ import { ctaSections } from "./cta-sections"
 import { footerSections } from "./footer-sections"
 import { headerSections } from "./header-sections"
 import { buttonSections } from "./button-sections"
+import { cardSections } from "./card-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2381,5 +2382,45 @@ export function ${button.componentName}Demo() {
           : String(prop.default),
       description: prop.description,
     })),
+  }
+})
+
+cardSections.forEach((card) => {
+  componentDetails[card.slug] = {
+    name: card.name,
+    description: card.description,
+    category: "Display",
+    hasPlayground: true,
+    installation: "Copy the card component from the code example below.",
+    usage: `import { ${card.componentName} } from "@/components/customize/cards"
+
+export function ${card.componentName}Demo() {
+  return <${card.componentName} />
+}`,
+    tags: card.tags,
+    props: Object.entries(card.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.options ? prop.options.join(" | ") : (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : prop.control === "number" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+    examples: [
+      {
+        title: "Basic Usage",
+        description: `A simple ${card.name.toLowerCase()} component with default settings.`,
+        code: `import { ${card.componentName} } from "@/components/customize/cards"
+
+export function ${card.componentName}Demo() {
+  return (
+    <div className="max-w-sm">
+      <${card.componentName} />
+    </div>
+  )
+}`,
+      },
+    ],
   }
 })

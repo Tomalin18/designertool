@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, GripVertical } from "lucide-react"
 import { buttonSections } from "@/lib/button-sections"
+import { cardSections } from "@/lib/card-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -208,6 +209,352 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
   )
 }
 
+// Features Editor for PricingCard
+const FeaturesEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const items = value ? value.split("\n").filter((item) => item.trim() !== "") : []
+  
+  const updateItems = (newItems: string[]) => {
+    onChange(newItems.join("\n"))
+  }
+
+  const addItem = () => {
+    updateItems([...items, ""])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, val: string) => {
+    const newItems = [...items]
+    newItems[index] = val
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="flex gap-2">
+          <Input
+            value={item}
+            onChange={(e) => updateItem(index, e.target.value)}
+            placeholder="Feature name"
+            className="flex-1"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => removeItem(index)}
+            className="h-10 w-10 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Feature
+      </Button>
+    </div>
+  )
+}
+
+// Skills Editor for SkillCard (similar to FeaturesEditor)
+const SkillsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const items = value ? value.split("\n").filter((item) => item.trim() !== "") : []
+  
+  const updateItems = (newItems: string[]) => {
+    onChange(newItems.join("\n"))
+  }
+
+  const addItem = () => {
+    updateItems([...items, ""])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, val: string) => {
+    const newItems = [...items]
+    newItems[index] = val
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="flex gap-2">
+          <Input
+            value={item}
+            onChange={(e) => updateItem(index, e.target.value)}
+            placeholder="Skill name"
+            className="flex-1"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => removeItem(index)}
+            className="h-10 w-10 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Skill
+      </Button>
+    </div>
+  )
+}
+
+// Comparison Rows Editor for ComparisonCard
+const ComparisonRowsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const parseRows = (val: string): Array<{ label: string; left: string; right: string }> => {
+    if (!val) return []
+    return val.split("\n").map((row) => {
+      const parts = row.split(":")
+      return {
+        label: parts[0]?.trim() || "",
+        left: parts[1]?.trim() || "",
+        right: parts[2]?.trim() || "",
+      }
+    }).filter((r) => r.label || r.left || r.right)
+  }
+
+  const items = parseRows(value)
+
+  const updateItems = (newItems: Array<{ label: string; left: string; right: string }>) => {
+    const formatted = newItems.map((item) => `${item.label}:${item.left}:${item.right}`).join("\n")
+    onChange(formatted)
+  }
+
+  const addItem = () => {
+    updateItems([...items, { label: "", left: "", right: "" }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: "label" | "left" | "right", val: string) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: val }
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="space-y-2 p-3 border rounded-md bg-muted/30">
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              value={item.label}
+              onChange={(e) => updateItem(index, "label", e.target.value)}
+              placeholder="Label"
+              className="text-xs"
+            />
+            <Input
+              value={item.left}
+              onChange={(e) => updateItem(index, "left", e.target.value)}
+              placeholder="Left value"
+              className="text-xs"
+            />
+            <div className="flex gap-2">
+              <Input
+                value={item.right}
+                onChange={(e) => updateItem(index, "right", e.target.value)}
+                placeholder="Right value"
+                className="text-xs flex-1"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeItem(index)}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 size={12} />
+              </Button>
+            </div>
+          </div>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Row
+      </Button>
+    </div>
+  )
+}
+
+// Roadmap Items Editor for RoadmapCard
+const RoadmapItemsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const parseItems = (val: string): Array<{ title: string; status: string; color: string }> => {
+    if (!val) return []
+    return val.split("\n").map((item) => {
+      const parts = item.split(":")
+      return {
+        title: parts[0]?.trim() || "",
+        status: parts[1]?.trim() || "",
+        color: parts[2]?.trim() || "green",
+      }
+    }).filter((i) => i.title || i.status)
+  }
+
+  const items = parseItems(value)
+
+  const updateItems = (newItems: Array<{ title: string; status: string; color: string }>) => {
+    const formatted = newItems.map((item) => `${item.title}:${item.status}:${item.color}`).join("\n")
+    onChange(formatted)
+  }
+
+  const addItem = () => {
+    updateItems([...items, { title: "", status: "", color: "green" }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: "title" | "status" | "color", val: string) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: val }
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="space-y-2 p-3 border rounded-md bg-muted/30">
+          <Input
+            value={item.title}
+            onChange={(e) => updateItem(index, "title", e.target.value)}
+            placeholder="Title"
+            className="text-xs"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Select
+              value={item.status}
+              onValueChange={(val) => updateItem(index, "status", val)}
+            >
+              <SelectTrigger className="text-xs h-8">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Select
+                value={item.color}
+                onValueChange={(val) => updateItem(index, "color", val)}
+              >
+                <SelectTrigger className="text-xs h-8 flex-1">
+                  <SelectValue placeholder="Color" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="green">Green</SelectItem>
+                  <SelectItem value="yellow">Yellow</SelectItem>
+                  <SelectItem value="red">Red</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => removeItem(index)}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 size={12} />
+              </Button>
+            </div>
+          </div>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Item
+      </Button>
+    </div>
+  )
+}
+
+// Hourly Forecast Editor for WeatherCard
+const HourlyForecastEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const parseForecast = (val: string): Array<{ time: string; temp: number }> => {
+    if (!val) return []
+    return val.split("\n").map((forecast) => {
+      const parts = forecast.split(":")
+      return {
+        time: parts[0]?.trim() || "",
+        temp: parseInt(parts[1]?.trim() || "0") || 0,
+      }
+    }).filter((f) => f.time)
+  }
+
+  const items = parseForecast(value)
+
+  const updateItems = (newItems: Array<{ time: string; temp: number }>) => {
+    const formatted = newItems.map((item) => `${item.time}:${item.temp}`).join("\n")
+    onChange(formatted)
+  }
+
+  const addItem = () => {
+    updateItems([...items, { time: "", temp: 0 }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: "time" | "temp", val: string | number) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: field === "temp" ? (typeof val === "number" ? val : parseInt(String(val)) || 0) : val }
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div key={index} className="flex gap-2">
+          <Input
+            value={item.time}
+            onChange={(e) => updateItem(index, "time", e.target.value)}
+            placeholder="Time (e.g., 12:00)"
+            className="flex-1"
+          />
+          <Input
+            type="number"
+            value={item.temp}
+            onChange={(e) => updateItem(index, "temp", parseInt(e.target.value) || 0)}
+            placeholder="Temperature"
+            className="w-24"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => removeItem(index)}
+            className="h-10 w-10 text-muted-foreground hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Forecast
+      </Button>
+    </div>
+  )
+}
+
 export function CustomizePanel({
   componentName,
   props,
@@ -226,6 +573,87 @@ export function CustomizePanel({
             value={props[key] || "[]"} 
             onChange={(val) => updateProp(key, val)} 
           />
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    // Special editors for card components
+    if (key === "features" && componentName === "PricingCard") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <FeaturesEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    if (key === "skills" && componentName === "SkillCard") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <SkillsEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    if (key === "rows" && componentName === "ComparisonCard") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <ComparisonRowsEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    if (key === "items" && componentName === "RoadmapCard") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <RoadmapItemsEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    if (key === "hourlyForecast" && componentName === "WeatherCard") {
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <HourlyForecastEditor 
+            value={props[key] || ""} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
           {!isLast && <Separator className="!mt-4" />}
         </div>
       )
@@ -469,6 +897,9 @@ export function CustomizePanel({
           />
         )}
 
+        {propConfig.description && (
+          <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+        )}
         {!isLast && <Separator className="!mt-4" />}
       </div>
     )
@@ -584,6 +1015,164 @@ export function CustomizePanel({
     const buttonSection = buttonSections.find((button: { componentName: string }) => button.componentName === componentName)
     if (buttonSection && buttonSection.groupingConfig) {
       return buttonSection.groupingConfig
+    }
+
+    // For Card components, use detailed grouping
+    const cardSection = cardSections.find((card: { componentName: string }) => card.componentName === componentName)
+    if (cardSection) {
+      // Define style-related keys
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'linkColor', 'accentColor', 
+        'buttonColor', 'overlayColor', 'glowColor1', 'glowColor2', 'revealColor', 
+        'statusColor', 'categoryColor', 'badgeColor', 'iconColor', 'gradientFrom', 
+        'gradientTo', 'bannerGradientFrom', 'bannerGradientVia', 'bannerGradientTo',
+        'cardGradientFrom', 'cardGradientTo', 'outerGradientFrom', 'outerGradientTo'
+      ]
+      const spacingKeys = ['padding', 'margin', 'gap']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = [
+        'backdropBlur', 'overlayOpacity', 'gradientAnimated', 'gradientWidth',
+        'cardGradientWidth', 'cardGradientAnimated', 'outerGradientWidth', 'outerGradientAnimated',
+        'blur', 'opacity', 'shadow'
+      ]
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Spacing props: explicit spacing keys or keys containing spacing keywords
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        // Border props: explicit border keys or keys containing 'border' or 'radius'
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        // Other style props: explicit other style keys or keys containing style keywords, or slider/number props that are style-related
+        else if (
+          otherStyleKeys.includes(key) || 
+          lowerKey.includes('blur') || 
+          lowerKey.includes('opacity') || 
+          lowerKey.includes('gradient') ||
+          lowerKey.includes('shadow') ||
+          (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width')))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
+        else {
+          contentProps.push(key)
+        }
+      })
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab with subcategories for special cards
+      if (contentProps.length > 0) {
+        const contentSubcategories: Array<{ name: string; label: string; keys: string[] }> = []
+        
+        // Special handling for specific cards
+        if (componentName === "PricingCard") {
+          const featuresKey = contentProps.find(k => k === "features")
+          const otherContent = contentProps.filter(k => k !== "features")
+          if (featuresKey) {
+            contentSubcategories.push({ name: "features", label: "Features", keys: [featuresKey] })
+          }
+          if (otherContent.length > 0) {
+            contentSubcategories.push({ name: "general", label: "General", keys: otherContent })
+          }
+        } else if (componentName === "SkillCard") {
+          const skillsKey = contentProps.find(k => k === "skills")
+          const otherContent = contentProps.filter(k => k !== "skills")
+          if (skillsKey) {
+            contentSubcategories.push({ name: "skills", label: "Skills", keys: [skillsKey] })
+          }
+          if (otherContent.length > 0) {
+            contentSubcategories.push({ name: "general", label: "General", keys: otherContent })
+          }
+        } else if (componentName === "ComparisonCard") {
+          const rowsKey = contentProps.find(k => k === "rows")
+          const otherContent = contentProps.filter(k => k !== "rows")
+          if (rowsKey) {
+            contentSubcategories.push({ name: "rows", label: "Comparison Rows", keys: [rowsKey] })
+          }
+          if (otherContent.length > 0) {
+            contentSubcategories.push({ name: "general", label: "General", keys: otherContent })
+          }
+        } else if (componentName === "RoadmapCard") {
+          const itemsKey = contentProps.find(k => k === "items")
+          const otherContent = contentProps.filter(k => k !== "items")
+          if (itemsKey) {
+            contentSubcategories.push({ name: "items", label: "Roadmap Items", keys: [itemsKey] })
+          }
+          if (otherContent.length > 0) {
+            contentSubcategories.push({ name: "general", label: "General", keys: otherContent })
+          }
+        } else if (componentName === "WeatherCard") {
+          const forecastKey = contentProps.find(k => k === "hourlyForecast")
+          const otherContent = contentProps.filter(k => k !== "hourlyForecast")
+          if (forecastKey) {
+            contentSubcategories.push({ name: "forecast", label: "Hourly Forecast", keys: [forecastKey] })
+          }
+          if (otherContent.length > 0) {
+            contentSubcategories.push({ name: "general", label: "General", keys: otherContent })
+          }
+        }
+
+        if (contentSubcategories.length > 0) {
+          tabs.push({
+            name: "content",
+            label: "Content",
+            keys: [],
+            subcategories: contentSubcategories
+          })
+        } else {
+          tabs.push({ name: "content", label: "Content", keys: contentProps })
+        }
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      }
     }
 
     // For ChatInterface, group props into General and Color tabs

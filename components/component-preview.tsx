@@ -40,6 +40,8 @@ import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName, footerDefaultProps } from "@/components/customize/footers"
 import { buttonSections } from "@/lib/button-sections"
 import { buttonComponentsByName } from "@/components/customize/buttons"
+import { cardSections } from "@/lib/card-sections"
+import { cardComponentsByName } from "@/components/customize/cards"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -76,10 +78,13 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
   const buttonMeta = buttonSections.find((button) => button.name === name)
   const ButtonComponent = buttonMeta ? buttonComponentsByName[buttonMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta
+  const cardMeta = cardSections.find((card) => card.name === name)
+  const CardComponent = cardMeta ? cardComponentsByName[cardMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -144,6 +149,59 @@ export function ComponentPreview({ name, href, tags, className }: ComponentPrevi
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <ButtonComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (cardMeta && CardComponent) {
+      // Get default props for the card, with special handling for array/object props
+      const defaultProps = Object.fromEntries(
+        Object.entries(cardMeta.props).map(([key, prop]) => {
+          const defaultValue = prop.default
+          
+          // Handle array props that are stored as strings (textarea control)
+          if (key === "features" && typeof defaultValue === "string") {
+            return [key, defaultValue.split("\n").filter((f: string) => f.trim())]
+          }
+          
+          if (key === "skills" && typeof defaultValue === "string") {
+            return [key, defaultValue.split("\n").filter((s: string) => s.trim())]
+          }
+          
+          // Handle comparison rows for ComparisonCard
+          if (key === "rows" && typeof defaultValue === "string") {
+            return [key, defaultValue.split("\n").map((row: string) => {
+              const [label, left, right] = row.split(":")
+              return { label: label?.trim() || "", left: left?.trim() || "", right: right?.trim() || "" }
+            }).filter((r: any) => r.label)]
+          }
+          
+          // Handle roadmap items for RoadmapCard
+          if (key === "items" && typeof defaultValue === "string") {
+            return [key, defaultValue.split("\n").map((item: string) => {
+              const [title, status, color] = item.split(":")
+              return { 
+                title: title?.trim() || "", 
+                status: status?.trim() || "", 
+                color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
+              }
+            }).filter((i: any) => i.title)]
+          }
+          
+          // Handle hourly forecast for WeatherCard
+          if (key === "hourlyForecast" && typeof defaultValue === "string") {
+            return [key, defaultValue.split("\n").map((forecast: string) => {
+              const [time, temp] = forecast.split(":")
+              return { time: time?.trim() || "", temp: parseInt(temp?.trim() || "0") }
+            }).filter((f: any) => f.time)]
+          }
+          
+          return [key, defaultValue]
+        })
+      )
+      return (
+        <div className="w-full max-w-sm mx-auto">
+          <CardComponent {...defaultProps} />
         </div>
       )
     }
