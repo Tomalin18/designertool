@@ -23,6 +23,7 @@ import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
 import { dialogSections } from "@/lib/dialog-sections"
 import { toggleSections } from "@/lib/toggle-sections"
+import { tabsSections } from "@/lib/tabs-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -135,6 +136,13 @@ export function ComponentsPageClient() {
             href: `/components/${toggle.slug}`,
             category: "Toggle",
             tags: toggle.tags || [],
+        })),
+        ...tabsSections.map(tab => ({
+            name: tab.name,
+            description: tab.description,
+            href: `/components/${tab.slug}`,
+            category: "Tabs",
+            tags: tab.tags || [],
         }))
     ]
 
@@ -328,6 +336,10 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Toggle")
     }
 
+    const getTabsComponents = () => {
+        return customComponents.filter(c => c.category === "Tabs")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -413,10 +425,16 @@ export function ComponentsPageClient() {
         {
             title: "Tabs",
             href: "/components",
-            items: componentsData.filter(c => c.name === "Tabs").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+                ...getTabsComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Header",

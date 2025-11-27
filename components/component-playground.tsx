@@ -54,6 +54,8 @@ import { dialogSections } from "@/lib/dialog-sections"
 import { dialogComponentsByName } from "@/components/customize/dialogs"
 import { toggleSections } from "@/lib/toggle-sections"
 import { toggleComponentsByName } from "@/components/customize/toggles"
+import { tabsSections } from "@/lib/tabs-sections"
+import { tabsComponentsByName } from "@/components/customize/tabs"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -118,6 +120,11 @@ const dialogNameToMeta = dialogSections.reduce<Record<string, (typeof dialogSect
 
 const toggleNameToMeta = toggleSections.reduce<Record<string, (typeof toggleSections)[number]>>((acc, toggle) => {
   acc[toggle.name] = toggle
+  return acc
+}, {})
+
+const tabsNameToMeta = tabsSections.reduce<Record<string, (typeof tabsSections)[number]>>((acc, tab) => {
+  acc[tab.name] = tab
   return acc
 }, {})
 
@@ -2162,6 +2169,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add tabs sections to configs
+  tabsSections.forEach((tab) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = tabsComponentsByName[tab.componentName]
+    if (!Component) {
+      console.warn(`Tabs component not found: ${tab.componentName}. Available components:`, Object.keys(tabsComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(tab.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[tab.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from tabsComponentsByName (re-fetch to ensure it's available)
+        const Component = tabsComponentsByName[tab.componentName]
+        
+        if (!Component) {
+          console.error(`Tabs component ${tab.componentName} is not available in tabsComponentsByName. Available:`, Object.keys(tabsComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {tab.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from tab.props definition
+        Object.keys(tab.props).forEach((key) => {
+          const propConfig = tab.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in tab.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center p-8">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${tab.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2211,6 +2341,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.log(`Found toggle config by slug: ${slug} -> ${toggleMeta.name}`)
       } else {
         console.warn(`Toggle meta found but config not found: ${toggleMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+
+    const tabsMeta = tabsSections.find(t => t.slug === slug)
+    if (tabsMeta) {
+      config = componentConfigs[tabsMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = tabsMeta.name
+        console.log(`Found tabs config by slug: ${slug} -> ${tabsMeta.name}`)
+      } else {
+        console.warn(`Tabs meta found but config not found: ${tabsMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
   }
@@ -2279,6 +2421,15 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const toggleMetaBySlug = toggleSections.find(t => t.slug === slug)
     if (toggleMetaBySlug) {
       toggleMeta = toggleNameToMeta[toggleMetaBySlug.name]
+    }
+  }
+
+  // For tabs components, find by slug if not found by componentName
+  let tabsMeta = tabsNameToMeta[actualComponentName]
+  if (!tabsMeta) {
+    const tabsMetaBySlug = tabsSections.find(t => t.slug === slug)
+    if (tabsMetaBySlug) {
+      tabsMeta = tabsNameToMeta[tabsMetaBySlug.name]
     }
   }
   const [copied, setCopied] = React.useState(false)
@@ -5461,6 +5612,16 @@ export default function ${dialogMeta.componentName}Example() {
         toggleMeta = toggleNameToMeta[toggleMetaBySlug.name]
       }
     }
+
+    let tabsMeta: (typeof tabsSections)[number] | undefined
+    tabsMeta = tabsNameToMeta[componentName]
+    if (!tabsMeta) {
+      // Try to find by slug
+      const tabsMetaBySlug = tabsSections.find(t => t.slug === slug)
+      if (tabsMetaBySlug) {
+        tabsMeta = tabsNameToMeta[tabsMetaBySlug.name]
+      }
+    }
     if (toggleMeta && initialCode) {
       // Use the initialCode directly (it already contains the full component)
       // The initialCode from the file includes the component definition and interface
@@ -5560,6 +5721,122 @@ export default function ${toggleMeta.componentName}Example() {
   return (
     <div className="flex items-center justify-center p-8 min-h-[200px]">
       <${toggleMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // Tabs section code generation with initialCode (full component)
+    if (tabsMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React, { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  Settings, 
+  User, 
+  MessageSquare, 
+  Bell, 
+  Star, 
+  Zap, 
+  Layout, 
+  Code, 
+  Terminal, 
+  Activity, 
+  Box, 
+  Layers, 
+  Shield, 
+  CreditCard,
+  Music,
+  Video,
+  Image as ImageIcon,
+  FileText,
+  Folder,
+  Search,
+  ShoppingBag,
+  Hash
+} from "lucide-react";
+
+// Helper function to convert hex to rgb
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined;
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+  if (!result) return hex; // Return as-is if not a valid hex
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return \`rgb(\${r} \${g} \${b})\`;
+};
+
+// Common tabs props interface
+export interface TabsProps {
+  className?: string;
+  tabs?: string;
+  defaultActive?: string;
+  activeColor?: string;
+  inactiveColor?: string;
+  backgroundColor?: string;
+}
+
+`
+
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use it as-is
+        return initialCode
+      }
+    }
+
+    // Tabs section code generation (simple import)
+    if (tabsMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings and handle newlines
+          const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${tabsMeta.componentName} } from "@/components/customize/tabs"
+
+export default function ${tabsMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${tabsMeta.componentName}${propsString}/>
     </div>
   )
 }`
