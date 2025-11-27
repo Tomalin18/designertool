@@ -1318,6 +1318,128 @@ const componentConfigs: Record<string, any> = (() => {
           shimmerColor: shimmerColor ? hexToRgb(shimmerColor) : undefined,
           hoverColor: hoverColor ? hexToRgb(hoverColor) : undefined,
           fillColor: fillColor ? hexToRgb(fillColor) : undefined,
+          // Button-specific color props - pass all props that might be used by any button
+          shadowLayerColor: props.shadowLayerColor,
+          mainButtonColor: props.mainButtonColor,
+          pixelBorderColor: props.pixelBorderColor,
+          glitchColor1: props.glitchColor1,
+          glitchColor2: props.glitchColor2,
+          glitchBackgroundColor: props.glitchBackgroundColor,
+          neumorphicBgColor: props.neumorphicBgColor,
+          neumorphicTextColor: props.neumorphicTextColor,
+          neumorphicShadowLight: props.neumorphicShadowLight,
+          neumorphicShadowDark: props.neumorphicShadowDark,
+          gradientFrom: props.gradientFrom,
+          gradientVia: props.gradientVia,
+          gradientTo: props.gradientTo,
+          innerBgColor: props.innerBgColor,
+          swipeRightFillColor: props.swipeRightFillColor,
+          swipeUpFillColor: props.swipeUpFillColor,
+          swipeLeftFillColor: props.swipeLeftFillColor,
+          swipeDownFillColor: props.swipeDownFillColor,
+          scaleUpFillColor: props.scaleUpFillColor,
+          shadowLightColor: props.shadowLightColor,
+          shadowDarkColor: props.shadowDarkColor,
+          pressBorderColor: props.pressBorderColor,
+          pressShadowColor: props.pressShadowColor,
+          rippleColor: props.rippleColor,
+          ghostBorderColor: props.ghostBorderColor,
+          spotlightColor: props.spotlightColor,
+          glassBorderColor: props.glassBorderColor,
+          glassBgColor: props.glassBgColor,
+          elasticBgColor: props.elasticBgColor,
+          idleBgColor: props.idleBgColor,
+          loadingBgColor: props.loadingBgColor,
+          successBgColor: props.successBgColor,
+          copyBorderColor: props.copyBorderColor,
+          copyBgColor: props.copyBgColor,
+          copiedBorderColor: props.copiedBorderColor,
+          copiedBgColor: props.copiedBgColor,
+          progressBgColor: props.progressBgColor,
+          socialBgColor: props.socialBgColor,
+          drawBorderColor: props.drawBorderColor,
+          dottedBorderColor: props.dottedBorderColor,
+          gradientRingFrom: props.gradientRingFrom,
+          gradientRingVia: props.gradientRingVia,
+          gradientRingTo: props.gradientRingTo,
+          cyberBorderColor: props.cyberBorderColor,
+          cyberBgColor: props.cyberBgColor,
+          cyberAccentColor: props.cyberAccentColor,
+          retroBgColor: props.retroBgColor,
+          retroBorderLightColor: props.retroBorderLightColor,
+          retroBorderDarkColor: props.retroBorderDarkColor,
+          skeuoGradientFrom: props.skeuoGradientFrom,
+          skeuoGradientTo: props.skeuoGradientTo,
+          skeuoBorderColor: props.skeuoBorderColor,
+          errorBgColor: props.errorBgColor,
+          confettiGradientFrom: props.confettiGradientFrom,
+          confettiGradientTo: props.confettiGradientTo,
+          holdProgressColor: props.holdProgressColor,
+          deleteIdleBgColor: props.deleteIdleBgColor,
+          deleteConfirmBgColor: props.deleteConfirmBgColor,
+          likeBorderColor: props.likeBorderColor,
+          likeBgColor: props.likeBgColor,
+          likedBorderColor: props.likedBorderColor,
+          likedBgColor: props.likedBgColor,
+          likedTextColor: props.likedTextColor,
+          skewBorderColor: props.skewBorderColor,
+          blobBgColor: props.blobBgColor,
+          underlineColor: props.underlineColor,
+          bracketColor: props.bracketColor,
+          curtainBgColor: props.curtainBgColor,
+          curtainRevealBgColor: props.curtainRevealBgColor,
+          curtainRevealTextColor: props.curtainRevealTextColor,
+          sliceBgColor: props.sliceBgColor,
+          wetPaintBgColor: props.wetPaintBgColor,
+          particleColor: props.particleColor,
+          isometricBgColor: props.isometricBgColor,
+          isometricBorderColor: props.isometricBorderColor,
+          isometricShadowColor: props.isometricShadowColor,
+          paperFoldBgColor: props.paperFoldBgColor,
+          paperFoldAccentColor: props.paperFoldAccentColor,
+          textFillBorderColor: props.textFillBorderColor,
+          textFillBgColor: props.textFillBgColor,
+          iconSlideBgColor: props.iconSlideBgColor,
+          multiLayerColor1: props.multiLayerColor1,
+          multiLayerColor2: props.multiLayerColor2,
+          multiLayerBgColor: props.multiLayerBgColor,
+          multiLayerBorderColor: props.multiLayerBorderColor,
+          uploadBgColor: props.uploadBgColor,
+          toggleOnColor: props.toggleOnColor,
+          toggleOffColor: props.toggleOffColor,
+          doubleBorderColor: props.doubleBorderColor,
+          spinningBorderGradientFrom: props.spinningBorderGradientFrom,
+          spinningBorderGradientVia: props.spinningBorderGradientVia,
+          spinningBorderGradientTo: props.spinningBorderGradientTo,
+          letterSpacingBorderColor: props.letterSpacingBorderColor,
+          blurRevealColor: props.blurRevealColor,
+          vaporwaveGradientFrom: props.vaporwaveGradientFrom,
+          vaporwaveGradientTo: props.vaporwaveGradientTo,
+          vaporwaveShadowColor: props.vaporwaveShadowColor,
+          saveBgColor: props.saveBgColor,
+          printBorderColor: props.printBorderColor,
+          printBgColor: props.printBgColor,
+          notificationBgColor: props.notificationBgColor,
+          notificationBadgeColor: props.notificationBadgeColor,
+          circleToSquareBgColor: props.circleToSquareBgColor,
+          morphFabBgColor: props.morphFabBgColor,
+          morphFabHoverBgColor: props.morphFabHoverBgColor,
+          shinyReflectionBgColor: props.shinyReflectionBgColor,
+          shinyReflectionBorderColor: props.shinyReflectionBorderColor,
+          dotHoverColor: props.dotHoverColor,
+          marqueeBorderColor: props.marqueeBorderColor,
+          scrambleTextColor: props.scrambleTextColor,
+          scrambleBorderColor: props.scrambleBorderColor,
+          typewriterBgColor: props.typewriterBgColor,
+          typewriterBorderColor: props.typewriterBorderColor,
+          typewriterCursorColor: props.typewriterCursorColor,
+          liquidBlobBgColor: props.liquidBlobBgColor,
+          cyberPunkBorderColor: props.cyberPunkBorderColor,
+          cyberPunkBgColor: props.cyberPunkBgColor,
+          cyberPunkTextColor: props.cyberPunkTextColor,
+          cyberPunkAccentColor: props.cyberPunkAccentColor,
+          roundedCornerMorphBgColor: props.roundedCornerMorphBgColor,
+          roundedCornerMorphHoverBgColor: props.roundedCornerMorphHoverBgColor,
           ...restProps,
         }
 
@@ -2044,13 +2166,6 @@ export const MediaPlayer = ({
       </div>
     </div>
   )
-}
-
-// Usage example:
-export function MediaPlayerDemo() {
-  return (
-    <MediaPlayer${propsString} />
-  )
 }`
     }
 
@@ -2695,18 +2810,6 @@ export const UrlInput: React.FC<UrlInputProps> = ({
       </div>
     </form>
   )
-}
-
-// Usage example:
-export function UrlInputDemo() {
-  const handleGenerate = (url: string) => {
-    console.log('Generated URL:', url)
-    // Your logic here
-  }
-
-  return (
-    <UrlInput${propsString} onGenerate={handleGenerate} />
-  )
 }`
     }
 
@@ -3183,13 +3286,6 @@ export const GlassAuthForm: React.FC<GlassAuthFormProps> = ({
       </div>
     </div>
   )
-}
-
-// Usage example:
-export function GlassAuthFormDemo() {
-  return (
-    <GlassAuthForm${propsString}/>
-  )
 }`
     }
 
@@ -3583,13 +3679,6 @@ export const SocialProfileCard = ({
       </div>
     </div>
   )
-}
-
-// Usage example:
-export function SocialProfileCardDemo() {
-  return (
-    <SocialProfileCard${propsString}/>
-  )
 }`
     }
 
@@ -3660,17 +3749,13 @@ const iconMap = {
 }
 `
 
-      return `${imports}\n${helpers}\n${code}\n\n// Usage example:\nexport function ${heroMeta.componentName}Demo() {\n  return (\n    <${heroMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${helpers}\n${code}`
     }
 
     if (heroMeta) {
       return `import { ${heroMeta.componentName} } from "@/components/customize/heroes"
 
-export function ${heroMeta.componentName}Demo() {
-  return (
-    <${heroMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${heroMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // Feature section code generation with initialCode (full component)
@@ -3706,18 +3791,14 @@ import {
 import { ShinyButton } from "@/components/customize/ShinyButton"
 `
 
-      return `${imports}\n${code}\n\n// Usage example:\nexport function ${featureMeta.componentName}Demo() {\n  return (\n    <${featureMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${code}`
     }
 
     // Feature section code generation (simple import)
     if (featureMeta) {
       return `import { ${featureMeta.componentName} } from "@/components/customize/features"
 
-export function ${featureMeta.componentName}Demo() {
-  return (
-    <${featureMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${featureMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // Payment section code generation with initialCode (full component)
@@ -3754,18 +3835,14 @@ import {
 import { ShinyButton } from "@/components/customize/ShinyButton"
 `
 
-      return `${imports}\n${code}\n\n// Usage example:\nexport function ${paymentMeta.componentName}Demo() {\n  return (\n    <${paymentMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${code}`
     }
 
     // Payment section code generation (simple import)
     if (paymentMeta) {
       return `import { ${paymentMeta.componentName} } from "@/components/customize/payments"
 
-export function ${paymentMeta.componentName}Demo() {
-  return (
-    <${paymentMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${paymentMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // CTA section code generation with initialCode (full component)
@@ -3801,18 +3878,14 @@ import {
 import { ShinyButton } from "@/components/customize/ShinyButton"
 `
 
-      return `${imports}\n${code}\n\n// Usage example:\nexport function ${ctaMeta.componentName}Demo() {\n  return (\n    <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${code}`
     }
 
     // CTA section code generation (simple import)
     if (ctaMeta) {
       return `import { ${ctaMeta.componentName} } from "@/components/customize/ctas"
 
-export function ${ctaMeta.componentName}Demo() {
-  return (
-    <${ctaMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${ctaMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // Footer section code generation with initialCode (full component)
@@ -3849,18 +3922,14 @@ import {
 import { ShinyButton } from "@/components/customize/ShinyButton"
 `
 
-      return `${imports}\n${code}\n\n// Usage example:\nexport function ${footerMeta.componentName}Demo() {\n  return (\n    <${footerMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${code}`
     }
 
     // Footer section code generation (simple import)
     if (footerMeta) {
       return `import { ${footerMeta.componentName} } from "@/components/customize/footers"
 
-export function ${footerMeta.componentName}Demo() {
-  return (
-    <${footerMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${footerMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // Header section code generation with initialCode (full component)
@@ -3897,18 +3966,14 @@ import {
 } from "lucide-react"
 `
 
-      return `${imports}\n${code}\n\n// Usage example:\nexport function ${headerMeta.componentName}Demo() {\n  return (\n    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />\n  )\n}`
+      return `${imports}\n${code}`
     }
 
     // Header section code generation (simple import)
     if (headerMeta) {
       return `import { ${headerMeta.componentName} } from "@/components/customize/headers"
 
-export function ${headerMeta.componentName}Demo() {
-  return (
-    <${headerMeta.componentName}${propsString ? " " + propsString : ""} />
-  )
-}`
+<${headerMeta.componentName}${propsString ? " " + propsString : ""} />`
     }
 
     // Button section code generation with initialCode (full component)
@@ -3945,7 +4010,7 @@ export function ${headerMeta.componentName}Demo() {
       const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
 
       // Use the initialCode directly (it already contains the full component)
-      return `${initialCode}\n\n// Usage example:\nexport function ${buttonMeta.componentName}Demo() {\n  return (\n    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>\n  )\n}`
+      return initialCode
     }
 
     // Button section code generation (simple import)
@@ -3983,11 +4048,7 @@ export function ${headerMeta.componentName}Demo() {
 
       return `import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
 
-export function ${buttonMeta.componentName}Demo() {
-  return (
-    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>
-  )
-}`
+<${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>`
     }
 
     if (children) {
