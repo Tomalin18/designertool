@@ -239,6 +239,100 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Style props are subcategorized (Colors, Spacing, Border, Other)
 - [ ] Special props (arrays, objects) have dedicated editors if needed
 
+#### ✅ Special Editors for Tabs Components
+- [ ] Tabs prop uses `TabsEditor` instead of textarea
+- [ ] TabsEditor provides list-based editing interface
+- [ ] Supports adding, removing, and editing individual tabs
+- [ ] Handles newline-separated string format correctly
+
+**TabsEditor Implementation:**
+```typescript
+// In component-playground-customize-panel.tsx
+if (key === "tabs" && propConfig.type === "textarea") {
+  return (
+    <div key={key} className="space-y-2">
+      <Label className="capitalize">{label}</Label>
+      <TabsEditor 
+        value={props[key] || ""} 
+        onChange={(val) => updateProp(key, val)} 
+      />
+      {propConfig.description && (
+        <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+      )}
+      {!isLast && <Separator className="!mt-4" />}
+    </div>
+  )
+}
+```
+
+**Props Filtering for Tabs:**
+```typescript
+// In getGroupingConfig function
+const tabsSection = tabsSections.find((tab: { componentName: string; name: string }) =>
+  tab.componentName === componentName || tab.name === componentName
+)
+if (tabsSection) {
+  const contentProps: string[] = []
+  const colorProps: string[] = []
+
+  Object.entries(config.props).forEach(([key, propConfig]) => {
+    // Only include props that are actually defined in tabsSection.props
+    if (!tabsSection.props[key]) {
+      return // Skip props not in metadata
+    }
+    
+    const lowerKey = key.toLowerCase()
+    const propType = propConfig.type
+    
+    // Check for color props
+    if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+      colorProps.push(key)
+    } 
+    // Content props: everything else
+    else {
+      contentProps.push(key)
+    }
+  })
+  
+  // Build style subcategories
+  const styleSubcategories = []
+  if (colorProps.length > 0) {
+    styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+  }
+
+  const tabs = []
+  
+  // Content tab
+  if (contentProps.length > 0) {
+    tabs.push({ name: "content", label: "Content", keys: contentProps })
+  }
+
+  // Style tab with subcategories
+  if (styleSubcategories.length > 0) {
+    tabs.push({
+      name: "style",
+      label: "Style",
+      keys: [],
+      subcategories: styleSubcategories
+    })
+  }
+
+  if (tabs.length > 0) {
+    return {
+      type: "tabs",
+      tabs
+    }
+  }
+}
+```
+
+**TabsEditor Component Details:**
+- Converts newline-separated string to list of editable inputs
+- Provides add/remove functionality for tabs
+- Supports keyboard shortcuts (Enter to add, Backspace to remove)
+- Always maintains at least one empty input for adding new tabs
+- Automatically cleans empty tabs when saving (except the last one for input)
+
 ### 5. Code Generation (`components/component-playground.tsx`)
 
 #### ✅ Complete Code Generation Mechanism
@@ -284,7 +378,7 @@ export interface ComponentProps {
 
 **Example for components with initialCode support:**
 ```typescript
-// Toggle, Input, Badge, Card, Dialog, Button components
+// Toggle, Input, Badge, Card, Dialog, Button, Tabs components
 if (componentMeta && initialCode) {
   // Check if initialCode already has imports
   if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
@@ -432,6 +526,13 @@ export const MediaPlayer = ({ ... }) => {
 - Remove props from metadata if not used
 - Filter props in CustomizePanel based on `componentSection.props`
 - Don't use `...commonProps` if component doesn't need all common props
+- For Tabs components, ensure `getGroupingConfig` checks `tabsSection.props[key]` before including props
+
+#### Issue: Tabs prop shows as textarea instead of list editor
+**Solution:**
+- Verify `TabsEditor` component is implemented in `component-playground-customize-panel.tsx`
+- Check that the condition `key === "tabs" && propConfig.type === "textarea"` is correctly implemented
+- Ensure `TabsEditor` handles newline-separated string format correctly
 
 #### Issue: Border color doesn't work
 **Solution:**
@@ -504,10 +605,19 @@ When adding a new component, test the following:
 - Ensure responsive props are applied
 - Verify navigation/config props are parsed correctly
 
+#### Tabs Components
+- Use `commonTabsProps` only if component needs all common props
+- Remove `inactiveColor` or `backgroundColor` from props if component doesn't use them
+- Ensure tabs list prop uses `TabsEditor` instead of textarea (in CustomizePanel)
+- Verify tabs parsing handles newline-separated strings correctly
+- Check active tab state management works correctly
+- Ensure color props are properly converted from hex to rgb
+- Verify props filtering in CustomizePanel (only show props defined in metadata)
+
 ### 10. Components Page and Sidebar Integration
 
 #### ✅ Components Data Registration (`lib/components-data.ts`)
-- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Import component sections (e.g., `toggleSections`, `tabsSections`)
 - [ ] Create component entries array:
   ```typescript
   const toggleComponentEntries: ComponentInfo[] = toggleSections.map((toggle) => ({
@@ -517,6 +627,14 @@ When adding a new component, test the following:
     category: "Toggle",
     tags: toggle.tags,
   }))
+  
+  const tabsComponentEntries: ComponentInfo[] = tabsSections.map((tab) => ({
+    name: tab.name,
+    description: tab.description,
+    href: `/components/${tab.slug}`,
+    category: "Tabs",
+    tags: tab.tags,
+  }))
   ```
 - [ ] Add entries to `componentsData` array:
   ```typescript
@@ -524,6 +642,7 @@ When adding a new component, test the following:
     ...baseComponents,
     ...heroComponentEntries,
     ...toggleComponentEntries, // Add your component entries
+    ...tabsComponentEntries, // Add your component entries
     // ... other entries
   ]
   ```
@@ -534,12 +653,13 @@ When adding a new component, test the following:
     "Display",
     "Forms",
     "Toggle", // Add your category
+    "Tabs", // Add your category
     // ... other categories
   ] as const
   ```
 
 #### ✅ Components Page Sidebar (`app/components/components-page-client.tsx`)
-- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Import component sections (e.g., `toggleSections`, `tabsSections`)
 - [ ] Add component sections to `customComponents` array:
   ```typescript
   const customComponents: ComponentInfo[] = [
@@ -550,6 +670,13 @@ When adding a new component, test the following:
       href: `/components/${toggle.slug}`,
       category: "Toggle",
       tags: toggle.tags || [],
+    })),
+    ...tabsSections.map(tab => ({
+      name: tab.name,
+      description: tab.description,
+      href: `/components/${tab.slug}`,
+      category: "Tabs",
+      tags: tab.tags || [],
     }))
   ]
   ```
@@ -557,6 +684,10 @@ When adding a new component, test the following:
   ```typescript
   const getToggleComponents = () => {
     return customComponents.filter(c => c.category === "Toggle")
+  }
+  
+  const getTabsComponents = () => {
+    return customComponents.filter(c => c.category === "Tabs")
   }
   ```
 - [ ] Add sidebar section in `sidebarItems`:
@@ -571,6 +702,20 @@ When adding a new component, test the following:
         href: component.href,
       })),
     },
+    {
+      title: "Tabs",
+      href: "/components",
+      items: [
+        ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+        ...getTabsComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
+    },
   ]
   ```
 - [ ] Add category to `customCategories` if needed:
@@ -580,18 +725,20 @@ When adding a new component, test the following:
     "Special",
     "Button",
     "Toggle", // Add your category
+    "Tabs", // Add your category
     // ... other categories
   ]
   ```
 
 #### ✅ Component Detail Page (`app/components/[slug]/page.tsx`)
-- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Import component sections (e.g., `toggleSections`, `tabsSections`)
 - [ ] Add to `generateStaticParams`:
   ```typescript
   export function generateStaticParams() {
     const componentSlugs = Object.keys(componentDetails)
     const toggleSlugs = toggleSections.map(toggle => toggle.slug)
-    return [...componentSlugs, ...toggleSlugs].map((slug) => ({
+    const tabsSlugs = tabsSections.map(tab => tab.slug)
+    return [...componentSlugs, ...toggleSlugs, ...tabsSlugs].map((slug) => ({
       slug,
     }))
   }
@@ -599,6 +746,7 @@ When adding a new component, test the following:
 - [ ] Find component meta:
   ```typescript
   const toggleMeta = toggleSections.find(t => t.slug === slug)
+  const tabsMeta = tabsSections.find(t => t.slug === slug)
   ```
 - [ ] Create component detail if not in `componentDetails`:
   ```typescript
@@ -612,6 +760,24 @@ When adding a new component, test the following:
       usage: `<${toggleMeta.componentName} />`,
       tags: toggleMeta.tags,
       props: Object.entries(toggleMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+  
+  if (tabsMeta && !component) {
+    component = {
+      name: tabsMeta.name,
+      description: tabsMeta.description,
+      category: "Tabs",
+      hasPlayground: true,
+      installation: `import { ${tabsMeta.componentName} } from "@/components/customize/tabs"`,
+      usage: `<${tabsMeta.componentName} />`,
+      tags: tabsMeta.tags,
+      props: Object.entries(tabsMeta.props).map(([key, prop]) => ({
         name: key,
         type: prop.control,
         default: String(prop.default || ""),
@@ -647,6 +813,32 @@ When adding a new component, test the following:
       console.error("Error reading toggle component code:", e)
     }
   }
+  
+  if (tabsMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'tabs', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+      
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${tabsMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+      
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+        
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading tabs component code:", e)
+    }
+  }
   ```
   **Note:** This `initialCode` will be passed to `ComponentPlayground` and used to display the complete component implementation code.
 - [ ] Pass `initialCode` to `ComponentPlayground`:
@@ -662,17 +854,60 @@ When adding a new component, test the following:
   <ComponentNavigation
     currentSlug={slug}
     toggleMeta={toggleMeta}
+    tabsMeta={tabsMeta}
     // ... other metas
   />
   ```
+- [ ] Add tabs to sidebar items and customComponents:
+  ```typescript
+  const customComponents: ComponentInfo[] = [
+    // ... other components
+    ...tabsSections.map(tab => ({
+      name: tab.name,
+      description: tab.description,
+      href: `/components/${tab.slug}`,
+      category: "Tabs",
+      tags: tab.tags || [],
+    }))
+  ]
+  
+  const getTabsComponents = () => {
+    return customComponents.filter(c => c.category === "Tabs")
+  }
+  
+  const sidebarItems = [
+    // ... other sections
+    {
+      title: "Tabs",
+      href: "/components",
+      items: [
+        ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+        ...getTabsComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
+    },
+  ]
+  
+  // Add to getDefaultExpanded
+  const categoryToSection: Record<string, string> = {
+    "Tabs": "Tabs",
+    // ... other categories
+  }
+  ```
 
 #### ✅ Component Navigation (`components/component-navigation.tsx`)
-- [ ] Import component sections (e.g., `toggleSections`)
+- [ ] Import component sections (e.g., `toggleSections`, `tabsSections`)
 - [ ] Add to interface:
   ```typescript
   interface ComponentNavigationProps {
     // ... other props
     toggleMeta?: typeof toggleSections[number]
+    tabsMeta?: typeof tabsSections[number]
   }
   ```
 - [ ] Add to function parameters:
@@ -680,17 +915,21 @@ When adding a new component, test the following:
   export function ComponentNavigation({
     // ... other params
     toggleMeta,
+    tabsMeta,
   }: ComponentNavigationProps) {
   ```
 - [ ] Add to section array type:
   ```typescript
-  let sectionArray: typeof heroSections | ... | typeof toggleSections
+  let sectionArray: typeof heroSections | ... | typeof toggleSections | typeof tabsSections
   ```
 - [ ] Add lookup logic:
   ```typescript
   if (toggleMeta) {
     currentSection = toggleMeta
     sectionArray = toggleSections
+  } else if (tabsMeta) {
+    currentSection = tabsMeta
+    sectionArray = tabsSections
   }
   ```
 
@@ -704,6 +943,7 @@ When adding a new component, test the following:
     items: [
       // ... other items
       { id: "toggle", name: "Toggle", type: "component" },
+      { id: "tabs", name: "Tabs", type: "component" },
     ],
   }
   ```
@@ -722,7 +962,7 @@ When adding a new component, test the following:
 #### ✅ Components with `initialCode` Support
 These components read their source code from files and display complete implementation:
 - **Section components:** Hero, Feature, Payment, CTA, Footer, Header
-- **Custom components:** Button, Input, Badge, Card, Dialog, Toggle
+- **Custom components:** Button, Input, Badge, Card, Dialog, Toggle, Tabs
 
 **Implementation pattern:**
 ```typescript
@@ -850,12 +1090,14 @@ export const MediaPlayer = ({
 | Control Type | Use Case | Example |
 |-------------|----------|---------|
 | `text` | Single-line text input | `title`, `description` |
-| `textarea` | Multi-line text input | `features` (newline-separated) |
+| `textarea` | Multi-line text input | `features` (newline-separated), `tabs` (uses TabsEditor) |
 | `number` | Numeric input | `count`, `rating` |
 | `boolean` | Toggle switch | `showButton`, `isActive` |
 | `select` | Dropdown with options | `variant`, `status` |
 | `slider` | Range slider | `borderRadius`, `padding` |
 | `color` | Color picker (hex) | `backgroundColor`, `textColor` |
+
+**Note:** For Tabs components, the `tabs` prop uses `control: "textarea"` but is rendered with `TabsEditor` (a list-based editor) instead of a regular textarea. This provides a better user experience for managing tab lists.
 
 ## Quick Reference: Color Handling Pattern
 
