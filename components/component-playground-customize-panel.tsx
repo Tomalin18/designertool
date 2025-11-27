@@ -14,6 +14,7 @@ import { ColorPicker } from "@/components/ui/color-picker"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, Trash2, GripVertical } from "lucide-react"
+import { buttonSections } from "@/lib/button-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -315,7 +316,7 @@ export function CustomizePanel({
           <div className="space-y-2">
             <Slider
               value={[props[key] !== undefined ? props[key] : propConfig.default]}
-              onValueChange={([value]) => updateProp(key, value)}
+              onValueChange={([value]: number[]) => updateProp(key, value)}
               min={propConfig.min}
               max={propConfig.max}
               step={1}
@@ -332,7 +333,24 @@ export function CustomizePanel({
             onChange={(value) => updateProp(key, value)}
             placeholder={propConfig.default || "#000000"}
             outputFormat="hex"
-            defaultColor={propConfig.default || "#000000"}
+            defaultColor={(() => {
+              // If value exists and is hex, use it
+              if (props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key])) {
+                return props[key]
+              }
+              // If value is rgb format, convert to hex
+              if (props[key] && props[key].includes('rgb')) {
+                const rgbMatch = props[key].match(/\d+/g)
+                if (rgbMatch && rgbMatch.length >= 3) {
+                  const r = parseInt(rgbMatch[0]).toString(16).padStart(2, '0')
+                  const g = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
+                  const b = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
+                  return `#${r}${g}${b}`
+                }
+              }
+              // Fallback to default or black
+              return propConfig.default || "#000000"
+            })()}
           />
         )}
 
@@ -560,6 +578,12 @@ export function CustomizePanel({
           { name: "color", label: "Color", keys: colorProps },
         ],
       }
+    }
+
+    // For Button components, use the grouping config from buttonSections if available
+    const buttonSection = buttonSections.find((button: { componentName: string }) => button.componentName === componentName)
+    if (buttonSection && buttonSection.groupingConfig) {
+      return buttonSection.groupingConfig
     }
 
     // For ChatInterface, group props into General and Color tabs

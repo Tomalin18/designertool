@@ -4,6 +4,7 @@ import { paymentSections } from "./payment-sections"
 import { ctaSections } from "./cta-sections"
 import { footerSections } from "./footer-sections"
 import { headerSections } from "./header-sections"
+import { buttonSections } from "./button-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2349,6 +2350,31 @@ export function ${header.componentName}Demo() {
     props: Object.entries(header.props).map(([propName, prop]) => ({
       name: propName,
       type: prop.docType ?? (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+  }
+})
+
+buttonSections.forEach((button) => {
+  componentDetails[button.slug] = {
+    name: button.name,
+    description: button.description,
+    category: "Button",
+    hasPlayground: true,
+    installation: "Copy the button component from the code example below.",
+    usage: `import { ${button.componentName} } from "@/components/customize/buttons"
+
+export function ${button.componentName}Demo() {
+  return <${button.componentName}>Button</${button.componentName}>
+}`,
+    tags: button.tags,
+    props: Object.entries(button.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.options ? prop.options.join(" | ") : (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : "string"),
       default:
         typeof prop.default === "string"
           ? JSON.stringify(prop.default)

@@ -3,14 +3,16 @@ import { ComponentPlayground } from "@/components/component-playground"
 import { componentDetails } from "@/lib/component-details"
 import { componentsData } from "@/lib/components-data"
 import { SidebarNav } from "@/components/sidebar-nav"
-import { Badge } from "@/components/ui/badge"
+import { TagsList } from "@/components/tags-list"
 import { BackToComponentsButton } from "@/components/back-to-components-button"
+import { ComponentNavigation } from "@/components/component-navigation"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
 import { headerSections } from "@/lib/header-sections"
+import { buttonSections } from "@/lib/button-sections"
 import fs from 'fs'
 import path from 'path'
 
@@ -40,6 +42,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const ctaMeta = ctaSections.find(c => c.slug === slug)
   const footerMeta = footerSections.find(f => f.slug === slug)
   const headerMeta = headerSections.find(h => h.slug === slug)
+  const buttonMeta = buttonSections.find(b => b.slug === slug)
 
   if (heroMeta) {
     try {
@@ -199,6 +202,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  // Read Button component code if it's a button section
+  if (buttonMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'buttons', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function
+      const functionStartRegex = new RegExp(`export const ${buttonMeta.componentName}\\s*=`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this function component
+        // Look for the closing of the function by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading button component code:", e)
+    }
+  }
+
   const sidebarItems = [
     {
       title: "Components",
@@ -220,9 +250,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <div className="py-8 md:py-12">
         <div className="mb-6">
-          <BackToComponentsButton 
-            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
-            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
+          <BackToComponentsButton
+            href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta || buttonMeta ? "/components?tab=section" : "/components"}
+            isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta || buttonMeta)}
           />
           <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
             {component.category}
@@ -230,14 +260,18 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <h1 className="text-3xl font-bold tracking-tight mb-2">{component.name}</h1>
           <p className="text-muted-foreground mb-4">{component.description}</p>
           {component.tags && component.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {component.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            <TagsList tags={component.tags} defaultVisible={10} />
           )}
+          <ComponentNavigation
+            currentSlug={slug}
+            heroMeta={heroMeta}
+            featureMeta={featureMeta}
+            paymentMeta={paymentMeta}
+            ctaMeta={ctaMeta}
+            footerMeta={footerMeta}
+            headerMeta={headerMeta}
+            buttonMeta={buttonMeta}
+          />
         </div>
 
         <ComponentPlayground

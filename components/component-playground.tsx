@@ -42,6 +42,8 @@ import { headerSections } from "@/lib/header-sections"
 import { headerComponentsByName } from "@/components/customize/headers"
 import { footerSections } from "@/lib/footer-sections"
 import { footerComponentsByName } from "@/components/customize/footers"
+import { buttonSections } from "@/lib/button-sections"
+import { buttonComponentsByName } from "@/components/customize/buttons"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -76,6 +78,11 @@ const footerNameToMeta = footerSections.reduce<Record<string, (typeof footerSect
 
 const headerNameToMeta = headerSections.reduce<Record<string, (typeof headerSections)[number]>>((acc, header) => {
   acc[header.name] = header
+  return acc
+}, {})
+
+const buttonNameToMeta = buttonSections.reduce<Record<string, (typeof buttonSections)[number]>>((acc, button) => {
+  acc[button.name] = button
   return acc
 }, {})
 
@@ -1210,6 +1217,119 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add button sections to configs
+  buttonSections.forEach((button) => {
+    const Component = buttonComponentsByName[button.componentName]
+    if (!Component) {
+      console.warn(`Button component not found: ${button.componentName}`)
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(button.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[button.name] = {
+      props: propConfig,
+      render: (props: any) => {
+        // Convert hex to rgb for backgroundColor, textColor, borderColor (like UrlInput does)
+        const hexToRgb = (hex: string) => {
+          if (!hex || !hex.startsWith('#')) return hex
+          const r = parseInt(hex.slice(1, 3), 16)
+          const g = parseInt(hex.slice(3, 5), 16)
+          const b = parseInt(hex.slice(5, 7), 16)
+          return `rgb(${r} ${g} ${b})`
+        }
+
+        // Extract and process props (like UrlInput does)
+        const {
+          size,
+          borderRadius,
+          paddingX,
+          paddingY,
+          backgroundColor,
+          textColor,
+          borderColor,
+          borderWidth,
+          className,
+          children,
+          buttonText,
+          copyText,
+          downloadText,
+          // Animation props
+          animationDuration,
+          animationSpeed,
+          shimmerSpeed,
+          pulseSpeed,
+          glowIntensity,
+          magneticStrength,
+          rippleSize,
+          holdDuration,
+          spinSpeed,
+          flickerSpeed,
+          elasticScale,
+          // Color props
+          glowColor,
+          shimmerColor,
+          hoverColor,
+          fillColor,
+          ...restProps
+        } = props
+
+        // Prepare props to pass to component (pass all props directly, like UrlInput)
+        const componentProps: any = {
+          children: children || buttonText || copyText || downloadText || 'Button',
+          className,
+          size,
+          borderRadius,
+          paddingX,
+          paddingY,
+          backgroundColor: backgroundColor ? hexToRgb(backgroundColor) : undefined,
+          textColor: textColor ? hexToRgb(textColor) : undefined,
+          borderColor: borderColor ? hexToRgb(borderColor) : undefined,
+          borderWidth,
+          // Special text props
+          buttonText,
+          copyText,
+          downloadText,
+          // Animation props
+          animationDuration,
+          animationSpeed,
+          shimmerSpeed,
+          pulseSpeed,
+          glowIntensity,
+          magneticStrength,
+          rippleSize,
+          holdDuration,
+          spinSpeed,
+          flickerSpeed,
+          elasticScale,
+          // Color props
+          glowColor: glowColor ? hexToRgb(glowColor) : undefined,
+          shimmerColor: shimmerColor ? hexToRgb(shimmerColor) : undefined,
+          hoverColor: hoverColor ? hexToRgb(hoverColor) : undefined,
+          fillColor: fillColor ? hexToRgb(fillColor) : undefined,
+          ...restProps,
+        }
+
+        return (
+          <div className="flex items-center justify-center p-8 w-full">
+            <Component {...componentProps} />
+          </div>
+        )
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -1221,12 +1341,16 @@ interface PlaygroundProps {
 
 export function ComponentPlayground({ componentName, slug, initialCode }: PlaygroundProps) {
   const config = componentConfigs[componentName]
+  if (!config) {
+  }
+
   const heroMeta = heroNameToMeta[componentName]
   const featureMeta = featureNameToMeta[componentName]
   const paymentMeta = paymentNameToMeta[componentName]
   const ctaMeta = ctaNameToMeta[componentName]
   const footerMeta = footerNameToMeta[componentName]
   const headerMeta = headerNameToMeta[componentName]
+  const buttonMeta = buttonNameToMeta[componentName]
   const [copied, setCopied] = React.useState(false)
   const [showSidebar, setShowSidebar] = React.useState(true)
 
@@ -1305,6 +1429,85 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     })
   }, [config, componentName])
 
+  // Extract actual colors from rendered button component after mount
+  const playgroundRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!config || !buttonMeta || typeof window === 'undefined') return
+
+    // Wait for component to render
+    const timeoutId = setTimeout(() => {
+      if (!playgroundRef.current) return
+
+      // Find the rendered button element
+      const buttonElement = playgroundRef.current.querySelector('button')
+      if (!buttonElement) return
+
+      const computedStyle = window.getComputedStyle(buttonElement)
+
+      // Helper to convert rgb/rgba to hex
+      const rgbToHex = (rgb: string): string | null => {
+        if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') return null
+        const match = rgb.match(/\d+/g)
+        if (match && match.length >= 3) {
+          const r = Math.min(255, Math.max(0, parseInt(match[0]))).toString(16).padStart(2, '0')
+          const g = Math.min(255, Math.max(0, parseInt(match[1]))).toString(16).padStart(2, '0')
+          const b = Math.min(255, Math.max(0, parseInt(match[2]))).toString(16).padStart(2, '0')
+          const hex = `#${r}${g}${b}`
+          if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+            return hex
+          }
+        }
+        return null
+      }
+
+      setProps((prev) => {
+        const updated = { ...prev }
+        let hasChanges = false
+        
+        // Only update if the value is empty (default) and hasn't been set yet
+        if ((!prev.backgroundColor || prev.backgroundColor === '') && !prev._colorsExtracted) {
+          const bgColor = computedStyle.backgroundColor
+          const bgHex = rgbToHex(bgColor)
+          // Only set if it's a valid color and not transparent/black
+          if (bgHex && bgHex !== '#000000' && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+            updated.backgroundColor = bgHex
+            hasChanges = true
+          }
+        }
+
+        if ((!prev.textColor || prev.textColor === '') && !prev._colorsExtracted) {
+          const textColor = computedStyle.color
+          const textHex = rgbToHex(textColor)
+          if (textHex && textHex !== '#000000') {
+            updated.textColor = textHex
+            hasChanges = true
+          }
+        }
+
+        if ((!prev.borderColor || prev.borderColor === '') && !prev._colorsExtracted) {
+          const borderColor = computedStyle.borderColor
+          const borderWidth = computedStyle.borderWidth
+          if (borderWidth !== '0px' && borderColor !== 'rgba(0, 0, 0, 0)') {
+            const borderHex = rgbToHex(borderColor)
+            if (borderHex && borderHex !== '#000000') {
+              updated.borderColor = borderHex
+              hasChanges = true
+            }
+          }
+        }
+
+        // Mark as extracted to prevent re-extraction
+        if (hasChanges) {
+          updated._colorsExtracted = true
+        }
+
+        return hasChanges ? updated : prev
+      })
+    }, 300) // Delay to ensure component is fully rendered
+
+    return () => clearTimeout(timeoutId)
+  }, [config, componentName, buttonMeta])
+
   const updateProp = (key: string, value: any) => {
     setProps((prev) => {
       const updated = { ...prev, [key]: value }
@@ -1322,7 +1525,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     if (!config) return ""
 
     // For CTA and Footer sections, show all props including defaults
-    const shouldShowAllProps = ctaMeta || footerMeta
+    const shouldShowAllProps = ctaMeta || footerMeta || buttonMeta
 
     const propsString = Object.entries(props)
       .filter(([key, value]) => {
@@ -3708,6 +3911,85 @@ export function ${headerMeta.componentName}Demo() {
 }`
     }
 
+    // Button section code generation with initialCode (full component)
+    if (buttonMeta && initialCode) {
+      // Convert hex to rgb for color props (like UrlInput does)
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list for usage example - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        // Convert color props to rgb format (like UrlInput)
+        if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          propsList.push(`${key}="${value}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
+      const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
+
+      // Use the initialCode directly (it already contains the full component)
+      return `${initialCode}\n\n// Usage example:\nexport function ${buttonMeta.componentName}Demo() {\n  return (\n    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>\n  )\n}`
+    }
+
+    // Button section code generation (simple import)
+    if (buttonMeta) {
+      // Convert hex to rgb for color props (like UrlInput does)
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        // Convert color props to rgb format (like UrlInput)
+        if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          propsList.push(`${key}="${value}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? ` ${propsList.join(" ")}` : ""
+      const children = props.children || props.buttonText || props.copyText || props.downloadText || "Button"
+
+      return `import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
+
+export function ${buttonMeta.componentName}Demo() {
+  return (
+    <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>
+  )
+}`
+    }
+
     if (children) {
       return `<${componentName}${propsString ? " " + propsString : ""}>${children}</${componentName}>`
     }
@@ -3732,7 +4014,7 @@ export function ${headerMeta.componentName}Demo() {
   return (
     <div className="relative w-full">
       <div className="flex flex-col gap-6 min-w-0 w-full">
-        <div className="relative">
+        <div className="relative" ref={playgroundRef} data-playground>
           <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
             {config.render(props, setProps)}
           </Card>
@@ -3877,6 +4159,7 @@ export function ${headerMeta.componentName}Demo() {
                 props={props}
                 config={config}
                 updateProp={updateProp}
+                groupingConfig={buttonMeta?.groupingConfig}
               />
             )}
           </div>
