@@ -21,6 +21,9 @@ export function SidebarNav({ items }: SidebarNavProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(items.map(item => item.title))
   )
+  const [isMounted, setIsMounted] = useState(false)
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light")
+  const [themeColor, setThemeColor] = useState<string | null>(null)
 
   // Get current theme mode
   const getEffectiveTheme = (): "light" | "dark" => {
@@ -30,28 +33,52 @@ export function SidebarNav({ items }: SidebarNavProps) {
     return theme
   }
 
-  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">(() => getEffectiveTheme())
+  // Initialize on client side only to avoid hydration mismatch
+  useEffect(() => {
+    setIsMounted(true)
+    const effectiveTheme = getEffectiveTheme()
+    setCurrentTheme(effectiveTheme)
+    
+    if (colorPalette) {
+      const color = effectiveTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
+      setThemeColor(color)
+    }
+  }, [colorPalette, theme])
   
   // Listen for system theme changes
   useEffect(() => {
+    if (!isMounted) return
+    
     if (theme !== "system") {
       setCurrentTheme(theme)
+      if (colorPalette) {
+        const color = theme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
+        setThemeColor(color)
+      }
       return
     }
 
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
     const handleChange = () => {
-      setCurrentTheme(mediaQuery.matches ? "dark" : "light")
+      const newTheme = mediaQuery.matches ? "dark" : "light"
+      setCurrentTheme(newTheme)
+      if (colorPalette) {
+        const color = newTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
+        setThemeColor(color)
+      }
     }
 
-    setCurrentTheme(mediaQuery.matches ? "dark" : "light")
+    const newTheme = mediaQuery.matches ? "dark" : "light"
+    setCurrentTheme(newTheme)
+    if (colorPalette) {
+      const color = newTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
+      setThemeColor(color)
+    }
+    
     mediaQuery.addEventListener("change", handleChange)
     return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [theme])
+  }, [theme, colorPalette, isMounted])
 
-  const themeColor = colorPalette 
-    ? (currentTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0])
-    : null
   const isDark = currentTheme === "dark"
 
   const toggleSection = (title: string) => {
@@ -76,19 +103,19 @@ export function SidebarNav({ items }: SidebarNavProps) {
             onClick={() => toggleSection(section.title)}
             className={cn(
               "mb-1 w-full flex items-center justify-between rounded-md px-2 py-1 font-semibold text-2xl transition-colors",
-              !themeColor && "bg-slate-300 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
+              !isMounted || !themeColor ? "bg-slate-300 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" : ""
             )}
-            style={themeColor ? {
+            style={isMounted && themeColor ? {
               backgroundColor: isDark ? `${themeColor}30` : `${themeColor}15`,
               color: isDark ? '#f8fafc' : themeColor,
             } : undefined}
             onMouseEnter={(e) => {
-              if (themeColor) {
+              if (isMounted && themeColor) {
                 e.currentTarget.style.backgroundColor = isDark ? `${themeColor}50` : `${themeColor}25`
               }
             }}
             onMouseLeave={(e) => {
-              if (themeColor) {
+              if (isMounted && themeColor) {
                 e.currentTarget.style.backgroundColor = isDark ? `${themeColor}30` : `${themeColor}15`
               }
             }}
