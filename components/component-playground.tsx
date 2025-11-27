@@ -48,6 +48,8 @@ import { cardSections } from "@/lib/card-sections"
 import { cardComponentsByName } from "@/components/customize/cards"
 import { badgeSections } from "@/lib/badge-sections"
 import { badgeComponentsByName } from "@/components/customize/badges"
+import { inputSections } from "@/lib/input-sections"
+import { inputComponentsByName } from "@/components/customize/inputs"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -97,6 +99,11 @@ const cardNameToMeta = cardSections.reduce<Record<string, (typeof cardSections)[
 
 const buttonNameToMeta = buttonSections.reduce<Record<string, (typeof buttonSections)[number]>>((acc, button) => {
   acc[button.name] = button
+  return acc
+}, {})
+
+const inputNameToMeta = inputSections.reduce<Record<string, (typeof inputSections)[number]>>((acc, input) => {
+  acc[input.name] = input
   return acc
 }, {})
 
@@ -1589,6 +1596,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add input sections to configs
+  inputSections.forEach((input) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = inputComponentsByName[input.componentName]
+    if (!Component) {
+      console.warn(`Input component not found: ${input.componentName}. Available components:`, Object.keys(inputComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(input.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[input.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from inputComponentsByName (re-fetch to ensure it's available)
+        const Component = inputComponentsByName[input.componentName]
+        
+        if (!Component) {
+          console.error(`Input component ${input.componentName} is not available in inputComponentsByName. Available:`, Object.keys(inputComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {input.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from input.props definition
+        Object.keys(input.props).forEach((key) => {
+          const propConfig = input.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in input.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center p-8">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${input.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   // Add card sections to configs
   cardSections.forEach((card) => {
     // Get Component dynamically to avoid circular dependency issues
@@ -1797,6 +1927,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.warn(`Badge meta found but config not found: ${badgeMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
+
+    const inputMeta = inputSections.find(i => i.slug === slug)
+    if (inputMeta) {
+      config = componentConfigs[inputMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = inputMeta.name
+        console.log(`Found input config by slug: ${slug} -> ${inputMeta.name}`)
+      } else {
+        console.warn(`Input meta found but config not found: ${inputMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
   }
   
   // If not found, try to find by slug (for card components)
@@ -1825,12 +1967,20 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   const footerMeta = footerNameToMeta[actualComponentName]
   const headerMeta = headerNameToMeta[actualComponentName]
   const buttonMeta = buttonNameToMeta[actualComponentName]
-  // For card components, find by slug if not found by componentName
+  // For badge components, find by slug if not found by componentName
   let badgeMeta = badgeNameToMeta[actualComponentName]
   if (!badgeMeta) {
     const badgeMetaBySlug = badgeSections.find(b => b.slug === slug)
     if (badgeMetaBySlug) {
       badgeMeta = badgeNameToMeta[badgeMetaBySlug.name]
+    }
+  }
+  // For input components, find by slug if not found by componentName
+  let inputMeta = inputNameToMeta[actualComponentName]
+  if (!inputMeta) {
+    const inputMetaBySlug = inputSections.find(i => i.slug === slug)
+    if (inputMetaBySlug) {
+      inputMeta = inputNameToMeta[inputMetaBySlug.name]
     }
   }
   
@@ -4423,6 +4573,61 @@ import {
       return `import { ${buttonMeta.componentName} } from "@/components/customize/buttons"
 
 <${buttonMeta.componentName}${propsString}>${children}</${buttonMeta.componentName}>`
+    }
+
+    // Input section code generation - try both componentName and actualComponentName
+    let inputMeta = inputNameToMeta[componentName] || inputNameToMeta[actualComponentName]
+    if (!inputMeta) {
+      // Try to find by slug
+      const inputMetaBySlug = inputSections.find(i => i.slug === slug)
+      if (inputMetaBySlug) {
+        inputMeta = inputNameToMeta[inputMetaBySlug.name]
+      }
+    }
+    if (inputMeta) {
+      // Convert hex to rgb for color props
+      const hexToRgb = (hex: string) => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        // Skip internal props
+        if (key.startsWith('_')) return
+        
+        // Only include props that are defined in inputMeta.props
+        if (!inputMeta.props[key]) return
+        
+        // Skip empty values for optional props
+        if (value === "" || value === undefined || value === null) return
+        
+        // Convert color props to rgb format
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "glowColor" || key === "errorColor" || key === "successColor" || key === "focusBorderColor" || key === "buttonColor" || key === "currencyColor" || key === "accentColor" || key === "promptColor" || key === "pathColor" || key === "gradientFrom" || key === "gradientVia" || key === "gradientTo" || key === "hoverBorderColor" || key === "focusBorderColor" || key === "buttonHoverColor") 
+            && typeof value === "string" && value.startsWith("#")) {
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        }
+        // Handle boolean props
+        else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        }
+        // Handle number props
+        else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        }
+        // Handle string props
+        else {
+          propsList.push(`${key}="${String(value).replace(/"/g, '&quot;')}"`)
+        }
+      })
+
+      return `import { ${inputMeta.componentName} } from "@/components/customize/inputs"
+
+<${inputMeta.componentName}${propsList.length > 0 ? ` ${propsList.join(" ")}` : ""} />`
     }
 
     // Badge section code generation - try both componentName and actualComponentName

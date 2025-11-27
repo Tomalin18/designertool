@@ -17,6 +17,7 @@ import { Plus, Trash2, GripVertical } from "lucide-react"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
+import { inputSections } from "@/lib/input-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -1076,6 +1077,101 @@ export function CustomizePanel({
           lowerKey.includes('speed') ||
           lowerKey.includes('intensity') ||
           (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width') || lowerKey.includes('speed') || lowerKey.includes('intensity')))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        else {
+          contentProps.push(key)
+        }
+      })
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      }
+    }
+
+    // For Input components, use detailed grouping (similar to Badge components)
+    // Try to find by componentName first, then by name
+    const inputSection = inputSections.find((input: { componentName: string; name: string }) =>
+      input.componentName === componentName || input.name === componentName
+    )
+    if (inputSection) {
+      // Define style-related keys for inputs
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'focusBorderColor', 'focusRingColor',
+        'errorColor', 'successColor', 'glowColor', 'buttonColor', 'currencyColor', 'accentColor',
+        'promptColor', 'pathColor', 'gradientFrom', 'gradientVia', 'gradientTo',
+        'hoverBorderColor', 'buttonHoverColor'
+      ]
+      const spacingKeys = ['padding']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = ['digits', 'min', 'max', 'defaultValue']
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in inputSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!inputSection.props[key]) {
+          return
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        else if (
+          otherStyleKeys.includes(key) || 
+          lowerKey.includes('gradient') ||
+          (propType === 'slider' && (lowerKey.includes('radius') || lowerKey.includes('width')))
         ) {
           otherStyleProps.push(key)
         } 

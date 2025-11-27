@@ -12,6 +12,7 @@ import { headerSections } from "@/lib/header-sections"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
+import { inputSections } from "@/lib/input-sections"
 
 interface ComponentNavigationProps {
   currentSlug: string
@@ -24,6 +25,7 @@ interface ComponentNavigationProps {
   buttonMeta?: typeof buttonSections[number]
   cardMeta?: typeof cardSections[number]
   badgeMeta?: typeof badgeSections[number]
+  inputMeta?: typeof inputSections[number]
 }
 
 export function ComponentNavigation({
@@ -37,10 +39,11 @@ export function ComponentNavigation({
   buttonMeta,
   cardMeta,
   badgeMeta,
+  inputMeta,
 }: ComponentNavigationProps) {
   // Determine which section array to use
   let currentSection: typeof heroSections[number] | undefined
-  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections
+  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections
 
   if (heroMeta) {
     currentSection = heroMeta
@@ -69,6 +72,9 @@ export function ComponentNavigation({
   } else if (badgeMeta) {
     currentSection = badgeMeta
     sectionArray = badgeSections
+  } else if (inputMeta) {
+    currentSection = inputMeta
+    sectionArray = inputSections
   } else {
     return null
   }

@@ -15,11 +15,14 @@ import { headerSections } from "@/lib/header-sections"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
+import { inputSections } from "@/lib/input-sections"
 import fs from 'fs'
 import path from 'path'
 
 export function generateStaticParams() {
-  return Object.keys(componentDetails).map((slug) => ({
+  const componentSlugs = Object.keys(componentDetails)
+  const inputSlugs = inputSections.map(input => input.slug)
+  return [...componentSlugs, ...inputSlugs].map((slug) => ({
     slug,
   }))
 }
@@ -30,12 +33,7 @@ interface ComponentPageProps {
 
 export default async function ComponentPage({ params }: ComponentPageProps) {
   const { slug } = await params
-  const component = componentDetails[slug]
-
-  if (!component) {
-    notFound()
-  }
-
+  
   // Read hero component code if it's a hero section
   let initialCode = ""
   const heroMeta = heroSections.find(h => h.slug === slug)
@@ -47,6 +45,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const cardMeta = cardSections.find(c => c.slug === slug)
   const buttonMeta = buttonSections.find(b => b.slug === slug)
   const badgeMeta = badgeSections.find(b => b.slug === slug)
+  const inputMeta = inputSections.find(i => i.slug === slug)
+
+  // Get component from componentDetails or create from inputMeta
+  let component = componentDetails[slug]
+  
+  // For input components, create component detail if not in componentDetails
+  if (inputMeta && !component) {
+    component = {
+      name: inputMeta.name,
+      description: inputMeta.description,
+      category: "Input",
+      hasPlayground: true,
+      installation: `import { ${inputMeta.componentName} } from "@/components/customize/inputs"`,
+      usage: `<${inputMeta.componentName} />`,
+      tags: inputMeta.tags,
+      props: Object.entries(inputMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+
+  if (!component) {
+    notFound()
+  }
 
   if (heroMeta) {
     try {
@@ -287,6 +312,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     }
   }
 
+  // Read Input component code if it's an input section
+  if (inputMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'inputs', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${inputMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading input component code:", e)
+    }
+  }
+
   const sidebarItems = [
     {
       title: "Components",
@@ -331,6 +383,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             buttonMeta={buttonMeta}
             cardMeta={cardMeta}
             badgeMeta={badgeMeta}
+            inputMeta={inputMeta}
           />
         </div>
 
