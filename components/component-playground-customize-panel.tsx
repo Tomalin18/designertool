@@ -1030,8 +1030,8 @@ export function CustomizePanel({
       )
     }
 
-    // Special editor for sidebar navigation items (textarea type with "Items" in key name)
-    if ((key === "overviewItems" || key === "managementItems" || key.endsWith("Items")) && propConfig.type === "textarea") {
+    // Special editor for sidebar navigation items (textarea type with "Items" in key name or specific sidebar props)
+    if ((key === "overviewItems" || key === "managementItems" || key === "quickActions" || key === "favoritesItems" || key === "privateItems" || key === "primaryMenuItems" || key === "secondaryMenuItems" || key === "menuItems" || key.endsWith("Items")) && propConfig.type === "textarea") {
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
