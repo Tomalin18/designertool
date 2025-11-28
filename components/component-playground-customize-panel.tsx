@@ -1149,6 +1149,36 @@ export function CustomizePanel({
       )
     }
 
+    // Special editor for sidebar icons prop (textarea type) - use IconSelector
+    const sidebarSection = sidebarSections.find((sidebar: { componentName: string; name: string }) =>
+      sidebar.componentName === componentName || sidebar.name === componentName
+    )
+    if (sidebarSection && key.endsWith("Icons") && propConfig.type === "textarea") {
+      // Use default value from metadata if current value is empty
+      const displayValue = props[key] && props[key].trim() !== "" 
+        ? props[key] 
+        : (propConfig.default || sidebarSection.props[key]?.default || "")
+      // Find corresponding items prop (e.g., overviewIcons -> overviewItems)
+      const itemsKey = key.replace("Icons", "Items")
+      const itemsValue = props[itemsKey] && props[itemsKey].trim() !== ""
+        ? props[itemsKey]
+        : (sidebarSection.props[itemsKey]?.default || "")
+      return (
+        <div key={key} className="space-y-2 relative">
+          <Label className="capitalize">{label}</Label>
+          <IconSelector 
+            value={displayValue} 
+            onChange={(val) => updateProp(key, val)}
+            itemsValue={itemsValue}
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
     // Special editor for tabbar items prop (textarea type) - use TabsEditor instead of SidebarNavigationEditor
     const tabbarSection = tabbarSections.find((tabbar: { componentName: string; name: string }) =>
       tabbar.componentName === componentName || tabbar.name === componentName

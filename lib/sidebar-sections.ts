@@ -167,6 +167,11 @@ export const sidebarSections: SidebarSectionMeta[] = [
         default: "Dashboard\nAnalytics",
         description: "Overview navigation items, one per line.",
       },
+      overviewIcons: {
+        control: "textarea",
+        default: "Grid\nPieChart",
+        description: "List of icon names for each overview item (one per line, same order as items). Available: Home, Search, User, Bell, Settings, Plus, Heart, ShoppingBag, Map, Calendar, MessageSquare, Menu, Compass, Star, Video, Music, Grid, Layers, Zap, Radio, Scan, TrendingUp, Mail, Send",
+      },
       managementSectionTitle: {
         control: "text",
         default: "Management",
@@ -176,6 +181,11 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "textarea",
         default: "Customers\nProjects\nMessages:3",
         description: "Management navigation items, one per line. Use 'Item:badge' format for items with badges (e.g., 'Messages:3').",
+      },
+      managementIcons: {
+        control: "textarea",
+        default: "User\nBriefcase\nMessageSquare",
+        description: "List of icon names for each management item (one per line, same order as items). Available: Home, Search, User, Bell, Settings, Plus, Heart, ShoppingBag, Map, Calendar, MessageSquare, Menu, Compass, Star, Video, Music, Grid, Layers, Zap, Radio, Scan, TrendingUp, Mail, Send",
       },
       backgroundColor: {
         control: "color",

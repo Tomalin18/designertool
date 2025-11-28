@@ -253,6 +253,14 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Supports selecting icons from common Lucide icons
 - [ ] Icons are synchronized with items count automatically
 
+#### ✅ Special Editors for Sidebar Components
+- [ ] Items props (e.g., `overviewItems`, `managementItems`, `menuItems`) use `SidebarNavigationEditor` for editing items with badges
+- [ ] Icons props (e.g., `overviewIcons`, `managementIcons`, `menuIcons`) use `IconSelector` (icon button selector) instead of textarea
+- [ ] IconSelector displays icon buttons for each item
+- [ ] Clicking icon button opens Popover with available icons grid
+- [ ] Supports selecting icons from common Lucide icons
+- [ ] Icons are synchronized with corresponding items count automatically (e.g., `overviewIcons` syncs with `overviewItems`)
+
 **TabsEditor Implementation:**
 ```typescript
 // In component-playground-customize-panel.tsx
@@ -372,7 +380,7 @@ if (tabbarSection && key === "items" && propConfig.type === "textarea") {
 **Tabbar Icons Editor Implementation:**
 ```typescript
 // In component-playground-customize-panel.tsx
-// Icon selector component for tabbar icons
+// Icon selector component for tabbar and sidebar icons
 const IconSelector = ({ 
   value, 
   onChange, 
@@ -465,7 +473,7 @@ const IconSelector = ({
   )
 }
 
-// Usage in CustomizePanel
+// Usage in CustomizePanel for Tabbar
 if (tabbarSection && key === "icons" && propConfig.type === "textarea") {
   // Use default value from metadata if current value is empty
   const displayValue = props[key] && props[key].trim() !== "" 
@@ -474,6 +482,33 @@ if (tabbarSection && key === "icons" && propConfig.type === "textarea") {
   const itemsValue = props["items"] && props["items"].trim() !== ""
     ? props["items"]
     : (tabbarSection.props.items?.default || "")
+  return (
+    <div key={key} className="space-y-2 relative">
+      <Label className="capitalize">{label}</Label>
+      <IconSelector 
+        value={displayValue} 
+        onChange={(val) => updateProp(key, val)}
+        itemsValue={itemsValue}
+      />
+      {propConfig.description && (
+        <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+      )}
+      {!isLast && <Separator className="!mt-4" />}
+    </div>
+  )
+}
+
+// Usage in CustomizePanel for Sidebar
+if (sidebarSection && key.endsWith("Icons") && propConfig.type === "textarea") {
+  // Use default value from metadata if current value is empty
+  const displayValue = props[key] && props[key].trim() !== "" 
+    ? props[key] 
+    : (propConfig.default || sidebarSection.props[key]?.default || "")
+  // Find corresponding items prop (e.g., overviewIcons -> overviewItems)
+  const itemsKey = key.replace("Icons", "Items")
+  const itemsValue = props[itemsKey] && props[itemsKey].trim() !== ""
+    ? props[itemsKey]
+    : (sidebarSection.props[itemsKey]?.default || "")
   return (
     <div key={key} className="space-y-2 relative">
       <Label className="capitalize">{label}</Label>
@@ -1287,7 +1322,7 @@ export const MediaPlayer = ({
 | Control Type | Use Case | Example |
 |-------------|----------|---------|
 | `text` | Single-line text input | `title`, `description` |
-| `textarea` | Multi-line text input | `features` (newline-separated), `tabs` (uses TabsEditor), `items` (uses TabsEditor for tabbars), `icons` (uses IconSelector for tabbars) |
+| `textarea` | Multi-line text input | `features` (newline-separated), `tabs` (uses TabsEditor), `items` (uses TabsEditor for tabbars), `icons` (uses IconSelector for tabbars and sidebars) |
 | `number` | Numeric input | `count`, `rating` |
 | `boolean` | Toggle switch | `showButton`, `isActive` |
 | `select` | Dropdown with options | `variant`, `status` |
@@ -1299,6 +1334,9 @@ export const MediaPlayer = ({
 - **Tabbar components:** 
   - The `items` prop uses `control: "textarea"` but is rendered with `TabsEditor` (same as tabs components) for consistent editing experience.
   - The `icons` prop uses `control: "textarea"` but is rendered with `IconSelector` (icon button selector with Popover) instead of a regular textarea. This provides a visual icon selection interface where users can click icon buttons to select from a grid of available Lucide icons.
+- **Sidebar components:**
+  - Items props (e.g., `overviewItems`, `managementItems`, `menuItems`) use `control: "textarea"` but are rendered with `SidebarNavigationEditor` (supports badges) instead of a regular textarea.
+  - Icons props (e.g., `overviewIcons`, `managementIcons`, `menuIcons`) use `control: "textarea"` but are rendered with `IconSelector` (same as tabbar components) for visual icon selection. Icons automatically sync with corresponding items count.
 
 ## Quick Reference: Color Handling Pattern
 
