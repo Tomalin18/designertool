@@ -428,6 +428,11 @@ export const sidebarSections: SidebarSectionMeta[] = [
     tags: ["sidebar", "navigation", "macos", "finder", "familiar"],
     props: {
       ...commonSidebarProps,
+      treeItems: {
+        control: "textarea",
+        default: "favorites:airdrop,recents,applications,desktop,documents,downloads\niCloud:iCloud Drive",
+        description: "Tree items in format 'Section:Item1,Item2' or 'Section' for sections without items. One per line.",
+      },
     },
   },
   {

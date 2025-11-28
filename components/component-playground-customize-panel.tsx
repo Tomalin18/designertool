@@ -1017,7 +1017,7 @@ export function CustomizePanel({
     if (key === "treeItems" && propConfig.type === "textarea") {
       return (
         <div key={key} className="space-y-2">
-          <Label className="capitalize">{label}</Label>
+          <Label>Tree Items</Label>
           <TreeItemsEditor 
             value={props[key] || ""} 
             onChange={(val) => updateProp(key, val)} 

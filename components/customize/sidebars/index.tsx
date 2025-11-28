@@ -203,32 +203,32 @@ export const SimpleSidebar = ({
           {menuItemsList.map((item, index) => {
             const { label, badge } = parseItemWithBadge(item);
             return (
-              <a 
+            <a 
                 key={`${label}-${index}`} 
-                href="#" 
-                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-neutral-900"
-                style={{
-                  color: textRgb,
-                }}
-                onMouseEnter={(e) => {
-                  if (activeRgb) {
-                    e.currentTarget.style.color = activeRgb;
-                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = textRgb;
-                  e.currentTarget.style.backgroundColor = "transparent";
-                }}
-              >
-                <div className="h-4 w-4 rounded bg-neutral-800" />
+              href="#" 
+              className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-neutral-900"
+              style={{
+                color: textRgb,
+              }}
+              onMouseEnter={(e) => {
+                if (activeRgb) {
+                  e.currentTarget.style.color = activeRgb;
+                  e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = textRgb;
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <div className="h-4 w-4 rounded bg-neutral-800" />
                 <span className="flex-1">{label}</span>
                 {badge && (
                   <Badge className="ml-auto text-[10px] h-5 px-1.5" style={{ backgroundColor: activeRgb, color: bgRgb }}>
                     {badge}
                   </Badge>
                 )}
-              </a>
+            </a>
             );
           })}
         </nav>
@@ -873,7 +873,9 @@ export const BrutalistSidebar = ({
 };
 
 // 7. MacOS Finder Style
-export interface MacOSSidebarProps extends SidebarProps {}
+export interface MacOSSidebarProps extends SidebarProps {
+  treeItems?: string;
+}
 
 const ClockIcon = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 
@@ -881,41 +883,110 @@ const ArrowDownCircle = (props: any) => <svg {...props} xmlns="http://www.w3.org
 
 export const MacOSSidebar = ({
   className,
-}: MacOSSidebarProps) => (
-  <SidebarFrame>
-    <div className={cn("flex w-60 flex-col bg-[#F6F5F2]/90 backdrop-blur-sm border-r border-neutral-300 text-sm", className)}>
-      <div className="p-4 flex gap-2">
-        <div className="h-3 w-3 rounded-full bg-[#FF5F57] border border-[#E0443E]" />
-        <div className="h-3 w-3 rounded-full bg-[#FEBC2E] border border-[#D89E24]" />
-        <div className="h-3 w-3 rounded-full bg-[#28C840] border border-[#1AAB29]" />
+  treeItems = "favorites:airdrop,recents,applications,desktop,documents,downloads\niCloud:iCloud Drive",
+}: MacOSSidebarProps) => {
+  const parseTreeItems = (items: string) => {
+    return items.split("\n").filter(item => item.trim() !== "").map(item => {
+      const parts = item.split(":");
+      if (parts.length > 1) {
+        const children = parts[1].split(",").map(c => c.trim()).filter(c => c !== "");
+        return { parent: parts[0].trim(), children };
+      }
+      return { parent: parts[0].trim(), children: [] };
+    });
+  };
+
+  const treeItemsList = parseTreeItems(treeItems);
+  
+  // Track expanded state for each item
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set([0])); // Default: first item expanded
+
+  // Reset expanded state when treeItems changes (from customize panel)
+  React.useEffect(() => {
+    setExpandedItems(new Set([0])); // Reset to first item expanded when items change
+  }, [treeItems]);
+
+  const toggleExpanded = (index: number) => {
+    setExpandedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  // Icon mapping for common items (case-insensitive)
+  const getIcon = (itemName: string) => {
+    const normalizedName = itemName.toLowerCase();
+    const iconMap: Record<string, any> = {
+      "airdrop": Radio,
+      "recents": ClockIcon,
+      "applications": Box,
+      "desktop": Laptop,
+      "documents": FileText,
+      "downloads": ArrowDownCircle,
+      "icloud drive": Cloud,
+    };
+    return iconMap[normalizedName] || Box;
+  };
+
+  return (
+    <SidebarFrame>
+      <div className={cn("flex w-60 flex-col bg-[#F6F5F2]/90 backdrop-blur-sm border-r border-neutral-300 text-sm", className)}>
+        <div className="p-4 flex gap-2">
+          <div className="h-3 w-3 rounded-full bg-[#FF5F57] border border-[#E0443E]" />
+          <div className="h-3 w-3 rounded-full bg-[#FEBC2E] border border-[#D89E24]" />
+          <div className="h-3 w-3 rounded-full bg-[#28C840] border border-[#1AAB29]" />
+        </div>
+        <div className="px-2">
+          {treeItemsList.map((section, sectionIndex) => {
+            const hasChildren = section.children.length > 0;
+            const isExpanded = expandedItems.has(sectionIndex);
+            
+            return (
+              <div key={sectionIndex} className={sectionIndex > 0 ? "mt-4" : ""}>
+                <div 
+                  onClick={() => hasChildren && toggleExpanded(sectionIndex)}
+                  className={cn(
+                    "px-2 py-1 text-xs font-bold text-neutral-400 flex items-center gap-1",
+                    hasChildren ? "cursor-pointer hover:text-neutral-500" : ""
+                  )}
+                >
+                  {hasChildren && (isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />)}
+                  <span>{section.parent}</span>
+                </div>
+                {isExpanded && hasChildren && (
+                  <nav className="space-y-0.5">
+                    {section.children.map((child, childIndex) => {
+                      const ChildIcon = getIcon(child);
+                      const isActive = sectionIndex === 0 && childIndex === 2; // Applications is active by default
+                      return (
+                        <a 
+                          key={childIndex} 
+                          href="#" 
+                          className={cn(
+                            "flex items-center gap-2 rounded px-2 py-1 text-neutral-700",
+                            isActive ? "bg-[#007AFF] text-white" : ""
+                          )}
+                        >
+                          <ChildIcon size={16} className={cn(isActive ? "text-white" : "text-blue-500")} />
+                          {child}
+                        </a>
+                      );
+                    })}
+                  </nav>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="px-2">
-        <div className="px-2 py-1 text-xs font-bold text-neutral-400">Favorites</div>
-        <nav className="space-y-0.5">
-          {[
-            { n: "AirDrop", i: Radio },
-            { n: "Recents", i: ClockIcon },
-            { n: "Applications", i: Box },
-            { n: "Desktop", i: Laptop },
-            { n: "Documents", i: FileText },
-            { n: "Downloads", i: ArrowDownCircle },
-          ].map((item, i) => (
-            <a key={item.n} href="#" className={cn("flex items-center gap-2 rounded px-2 py-1 text-neutral-700", i === 2 ? "bg-[#007AFF] text-white" : "")}>
-              <item.i size={16} className={cn(i === 2 ? "text-white" : "text-blue-500")} />
-              {item.n}
-            </a>
-          ))}
-        </nav>
-        <div className="px-2 py-1 mt-4 text-xs font-bold text-neutral-400">iCloud</div>
-        <nav className="space-y-0.5">
-          <a href="#" className="flex items-center gap-2 rounded px-2 py-1 text-neutral-700">
-            <Cloud size={16} className="text-blue-500" /> iCloud Drive
-          </a>
-        </nav>
-      </div>
-    </div>
-  </SidebarFrame>
-);
+    </SidebarFrame>
+  );
+};
 
 // 8. VS Code Style
 export interface CodeSidebarProps extends SidebarProps {}
@@ -1010,7 +1081,7 @@ export const GradientSidebar = ({
                 <img src={profileImage} alt={profileName} className="h-full w-full object-cover" />
               </div>
             ) : (
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500" />
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500" />
             )}
             <div>
               <div className="text-sm font-bold text-white">{profileName}</div>
@@ -1180,10 +1251,10 @@ export const TreeSidebar = ({
   };
 
   return (
-    <SidebarFrame>
-      <div className={cn("flex w-64 flex-col border-r border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700", className)}>
+  <SidebarFrame>
+    <div className={cn("flex w-64 flex-col border-r border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700", className)}>
         <div className="mb-4 font-bold text-neutral-900 px-2">{title}</div>
-        <div className="space-y-1">
+      <div className="space-y-1">
           {treeItemsList.map((item, index) => {
             const hasChildren = item.children.length > 0;
             const isExpanded = expandedItems.has(index);
@@ -1201,7 +1272,7 @@ export const TreeSidebar = ({
                   {item.parent}
                 </div>
                 {isExpanded && hasChildren && (
-                  <div className="pl-6 space-y-1 border-l border-neutral-200 ml-4">
+        <div className="pl-6 space-y-1 border-l border-neutral-200 ml-4">
                     {item.children.map((child, childIndex) => (
                       <a
                         key={childIndex}
@@ -1214,15 +1285,15 @@ export const TreeSidebar = ({
                         {child}
                       </a>
                     ))}
-                  </div>
+        </div>
                 )}
               </div>
             );
           })}
-        </div>
       </div>
-    </SidebarFrame>
-  );
+    </div>
+  </SidebarFrame>
+);
 };
 
 // 13. Notion Style
@@ -1254,57 +1325,57 @@ export const NotionStyleSidebar = ({
   const quickActionIcons = [Search, Clock, Settings];
 
   return (
-    <SidebarFrame>
-      <div className={cn("flex w-60 flex-col bg-[#F7F7F5] text-[#37352F] text-sm font-medium", className)}>
-        <div className="flex items-center gap-2 p-3 hover:bg-[#EFEFED] cursor-pointer m-1 rounded transition-colors">
+  <SidebarFrame>
+    <div className={cn("flex w-60 flex-col bg-[#F7F7F5] text-[#37352F] text-sm font-medium", className)}>
+      <div className="flex items-center gap-2 p-3 hover:bg-[#EFEFED] cursor-pointer m-1 rounded transition-colors">
           <div className="h-5 w-5 rounded bg-orange-400 flex items-center justify-center text-xs text-white">
             {workspaceName.charAt(0).toUpperCase()}
           </div>
           <span className="flex-1 truncate font-bold">{workspaceName}</span>
-          <div className="flex gap-1 text-[#37352F]/40">
-            <ChevronDown size={14} />
-          </div>
+        <div className="flex gap-1 text-[#37352F]/40">
+          <ChevronDown size={14} />
         </div>
-        <div className="px-2 space-y-0.5">
+      </div>
+      <div className="px-2 space-y-0.5">
           {quickActionsList.map((action, index) => {
             const Icon = quickActionIcons[index] || Search;
             return (
               <div key={index} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-600">
                 <Icon size={16} /> {action.trim()}
-              </div>
+        </div>
             );
           })}
         </div>
         {favoritesTitle && (
           <>
             <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">{favoritesTitle}</div>
-            <div className="px-2 space-y-0.5">
+      <div className="px-2 space-y-0.5">
               {favoritesItemsList.map((item, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
+          <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
                   <span className="text-lg leading-none">📄</span> {item.trim()}
-                </div>
-              ))}
-            </div>
+          </div>
+        ))}
+      </div>
           </>
         )}
         {privateTitle && (
           <>
             <div className="mt-4 px-3 mb-1 text-xs font-bold text-neutral-500">{privateTitle}</div>
-            <div className="px-2 space-y-0.5">
+      <div className="px-2 space-y-0.5">
               {privateItemsList.map((item, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
+          <div key={i} className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer">
                   <span className="text-lg leading-none">📄</span> {item.trim()}
-                </div>
-              ))}
-              <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-500">
+          </div>
+        ))}
+        <div className="flex items-center gap-2 px-3 py-1 hover:bg-[#EFEFED] rounded cursor-pointer text-neutral-500">
                 <Plus size={16} /> {addPageText}
-              </div>
-            </div>
+        </div>
+      </div>
           </>
         )}
-      </div>
-    </SidebarFrame>
-  );
+    </div>
+  </SidebarFrame>
+);
 };
 
 // 14. Spotify Style
@@ -1337,9 +1408,9 @@ export const SpotifyStyleSidebar = ({
   };
 
   return (
-    <SidebarFrame>
-      <div className={cn("flex w-64 flex-col bg-black text-[#b3b3b3] p-2 gap-2 font-medium", className)}>
-        <div className="bg-[#121212] rounded-lg p-4 space-y-4">
+  <SidebarFrame>
+    <div className={cn("flex w-64 flex-col bg-black text-[#b3b3b3] p-2 gap-2 font-medium", className)}>
+      <div className="bg-[#121212] rounded-lg p-4 space-y-4">
           {mainMenuItemsList.map((item, index) => {
             const Icon = mainMenuIcons[index] || Home;
             return (
@@ -1351,26 +1422,26 @@ export const SpotifyStyleSidebar = ({
               </a>
             );
           })}
-        </div>
-        <div className="bg-[#121212] rounded-lg flex-1 flex flex-col overflow-hidden">
-          <div className="p-4 shadow-lg z-10 flex justify-between items-center text-neutral-400">
+      </div>
+      <div className="bg-[#121212] rounded-lg flex-1 flex flex-col overflow-hidden">
+        <div className="p-4 shadow-lg z-10 flex justify-between items-center text-neutral-400">
             <button className="flex items-center gap-2 hover:text-white transition-colors">
               <Layers size={24} className="-rotate-90" /> {libraryTitle}
             </button>
-            <div className="flex gap-4">
-              <Plus size={20} className="hover:text-white cursor-pointer"/>
-              <ArrowRightIcon size={20} className="hover:text-white cursor-pointer"/>
-            </div>
+          <div className="flex gap-4">
+            <Plus size={20} className="hover:text-white cursor-pointer"/>
+            <ArrowRightIcon size={20} className="hover:text-white cursor-pointer"/>
           </div>
-          <div className="px-2 pb-2 space-y-2 overflow-y-auto">
+        </div>
+        <div className="px-2 pb-2 space-y-2 overflow-y-auto">
             {libraryFilterButtonsList.length > 0 && (
-              <div className="flex gap-2">
+          <div className="flex gap-2">
                 {libraryFilterButtonsList.map((button, index) => (
                   <button key={index} className="rounded-full bg-[#2a2a2a] px-3 py-1 text-sm text-white hover:bg-[#3a3a3a]">
                     {button.trim()}
                   </button>
                 ))}
-              </div>
+          </div>
             )}
             {libraryItemsList.map((item, i) => {
               const parsed = parseLibraryItem(item);
@@ -1380,18 +1451,18 @@ export const SpotifyStyleSidebar = ({
                   <div className={cn("h-12 w-12 rounded flex items-center justify-center text-xl", isActive ? "bg-gradient-to-br from-indigo-700 to-blue-300" : "bg-[#282828]")}>
                     {parsed.icon}
                   </div>
-                  <div>
+              <div>
                     <div className={cn("text-white truncate", isActive && "text-green-500")}>{parsed.title}</div>
                     {parsed.subtitle && <div className="text-sm truncate">{parsed.subtitle}</div>}
-                  </div>
-                </div>
+              </div>
+            </div>
               );
             })}
-          </div>
         </div>
       </div>
-    </SidebarFrame>
-  );
+    </div>
+  </SidebarFrame>
+);
 };
 
 // 15. Linear Style (Clean Workspace)
@@ -1423,17 +1494,17 @@ export const LinearStyleSidebar = ({
   };
 
   return (
-    <SidebarFrame>
-      <div className={cn("flex w-60 flex-col border-r border-white/5 bg-[#1C1C1F] text-[#D0D6E0] p-3 text-[13px]", className)}>
-        <div className="flex items-center gap-2 px-2 py-1 mb-4 hover:bg-white/5 rounded cursor-pointer">
+  <SidebarFrame>
+    <div className={cn("flex w-60 flex-col border-r border-white/5 bg-[#1C1C1F] text-[#D0D6E0] p-3 text-[13px]", className)}>
+      <div className="flex items-center gap-2 px-2 py-1 mb-4 hover:bg-white/5 rounded cursor-pointer">
           <div className="h-4 w-4 rounded bg-indigo-500 flex items-center justify-center text-[10px] text-white font-bold">
             {logoText}
           </div>
           <span className="font-medium text-white">{workspaceName}</span>
-          <ChevronDown size={12} className="ml-auto opacity-50" />
-        </div>
-        
-        <div className="space-y-0.5 mb-6">
+        <ChevronDown size={12} className="ml-auto opacity-50" />
+      </div>
+      
+      <div className="space-y-0.5 mb-6">
           {mainMenuItemsList.map((item, index) => (
             <div
               key={index}
@@ -1449,14 +1520,14 @@ export const LinearStyleSidebar = ({
               {item.trim()}
             </div>
           ))}
-        </div>
+      </div>
 
         {teamsTitle && (
           <>
-            <div className="px-2 mb-1 font-medium text-neutral-500 flex justify-between group">
+      <div className="px-2 mb-1 font-medium text-neutral-500 flex justify-between group">
               {teamsTitle} <Plus size={12} className="opacity-0 group-hover:opacity-100 hover:text-white cursor-pointer" />
-            </div>
-            <div className="space-y-0.5">
+      </div>
+      <div className="space-y-0.5">
               {teamItemsList.map((item, index) => {
                 const { name, initial } = parseTeamItem(item);
                 const colors = [
@@ -1469,7 +1540,7 @@ export const LinearStyleSidebar = ({
                   <div key={index} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 cursor-pointer">
                     <div className={cn("h-3 w-3 rounded flex items-center justify-center text-[8px]", color.bg, color.text)}>
                       {initial}
-                    </div>
+      </div>
                     {name}
                   </div>
                 );
@@ -1477,9 +1548,9 @@ export const LinearStyleSidebar = ({
             </div>
           </>
         )}
-      </div>
-    </SidebarFrame>
-  );
+    </div>
+  </SidebarFrame>
+);
 };
 
 // 16. Gaming / Cyberpunk Sidebar
@@ -1515,16 +1586,16 @@ export const GamingSidebar = ({
           ))}
         </nav>
         <div className="p-4">
-          <div className="border border-red-600/30 bg-red-900/10 p-4">
-            <div className="text-xs text-red-500 font-bold mb-1">SERVER STATUS</div>
-            <div className="flex items-center gap-2 text-green-500 font-mono text-sm">
-              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" /> ONLINE
-            </div>
+        <div className="border border-red-600/30 bg-red-900/10 p-4">
+          <div className="text-xs text-red-500 font-bold mb-1">SERVER STATUS</div>
+          <div className="flex items-center gap-2 text-green-500 font-mono text-sm">
+            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" /> ONLINE
           </div>
         </div>
       </div>
-    </SidebarFrame>
-  );
+    </div>
+  </SidebarFrame>
+);
 };
 
 // 17. Finance / Secure Sidebar
@@ -1682,7 +1753,7 @@ export const FloatingSidebar = ({
               <img src={logoImage} alt={brandName} className="h-full w-full object-cover" />
             </div>
           ) : (
-            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-orange-500" />
+          <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-pink-500 to-orange-500" />
           )}
           <span className="font-bold text-neutral-800">{brandName}</span>
         </div>
@@ -1701,7 +1772,7 @@ export const FloatingSidebar = ({
                 <img src={profileImage} alt={profileName} className="h-full w-full object-cover" />
               </div>
             ) : (
-              <div className="h-8 w-8 rounded-full bg-neutral-200" />
+            <div className="h-8 w-8 rounded-full bg-neutral-200" />
             )}
             <div className="flex-1 overflow-hidden">
               <div className="truncate text-sm font-bold">{profileName}</div>
