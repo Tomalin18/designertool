@@ -7086,9 +7086,20 @@ const hexToRgb = (hex: string): string | undefined => {
         
         // For string props
         if (typeof value === "string") {
-          // Include data prop even if empty (it might have default value)
+          // For data prop, always include (even if empty, use default value if available)
+          if (key === "data") {
+            // Use current value if not empty, otherwise use default from metadata
+            const dataValue = value.trim() !== "" ? value : (propConfig.default || "")
+            if (dataValue.trim() !== "") {
+              const escapedValue = dataValue.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+              propsList.push(`${key}="${escapedValue}"`)
+              addedKeys.add(key)
+            }
+            return
+          }
+          
           // Include other string props if not empty
-          if (key === "data" || value.trim() !== "") {
+          if (value.trim() !== "") {
             // Handle colors prop (newline-separated hex colors)
             if (key === "colors" && value.includes("\n")) {
               const colorLines = value.split("\n").filter(c => c.trim() !== "")
@@ -7102,7 +7113,7 @@ const hexToRgb = (hex: string): string | undefined => {
             else if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor") && value.startsWith("#")) {
               propsList.push(`${key}="${hexToRgb(value)}"`)
             }
-            // Handle regular string props (including data)
+            // Handle regular string props
             else {
               const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
               propsList.push(`${key}="${escapedValue}"`)
@@ -7119,8 +7130,8 @@ const hexToRgb = (hex: string): string | undefined => {
         }
       })
       
-      // Also include important boolean props that have defaults but are not in current props
-      // This ensures important display options are included even if not explicitly set
+      // Also include important props that have defaults but are not in current props
+      // This ensures important display options and data are included even if not explicitly set
       const importantBooleanProps = ["showXAxis", "showYAxis", "showGrid", "showTooltip", "showLegend", "showLabels", "showDots"]
       Object.entries(config.props).forEach(([key, propConfig]: [string, any]) => {
         // Skip if already added
@@ -7131,6 +7142,16 @@ const hexToRgb = (hex: string): string | undefined => {
           const defaultValue = propConfig.default !== undefined ? propConfig.default : false
           propsList.push(`${key}={${defaultValue}}`)
           addedKeys.add(key)
+        }
+        
+        // Include data prop with default value if not already added
+        if (key === "data" && propConfig.control === "textarea" && propConfig.default) {
+          const defaultData = String(propConfig.default)
+          if (defaultData.trim() !== "") {
+            const escapedValue = defaultData.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+            propsList.push(`${key}="${escapedValue}"`)
+            addedKeys.add(key)
+          }
         }
       })
 
