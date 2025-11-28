@@ -27,6 +27,8 @@ import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { tabbarSections } from "@/lib/tabbar-sections"
 import { sheetSections } from "@/lib/sheet-sections"
+import { tableSections } from "@/lib/table-sections"
+import { chartSections } from "@/lib/chart-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -167,10 +169,24 @@ export function ComponentsPageClient() {
             href: `/components/${sheet.slug}`,
             category: "Sheet",
             tags: sheet.tags || [],
+        })),
+        ...tableSections.map(table => ({
+            name: table.name,
+            description: table.description,
+            href: `/components/${table.slug}`,
+            category: "Table",
+            tags: table.tags || [],
+        })),
+        ...chartSections.map(chart => ({
+            name: chart.name,
+            description: chart.description,
+            href: `/components/${chart.slug}`,
+            category: "Chart",
+            tags: chart.tags || [],
         }))
     ]
 
-    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar", "Sheet"]
+    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar", "Sheet", "Table", "Chart"]
 
     // Calculate tag frequency from custom components
     const tagFrequency = new Map<string, number>()
@@ -376,6 +392,14 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Sheet")
     }
 
+    const getTableComponents = () => {
+        return customComponents.filter(c => c.category === "Table")
+    }
+
+    const getChartComponents = () => {
+        return customComponents.filter(c => c.category === "Chart")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -492,6 +516,22 @@ export function ComponentsPageClient() {
             title: "Sheet",
             href: "/components",
             items: getSheetComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Table",
+            href: "/components",
+            items: getTableComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Chart",
+            href: "/components",
+            items: getChartComponents().map((component) => ({
                 title: component.name,
                 href: component.href,
             })),

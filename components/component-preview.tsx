@@ -58,6 +58,10 @@ import { tabbarSections } from "@/lib/tabbar-sections"
 import { tabbarComponentsByName } from "@/components/customize/tabbars"
 import { sheetSections } from "@/lib/sheet-sections"
 import { sheetComponentsByName } from "@/components/customize/sheets"
+import { tableSections } from "@/lib/table-sections"
+import { tableComponentsByName } from "@/components/customize/tables"
+import { chartSections } from "@/lib/chart-sections"
+import { chartComponentsByName } from "@/components/customize/charts"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -123,10 +127,16 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const sheetMeta = sheetSections.find((sheet) => sheet.name === name)
   const SheetComponent = sheetMeta ? sheetComponentsByName[sheetMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta || !!sheetMeta
+  const tableMeta = tableSections.find((table) => table.name === name)
+  const TableComponent = tableMeta ? tableComponentsByName[tableMeta.componentName] : null
+
+  const chartMeta = chartSections.find((chart) => chart.name === name)
+  const ChartComponent = chartMeta ? chartComponentsByName[chartMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta || !!sheetMeta || !!tableMeta || !!chartMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || tabbarMeta?.tags || sheetMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || tabbarMeta?.tags || sheetMeta?.tags || tableMeta?.tags || chartMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -346,6 +356,34 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <SheetComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (tableMeta && TableComponent) {
+      // Get default props for the table, filtering out undefined values
+      const defaultProps = Object.fromEntries(
+        Object.entries(tableMeta.props)
+          .map(([key, prop]) => [key, prop.default])
+          .filter(([_, value]) => value !== undefined && value !== null)
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <TableComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (chartMeta && ChartComponent) {
+      // Get default props for the chart, filtering out undefined values
+      const defaultProps = Object.fromEntries(
+        Object.entries(chartMeta.props)
+          .map(([key, prop]) => [key, prop.default])
+          .filter(([_, value]) => value !== undefined && value !== null)
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <ChartComponent {...defaultProps} />
         </div>
       )
     }

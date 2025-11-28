@@ -18,6 +18,8 @@ import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { tabbarSections } from "@/lib/tabbar-sections"
 import { sheetSections } from "@/lib/sheet-sections"
+import { tableSections } from "@/lib/table-sections"
+import { chartSections } from "@/lib/chart-sections"
 
 interface ComponentNavigationProps {
   currentSlug: string
@@ -36,6 +38,8 @@ interface ComponentNavigationProps {
   sidebarMeta?: typeof sidebarSections[number]
   tabbarMeta?: typeof tabbarSections[number]
   sheetMeta?: typeof sheetSections[number]
+  tableMeta?: typeof tableSections[number]
+  chartMeta?: typeof chartSections[number]
 }
 
 export function ComponentNavigation({
@@ -55,10 +59,12 @@ export function ComponentNavigation({
   sidebarMeta,
   tabbarMeta,
   sheetMeta,
+  tableMeta,
+  chartMeta,
 }: ComponentNavigationProps) {
   // Determine which section array to use
   let currentSection: typeof heroSections[number] | undefined
-  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections | typeof toggleSections | typeof tabsSections | typeof sidebarSections | typeof tabbarSections | typeof sheetSections
+  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections | typeof toggleSections | typeof tabsSections | typeof sidebarSections | typeof tabbarSections | typeof sheetSections | typeof tableSections | typeof chartSections
 
   if (heroMeta) {
     currentSection = heroMeta
@@ -105,6 +111,12 @@ export function ComponentNavigation({
   } else if (sheetMeta) {
     currentSection = sheetMeta
     sectionArray = sheetSections
+  } else if (tableMeta) {
+    currentSection = tableMeta
+    sectionArray = tableSections
+  } else if (chartMeta) {
+    currentSection = chartMeta
+    sectionArray = chartSections
   } else {
     return null
   }
