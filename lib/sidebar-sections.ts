@@ -6,6 +6,7 @@ export type SidebarPropControl =
   | "color"
   | "number"
   | "textarea"
+  | "file"
 
 export interface SidebarPropDefinition {
   control: SidebarPropControl
@@ -323,7 +324,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       menuItems: {
         control: "textarea",
         default: "Home\nExplore\nLibrary\nFavorites",
-        description: "Navigation menu items, one per line.",
+        description: "Navigation menu items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       storageLabel: {
         control: "text",
@@ -427,6 +428,43 @@ export const sidebarSections: SidebarSectionMeta[] = [
     tags: ["sidebar", "navigation", "macos", "finder", "familiar"],
     props: {
       ...commonSidebarProps,
+      treeItems: {
+        control: "textarea",
+        default: "favorites:airdrop,recents,applications,desktop,documents,downloads\niCloud:iCloud Drive",
+        description: "Tree items in format 'Section:Item1,Item2' or 'Section' for sections without items. One per line.",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#F6F5F2",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#1d1d1f",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#007AFF",
+        description: "Color for active items.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#1d1d1f",
+        description: "Hover state color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#d2d2d7",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 240,
+        description: "Sidebar width in pixels.",
+      },
     },
   },
   {
@@ -437,6 +475,48 @@ export const sidebarSections: SidebarSectionMeta[] = [
     tags: ["sidebar", "navigation", "vscode", "code", "developer"],
     props: {
       ...commonSidebarProps,
+      panelTitle: {
+        control: "text",
+        default: "Explorer",
+        description: "Title of the sidebar panel.",
+      },
+      openEditorsItems: {
+        control: "textarea",
+        default: "TS Sidebar.tsx src/components",
+        description: "Open editors items. Format: 'Type FileName Path:badge' or 'FileName:badge' or 'Type FileName Path' or 'FileName'. One per line.",
+      },
+      fileTreeItems: {
+        control: "textarea",
+        default: ".next\nsrc:App.tsx,globals.css",
+        description: "File tree items. Format: 'Folder' for folders without files, or 'Folder:File1,File2' for folders with files. One per line.",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#1E1E1E",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#CCCCCC",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#E8AE38",
+        description: "Color for active items.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#2B2B2B",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 240,
+        description: "Sidebar width in pixels.",
+      },
     },
   },
   {
@@ -455,12 +535,12 @@ export const sidebarSections: SidebarSectionMeta[] = [
       primaryMenuItems: {
         control: "textarea",
         default: "Overview\nReports\nLive View",
-        description: "Primary navigation items, one per line.",
+        description: "Primary navigation items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       secondaryMenuItems: {
         control: "textarea",
         default: "Settings\nHelp\nLogout",
-        description: "Secondary navigation items, one per line.",
+        description: "Secondary navigation items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       profileName: {
         control: "text",
@@ -471,6 +551,45 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "Premium User",
         description: "Profile role or subscription tier.",
+      },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#312e81",
+        description: "Gradient start color (background color).",
+      },
+      textColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#06b6d4",
+        description: "Active item color and gradient middle color.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Hover state color.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 24,
+        description: "Padding in pixels.",
       },
     },
   },
@@ -491,6 +610,50 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "Product Designer",
         description: "User's role or job title.",
+      },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#fafafa",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#525252",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#000000",
+        description: "Color for active items and upgrade button.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#000000",
+        description: "Hover state color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 288,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 24,
+        description: "Padding in pixels.",
       },
       menuSectionTitle: {
         control: "text",
@@ -542,6 +705,45 @@ export const sidebarSections: SidebarSectionMeta[] = [
         default: "Menu Item 1\nMenu Item 2\nMenu Item 3\nMenu Item 4\nMenu Item 5",
         description: "Navigation menu items, one per line.",
       },
+      backgroundColor: {
+        control: "color",
+        default: "#0a0a0a",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#a3a3a3",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#3b82f6",
+        description: "Color for active items and logo background.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Hover state color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#262626",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels (when expanded).",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 16,
+        description: "Padding in pixels.",
+      },
     },
   },
   {
@@ -562,6 +764,45 @@ export const sidebarSections: SidebarSectionMeta[] = [
         default: "Getting Started:Installation,Project Structure,Changelog\nComponents\nAPI Reference\nIntegration",
         description: "Tree items in format 'Parent:Child1,Child2' or 'Parent' for items without children. One per line.",
       },
+      backgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#525252",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#2563eb",
+        description: "Color for active items.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#f3f4f6",
+        description: "Hover state background color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#e5e7eb",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 16,
+        description: "Padding in pixels.",
+      },
     },
   },
   {
@@ -580,7 +821,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       quickActions: {
         control: "textarea",
         default: "Search\nUpdates\nSettings",
-        description: "Quick action items, one per line.",
+        description: "Quick action items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       favoritesTitle: {
         control: "text",
@@ -590,7 +831,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       favoritesItems: {
         control: "textarea",
         default: "Product Roadmap\nMeeting Notes\nDesign System",
-        description: "Favorite items, one per line.",
+        description: "Favorite items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       privateTitle: {
         control: "text",
@@ -600,7 +841,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       privateItems: {
         control: "textarea",
         default: "Personal Goals\nReading List",
-        description: "Private items, one per line.",
+        description: "Private items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       addPageText: {
         control: "text",
@@ -660,7 +901,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       mainMenuItems: {
         control: "textarea",
         default: "Inbox\nMy Issues\nViews",
-        description: "Main menu items, one per line.",
+        description: "Main menu items. Format: 'Item' or 'Item:badge'. One per line.",
       },
       teamsTitle: {
         control: "text",
@@ -690,7 +931,7 @@ export const sidebarSections: SidebarSectionMeta[] = [
       menuItems: {
         control: "textarea",
         default: "Armory\nMap\nMissions\nSocial\nMarket",
-        description: "Navigation menu items, one per line.",
+        description: "Navigation menu items. Format: 'Item' or 'Item:badge'. One per line.",
       },
     },
   },
@@ -722,6 +963,45 @@ export const sidebarSections: SidebarSectionMeta[] = [
         default: "Accounts\nTransfers\nReports\nStatements",
         description: "Navigation menu items, one per line.",
       },
+      backgroundColor: {
+        control: "color",
+        default: "#0b2135",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#bfdbfe",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#10b981",
+        description: "Color for active items and shield icon.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Hover state color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#1e3a5f",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 24,
+        description: "Padding in pixels.",
+      },
     },
   },
   {
@@ -732,6 +1012,52 @@ export const sidebarSections: SidebarSectionMeta[] = [
     tags: ["sidebar", "navigation", "curve", "smooth", "transitions"],
     props: {
       ...commonSidebarProps,
+      backgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#737373",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#4f46e5",
+        description: "Color for active items and logo background.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#525252",
+        description: "Hover state color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 80,
+        max: 120,
+        default: 96,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 24,
+        description: "Padding in pixels.",
+      },
+      borderRadius: {
+        control: "slider",
+        min: 0,
+        max: 50,
+        default: 40,
+        description: "Border radius in pixels.",
+      },
     },
   },
   {
@@ -756,6 +1082,45 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "New List",
         description: "Text for the new list button.",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#525252",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#4f46e5",
+        description: "Color for active items and new task button.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#f5f5f5",
+        description: "Hover state background color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 24,
+        description: "Padding in pixels.",
       },
     },
   },
@@ -786,6 +1151,62 @@ export const sidebarSections: SidebarSectionMeta[] = [
         control: "text",
         default: "Admin",
         description: "User's role or job title.",
+      },
+      profileImage: {
+        control: "file",
+        default: "",
+        description: "Profile image URL or uploaded image (data URL).",
+      },
+      logoImage: {
+        control: "file",
+        default: "",
+        description: "Logo image URL or uploaded image (data URL).",
+      },
+      backgroundColor: {
+        control: "color",
+        default: "#ffffff",
+        description: "Background color of the sidebar.",
+      },
+      textColor: {
+        control: "color",
+        default: "#737373",
+        description: "Text color for navigation items.",
+      },
+      activeColor: {
+        control: "color",
+        default: "#000000",
+        description: "Color for active items and brand name.",
+      },
+      hoverColor: {
+        control: "color",
+        default: "#f5f5f5",
+        description: "Hover state background color.",
+      },
+      borderColor: {
+        control: "color",
+        default: "#e5e5e5",
+        description: "Border color of the sidebar.",
+      },
+      width: {
+        control: "slider",
+        min: 200,
+        max: 400,
+        default: 256,
+        description: "Sidebar width in pixels.",
+      },
+      padding: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 16,
+        description: "Padding in pixels.",
+      },
+      borderRadius: {
+        control: "slider",
+        min: 0,
+        max: 32,
+        default: 16,
+        description: "Border radius in pixels.",
       },
     },
   },
