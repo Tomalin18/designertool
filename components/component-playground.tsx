@@ -3330,6 +3330,68 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     })
   }
 
+  // Helper function to update prop values in initialCode
+  const updatePropsInCode = (code: string, props: Record<string, any>, config: any): string => {
+    let updatedCode = code
+    
+    // Helper to convert hex to rgb
+    const hexToRgb = (hex: string): string => {
+      if (!hex || !hex.startsWith('#')) return hex
+      const r = parseInt(hex.slice(1, 3), 16)
+      const g = parseInt(hex.slice(3, 5), 16)
+      const b = parseInt(hex.slice(5, 7), 16)
+      return `rgb(${r} ${g} ${b})`
+    }
+
+    // Update prop values in code
+    Object.entries(props).forEach(([key, value]) => {
+      if (value === undefined) return
+      const propConfig = config.props[key]
+      if (!propConfig) return
+
+      // For data prop (chart components), replace or add the value
+      if (key === "data" && typeof value === "string" && value.trim() !== "") {
+        const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')
+        const defaultPattern = new RegExp(`(data\\s*=\\s*)"[^"]*"`, 'g')
+        if (defaultPattern.test(updatedCode)) {
+          updatedCode = updatedCode.replace(defaultPattern, `$1"${escapedValue}"`)
+        } else {
+          const noDefaultPattern = new RegExp(`(data\\s*),`, 'g')
+          if (noDefaultPattern.test(updatedCode)) {
+            updatedCode = updatedCode.replace(noDefaultPattern, `$1 = "${escapedValue}",`)
+          } else {
+            const noCommaPattern = new RegExp(`(data\\s*)([,\\n])`, 'g')
+            updatedCode = updatedCode.replace(noCommaPattern, `$1 = "${escapedValue}"$2`)
+          }
+        }
+      }
+      // For color props, convert hex to rgb and replace
+      else if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor" || key === "dotColor" || key === "iconColor") && typeof value === "string" && value.startsWith("#")) {
+        const rgbValue = hexToRgb(value)
+        const colorPattern = new RegExp(`(${key}\\s*=\\s*)"[^"]*"`, 'g')
+        updatedCode = updatedCode.replace(colorPattern, `$1"${rgbValue}"`)
+      }
+      // For boolean props, replace true/false
+      else if (typeof value === "boolean") {
+        const boolPattern = new RegExp(`(${key}\\s*=\\s*)(true|false)`, 'g')
+        updatedCode = updatedCode.replace(boolPattern, `$1${value}`)
+      }
+      // For number props, replace numeric values
+      else if (typeof value === "number") {
+        const numPattern = new RegExp(`(${key}\\s*=\\s*)[0-9.]+`, 'g')
+        updatedCode = updatedCode.replace(numPattern, `$1${value}`)
+      }
+      // For string props, replace the default value
+      else if (typeof value === "string" && value.trim() !== "") {
+        const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+        const stringPattern = new RegExp(`(${key}\\s*=\\s*)"[^"]*"`, 'g')
+        updatedCode = updatedCode.replace(stringPattern, `$1"${escapedValue}"`)
+      }
+    })
+
+    return updatedCode
+  }
+
   const generateCode = () => {
     if (!config) return ""
 
@@ -5925,9 +5987,11 @@ export default function ${headerMeta.componentName}Example() {
 
     // Button section code generation with initialCode (full component)
     if (buttonMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
         const imports = `"use client"
 
@@ -5935,10 +5999,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use it as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
 
@@ -5996,9 +6060,11 @@ export default function ${buttonMeta.componentName}Example() {
       }
     }
     if (inputMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
         const imports = `"use client"
 
@@ -6006,10 +6072,10 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use it as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
     if (inputMeta) {
@@ -6076,9 +6142,11 @@ export default function ${inputMeta.componentName}Example() {
       }
     }
     if (badgeMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
         const imports = `"use client"
 
@@ -6086,10 +6154,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use it as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
     if (badgeMeta) {
@@ -6150,9 +6218,11 @@ export default function ${badgeMeta.componentName}Example() {
       }
     }
     if (cardMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
         const imports = `"use client"
 
@@ -6160,10 +6230,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use it as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
     if (cardMeta) {
@@ -6260,9 +6330,11 @@ export default function ${cardMeta.componentName}Example() {
       }
     }
     if (dialogMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
         const imports = `"use client"
 
@@ -6270,10 +6342,10 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use it as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
     if (dialogMeta) {
@@ -6576,9 +6648,11 @@ export default function ${tabsMeta.componentName}Example() {
 
     // For sidebar components with initialCode
     if (sidebarMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
         const imports = `"use client"
 
@@ -6631,10 +6705,10 @@ import {
 } from "lucide-react";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
 
@@ -6711,9 +6785,11 @@ export default function ${sidebarMeta.componentName}Example() {
     }
 
     if (tabbarMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
         const imports = `"use client"
 
@@ -6748,10 +6824,10 @@ import {
 } from "lucide-react";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
 
@@ -6807,9 +6883,11 @@ export default function ${tabbarMeta.componentName}Example() {
 
     // For sheet components with initialCode
     if (sheetMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
         const imports = `"use client"
 
@@ -6853,10 +6931,10 @@ import {
 import { ShinyButton } from "./ShinyButton";
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
 
@@ -6912,9 +6990,11 @@ export default function ${sheetMeta.componentName}Example() {
 
     // For table components with initialCode
     if (tableMeta && initialCode) {
-      // Use the initialCode directly (it already contains the full component)
+      // Update prop values in initialCode
+      let code = updatePropsInCode(initialCode, props, config)
+      
       // Check if initialCode already has imports
-      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+      if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
         const imports = `"use client"
 
@@ -6945,10 +7025,10 @@ const hexToRgb = (hex: string): string | undefined => {
 };
 
 `
-        return `${imports}${initialCode}`
+        return `${imports}${code}`
       } else {
-        // initialCode already has imports, use as-is
-        return initialCode
+        // initialCode already has imports, use updated code
+        return code
       }
     }
 
@@ -7003,67 +7083,8 @@ export default function ${tableMeta.componentName}Example() {
 
     // For chart components with initialCode
     if (chartMeta && initialCode) {
-      // Helper to convert hex to rgb
-      const hexToRgb = (hex: string): string => {
-        if (!hex || !hex.startsWith('#')) return hex
-        const r = parseInt(hex.slice(1, 3), 16)
-        const g = parseInt(hex.slice(3, 5), 16)
-        const b = parseInt(hex.slice(5, 7), 16)
-        return `rgb(${r} ${g} ${b})`
-      }
-
       // Update prop values in initialCode
-      let code = initialCode
-      
-      // Replace prop default values with current prop values
-      Object.entries(props).forEach(([key, value]) => {
-        if (value === undefined) return
-        const propConfig = config.props[key]
-        if (!propConfig) return
-
-        // For data prop, replace or add the value in function signature
-        if (key === "data" && typeof value === "string" && value.trim() !== "") {
-          const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')
-          
-          // Pattern 1: data = "default value" or data="default value"
-          const defaultPattern = new RegExp(`(data\\s*=\\s*)"[^"]*"`, 'g')
-          if (defaultPattern.test(code)) {
-            code = code.replace(defaultPattern, `$1"${escapedValue}"`)
-          } else {
-            // Pattern 2: data, (no default value) - add default value
-            const noDefaultPattern = new RegExp(`(data\\s*),`, 'g')
-            if (noDefaultPattern.test(code)) {
-              code = code.replace(noDefaultPattern, `$1 = "${escapedValue}",`)
-            } else {
-              // Pattern 3: data (without comma) - add default value with comma
-              const noCommaPattern = new RegExp(`(data\\s*)([,\\n])`, 'g')
-              code = code.replace(noCommaPattern, `$1 = "${escapedValue}"$2`)
-            }
-          }
-        }
-        // For color props, convert hex to rgb and replace
-        else if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor") && typeof value === "string" && value.startsWith("#")) {
-          const rgbValue = hexToRgb(value)
-          const colorPattern = new RegExp(`(${key}\\s*=\\s*)"[^"]*"`, 'g')
-          code = code.replace(colorPattern, `$1"${rgbValue}"`)
-        }
-        // For boolean props, replace true/false
-        else if (typeof value === "boolean") {
-          const boolPattern = new RegExp(`(${key}\\s*=\\s*)(true|false)`, 'g')
-          code = code.replace(boolPattern, `$1${value}`)
-        }
-        // For number props, replace numeric values
-        else if (typeof value === "number") {
-          const numPattern = new RegExp(`(${key}\\s*=\\s*)[0-9.]+`, 'g')
-          code = code.replace(numPattern, `$1${value}`)
-        }
-        // For string props (like title), replace the default value
-        else if (typeof value === "string" && value.trim() !== "") {
-          const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-          const stringPattern = new RegExp(`(${key}\\s*=\\s*)"[^"]*"`, 'g')
-          code = code.replace(stringPattern, `$1"${escapedValue}"`)
-        }
-      })
+      let code = updatePropsInCode(initialCode, props, config)
 
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
