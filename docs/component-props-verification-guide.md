@@ -245,6 +245,14 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Supports adding, removing, and editing individual tabs
 - [ ] Handles newline-separated string format correctly
 
+#### ✅ Special Editors for Tabbar Components
+- [ ] Items prop uses `TabsEditor` instead of textarea
+- [ ] Icons prop uses `IconSelector` (icon button selector) instead of textarea
+- [ ] IconSelector displays icon buttons for each item
+- [ ] Clicking icon button opens Popover with available icons grid
+- [ ] Supports selecting icons from common Lucide icons
+- [ ] Icons are synchronized with items count automatically
+
 **TabsEditor Implementation:**
 ```typescript
 // In component-playground-customize-panel.tsx
@@ -332,6 +340,166 @@ if (tabsSection) {
 - Supports keyboard shortcuts (Enter to add, Backspace to remove)
 - Always maintains at least one empty input for adding new tabs
 - Automatically cleans empty tabs when saving (except the last one for input)
+
+**Tabbar Items Editor Implementation:**
+```typescript
+// In component-playground-customize-panel.tsx
+// Special editor for tabbar items prop (textarea type) - use TabsEditor
+const tabbarSection = tabbarSections.find((tabbar: { componentName: string; name: string }) =>
+  tabbar.componentName === componentName || tabbar.name === componentName
+)
+if (tabbarSection && key === "items" && propConfig.type === "textarea") {
+  // Use default value from metadata if current value is empty
+  const displayValue = props[key] && props[key].trim() !== "" 
+    ? props[key] 
+    : (propConfig.default || tabbarSection.props.items?.default || "")
+  return (
+    <div key={key} className="space-y-2">
+      <Label className="capitalize">{label}</Label>
+      <TabsEditor 
+        value={displayValue} 
+        onChange={(val) => updateProp(key, val)} 
+      />
+      {propConfig.description && (
+        <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+      )}
+      {!isLast && <Separator className="!mt-4" />}
+    </div>
+  )
+}
+```
+
+**Tabbar Icons Editor Implementation:**
+```typescript
+// In component-playground-customize-panel.tsx
+// Icon selector component for tabbar icons
+const IconSelector = ({ 
+  value, 
+  onChange, 
+  itemsValue 
+}: { 
+  value: string, 
+  onChange: (val: string) => void,
+  itemsValue?: string 
+}) => {
+  // Parse icons from newline-separated string
+  const icons = value ? value.split("\n").filter((icon) => icon.trim() !== "") : []
+  // Parse items to know how many icons we need
+  const items = itemsValue ? itemsValue.split("\n").filter((item) => item.trim() !== "") : []
+  const itemCount = items.length || icons.length || 1
+  
+  // Common icons used in tabbars (from lucide-react)
+  const commonIcons = [
+    "Home", "Search", "User", "Bell", "Settings", "Plus", "Heart", 
+    "ShoppingBag", "Map", "Calendar", "MessageSquare", "Menu", "Compass", 
+    "Star", "Video", "Music", "Grid", "Layers", "Zap", "Radio", "Scan", 
+    "TrendingUp", "Mail", "Send", "Image", "File", "Folder", "Bookmark",
+    // ... more icons
+  ]
+  
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null)
+  
+  const updateIcon = (index: number, iconName: string) => {
+    const newIcons = [...icons]
+    // Ensure array is long enough
+    while (newIcons.length < itemCount) {
+      newIcons.push("")
+    }
+    newIcons[index] = iconName
+    // Filter out empty strings but keep the structure
+    const filtered = newIcons.map((icon, i) => i < itemCount ? icon : "").filter((icon, i) => i < itemCount)
+    onChange(filtered.join("\n"))
+    setOpenIndex(null)
+  }
+  
+  // Ensure we have enough icon slots
+  const displayIcons = Array.from({ length: itemCount }, (_, i) => icons[i] || "")
+  
+  return (
+    <div className="space-y-3">
+      {displayIcons.map((iconName, index) => {
+        const IconComponent = iconName 
+          ? (LucideIcons[iconName as keyof typeof LucideIcons] as any)
+          : null
+        
+        return (
+          <div key={index} className="flex items-center gap-2 relative">
+            <span className="text-xs text-muted-foreground w-8">#{index + 1}</span>
+            <Popover open={openIndex === index} onOpenChange={(open) => setOpenIndex(open ? index : null)}>
+              <PopoverTrigger asChild>
+                <button
+                  className="flex-shrink-0 w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent border-border bg-card"
+                >
+                  {IconComponent ? (
+                    <IconComponent className="h-6 w-6" strokeWidth={1.5} />
+                  ) : (
+                    <Plus className="h-6 w-6 text-muted-foreground" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                  {commonIcons.map((icon) => {
+                    const Icon = LucideIcons[icon as keyof typeof LucideIcons] as any
+                    if (!Icon) return null
+                    return (
+                      <button
+                        key={icon}
+                        onClick={() => updateIcon(index, icon)}
+                        className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${
+                          iconName === icon ? "border-foreground bg-accent" : "border-border bg-card"
+                        }`}
+                        title={icon}
+                      >
+                        <Icon className="h-5 w-5" strokeWidth={1.5} />
+                      </button>
+                    )
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// Usage in CustomizePanel
+if (tabbarSection && key === "icons" && propConfig.type === "textarea") {
+  // Use default value from metadata if current value is empty
+  const displayValue = props[key] && props[key].trim() !== "" 
+    ? props[key] 
+    : (propConfig.default || tabbarSection.props.icons?.default || "")
+  const itemsValue = props["items"] && props["items"].trim() !== ""
+    ? props["items"]
+    : (tabbarSection.props.items?.default || "")
+  return (
+    <div key={key} className="space-y-2 relative">
+      <Label className="capitalize">{label}</Label>
+      <IconSelector 
+        value={displayValue} 
+        onChange={(val) => updateProp(key, val)}
+        itemsValue={itemsValue}
+      />
+      {propConfig.description && (
+        <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+      )}
+      {!isLast && <Separator className="!mt-4" />}
+    </div>
+  )
+}
+```
+
+**IconSelector Component Details:**
+- Displays icon buttons (12x12, rounded-lg, border-2) for each item
+- Each icon button shows the currently selected icon, or Plus icon if none selected
+- Clicking an icon button opens a Popover with a grid of available icons
+- Icon grid shows common Lucide icons (Home, Search, User, Bell, etc.)
+- Selected icon is highlighted with accent background
+- Icons are automatically synchronized with items count
+- Icons are stored as newline-separated string (one icon name per line)
+- Supports default values from metadata
 
 ### 5. Code Generation (`components/component-playground.tsx`)
 
@@ -613,6 +781,33 @@ When adding a new component, test the following:
 - Check active tab state management works correctly
 - Ensure color props are properly converted from hex to rgb
 - Verify props filtering in CustomizePanel (only show props defined in metadata)
+
+#### Tabbar Components
+- Use `commonTabbarProps` only if component needs all common props
+- Ensure `items` prop uses `control: "textarea"` with default values (e.g., `"Home\nSearch\nLibrary"`)
+- Ensure `icons` prop uses `control: "textarea"` with default values matching items order
+- Ensure `showLabels` prop uses `control: "boolean"` with appropriate default (usually `true`)
+- Items prop uses `TabsEditor` instead of textarea (in CustomizePanel)
+- Icons prop uses `IconSelector` (icon button selector) instead of textarea (in CustomizePanel)
+- Verify items and icons are parsed correctly (newline-separated strings)
+- Check that icon count matches item count automatically
+- Ensure icons are mapped correctly using `iconMap` in component implementation
+- Verify default values are displayed in CustomizePanel when props are empty
+- Ensure color props are properly converted from hex to rgb
+- Verify props filtering in CustomizePanel (only show props defined in metadata)
+- **Important:** Items and icons should have matching default values in metadata:
+  ```typescript
+  items: {
+    control: "textarea",
+    default: "Home\nSearch\nLibrary",
+    description: "List of tab items, one per line.",
+  },
+  icons: {
+    control: "textarea",
+    default: "Home\nSearch\nLayers",
+    description: "List of icon names for each item (one per line).",
+  },
+  ```
 
 ### 10. Components Page and Sidebar Integration
 
@@ -1089,15 +1284,21 @@ export const MediaPlayer = ({
 
 | Control Type | Use Case | Example |
 |-------------|----------|---------|
+| Control Type | Use Case | Example |
+|-------------|----------|---------|
 | `text` | Single-line text input | `title`, `description` |
-| `textarea` | Multi-line text input | `features` (newline-separated), `tabs` (uses TabsEditor) |
+| `textarea` | Multi-line text input | `features` (newline-separated), `tabs` (uses TabsEditor), `items` (uses TabsEditor for tabbars), `icons` (uses IconSelector for tabbars) |
 | `number` | Numeric input | `count`, `rating` |
 | `boolean` | Toggle switch | `showButton`, `isActive` |
 | `select` | Dropdown with options | `variant`, `status` |
 | `slider` | Range slider | `borderRadius`, `padding` |
 | `color` | Color picker (hex) | `backgroundColor`, `textColor` |
 
-**Note:** For Tabs components, the `tabs` prop uses `control: "textarea"` but is rendered with `TabsEditor` (a list-based editor) instead of a regular textarea. This provides a better user experience for managing tab lists.
+**Special Editor Notes:**
+- **Tabs components:** The `tabs` prop uses `control: "textarea"` but is rendered with `TabsEditor` (a list-based editor) instead of a regular textarea. This provides a better user experience for managing tab lists.
+- **Tabbar components:** 
+  - The `items` prop uses `control: "textarea"` but is rendered with `TabsEditor` (same as tabs components) for consistent editing experience.
+  - The `icons` prop uses `control: "textarea"` but is rendered with `IconSelector` (icon button selector with Popover) instead of a regular textarea. This provides a visual icon selection interface where users can click icon buttons to select from a grid of available Lucide icons.
 
 ## Quick Reference: Color Handling Pattern
 

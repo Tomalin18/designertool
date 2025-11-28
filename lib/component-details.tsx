@@ -8,6 +8,7 @@ import { buttonSections } from "./button-sections"
 import { cardSections } from "./card-sections"
 import { badgeSections } from "./badge-sections"
 import { toggleSections } from "./toggle-sections"
+import { tabbarSections } from "./tabbar-sections"
 
 export interface ComponentDetail {
   name: string
@@ -2493,6 +2494,42 @@ export function ${toggle.componentName}Demo() {
 
 export function ${toggle.componentName}Demo() {
   return <${toggle.componentName} />
+}`,
+      },
+    ],
+  }
+})
+
+tabbarSections.forEach((tabbar) => {
+  componentDetails[tabbar.slug] = {
+    name: tabbar.name,
+    description: tabbar.description,
+    category: "Navigation",
+    hasPlayground: true,
+    installation: "Copy the tabbar component from the code example below.",
+    usage: `import { ${tabbar.componentName} } from "@/components/customize/tabbars"
+
+export function ${tabbar.componentName}Demo() {
+  return <${tabbar.componentName} />
+}`,
+    tags: tabbar.tags,
+    props: Object.entries(tabbar.props).map(([propName, prop]) => ({
+      name: propName,
+      type: prop.options ? prop.options.join(" | ") : (prop.control === "boolean" ? "boolean" : prop.control === "slider" ? "number" : prop.control === "number" ? "number" : "string"),
+      default:
+        typeof prop.default === "string"
+          ? JSON.stringify(prop.default)
+          : String(prop.default),
+      description: prop.description,
+    })),
+    examples: [
+      {
+        title: "Basic Usage",
+        description: `A simple ${tabbar.name.toLowerCase()} component with default settings.`,
+        code: `import { ${tabbar.componentName} } from "@/components/customize/tabbars"
+
+export function ${tabbar.componentName}Demo() {
+  return <${tabbar.componentName} />
 }`,
       },
     ],

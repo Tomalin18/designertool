@@ -13,13 +13,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Plus, Trash2, GripVertical, Upload, X } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 import { buttonSections } from "@/lib/button-sections"
 import { cardSections } from "@/lib/card-sections"
 import { badgeSections } from "@/lib/badge-sections"
 import { inputSections } from "@/lib/input-sections"
 import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
+import { tabbarSections } from "@/lib/tabbar-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -54,6 +57,105 @@ interface CustomizePanelProps {
     }[]
     hiddenProps?: string[]
   }
+}
+
+// Icon selector component for tabbar icons
+const IconSelector = ({ 
+  value, 
+  onChange, 
+  itemsValue 
+}: { 
+  value: string, 
+  onChange: (val: string) => void,
+  itemsValue?: string 
+}) => {
+  // Parse icons from newline-separated string
+  const icons = value ? value.split("\n").filter((icon) => icon.trim() !== "") : []
+  // Parse items to know how many icons we need
+  const items = itemsValue ? itemsValue.split("\n").filter((item) => item.trim() !== "") : []
+  const itemCount = items.length || icons.length || 1
+  
+  // Common icons used in tabbars (removed duplicates)
+  const commonIcons = [
+    "Home", "Search", "User", "Bell", "Settings", "Plus", "Heart", 
+    "ShoppingBag", "Map", "Calendar", "MessageSquare", "Menu", "Compass", 
+    "Star", "Video", "Music", "Grid", "Layers", "Zap", "Radio", "Scan", 
+    "TrendingUp", "Mail", "Send", "Image", "File", "Folder", "Bookmark",
+    "BookmarkCheck", "BookOpen", "Briefcase", "Camera", "Cast", "CheckCircle",
+    "Clock", "CreditCard", "Download", "Edit", "Eye", "Filter", "Flag",
+    "Gift", "Globe", "Headphones", "HelpCircle", "Inbox", "Info", "Key",
+    "Link", "Lock", "Mic", "Moon", "MoreHorizontal", "MoreVertical", "Package",
+    "Paperclip", "Phone", "Play", "Save", "Share", "Shield", "ShoppingCart",
+    "Smile", "Sun", "Tag", "Target", "ThumbsUp", "Trash", "TrendingDown",
+    "Upload", "UserPlus", "Volume2", "Wifi", "X"
+  ]
+  
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null)
+  
+  const updateIcon = (index: number, iconName: string) => {
+    const newIcons = [...icons]
+    // Ensure array is long enough
+    while (newIcons.length < itemCount) {
+      newIcons.push("")
+    }
+    newIcons[index] = iconName
+    // Filter out empty strings but keep the structure
+    const filtered = newIcons.map((icon, i) => i < itemCount ? icon : "").filter((icon, i) => i < itemCount)
+    onChange(filtered.join("\n"))
+    setOpenIndex(null)
+  }
+  
+  // Ensure we have enough icon slots
+  const displayIcons = Array.from({ length: itemCount }, (_, i) => icons[i] || "")
+  
+  return (
+    <div className="space-y-3">
+      {displayIcons.map((iconName, index) => {
+        const IconComponent = iconName 
+          ? (LucideIcons[iconName as keyof typeof LucideIcons] as any)
+          : null
+        
+        return (
+          <div key={index} className="flex items-center gap-2 relative">
+            <span className="text-xs text-muted-foreground w-8">#{index + 1}</span>
+            <Popover open={openIndex === index} onOpenChange={(open) => setOpenIndex(open ? index : null)}>
+              <PopoverTrigger asChild>
+                <button
+                  className="flex-shrink-0 w-12 h-12 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent border-border bg-card"
+                >
+                  {IconComponent ? (
+                    <IconComponent className="h-6 w-6" strokeWidth={1.5} />
+                  ) : (
+                    <Plus className="h-6 w-6 text-muted-foreground" />
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="grid grid-cols-6 gap-2 max-h-64 overflow-y-auto">
+                  {commonIcons.map((icon) => {
+                    const Icon = LucideIcons[icon as keyof typeof LucideIcons] as any
+                    if (!Icon) return null
+                    return (
+                      <button
+                        key={icon}
+                        onClick={() => updateIcon(index, icon)}
+                        className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${
+                          iconName === icon ? "border-foreground bg-accent" : "border-border bg-card"
+                        }`}
+                        title={icon}
+                      >
+                        <Icon className="h-5 w-5" strokeWidth={1.5} />
+                      </button>
+                    )
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
@@ -1047,6 +1149,55 @@ export function CustomizePanel({
       )
     }
 
+    // Special editor for tabbar items prop (textarea type) - use TabsEditor instead of SidebarNavigationEditor
+    const tabbarSection = tabbarSections.find((tabbar: { componentName: string; name: string }) =>
+      tabbar.componentName === componentName || tabbar.name === componentName
+    )
+    if (tabbarSection && key === "items" && propConfig.type === "textarea") {
+      // Use default value from metadata if current value is empty
+      const displayValue = props[key] && props[key].trim() !== "" 
+        ? props[key] 
+        : (propConfig.default || tabbarSection.props.items?.default || "")
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <TabsEditor 
+            value={displayValue} 
+            onChange={(val) => updateProp(key, val)} 
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
+    // Special editor for tabbar icons prop (textarea type) - use IconSelector
+    if (tabbarSection && key === "icons" && propConfig.type === "textarea") {
+      // Use default value from metadata if current value is empty
+      const displayValue = props[key] && props[key].trim() !== "" 
+        ? props[key] 
+        : (propConfig.default || tabbarSection.props.icons?.default || "")
+      const itemsValue = props["items"] && props["items"].trim() !== ""
+        ? props["items"]
+        : (tabbarSection.props.items?.default || "")
+      return (
+        <div key={key} className="space-y-2 relative">
+          <Label className="capitalize">{label}</Label>
+          <IconSelector 
+            value={displayValue} 
+            onChange={(val) => updateProp(key, val)}
+            itemsValue={itemsValue}
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
     // Special editor for tabs prop (textarea type)
     if (key === "tabs" && propConfig.type === "textarea") {
       return (
@@ -1974,6 +2125,159 @@ export function CustomizePanel({
       } else {
         // Fallback: return empty grouping to trigger fallback rendering
         console.warn(`Sidebar ${componentName}: No tabs created, falling back to default rendering.`)
+      }
+    }
+
+    // For Tabbar components, use detailed grouping (similar to Sidebar components)
+    // Try to find by componentName first, then by name
+    const tabbarSection = tabbarSections.find((tabbar: { componentName: string; name: string }) =>
+      tabbar.componentName === componentName || tabbar.name === componentName
+    )
+    if (tabbarSection) {
+      // Define style-related keys for tabbars
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'activeColor', 'inactiveColor',
+        'activeTextColor', 'iconColor', 'fabColor', 'fabShadowColor', 'glowColor',
+        'gradientFrom', 'gradientTo', 'pillBackgroundColor', 'pillTextColor',
+        'activeBackgroundColor', 'containerBackgroundColor', 'indicatorColor',
+        'dotColor', 'dividerColor', 'borderColor', 'textColor'
+      ]
+      const spacingKeys = ['padding', 'margin', 'gap', 'width']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = ['backdropBlur', 'opacity', 'shadow']
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in tabbarSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!tabbarSection.props[key]) {
+          return // Skip props not in metadata
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Spacing props: explicit spacing keys or keys containing spacing keywords
+        // But exclude 'className' which should always be in content
+        else if (key !== 'className' && spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        // Border props: explicit border keys or keys containing 'border' or 'radius'
+        // But exclude 'className' which should always be in content
+        else if (key !== 'className' && (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius'))) {
+          borderProps.push(key)
+        } 
+        // Other style props: explicit other style keys or keys containing style keywords
+        // But exclude 'className' which should always be in content
+        else if (
+          key !== 'className' &&
+          (otherStyleKeys.includes(key) || 
+          lowerKey.includes('blur') || 
+          lowerKey.includes('opacity') || 
+          lowerKey.includes('gradient') ||
+          lowerKey.includes('shadow') ||
+          (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width'))))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
+        // This includes className and any other non-style props
+        else {
+          contentProps.push(key)
+        }
+      })
+      
+      // Debug: Log if no props were found
+      if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
+        console.warn(`Tabbar ${componentName}: No props found in config.props that match tabbarSection.props.`, {
+          configProps: Object.keys(config.props),
+          tabbarSectionProps: Object.keys(tabbarSection.props),
+        })
+      }
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Always create Content tab if there are any content props, even if it's just className
+      // Collect all props that should be in content (including className)
+      const allContentProps = [...contentProps]
+      
+      // Ensure className is always in content if it exists in props and metadata
+      if (config.props.className && tabbarSection.props.className && !allContentProps.includes('className')) {
+        allContentProps.push('className')
+      }
+      
+      // Content tab - always show if there are content props
+      if (allContentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: allContentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      // If no tabs were created (shouldn't happen, but fallback just in case)
+      if (tabs.length === 0) {
+        // Collect all props that are defined in tabbarSection.props
+        const allProps: string[] = []
+        Object.entries(config.props).forEach(([key]) => {
+          // Only include props that are actually defined in tabbarSection.props
+          if (tabbarSection.props[key]) {
+            allProps.push(key)
+          }
+        })
+        
+        if (allProps.length > 0) {
+          tabs.push({ name: "general", label: "General", keys: allProps })
+        } else {
+          // If still no props, something is wrong - log for debugging
+          console.warn(`Tabbar ${componentName}: No props found after filtering.`, {
+            configProps: Object.keys(config.props),
+            tabbarSectionProps: Object.keys(tabbarSection.props),
+            tabbarSectionName: tabbarSection.name,
+            tabbarSectionComponentName: tabbarSection.componentName,
+          })
+        }
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      } else {
+        // Fallback: return empty grouping to trigger fallback rendering
+        console.warn(`Tabbar ${componentName}: No tabs created, falling back to default rendering.`)
       }
     }
 

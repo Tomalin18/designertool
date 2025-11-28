@@ -25,6 +25,7 @@ import { dialogSections } from "@/lib/dialog-sections"
 import { toggleSections } from "@/lib/toggle-sections"
 import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
+import { tabbarSections } from "@/lib/tabbar-sections"
 import { cn } from "@/lib/utils"
 
 // Lazy load heavy components
@@ -151,10 +152,17 @@ export function ComponentsPageClient() {
             href: `/components/${sidebar.slug}`,
             category: "Sidebar",
             tags: sidebar.tags || [],
+        })),
+        ...tabbarSections.map(tabbar => ({
+            name: tabbar.name,
+            description: tabbar.description,
+            href: `/components/${tabbar.slug}`,
+            category: "Tabbar",
+            tags: tabbar.tags || [],
         }))
     ]
 
-    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs", "Sidebar"]
+    const customCategories = ["All", "Special", "Button", "Card", "Badge", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar"]
 
     // Calculate tag frequency from custom components
     const tagFrequency = new Map<string, number>()
@@ -352,6 +360,10 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Sidebar")
     }
 
+    const getTabbarComponents = () => {
+        return customComponents.filter(c => c.category === "Tabbar")
+    }
+
     const getBadgeComponents = () => {
         return customComponents.filter(c => c.category === "Badge")
     }
@@ -452,6 +464,14 @@ export function ComponentsPageClient() {
             title: "Sidebar",
             href: "/components",
             items: getSidebarComponents().map((component) => ({
+                title: component.name,
+                href: component.href,
+            })),
+        },
+        {
+            title: "Tabbar",
+            href: "/components",
+            items: getTabbarComponents().map((component) => ({
                 title: component.name,
                 href: component.href,
             })),

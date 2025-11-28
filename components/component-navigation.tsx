@@ -16,6 +16,7 @@ import { inputSections } from "@/lib/input-sections"
 import { toggleSections } from "@/lib/toggle-sections"
 import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
+import { tabbarSections } from "@/lib/tabbar-sections"
 
 interface ComponentNavigationProps {
   currentSlug: string
@@ -32,6 +33,7 @@ interface ComponentNavigationProps {
   toggleMeta?: typeof toggleSections[number]
   tabsMeta?: typeof tabsSections[number]
   sidebarMeta?: typeof sidebarSections[number]
+  tabbarMeta?: typeof tabbarSections[number]
 }
 
 export function ComponentNavigation({
@@ -49,10 +51,11 @@ export function ComponentNavigation({
   toggleMeta,
   tabsMeta,
   sidebarMeta,
+  tabbarMeta,
 }: ComponentNavigationProps) {
   // Determine which section array to use
   let currentSection: typeof heroSections[number] | undefined
-  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections | typeof toggleSections | typeof tabsSections | typeof sidebarSections
+  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections | typeof toggleSections | typeof tabsSections | typeof sidebarSections | typeof tabbarSections
 
   if (heroMeta) {
     currentSection = heroMeta
@@ -93,6 +96,9 @@ export function ComponentNavigation({
   } else if (sidebarMeta) {
     currentSection = sidebarMeta
     sectionArray = sidebarSections
+  } else if (tabbarMeta) {
+    currentSection = tabbarMeta
+    sectionArray = tabbarSections
   } else {
     return null
   }

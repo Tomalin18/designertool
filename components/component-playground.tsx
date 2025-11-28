@@ -58,6 +58,8 @@ import { tabsSections } from "@/lib/tabs-sections"
 import { tabsComponentsByName } from "@/components/customize/tabs"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { sidebarComponentsByName } from "@/components/customize/sidebars"
+import { tabbarSections } from "@/lib/tabbar-sections"
+import { tabbarComponentsByName } from "@/components/customize/tabbars"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -132,6 +134,11 @@ const tabsNameToMeta = tabsSections.reduce<Record<string, (typeof tabsSections)[
 
 const sidebarNameToMeta = sidebarSections.reduce<Record<string, (typeof sidebarSections)[number]>>((acc, sidebar) => {
   acc[sidebar.name] = sidebar
+  return acc
+}, {})
+
+const tabbarNameToMeta = tabbarSections.reduce<Record<string, (typeof tabbarSections)[number]>>((acc, tabbar) => {
+  acc[tabbar.name] = tabbar
   return acc
 }, {})
 
@@ -2422,6 +2429,129 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add tabbar sections to configs
+  tabbarSections.forEach((tabbar) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = tabbarComponentsByName[tabbar.componentName]
+    if (!Component) {
+      console.warn(`Tabbar component not found: ${tabbar.componentName}. Available components:`, Object.keys(tabbarComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(tabbar.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[tabbar.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from tabbarComponentsByName (re-fetch to ensure it's available)
+        const Component = tabbarComponentsByName[tabbar.componentName]
+        
+        if (!Component) {
+          console.error(`Tabbar component ${tabbar.componentName} is not available in tabbarComponentsByName. Available:`, Object.keys(tabbarComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {tabbar.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        // Build processedProps
+        const processedProps: any = {}
+        
+        // Process all props from tabbar.props definition
+        Object.keys(tabbar.props).forEach((key) => {
+          const propConfig = tabbar.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue === true || propValue === "true"
+            } else {
+              processedProps[key] = propConfig.default === true || propConfig.default === "true"
+            }
+          }
+          // Handle text/textarea/select props
+          else {
+            if (propValue !== undefined && propValue !== null) {
+              processedProps[key] = propValue
+            } else {
+              if (propConfig.control === "select" && propConfig.options && propConfig.options.length > 0) {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : propConfig.options[0]
+              } else {
+                processedProps[key] = propConfig.default !== undefined ? propConfig.default : ""
+              }
+            }
+          }
+        })
+        
+        // Also include any props from props that might not be in tabbar.props
+        Object.keys(props).forEach((key) => {
+          if (!(key in processedProps) && !key.startsWith('_')) {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${tabbar.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2495,6 +2625,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.log(`Found sidebar config by slug: ${slug} -> ${sidebarMeta.name}`)
       } else {
         console.warn(`Sidebar meta found but config not found: ${sidebarMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+
+    const tabbarMeta = tabbarSections.find(t => t.slug === slug)
+    if (tabbarMeta) {
+      config = componentConfigs[tabbarMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = tabbarMeta.name
+        console.log(`Found tabbar config by slug: ${slug} -> ${tabbarMeta.name}`)
+      } else {
+        console.warn(`Tabbar meta found but config not found: ${tabbarMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
   }
@@ -2581,6 +2723,15 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const sidebarMetaBySlug = sidebarSections.find(s => s.slug === slug)
     if (sidebarMetaBySlug) {
       sidebarMeta = sidebarNameToMeta[sidebarMetaBySlug.name]
+    }
+  }
+
+  // For tabbar components, find by slug if not found by componentName
+  let tabbarMeta = tabbarNameToMeta[actualComponentName]
+  if (!tabbarMeta) {
+    const tabbarMetaBySlug = tabbarSections.find(t => t.slug === slug)
+    if (tabbarMetaBySlug) {
+      tabbarMeta = tabbarNameToMeta[tabbarMetaBySlug.name]
     }
   }
   const [copied, setCopied] = React.useState(false)
@@ -6112,6 +6263,112 @@ export default function ${sidebarMeta.componentName}Example() {
   return (
     <div className="flex items-center justify-center p-8 min-h-[200px]">
       <${sidebarMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // For tabbar components with initialCode
+    let tabbarMeta: (typeof tabbarSections)[number] | undefined
+    tabbarMeta = tabbarNameToMeta[componentName]
+    if (!tabbarMeta) {
+      // Try to find by slug
+      const tabbarMetaBySlug = tabbarSections.find(t => t.slug === slug)
+      if (tabbarMetaBySlug) {
+        tabbarMeta = tabbarNameToMeta[tabbarMetaBySlug.name]
+      }
+    }
+
+    if (tabbarMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  Search, 
+  User, 
+  Bell, 
+  Settings, 
+  Plus, 
+  Heart, 
+  ShoppingBag, 
+  Map, 
+  Calendar, 
+  MessageSquare, 
+  Menu, 
+  Compass, 
+  Star, 
+  Video, 
+  Music, 
+  Grid, 
+  Layers, 
+  Zap, 
+  Radio,
+  Scan,
+  Box,
+  TrendingUp,
+  Mail,
+  Send
+} from "lucide-react";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use as-is
+        return initialCode
+      }
+    }
+
+    // For tabbar components without initialCode, generate usage example
+    if (tabbarMeta) {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string): string => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor" || key === "fabColor" || key === "fabShadowColor" || key === "glowColor" || key === "gradientFrom" || key === "gradientTo" || key === "pillBackgroundColor" || key === "pillTextColor" || key === "activeTextColor" || key === "activeBackgroundColor" || key === "containerBackgroundColor" || key === "indicatorColor" || key === "iconColor" || key === "borderColor" || key === "textColor" || key === "dotColor" || key === "dividerColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings and handle newlines
+          const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${tabbarMeta.componentName} } from "@/components/customize/tabbars"
+
+export default function ${tabbarMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${tabbarMeta.componentName}${propsString}/>
     </div>
   )
 }`
