@@ -2705,7 +2705,7 @@ const componentConfigs: Record<string, any> = (() => {
 
     configs[table.name] = {
       props: propConfig,
-      render: (props: any) => {
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         const Component = tableComponentsByName[table.componentName]
         
         if (!Component) {
@@ -2762,6 +2762,37 @@ const componentConfigs: Record<string, any> = (() => {
           }
         })
 
+        // Add editable support for all table components
+        if (setProps) {
+          processedProps.editable = true
+          
+          // For tables with title prop
+          if (table.props.title) {
+            processedProps.onTitleChange = (text: string) => {
+              setProps((prev: any) => ({ ...prev, title: text }))
+            }
+          }
+          
+          // For tables with headers prop
+          if (table.props.headers) {
+            processedProps.onHeaderChange = (index: number, text: string) => {
+              setProps((prev: any) => {
+                const currentHeaders = (prev.headers || table.props.headers?.default || "").split("\n").filter((h: string) => h.trim() !== "")
+                currentHeaders[index] = text
+                return { ...prev, headers: currentHeaders.join("\n") }
+              })
+            }
+          }
+          
+          // For cell changes - we'll enable editing but cell data is managed by component internally
+          // The component will handle cell editing through onCellChange callback
+          processedProps.onCellChange = (rowIndex: number, colIndex: number, text: string) => {
+            // For now, we'll just log the change
+            // In a full implementation, you might want to store cell data in props
+            console.log(`Cell [${rowIndex}, ${colIndex}] changed to: ${text}`)
+          }
+        }
+
         try {
           return (
             <div className="w-full">
@@ -2803,7 +2834,7 @@ const componentConfigs: Record<string, any> = (() => {
 
     configs[chart.name] = {
       props: propConfig,
-      render: (props: any) => {
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         const Component = chartComponentsByName[chart.componentName]
         
         if (!Component) {
@@ -2859,6 +2890,38 @@ const componentConfigs: Record<string, any> = (() => {
             processedProps[key] = propValue !== undefined && propValue !== null ? propValue : (propConfig.default !== undefined ? propConfig.default : "")
           }
         })
+
+        // Add editable support for charts
+        if (setProps) {
+          processedProps.editable = true
+          
+          // Special handling for SparklineStat (has label and value instead of title)
+          if (chart.componentName === "SparklineStat") {
+            processedProps.onLabelChange = (text: string) => {
+              setProps((prev: any) => ({ ...prev, label: text }))
+            }
+            processedProps.onValueChange = (text: string) => {
+              setProps((prev: any) => ({ ...prev, value: text }))
+            }
+            // Also provide onTitleChange as fallback
+            processedProps.onTitleChange = (text: string) => {
+              // Try to determine which field to update
+              setProps((prev: any) => {
+                // If label matches current value, update value
+                if (prev.label === text) {
+                  return { ...prev, value: text }
+                }
+                // Otherwise update label
+                return { ...prev, label: text }
+              })
+            }
+          } else {
+            // For other charts, update title
+            processedProps.onTitleChange = (text: string) => {
+              setProps((prev: any) => ({ ...prev, title: text }))
+            }
+          }
+        }
 
         try {
           return (
