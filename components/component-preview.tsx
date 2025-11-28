@@ -54,6 +54,8 @@ import { tabsSections } from "@/lib/tabs-sections"
 import { tabsComponentsByName } from "@/components/customize/tabs"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { sidebarComponentsByName } from "@/components/customize/sidebars"
+import { tabbarSections } from "@/lib/tabbar-sections"
+import { tabbarComponentsByName } from "@/components/customize/tabbars"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -113,10 +115,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const sidebarMeta = sidebarSections.find((sidebar) => sidebar.name === name)
   const SidebarComponent = sidebarMeta ? sidebarComponentsByName[sidebarMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta
+  const tabbarMeta = tabbarSections.find((tabbar) => tabbar.name === name)
+  const TabbarComponent = tabbarMeta ? tabbarComponentsByName[tabbarMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || tabbarMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -308,6 +313,20 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <SidebarComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (tabbarMeta && TabbarComponent) {
+      // Get default props for the tabbar, filtering out undefined values
+      const defaultProps = Object.fromEntries(
+        Object.entries(tabbarMeta.props)
+          .map(([key, prop]) => [key, prop.default])
+          .filter(([_, value]) => value !== undefined && value !== null)
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <TabbarComponent {...defaultProps} />
         </div>
       )
     }

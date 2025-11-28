@@ -49,6 +49,107 @@ import {
   Star
 } from "lucide-react";
 import { sidebarSections } from "@/lib/sidebar-sections";
+import * as LucideIcons from "lucide-react";
+
+// Icon mapping for all sidebars - use LucideIcons directly
+const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>> = {
+  Home: LucideIcons.Home,
+  Search: LucideIcons.Search,
+  User: LucideIcons.User,
+  Bell: LucideIcons.Bell,
+  Settings: LucideIcons.Settings,
+  Plus: LucideIcons.Plus,
+  Heart: LucideIcons.Heart,
+  ShoppingBag: LucideIcons.ShoppingBag,
+  Map: LucideIcons.Map,
+  Calendar: LucideIcons.Calendar,
+  MessageSquare: LucideIcons.MessageSquare,
+  Menu: LucideIcons.Menu,
+  Compass: LucideIcons.Compass,
+  Star: LucideIcons.Star,
+  Video: LucideIcons.Video,
+  Music: LucideIcons.Music,
+  Grid: LucideIcons.Grid,
+  Layers: LucideIcons.Layers,
+  Zap: LucideIcons.Zap,
+  Radio: LucideIcons.Radio,
+  Scan: LucideIcons.Scan,
+  TrendingUp: LucideIcons.TrendingUp,
+  Mail: LucideIcons.Mail,
+  Send: LucideIcons.Send,
+  Image: LucideIcons.Image,
+  File: LucideIcons.File,
+  Folder: LucideIcons.Folder,
+  Bookmark: LucideIcons.Bookmark,
+  BookmarkCheck: LucideIcons.BookmarkCheck,
+  BookOpen: LucideIcons.BookOpen,
+  Briefcase: LucideIcons.Briefcase,
+  Camera: LucideIcons.Camera,
+  Cast: LucideIcons.Cast,
+  CheckCircle: LucideIcons.CheckCircle,
+  Clock: LucideIcons.Clock,
+  CreditCard: LucideIcons.CreditCard,
+  Download: LucideIcons.Download,
+  Edit: LucideIcons.Edit,
+  Eye: LucideIcons.Eye,
+  Filter: LucideIcons.Filter,
+  Flag: LucideIcons.Flag,
+  Gift: LucideIcons.Gift,
+  Globe: LucideIcons.Globe,
+  Headphones: LucideIcons.Headphones,
+  HelpCircle: LucideIcons.HelpCircle,
+  Inbox: LucideIcons.Inbox,
+  Info: LucideIcons.Info,
+  Key: LucideIcons.Key,
+  Link: LucideIcons.Link,
+  Lock: LucideIcons.Lock,
+  Mic: LucideIcons.Mic,
+  Moon: LucideIcons.Moon,
+  MoreHorizontal: LucideIcons.MoreHorizontal,
+  MoreVertical: LucideIcons.MoreVertical,
+  Package: LucideIcons.Package,
+  Paperclip: LucideIcons.Paperclip,
+  Phone: LucideIcons.Phone,
+  Play: LucideIcons.Play,
+  Save: LucideIcons.Save,
+  Share: LucideIcons.Share,
+  Shield: LucideIcons.Shield,
+  ShoppingCart: LucideIcons.ShoppingCart,
+  Smile: LucideIcons.Smile,
+  Sun: LucideIcons.Sun,
+  Tag: LucideIcons.Tag,
+  Target: LucideIcons.Target,
+  ThumbsUp: LucideIcons.ThumbsUp,
+  Trash: LucideIcons.Trash,
+  TrendingDown: LucideIcons.TrendingDown,
+  Upload: LucideIcons.Upload,
+  UserPlus: LucideIcons.UserPlus,
+  Volume2: LucideIcons.Volume2,
+  Wifi: LucideIcons.Wifi,
+  X: LucideIcons.X,
+  PieChart: LucideIcons.PieChart,
+  Database: LucideIcons.Database,
+  Cloud: LucideIcons.Cloud,
+  Code: LucideIcons.Code,
+  Terminal: LucideIcons.Terminal,
+  Layout: LucideIcons.Layout,
+  Command: LucideIcons.Command,
+  Hash: LucideIcons.Hash,
+  Disc: LucideIcons.Disc,
+  Box: LucideIcons.Box,
+  MapPin: LucideIcons.MapPin,
+  Laptop: LucideIcons.Laptop,
+  FileText: LucideIcons.FileText,
+  LogOut: LucideIcons.LogOut,
+  ChevronRight: LucideIcons.ChevronRight,
+  ChevronDown: LucideIcons.ChevronDown,
+}
+
+// Helper to parse icons from textarea
+const parseIcons = (iconsString?: string, defaultIcons: string[] = []): string[] => {
+  if (!iconsString || iconsString.trim() === "") return defaultIcons
+  return iconsString.split("\n").map(t => t.trim()).filter(t => t !== "")
+}
 
 // Helper function to convert hex to rgb
 const hexToRgb = (hex: string): string | undefined => {
@@ -280,8 +381,10 @@ export interface SaasDarkSidebarProps extends SidebarProps {
   planName?: string;
   overviewSectionTitle?: string;
   overviewItems?: string;
+  overviewIcons?: string;
   managementSectionTitle?: string;
   managementItems?: string;
+  managementIcons?: string;
 }
 
 export const SaasDarkSidebar = ({
@@ -291,8 +394,10 @@ export const SaasDarkSidebar = ({
   planName = "Enterprise Plan",
   overviewSectionTitle = "Overview",
   overviewItems = "Dashboard\nAnalytics",
+  overviewIcons: overviewIconsProp,
   managementSectionTitle = "Management",
   managementItems = "Customers\nProjects\nMessages:3",
+  managementIcons: managementIconsProp,
   backgroundColor = "#0F1115",
   textColor = "#a3a3a3",
   activeColor = "#6366f1",
@@ -318,11 +423,13 @@ export const SaasDarkSidebar = ({
 
   // Parse overview items
   const overviewItemsList = overviewItems ? overviewItems.split("\n").filter(item => item.trim() !== "") : [];
-  const overviewIcons = [Grid, PieChart];
+  const defaultOverviewIcons = ["Grid", "PieChart"]
+  const overviewIconNames = parseIcons(overviewIconsProp, defaultOverviewIcons)
   
   // Parse management items (support "Item:badge" format)
   const managementItemsList = managementItems ? managementItems.split("\n").filter(item => item.trim() !== "") : [];
-  const managementIcons = [User, Briefcase, MessageSquare];
+  const defaultManagementIcons = ["User", "Briefcase", "MessageSquare"]
+  const managementIconNames = parseIcons(managementIconsProp, defaultManagementIcons)
   
   const parseItemWithBadge = (item: string) => {
     const parts = item.split(":");
@@ -372,7 +479,8 @@ export const SaasDarkSidebar = ({
             </div>
             <nav className="space-y-0.5 mb-6">
               {overviewItemsList.map((item, index) => {
-                const Icon = overviewIcons[index] || Grid;
+                const iconName = overviewIconNames[index] || defaultOverviewIcons[index] || "Grid"
+                const Icon = iconMap[iconName] || Grid;
                 const isActive = index === 0;
                 return (
                   <a 
@@ -408,7 +516,8 @@ export const SaasDarkSidebar = ({
             </div>
             <nav className="space-y-0.5">
               {managementItemsList.map((item, index) => {
-                const Icon = managementIcons[index] || User;
+                const iconName = managementIconNames[index] || defaultManagementIcons[index] || "User"
+                const Icon = iconMap[iconName] || User;
                 const { label, badge } = parseItemWithBadge(item);
                 return (
                   <a 
