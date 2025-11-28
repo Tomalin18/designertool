@@ -23,6 +23,8 @@ import { inputSections } from "@/lib/input-sections"
 import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { tabbarSections } from "@/lib/tabbar-sections"
+import { tableSections } from "@/lib/table-sections"
+import { chartSections } from "@/lib/chart-sections"
 
 interface CustomizePanelProps {
   componentName: string
@@ -158,7 +160,12 @@ const IconSelector = ({
   )
 }
 
-const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+const TabsEditor = ({ value, onChange, placeholder = "Tab label", addButtonLabel = "Add Tab" }: { 
+  value: string, 
+  onChange: (val: string) => void,
+  placeholder?: string,
+  addButtonLabel?: string
+}) => {
   // Parse tabs from newline-separated string
   const tabs = value ? value.split("\n").filter((tab) => tab.trim() !== "") : []
   
@@ -210,7 +217,7 @@ const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string
           <Input
             value={tab}
             onChange={(e) => updateTab(index, e.target.value)}
-            placeholder="Tab label"
+            placeholder={placeholder}
             className="h-8"
             onKeyDown={(e) => {
               // Allow Enter to add a new tab
@@ -239,7 +246,7 @@ const TabsEditor = ({ value, onChange }: { value: string, onChange: (val: string
       ))}
       {displayTabs[displayTabs.length - 1]?.trim() !== "" && (
         <Button variant="outline" size="sm" onClick={addTab} className="w-full h-8 text-xs gap-1">
-          <Plus size={12} /> Add Tab
+          <Plus size={12} /> {addButtonLabel}
         </Button>
       )}
     </div>
@@ -677,70 +684,256 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
                <Trash2 size={14} />
              </Button>
            </div>
-           <div className="flex items-center space-x-2">
-             <Checkbox 
-               id={`submenu-${index}`} 
-               checked={!!item.items}
-               onCheckedChange={(checked) => {
-                 if (checked) {
-                   updateItem(index, 'items', [])
-                 } else {
-                   const newItems = [...items]
-                   delete newItems[index].items
-                   updateItems(newItems)
-                 }
-               }}
-             />
-             <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
-           </div>
-           {item.items && (
-             <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
-               {item.items
-                 .map((subItem: string, subIndex: number) => ({ subItem, subIndex }))
-                 .filter(({ subItem, subIndex }: { subItem: string; subIndex: number }) => {
-                   // 渲染非空的項目
-                   if (subItem.trim() !== "") return true
-                   // 如果是空項目，只有在是最後一個項目時才渲染（用於輸入新項目）
-                   return subIndex === item.items.length - 1
-                 })
-                 .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
-                   <div key={subIndex} className="flex gap-2">
-                     <Input
-                       value={subItem}
-                       onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
-                       placeholder="Subitem Title"
-                       className="h-7 text-xs"
-                     />
-                     {subItem.trim() !== "" && (
-                       <Button 
-                         variant="ghost" 
-                         size="icon" 
-                         className="h-7 w-7"
-                         onClick={() => {
-                           const newItems = [...items]
-                           newItems[index].items.splice(subIndex, 1)
-                           updateItems(newItems)
-                         }}
-                       >
-                         <Trash2 size={12} />
-                       </Button>
-                     )}
-                   </div>
-                 ))}
-               <Button
-                 variant="outline"
-                 size="sm"
-                 onClick={() => addSubitem(index)}
-                 className="h-7 text-xs gap-1 w-full"
-               >
-                 <Plus size={12} /> Add Subitem
-               </Button>
+           <div className="border rounded-md p-3 space-y-3 bg-muted/30">
+             <div className="flex items-center space-x-2">
+               <Checkbox 
+                 id={`submenu-${index}`} 
+                 checked={!!item.items}
+                 onCheckedChange={(checked) => {
+                   if (checked) {
+                     updateItem(index, 'items', [])
+                   } else {
+                     const newItems = [...items]
+                     delete newItems[index].items
+                     updateItems(newItems)
+                   }
+                 }}
+               />
+               <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
              </div>
-           )}
+             {item.items && (
+               <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
+                 {item.items
+                   .map((subItem: string, subIndex: number) => ({ subItem, subIndex }))
+                   .filter(({ subItem, subIndex }: { subItem: string; subIndex: number }) => {
+                     // 渲染非空的項目
+                     if (subItem.trim() !== "") return true
+                     // 如果是空項目，只有在是最後一個項目時才渲染（用於輸入新項目）
+                     return subIndex === item.items.length - 1
+                   })
+                   .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
+                     <div key={subIndex} className="flex gap-2">
+                       <Input
+                         value={subItem}
+                         onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
+                         placeholder="Subitem Title"
+                         className="h-7 text-xs"
+                       />
+                       {subItem.trim() !== "" && (
+                         <Button 
+                           variant="ghost" 
+                           size="icon" 
+                           className="h-7 w-7"
+                           onClick={() => {
+                             const newItems = [...items]
+                             newItems[index].items.splice(subIndex, 1)
+                             updateItems(newItems)
+                           }}
+                         >
+                           <Trash2 size={12} />
+                         </Button>
+                       )}
+                     </div>
+                   ))}
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => addSubitem(index)}
+                   className="h-7 text-xs gap-1 w-full"
+                 >
+                   <Plus size={12} /> Add Subitem
+                 </Button>
+               </div>
+             )}
+           </div>
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
         <Plus size={12} /> Add Item
+      </Button>
+    </div>
+  )
+}
+
+// Chart Data Editor for chart components
+const ChartDataEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  // Parse data from format: "name,value\nname,value"
+  const parseData = (val: string): Array<{ name: string; value: string }> => {
+    if (!val || val.trim() === "") return []
+    return val.split("\n")
+      .filter(line => line.trim() !== "")
+      .map(line => {
+        const [name, value] = line.split(",").map(s => s.trim())
+        return { name: name || "", value: value || "" }
+      })
+  }
+
+  // Format data to string: "name,value\nname,value"
+  const formatData = (items: Array<{ name: string; value: string }>): string => {
+    return items
+      .filter(item => item.name.trim() !== "" || item.value.trim() !== "")
+      .map(item => `${item.name},${item.value}`)
+      .join("\n")
+  }
+
+  const [items, setItems] = React.useState<Array<{ name: string; value: string }>>(() => {
+    const parsed = parseData(value)
+    // If no items, add one empty item for user to start typing
+    return parsed.length > 0 ? parsed : [{ name: "", value: "" }]
+  })
+
+  React.useEffect(() => {
+    const parsed = parseData(value)
+    if (parsed.length > 0) {
+      setItems(parsed)
+    } else if (items.length === 0) {
+      setItems([{ name: "", value: "" }])
+    }
+  }, [value])
+
+  const updateItems = (newItems: Array<{ name: string; value: string }>) => {
+    setItems(newItems)
+    onChange(formatData(newItems))
+  }
+
+  const addItem = () => {
+    updateItems([...items, { name: "", value: "" }])
+  }
+
+  const removeItem = (index: number) => {
+    const newItems = [...items]
+    newItems.splice(index, 1)
+    // If all items removed, add one empty item
+    if (newItems.length === 0) {
+      newItems.push({ name: "", value: "" })
+    }
+    updateItems(newItems)
+  }
+
+  const updateItem = (index: number, field: "name" | "value", val: string) => {
+    const newItems = [...items]
+    newItems[index] = { ...newItems[index], [field]: val }
+    updateItems(newItems)
+  }
+
+  return (
+    <div className="space-y-4">
+      {items.map((item, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <Input
+              value={item.name}
+              onChange={(e) => updateItem(index, "name", e.target.value)}
+              placeholder="Item Name"
+              className="h-8 flex-1"
+            />
+            <Input
+              type="number"
+              value={item.value}
+              onChange={(e) => updateItem(index, "value", e.target.value)}
+              placeholder="Value"
+              className="h-8 w-24"
+            />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => removeItem(index)} 
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Item
+      </Button>
+    </div>
+  )
+}
+
+// Colors Editor for chart components
+const ColorsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  // Parse colors from format: "#color1\n#color2\n#color3"
+  const parseColors = (val: string): string[] => {
+    if (!val || val.trim() === "") return []
+    return val.split("\n")
+      .filter(line => line.trim() !== "")
+      .map(line => line.trim())
+  }
+
+  // Format colors to string: "#color1\n#color2\n#color3"
+  const formatColors = (colors: string[]): string => {
+    return colors
+      .filter(color => color.trim() !== "")
+      .join("\n")
+  }
+
+  const [colors, setColors] = React.useState<string[]>(() => {
+    const parsed = parseColors(value)
+    // If no colors, add one empty color for user to start
+    return parsed.length > 0 ? parsed : [""]
+  })
+
+  React.useEffect(() => {
+    const parsed = parseColors(value)
+    if (parsed.length > 0) {
+      setColors(parsed)
+    } else if (colors.length === 0) {
+      setColors([""])
+    }
+  }, [value])
+
+  const updateColors = (newColors: string[]) => {
+    setColors(newColors)
+    onChange(formatColors(newColors))
+  }
+
+  const addColor = () => {
+    updateColors([...colors, ""])
+  }
+
+  const removeColor = (index: number) => {
+    const newColors = [...colors]
+    newColors.splice(index, 1)
+    // If all colors removed, add one empty color
+    if (newColors.length === 0) {
+      newColors.push("")
+    }
+    updateColors(newColors)
+  }
+
+  const updateColor = (index: number, val: string) => {
+    const newColors = [...colors]
+    newColors[index] = val || ""
+    updateColors(newColors)
+  }
+
+  return (
+    <div className="space-y-4">
+      {colors.map((color, index) => (
+        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <ColorPicker
+              value={color || ""}
+              onChange={(val) => updateColor(index, val)}
+              placeholder={color || "#000000"}
+              outputFormat="hex"
+              defaultColor={color && /^#[0-9A-Fa-f]{6}$/.test(color) ? color : "#000000"}
+            />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => removeColor(index)} 
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" onClick={addColor} className="w-full h-8 text-xs gap-1">
+        <Plus size={12} /> Add Color
       </Button>
     </div>
   )
@@ -1245,6 +1438,32 @@ export function CustomizePanel({
       )
     }
 
+    // Special editor for table headers prop (textarea type) - use TabsEditor instead of textarea
+    const tableSection = tableSections.find((table: { componentName: string; name: string }) =>
+      table.componentName === componentName || table.name === componentName
+    )
+    if (tableSection && key === "headers" && propConfig.type === "textarea") {
+      // Use default value from metadata if current value is empty
+      const displayValue = props[key] && props[key].trim() !== "" 
+        ? props[key] 
+        : (propConfig.default || tableSection.props.headers?.default || "")
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="capitalize">{label}</Label>
+          <TabsEditor 
+            value={displayValue} 
+            onChange={(val) => updateProp(key, val)}
+            placeholder="Header name"
+            addButtonLabel="Add Header"
+          />
+          {propConfig.description && (
+            <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
+          )}
+          {!isLast && <Separator className="!mt-4" />}
+        </div>
+      )
+    }
+
     // Special editors for card components
     if (key === "features" && componentName === "PricingCard") {
       return (
@@ -1399,12 +1618,41 @@ export function CustomizePanel({
         )}
 
         {propConfig.type === "textarea" && (
-          <Textarea
-            value={props[key] || ""}
-            onChange={(e) => updateProp(key, e.target.value)}
-            placeholder={propConfig.default}
-            className="min-h-[120px]"
-          />
+          (() => {
+            // Check if this is a chart component
+            const chartSection = chartSections.find((chart: { componentName: string; name: string }) =>
+              chart.componentName === componentName || chart.name === componentName
+            )
+            if (chartSection) {
+              // Use ChartDataEditor for "data" prop
+              if (key === "data") {
+                return (
+                  <ChartDataEditor
+                    value={props[key] !== undefined && props[key] !== null ? props[key] : (propConfig.default || "")}
+                    onChange={(val) => updateProp(key, val)}
+                  />
+                )
+              }
+              // Use ColorsEditor for "colors" prop
+              if (key === "colors") {
+                return (
+                  <ColorsEditor
+                    value={props[key] !== undefined && props[key] !== null ? props[key] : (propConfig.default || "")}
+                    onChange={(val) => updateProp(key, val)}
+                  />
+                )
+              }
+            }
+            // Default textarea for other cases
+            return (
+              <Textarea
+                value={props[key] !== undefined && props[key] !== null ? props[key] : (propConfig.default || "")}
+                onChange={(e) => updateProp(key, e.target.value)}
+                placeholder={propConfig.default}
+                className="min-h-[120px]"
+              />
+            )
+          })()
         )}
 
         {propConfig.type === "slider" && (
@@ -1494,37 +1742,61 @@ export function CustomizePanel({
           </div>
         )}
 
-        {propConfig.type === "color" && (
-          <ColorPicker
-            value={props[key] || ""}
-            onChange={(value) => updateProp(key, value)}
-            placeholder={propConfig.default && propConfig.default.trim() !== "" ? propConfig.default : ""}
-            outputFormat="hex"
-            defaultColor={(() => {
-              // If value exists and is hex, use it
-              if (props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key])) {
-                return props[key]
-              }
-              // If value is rgb format, convert to hex
-              if (props[key] && props[key].includes('rgb')) {
-                const rgbMatch = props[key].match(/\d+/g)
-                if (rgbMatch && rgbMatch.length >= 3) {
-                  const r = parseInt(rgbMatch[0]).toString(16).padStart(2, '0')
-                  const g = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
-                  const b = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
-                  return `#${r}${g}${b}`
+        {propConfig.type === "color" && (() => {
+          // Check if this is a table or chart component to get proper metadata
+          const tableSection = tableSections.find((table: { componentName: string; name: string }) =>
+            table.componentName === componentName || table.name === componentName
+          )
+          const chartSection = chartSections.find((chart: { componentName: string; name: string }) =>
+            chart.componentName === componentName || chart.name === componentName
+          )
+          const section = tableSection || chartSection
+          const propMeta = section?.props[key]
+          
+          // Determine defaultColor: empty string for optional colors, actual color for required colors
+          const defaultColor = (() => {
+            if (propMeta && propMeta.default && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
+              return propMeta.default
+            }
+            // If default is empty string or not a color, return empty (for optional colors)
+            return ""
+          })()
+          
+          return (
+            <ColorPicker
+              value={props[key] || ""}
+              onChange={(value) => updateProp(key, value)}
+              placeholder={propMeta?.default && propMeta.default.trim() !== "" ? propMeta.default : (propConfig.default && propConfig.default.trim() !== "" ? propConfig.default : "")}
+              outputFormat="hex"
+              defaultColor={(() => {
+                // If value exists and is hex, use it
+                if (props[key] && /^#[0-9A-Fa-f]{6}$/.test(props[key])) {
+                  return props[key]
                 }
-              }
-              // If default is empty string, don't show a color (use transparent/empty)
-              // Only use default color if it's actually a color value
-              if (propConfig.default && propConfig.default.trim() !== "" && propConfig.default.startsWith('#')) {
-                return propConfig.default
-              }
-              // For empty defaults, return empty string so ColorPicker shows as empty
-              return ""
-            })()}
-          />
-        )}
+                // If value is rgb format, convert to hex
+                if (props[key] && props[key].includes('rgb')) {
+                  const rgbMatch = props[key].match(/\d+/g)
+                  if (rgbMatch && rgbMatch.length >= 3) {
+                    const r = parseInt(rgbMatch[0]).toString(16).padStart(2, '0')
+                    const g = parseInt(rgbMatch[1]).toString(16).padStart(2, '0')
+                    const b = parseInt(rgbMatch[2]).toString(16).padStart(2, '0')
+                    return `#${r}${g}${b}`
+                  }
+                }
+                // Use propMeta default if available (from table/chart metadata)
+                if (propMeta && propMeta.default && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
+                  return propMeta.default
+                }
+                // Fallback to propConfig default
+                if (propConfig.default && propConfig.default.trim() !== "" && propConfig.default.startsWith('#')) {
+                  return propConfig.default
+                }
+                // For empty defaults, return empty string so ColorPicker shows as empty (for optional colors)
+                return ""
+              })()}
+            />
+          )
+        })()}
 
         {propConfig.type === "color-tailwind-bg" && (
           <ColorPicker
@@ -2308,6 +2580,251 @@ export function CustomizePanel({
       } else {
         // Fallback: return empty grouping to trigger fallback rendering
         console.warn(`Tabbar ${componentName}: No tabs created, falling back to default rendering.`)
+      }
+    }
+
+    // For Table components, use detailed grouping (similar to Tabs components)
+    // Try to find by componentName first, then by name
+    const tableSection = tableSections.find((table: { componentName: string; name: string }) =>
+      table.componentName === componentName || table.name === componentName
+    )
+    if (tableSection) {
+      // Define style-related keys for tables
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'headerBackgroundColor', 'headerTextColor',
+        'rowHoverColor', 'stripedRowColor', 'positiveColor', 'negativeColor', 'operationalColor',
+        'degradedColor', 'fileIconColor', 'folderIconColor', 'inStockColor', 'lowStockColor',
+        'outOfStockColor', 'invoiceIdColor', 'availableColor', 'busyColor', 'firstPlaceColor',
+        'secondPlaceColor', 'thirdPlaceColor', 'scoreColor', 'gradientFrom', 'gradientTo',
+        'progressBarColor', 'progressBarBgColor', 'iconColor', 'iconBgColor', 'timelineColor',
+        'addButtonColor', 'statusBadgeColor'
+      ]
+      const spacingKeys = ['padding', 'margin', 'gap']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = ['showHover', 'rowCount']
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in tableSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!tableSection.props[key]) {
+          return // Skip props not in metadata
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for style props first
+        // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
+        if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Spacing props: explicit spacing keys or keys containing spacing keywords
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        // Border props: explicit border keys or keys containing 'border' or 'radius'
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        // Other style props: explicit other style keys or keys containing style keywords
+        else if (
+          otherStyleKeys.includes(key) || 
+          lowerKey.includes('hover') ||
+          lowerKey.includes('count') ||
+          (propType === 'boolean' && (lowerKey.includes('show') || lowerKey.includes('hover')))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
+        else {
+          contentProps.push(key)
+        }
+      })
+      
+      // Debug: Log if no props were found
+      if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
+        console.warn(`Table ${componentName}: No props found in config.props that match tableSection.props.`, {
+          configProps: Object.keys(config.props),
+          tableSectionProps: Object.keys(tableSection.props),
+        })
+      }
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      } else {
+        // Fallback: return empty grouping to trigger fallback rendering
+        console.warn(`Table ${componentName}: No tabs created, falling back to default rendering.`)
+      }
+    }
+
+    // For Chart components, use detailed grouping (similar to Table components)
+    // Try to find by componentName first, then by name
+    const chartSection = chartSections.find((chart: { componentName: string; name: string }) =>
+      chart.componentName === componentName || chart.name === componentName
+    )
+    if (chartSection) {
+      // Define style-related keys for charts
+      const colorKeys = [
+        'backgroundColor', 'borderColor', 'textColor', 'titleColor', 'barColor', 'lineColor',
+        'areaColor', 'dotColor', 'valueColor', 'labelColor', 'sparklineColor', 'colorLevel1',
+        'colorLevel2', 'colorLevel3', 'colorLevel4', 'timelineColor'
+      ]
+      const spacingKeys = ['padding', 'margin', 'gap']
+      const borderKeys = ['borderRadius', 'borderWidth']
+      const otherStyleKeys = [
+        'barRadius', 'lineWidth', 'gradientOpacity', 'outerRadius', 'innerRadius',
+        'paddingAngle', 'legendPosition', 'sparklineWidth', 'sparklineHeight',
+        'weeks', 'daysPerWeek', 'intensityLevels', 'cellSize', 'cellGap',
+        'barHeight', 'height'
+      ]
+      // Content-related keys that should always be in content tab
+      const contentKeys = [
+        'title', 'value', 'label', 'data', 'itemNames', 'itemValues',
+        'showXAxis', 'showYAxis', 'showGrid', 'showTooltip', 'showLegend', 'showDots', 'showLabels'
+      ]
+
+      const contentProps: string[] = []
+      const colorProps: string[] = []
+      const spacingProps: string[] = []
+      const borderProps: string[] = []
+      const otherStyleProps: string[] = []
+
+      Object.entries(config.props).forEach(([key, propConfig]) => {
+        // Only include props that are actually defined in chartSection.props
+        // This ensures we don't show props that the component doesn't use
+        if (!chartSection.props[key]) {
+          return // Skip props not in metadata
+        }
+        
+        const lowerKey = key.toLowerCase()
+        const propType = propConfig.type
+        
+        // Check for content props first (these should always be in content tab)
+        if (contentKeys.includes(key)) {
+          contentProps.push(key)
+        }
+        // Check for style props
+        // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
+        else if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
+          colorProps.push(key)
+        } 
+        // Spacing props: explicit spacing keys or keys containing spacing keywords
+        else if (spacingKeys.some(k => lowerKey.includes(k))) {
+          spacingProps.push(key)
+        } 
+        // Border props: explicit border keys or keys containing 'border' or 'radius'
+        else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
+          borderProps.push(key)
+        } 
+        // Other style props: explicit other style keys or keys containing style keywords
+        // But exclude contentKeys (showXAxis, showYAxis, etc.) from style props
+        else if (
+          otherStyleKeys.includes(key) || 
+          (lowerKey.includes('radius') && !contentKeys.includes(key)) ||
+          (lowerKey.includes('width') && !contentKeys.includes(key)) ||
+          (lowerKey.includes('height') && !contentKeys.includes(key)) ||
+          (lowerKey.includes('opacity') && !contentKeys.includes(key)) ||
+          (lowerKey.includes('angle') && !contentKeys.includes(key)) ||
+          (propType === 'boolean' && lowerKey.includes('show') && !contentKeys.includes(key)) ||
+          (propType === 'slider' && (lowerKey.includes('radius') || lowerKey.includes('width') || lowerKey.includes('height')) && !contentKeys.includes(key))
+        ) {
+          otherStyleProps.push(key)
+        } 
+        // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
+        else {
+          contentProps.push(key)
+        }
+      })
+      
+      // Debug: Log if no props were found
+      if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
+        console.warn(`Chart ${componentName}: No props found in config.props that match chartSection.props.`, {
+          configProps: Object.keys(config.props),
+          chartSectionProps: Object.keys(chartSection.props),
+        })
+      }
+
+      // Build style subcategories
+      const styleSubcategories = []
+      if (colorProps.length > 0) {
+        styleSubcategories.push({ name: "colors", label: "Colors", keys: colorProps })
+      }
+      if (spacingProps.length > 0) {
+        styleSubcategories.push({ name: "spacing", label: "Spacing", keys: spacingProps })
+      }
+      if (borderProps.length > 0) {
+        styleSubcategories.push({ name: "border", label: "Border", keys: borderProps })
+      }
+      if (otherStyleProps.length > 0) {
+        styleSubcategories.push({ name: "other", label: "Other", keys: otherStyleProps })
+      }
+
+      const tabs = []
+      
+      // Content tab
+      if (contentProps.length > 0) {
+        tabs.push({ name: "content", label: "Content", keys: contentProps })
+      }
+
+      // Style tab with subcategories
+      if (styleSubcategories.length > 0) {
+        tabs.push({
+          name: "style",
+          label: "Style",
+          keys: [],
+          subcategories: styleSubcategories
+        })
+      }
+
+      if (tabs.length > 0) {
+        return {
+          type: "tabs",
+          tabs
+        }
+      } else {
+        // Fallback: return empty grouping to trigger fallback rendering
+        console.warn(`Chart ${componentName}: No tabs created, falling back to default rendering.`)
       }
     }
 

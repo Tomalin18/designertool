@@ -168,6 +168,12 @@ style={{
   ```
 
 #### ✅ Render Function
+- [ ] Render function signature includes `setProps` parameter for editable components:
+  ```typescript
+  render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+    // ...
+  }
+  ```
 - [ ] Render function processes all props correctly
 - [ ] Color props are converted from hex to rgb:
   ```typescript
@@ -184,6 +190,31 @@ style={{
 - [ ] Slider/number props are converted to numbers
 - [ ] Boolean props are converted to proper booleans
 - [ ] Text props handle empty strings correctly
+- [ ] For editable components (Table, Chart, ChatInterface), automatically enable editing:
+  ```typescript
+  // For Table components
+  if (setProps) {
+    processedProps.editable = true
+    processedProps.onTitleChange = (text: string) => {
+      setProps((prev: any) => ({ ...prev, title: text }))
+    }
+    processedProps.onHeaderChange = (index: number, text: string) => {
+      setProps((prev: any) => {
+        const currentHeaders = (prev.headers || "").split("\n").filter((h: string) => h.trim() !== "")
+        currentHeaders[index] = text
+        return { ...prev, headers: currentHeaders.join("\n") }
+      })
+    }
+  }
+  
+  // For Chart components
+  if (setProps) {
+    processedProps.editable = true
+    processedProps.onTitleChange = (text: string) => {
+      setProps((prev: any) => ({ ...prev, title: text }))
+    }
+  }
+  ```
 
 #### ✅ Component Lookup
 - [ ] Component can be found by name
@@ -206,6 +237,23 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
   }
   // ... categorize props
 })
+```
+
+**For Table/Chart components:**
+```typescript
+// In getGroupingConfig function
+const tableSection = tableSections.find((table: { componentName: string; name: string }) =>
+  table.componentName === componentName || table.name === componentName
+)
+if (tableSection) {
+  Object.entries(config.props).forEach(([key, propConfig]) => {
+    // Only include props that are actually defined in tableSection.props
+    if (!tableSection.props[key]) {
+      return // Skip props not in metadata
+    }
+    // ... categorize props into Content and Style tabs with subcategories
+  })
+}
 ```
 
 #### ✅ Color Picker Configuration
@@ -239,6 +287,18 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Style props are subcategorized (Colors, Spacing, Border, Other)
 - [ ] Special props (arrays, objects) have dedicated editors if needed
 
+**For Table/Chart components:**
+- [ ] CustomizePanel automatically detects Table/Chart components using `tableSections`/`chartSections`
+- [ ] Props are filtered to only show those defined in metadata (`tableSection.props[key]` or `chartSection.props[key]`)
+- [ ] Props are grouped into Content and Style tabs with subcategories:
+  - Content tab: text, textarea, number, boolean, select props that aren't style-related
+  - Style tab with subcategories:
+    - Colors: all color-related props (explicit color keys, keys containing 'color', or prop type is 'color')
+    - Spacing: padding, margin, gap props
+    - Border: borderRadius, borderWidth props
+    - Other: showHover, rowCount, showGrid, showTooltip, etc.
+- [ ] Color pickers correctly handle optional colors (empty string default) vs required colors (actual color default)
+
 #### ✅ Special Editors for Tabs Components
 - [ ] Tabs prop uses `TabsEditor` instead of textarea
 - [ ] TabsEditor provides list-based editing interface
@@ -260,6 +320,168 @@ Object.entries(config.props).forEach(([key, propConfig]) => {
 - [ ] Clicking icon button opens Popover with available icons grid
 - [ ] Supports selecting icons from common Lucide icons
 - [ ] Icons are synchronized with corresponding items count automatically (e.g., `overviewIcons` syncs with `overviewItems`)
+
+#### ✅ Special Editors for Table Components
+- [ ] `headers` prop uses `TabsEditor` instead of textarea (in CustomizePanel)
+- [ ] TabsEditor provides list-based editing interface for table headers
+- [ ] Supports adding, removing, and editing individual headers
+- [ ] Handles newline-separated string format correctly
+- [ ] Table components support click-to-edit functionality in playground:
+  - [ ] Add `editable`, `onTitleChange`, `onHeaderChange`, `onCellChange` props to component interface
+  - [ ] Implement `EditableCell` component for inline editing
+  - [ ] Use React state to manage editable table data
+  - [ ] In playground render function, automatically enable editing with callbacks
+
+**Table Headers Editor Implementation:**
+```typescript
+// In component-playground-customize-panel.tsx
+const tableSection = tableSections.find((table: { componentName: string; name: string }) =>
+  table.componentName === componentName || table.name === componentName
+)
+if (tableSection && key === "headers" && propConfig.type === "textarea") {
+  const displayValue = props[key] && props[key].trim() !== "" 
+    ? props[key] 
+    : (propConfig.default || tableSection.props.headers?.default || "")
+  return (
+    <div key={key} className="space-y-2">
+      <Label className="capitalize">{label}</Label>
+      <TabsEditor 
+        value={displayValue} 
+        onChange={(val) => updateProp(key, val)}
+        placeholder="Header name"
+        addButtonLabel="Add Header"
+      />
+    </div>
+  )
+}
+```
+
+**EditableCell Component Pattern (for Table components):**
+```typescript
+// In component implementation file (e.g., components/customize/tables/index.tsx)
+const EditableCell = ({ 
+  value, 
+  onChange, 
+  editable = false,
+  className = "",
+  style = {}
+}: { 
+  value: string, 
+  onChange?: (text: string) => void,
+  editable?: boolean,
+  className?: string,
+  style?: React.CSSProperties
+}) => {
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [editText, setEditText] = React.useState(value)
+  const textRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    setEditText(value)
+  }, [value])
+
+  React.useEffect(() => {
+    if (isEditing && textRef.current) {
+      textRef.current.focus()
+      const range = document.createRange()
+      range.selectNodeContents(textRef.current)
+      range.collapse(false)
+      const selection = window.getSelection()
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    }
+  }, [isEditing])
+
+  const handleClick = () => {
+    if (editable) {
+      setIsEditing(true)
+    }
+  }
+
+  const handleBlur = () => {
+    setIsEditing(false)
+    if (onChange && editText !== value) {
+      onChange(editText)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleBlur()
+    }
+    if (e.key === 'Escape') {
+      setEditText(value)
+      setIsEditing(false)
+    }
+  }
+
+  return (
+    <div
+      className={cn(className, editable && "cursor-text hover:ring-2 hover:ring-blue-500/50 transition-all rounded px-1")}
+      style={style}
+      onClick={handleClick}
+      onBlur={handleBlur}
+    >
+      {isEditing ? (
+        <div
+          ref={textRef}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={(e) => {
+            const newText = e.currentTarget.textContent || ''
+            setEditText(newText)
+            setTimeout(() => {
+              if (textRef.current) {
+                const range = document.createRange()
+                range.selectNodeContents(textRef.current)
+                range.collapse(false)
+                const selection = window.getSelection()
+                selection?.removeAllRanges()
+                selection?.addRange(range)
+              }
+            }, 0)
+          }}
+          onKeyDown={handleKeyDown}
+          className="outline-none focus:outline-none"
+          style={{ minHeight: '1.5rem' }}
+        >
+          {editText}
+        </div>
+      ) : (
+        <span>{value}</span>
+      )}
+    </div>
+  )
+}
+```
+
+#### ✅ Special Editors for Chart Components
+- [ ] Chart components support click-to-edit functionality in playground:
+  - [ ] Add `editable` and `onTitleChange` props to component interface
+  - [ ] Implement `EditableText` component for inline editing
+  - [ ] In playground render function, automatically enable editing with callbacks
+
+**EditableText Component Pattern (for Chart components):**
+```typescript
+// In component implementation file (e.g., components/customize/charts/index.tsx)
+const EditableText = ({ 
+  value, 
+  onChange, 
+  editable = false,
+  className = "",
+  style = {}
+}: { 
+  value: string, 
+  onChange?: (text: string) => void,
+  editable?: boolean,
+  className?: string,
+  style?: React.CSSProperties
+}) => {
+  // Same implementation as EditableCell above
+  // ...
+}
+```
 
 **TabsEditor Implementation:**
 ```typescript
@@ -842,6 +1064,70 @@ When adding a new component, test the following:
     default: "Home\nSearch\nLayers",
     description: "List of icon names for each item (one per line).",
   },
+  ```
+
+#### Table Components
+- Use common table props (`backgroundColor`, `borderColor`, `textColor`, `headerBackgroundColor`, `headerTextColor`, `rowHoverColor`, `borderRadius`, `borderWidth`, `padding`, `rowCount`, `showHover`) for consistent styling
+- Ensure `headers` prop uses `control: "textarea"` with newline-separated default values (e.g., `"Name\nTitle\nEmail\nRole"`)
+- Headers prop uses `TabsEditor` instead of textarea (in CustomizePanel) for better editing experience
+- For editable tables, add `editable`, `onTitleChange`, `onHeaderChange`, and `onCellChange` props to component interface
+- Implement `EditableCell` component for click-to-edit functionality (similar to ChatInterface's Message component)
+- Use React state (`useState`) to manage table data when editable
+- Ensure color props are properly converted from hex to rgb
+- Verify props filtering in CustomizePanel (only show props defined in metadata)
+- In playground render function, automatically set `editable={true}` and provide callbacks for all table components
+- **Editable Implementation Pattern:**
+  ```typescript
+  // In component interface
+  export interface TableProps {
+    editable?: boolean;
+    onTitleChange?: (text: string) => void;
+    onHeaderChange?: (index: number, text: string) => void;
+    onCellChange?: (rowIndex: number, colIndex: number, text: string) => void;
+  }
+  
+  // In component implementation
+  const [tableData, setTableData] = React.useState(() => [...])
+  
+  // Wrap text content with EditableCell
+  <EditableCell
+    value={text}
+    onChange={(text) => {
+      if (editable) {
+        // Update state
+        setTableData(newData)
+      }
+      if (onChange) onChange(text)
+    }}
+    editable={editable}
+  />
+  ```
+
+#### Chart Components
+- Use common chart props (`backgroundColor`, `borderColor`, `title`, `titleColor`, `height`, `borderRadius`, `borderWidth`, `padding`, `showGrid`, `showTooltip`) for consistent styling
+- Chart-specific props (e.g., `barColor`, `lineColor`, `areaColor`, `pieColors`) should use `control: "color"` for single colors or `control: "textarea"` for multiple colors (newline-separated)
+- For editable charts, add `editable` and `onTitleChange` props to component interface
+- Implement `EditableText` component for click-to-edit functionality (similar to ChatInterface's Message component)
+- Ensure color props are properly converted from hex to rgb
+- Verify props filtering in CustomizePanel (only show props defined in metadata)
+- In playground render function, automatically set `editable={true}` and provide `onTitleChange` callback for all chart components
+- **Editable Implementation Pattern:**
+  ```typescript
+  // In component interface
+  export interface ChartProps {
+    editable?: boolean;
+    onTitleChange?: (text: string) => void;
+  }
+  
+  // In component implementation
+  {title && (
+    <EditableText
+      value={title}
+      onChange={onTitleChange}
+      editable={editable}
+      className="text-sm font-medium mb-4 block"
+    />
+  )}
   ```
 
 ### 10. Components Page and Sidebar Integration
