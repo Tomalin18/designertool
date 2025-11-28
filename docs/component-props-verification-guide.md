@@ -1609,6 +1609,13 @@ When adding a new component, test the following:
 - [ ] Code includes interface/type definitions if needed
 - [ ] Color props are converted from hex to rgb format in generated code
 - [ ] Generated code can be copied and used directly without modification
+- [ ] **For components with `initialCode`, prop values are updated in the generated code:**
+  - [ ] User-entered prop values replace default values in function signatures
+  - [ ] Color props are converted from hex to rgb format
+  - [ ] Boolean props (including `false` values) are included
+  - [ ] Number props are updated with current values
+  - [ ] String props (like `title`, `data`) are updated with current values
+  - [ ] Special props like `data` (chart components) are properly escaped and included
 
 #### ✅ Components with `initialCode` Support
 These components read their source code from files and display complete implementation:
@@ -1784,12 +1791,18 @@ When adding new components:
 6. ✅ Add component preview support in `component-preview.tsx` (import metadata, component map, add render case)
 7. ✅ Register component in `component-playground.tsx` (add to componentConfigs, add render function, add code generation)
 8. ✅ **Implement complete code generation** - ensure component generates complete, ready-to-use code:
-   - If component has `initialCode` support: Check for imports and add if missing
+   - If component has `initialCode` support: 
+     - Use `updatePropsInCode` helper function to update prop values in initialCode
+     - Replace default prop values with current user-entered values
+     - Convert color props from hex to rgb format
+     - Update boolean, number, and string props with current values
+     - Check for imports and add if missing
    - If component doesn't have `initialCode`: Generate complete usage example with all imports
    - Include `"use client"` directive when needed
    - Include all necessary imports, helper functions, and interfaces
    - Convert color props from hex to rgb format
    - Ensure generated code can be copied and used directly
+   - **Important:** For chart components, ensure `data` prop values from `ChartDataEditor` are included in generated code
 9. ✅ Add component to components data (`lib/components-data.ts`)
 10. ✅ Add component to components page sidebar (`app/components/components-page-client.tsx`)
 11. ✅ Add component to detail page (`app/components/[slug]/page.tsx` - generateStaticParams, meta lookup, code reading)
