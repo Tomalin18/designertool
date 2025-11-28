@@ -2716,7 +2716,7 @@ export function CustomizePanel({
         'barRadius', 'lineWidth', 'gradientOpacity', 'outerRadius', 'innerRadius',
         'paddingAngle', 'legendPosition', 'sparklineWidth', 'sparklineHeight',
         'weeks', 'daysPerWeek', 'intensityLevels', 'cellSize', 'cellGap',
-        'barHeight', 'height'
+        'barHeight', 'height', 'titleFontSize', 'titleFontWeight'
       ]
       // Content-related keys that should always be in content tab
       const contentKeys = [

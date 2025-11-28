@@ -53,6 +53,19 @@ const commonChartProps: Record<string, ChartPropDefinition> = {
     default: "",
     description: "Title text color (optional).",
   },
+  titleFontSize: {
+    control: "slider",
+    min: 10,
+    max: 32,
+    default: 14,
+    description: "Title font size in pixels.",
+  },
+  titleFontWeight: {
+    control: "select",
+    default: "medium",
+    options: ["normal", "medium", "semibold", "bold"],
+    description: "Title font weight.",
+  },
   height: {
     control: "slider",
     min: 200,

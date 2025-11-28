@@ -225,6 +225,8 @@ export interface ChartProps {
   borderColor?: string;
   title?: string;
   titleColor?: string;
+  titleFontSize?: number;
+  titleFontWeight?: "normal" | "medium" | "semibold" | "bold";
   height?: number;
   borderRadius?: number;
   borderWidth?: number;
@@ -250,6 +252,8 @@ export const SimpleBarChart = ({
   borderColor,
   title = "Weekly Sales",
   titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
   height = 256,
   borderRadius = 12,
   borderWidth = 1,
@@ -273,13 +277,20 @@ export const SimpleBarChart = ({
   const titleRgb = titleColor && titleColor.trim() !== "" 
     ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
     : undefined;
+  
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
   const barRgb = barColor && barColor.trim() !== "" 
     ? (barColor.startsWith("rgb") ? barColor : (hexToRgb(barColor) || barColor))
     : "#6366f1";
 
   return (
     <div 
-      className={cn("w-full border bg-neutral-900", className)}
+      className={cn("w-full border bg-neutral-900 flex flex-col", className)}
       style={{
         ...(bgRgb && { backgroundColor: bgRgb }),
         ...(borderRgb && { borderColor: borderRgb }),
@@ -290,19 +301,23 @@ export const SimpleBarChart = ({
       }}
     >
       {title && (
-        <EditableText
-          value={title}
-          onChange={onTitleChange}
-          editable={editable}
-          className="text-sm font-medium mb-4 block"
-          style={{
-            ...(titleRgb && { color: titleRgb }),
-            ...(!titleRgb && { color: "rgb(163 163 163)" }),
-          }}
-        />
+        <div className="flex justify-center mb-0.5 shrink-0">
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            editable={editable}
+            className={cn("text-center", titleFontWeightClass)}
+            style={{
+              fontSize: `${titleFontSize}px`,
+              ...(titleRgb && { color: titleRgb }),
+              ...(!titleRgb && { color: "rgb(163 163 163)" }),
+            }}
+          />
+        </div>
       )}
-      <ResponsiveContainer width="100%" height={title ? "calc(100% - 2rem)" : "100%"}>
-        <BarChart data={(() => {
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={(() => {
           if (data && data.trim() !== "") {
             return data.split("\n").filter(line => line.trim() !== "").map(line => {
               const [name, value] = line.split(",").map(s => s.trim())
@@ -322,7 +337,8 @@ export const SimpleBarChart = ({
             />
           )}
         </BarChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
@@ -344,6 +360,8 @@ export const SimpleLineChart = ({
   borderColor,
   title = "User Growth",
   titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
   height = 256,
   borderRadius = 12,
   borderWidth = 1,
@@ -369,6 +387,13 @@ export const SimpleLineChart = ({
   const titleRgb = titleColor && titleColor.trim() !== "" 
     ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
     : undefined;
+  
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
   const lineRgb = lineColor && lineColor.trim() !== "" 
     ? (lineColor.startsWith("rgb") ? lineColor : (hexToRgb(lineColor) || lineColor))
     : "#8b5cf6";
@@ -378,7 +403,7 @@ export const SimpleLineChart = ({
 
   return (
     <div 
-      className={cn("w-full border bg-neutral-900", className)}
+      className={cn("w-full border bg-neutral-900 flex flex-col", className)}
       style={{
         ...(bgRgb && { backgroundColor: bgRgb }),
         ...(borderRgb && { borderColor: borderRgb }),
@@ -389,19 +414,23 @@ export const SimpleLineChart = ({
       }}
     >
       {title && (
-        <EditableText
-          value={title}
-          onChange={onTitleChange}
-          editable={editable}
-          className="text-sm font-medium mb-4 block"
-          style={{
-            ...(titleRgb && { color: titleRgb }),
-            ...(!titleRgb && { color: "rgb(163 163 163)" }),
-          }}
-        />
+        <div className="flex justify-center mb-0.5 shrink-0">
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            editable={editable}
+            className={cn("text-center", titleFontWeightClass)}
+            style={{
+              fontSize: `${titleFontSize}px`,
+              ...(titleRgb && { color: titleRgb }),
+              ...(!titleRgb && { color: "rgb(163 163 163)" }),
+            }}
+          />
+        </div>
       )}
-      <ResponsiveContainer width="100%" height={title ? "calc(100% - 2rem)" : "100%"}>
-        <LineChart data={(() => {
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={(() => {
           if (data && data.trim() !== "") {
             return data.split("\n").filter(line => line.trim() !== "").map(line => {
               const [name, value] = line.split(",").map(s => s.trim())
@@ -426,7 +455,8 @@ export const SimpleLineChart = ({
             />
           )}
         </LineChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
@@ -447,6 +477,8 @@ export const SimpleAreaChart = ({
   borderColor,
   title = "Traffic Overview",
   titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
   height = 256,
   borderRadius = 12,
   borderWidth = 1,
@@ -471,6 +503,13 @@ export const SimpleAreaChart = ({
   const titleRgb = titleColor && titleColor.trim() !== "" 
     ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
     : undefined;
+  
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
   const areaRgb = areaColor && areaColor.trim() !== "" 
     ? (areaColor.startsWith("rgb") ? areaColor : (hexToRgb(areaColor) || areaColor))
     : "#ec4899";
@@ -480,7 +519,7 @@ export const SimpleAreaChart = ({
 
   return (
     <div 
-      className={cn("w-full border bg-neutral-900", className)}
+      className={cn("w-full border bg-neutral-900 flex flex-col", className)}
       style={{
         ...(bgRgb && { backgroundColor: bgRgb }),
         ...(borderRgb && { borderColor: borderRgb }),
@@ -491,19 +530,23 @@ export const SimpleAreaChart = ({
       }}
     >
       {title && (
-        <EditableText
-          value={title}
-          onChange={onTitleChange}
-          editable={editable}
-          className="text-sm font-medium mb-4 block"
-          style={{
-            ...(titleRgb && { color: titleRgb }),
-            ...(!titleRgb && { color: "rgb(163 163 163)" }),
-          }}
-        />
+        <div className="flex justify-center mb-0.5 shrink-0">
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            editable={editable}
+            className={cn("text-center", titleFontWeightClass)}
+            style={{
+              fontSize: `${titleFontSize}px`,
+              ...(titleRgb && { color: titleRgb }),
+              ...(!titleRgb && { color: "rgb(163 163 163)" }),
+            }}
+          />
+        </div>
       )}
-      <ResponsiveContainer width="100%" height={title ? "calc(100% - 2rem)" : "100%"}>
-        <AreaChart data={(() => {
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={(() => {
           if (data && data.trim() !== "") {
             return data.split("\n").filter(line => line.trim() !== "").map(line => {
               const [name, value] = line.split(",").map(s => s.trim())
@@ -528,7 +571,8 @@ export const SimpleAreaChart = ({
             />
           )}
         </AreaChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
@@ -550,6 +594,8 @@ export const SimplePieChart = ({
   borderColor,
   title = "Device Usage",
   titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
   height = 256,
   borderRadius = 12,
   borderWidth = 1,
@@ -584,6 +630,13 @@ export const SimplePieChart = ({
     ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
     : undefined;
   
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
+  
   const colorList = colors.split("\n").filter(c => c.trim() !== "").map(c => c.trim());
   const chartColors = colorList.length > 0 ? colorList : COLORS;
 
@@ -611,8 +664,9 @@ export const SimplePieChart = ({
             value={title}
             onChange={onTitleChange}
             editable={editable}
-            className="text-sm font-medium text-center"
+            className={cn("text-center", titleFontWeightClass)}
             style={{
+              fontSize: `${titleFontSize}px`,
               ...(titleRgb && { color: titleRgb }),
               ...(!titleRgb && { color: "rgb(163 163 163)" }),
             }}
@@ -659,6 +713,7 @@ export const SimplePieChart = ({
           </PieChart>
         </ResponsiveContainer>
       </div>
+      {editable && <ResizeHandle onResize={handleResize} />}
     </div>
   );
 };
@@ -682,6 +737,8 @@ export const DonutChart = ({
   borderColor,
   title = "Revenue Sources",
   titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
   height = 256,
   borderRadius = 12,
   borderWidth = 1,
@@ -718,6 +775,13 @@ export const DonutChart = ({
     ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
     : undefined;
   
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
+  
   const colorList = colors.split("\n").filter(c => c.trim() !== "").map(c => c.trim());
   const chartColors = colorList.length > 0 ? colorList : COLORS;
 
@@ -745,8 +809,9 @@ export const DonutChart = ({
             value={title}
             onChange={onTitleChange}
             editable={editable}
-            className="text-sm font-medium text-center"
+            className={cn("text-center", titleFontWeightClass)}
             style={{
+              fontSize: `${titleFontSize}px`,
               ...(titleRgb && { color: titleRgb }),
               ...(!titleRgb && { color: "rgb(163 163 163)" }),
             }}
@@ -906,6 +971,11 @@ export const HeatmapVisual = ({
   backgroundColor,
   borderColor,
   title = "Contribution Activity",
+  titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "medium",
+  editable = false,
+  onTitleChange,
 }: ChartProps) => {
   const bgRgb = backgroundColor && backgroundColor.trim() !== "" 
     ? (backgroundColor.startsWith("rgb") ? backgroundColor : (hexToRgb(backgroundColor) || backgroundColor))
@@ -913,6 +983,16 @@ export const HeatmapVisual = ({
   const borderRgb = borderColor && borderColor.trim() !== "" 
     ? (borderColor.startsWith("rgb") ? borderColor : (hexToRgb(borderColor) || borderColor))
     : undefined;
+  const titleRgb = titleColor && titleColor.trim() !== "" 
+    ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
+    : undefined;
+  
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-medium";
 
   // Generate random intensity
   const weeks = Array.from({ length: 52 }, () => 
@@ -923,14 +1003,28 @@ export const HeatmapVisual = ({
 
   return (
     <div 
-      className={cn("w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 p-6", className)}
+      className={cn("w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col", className)}
       style={{
         ...(bgRgb && { backgroundColor: bgRgb }),
         ...(borderRgb && { borderColor: borderRgb }),
       }}
     >
-      {title && <h3 className="mb-4 text-sm font-medium text-white">{title}</h3>}
-      <div className="flex gap-1 overflow-x-auto pb-2">
+      {title && (
+        <div className="flex justify-center mb-4 shrink-0">
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            editable={editable}
+            className={cn("text-center", titleFontWeightClass)}
+            style={{
+              fontSize: `${titleFontSize}px`,
+              ...(titleRgb && { color: titleRgb }),
+              ...(!titleRgb && { color: "rgb(255 255 255)" }),
+            }}
+          />
+        </div>
+      )}
+      <div className="flex gap-1 overflow-x-auto pb-2 flex-1 min-h-0">
         {weeks.map((week, i) => (
           <div key={i} className="flex flex-col gap-1">
             {week.map((day, j) => (
@@ -949,6 +1043,11 @@ export const GanttVisual = ({
   backgroundColor,
   borderColor,
   title = "Project Timeline",
+  titleColor,
+  titleFontSize = 14,
+  titleFontWeight = "bold",
+  editable = false,
+  onTitleChange,
 }: ChartProps) => {
   const bgRgb = backgroundColor && backgroundColor.trim() !== "" 
     ? (backgroundColor.startsWith("rgb") ? backgroundColor : (hexToRgb(backgroundColor) || backgroundColor))
@@ -956,17 +1055,41 @@ export const GanttVisual = ({
   const borderRgb = borderColor && borderColor.trim() !== "" 
     ? (borderColor.startsWith("rgb") ? borderColor : (hexToRgb(borderColor) || borderColor))
     : undefined;
+  const titleRgb = titleColor && titleColor.trim() !== "" 
+    ? (titleColor.startsWith("rgb") ? titleColor : (hexToRgb(titleColor) || titleColor))
+    : undefined;
+  
+  const titleFontWeightClass = {
+    normal: "font-normal",
+    medium: "font-medium",
+    semibold: "font-semibold",
+    bold: "font-bold",
+  }[titleFontWeight] || "font-bold";
 
   return (
     <div 
-      className={cn("w-full rounded-xl border border-neutral-800 bg-neutral-900 p-6", className)}
+      className={cn("w-full rounded-xl border border-neutral-800 bg-neutral-900 p-6 flex flex-col", className)}
       style={{
         ...(bgRgb && { backgroundColor: bgRgb }),
         ...(borderRgb && { borderColor: borderRgb }),
       }}
     >
-      {title && <h3 className="mb-6 text-sm font-bold text-white">{title}</h3>}
-      <div className="space-y-4">
+      {title && (
+        <div className="flex justify-center mb-6 shrink-0">
+          <EditableText
+            value={title}
+            onChange={onTitleChange}
+            editable={editable}
+            className={cn("text-center", titleFontWeightClass)}
+            style={{
+              fontSize: `${titleFontSize}px`,
+              ...(titleRgb && { color: titleRgb }),
+              ...(!titleRgb && { color: "rgb(255 255 255)" }),
+            }}
+          />
+        </div>
+      )}
+      <div className="space-y-4 flex-1 min-h-0">
         {[
           { n: "Design Phase", s: 0, w: "40%", c: "bg-indigo-500" },
           { n: "Development", s: 30, w: "50%", c: "bg-purple-500" },
