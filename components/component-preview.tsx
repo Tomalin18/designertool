@@ -56,6 +56,8 @@ import { sidebarSections } from "@/lib/sidebar-sections"
 import { sidebarComponentsByName } from "@/components/customize/sidebars"
 import { tabbarSections } from "@/lib/tabbar-sections"
 import { tabbarComponentsByName } from "@/components/customize/tabbars"
+import { sheetSections } from "@/lib/sheet-sections"
+import { sheetComponentsByName } from "@/components/customize/sheets"
 import { AlertCircle, ChevronDown } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -118,10 +120,13 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const tabbarMeta = tabbarSections.find((tabbar) => tabbar.name === name)
   const TabbarComponent = tabbarMeta ? tabbarComponentsByName[tabbarMeta.componentName] : null
 
-  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta
+  const sheetMeta = sheetSections.find((sheet) => sheet.name === name)
+  const SheetComponent = sheetMeta ? sheetComponentsByName[sheetMeta.componentName] : null
+
+  const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta || !!sheetMeta
 
   // Get tags from props or from section metadata
-  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || tabbarMeta?.tags || []
+  const displayTags = tags || heroMeta?.tags || featureMeta?.tags || paymentMeta?.tags || ctaMeta?.tags || footerMeta?.tags || headerMeta?.tags || buttonMeta?.tags || cardMeta?.tags || badgeMeta?.tags || inputMeta?.tags || dialogMeta?.tags || toggleMeta?.tags || tabsMeta?.tags || sidebarMeta?.tags || tabbarMeta?.tags || sheetMeta?.tags || []
 
   const renderPreview = () => {
     if (heroMeta && HeroComponent) {
@@ -327,6 +332,20 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <TabbarComponent {...defaultProps} />
+        </div>
+      )
+    }
+
+    if (sheetMeta && SheetComponent) {
+      // Get default props for the sheet, filtering out undefined values
+      const defaultProps = Object.fromEntries(
+        Object.entries(sheetMeta.props)
+          .map(([key, prop]) => [key, prop.default])
+          .filter(([_, value]) => value !== undefined && value !== null)
+      )
+      return (
+        <div className="flex items-center justify-center p-8 w-full">
+          <SheetComponent {...defaultProps} />
         </div>
       )
     }

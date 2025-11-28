@@ -655,7 +655,7 @@ export const AnimatedIndicatorBar = ({
           const Icon = iconMap[iconName] || Home
           return (
             <button 
-              key={item.label} 
+              key={`${item}-${i}`}
               onClick={() => setActive(i)} 
               className="relative z-10 p-3 transition-colors duration-300 flex flex-col items-center gap-1"
               style={{
@@ -703,10 +703,14 @@ export const TextOnlyBar = ({
           backgroundColor: bgRgb,
         }}
       >
-        {items.map((item) => {
+        {items.map((item, i) => {
           const isActive = active === item
+          // Parse item for badge format: "Item:badge" or just "Item"
+          const itemParts = item.includes(":") ? item.split(":") : [item, ""]
+          const itemLabel = itemParts[0]
+          const itemBadge = itemParts[1] || null
           return (
-            <button key={item} onClick={() => setActive(item)} className="relative group flex flex-col items-center gap-1">
+            <button key={`${item}-${i}`} onClick={() => setActive(item)} className="relative group flex flex-col items-center gap-1">
               {showLabels && (
                 <div className="flex items-center gap-1">
                   <span 
@@ -715,11 +719,11 @@ export const TextOnlyBar = ({
                       color: isActive ? activeRgb : inactiveRgb,
                     }}
                   >
-                    {item.label}
+                    {itemLabel}
                   </span>
-                  {item.badge && (
+                  {itemBadge && (
                     <Badge className="text-[8px] h-4 px-1 bg-neutral-200 text-neutral-700">
-                      {item.badge}
+                      {itemBadge}
                     </Badge>
                   )}
                 </div>
@@ -1244,7 +1248,7 @@ export const NeonGlowBar = ({
           const Icon = iconMap[iconName] || Home
           return (
             <button 
-              key={item.label} 
+              key={`${item}-${i}`}
               onClick={() => setActive(i)}
               className={cn("relative z-10 transition-all duration-300 flex flex-col items-center gap-1", active === i ? "drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]" : "")}
               style={{
@@ -1295,7 +1299,7 @@ export const MinimalLineBar = ({
           const Icon = iconMap[iconName] || Home
           return (
             <button 
-              key={item.label} 
+              key={`${item}-${i}`}
               onClick={() => setActive(i)} 
               className="flex flex-col items-center gap-2 w-12"
             >
@@ -1531,7 +1535,7 @@ export const CupertinoBlurredBar = ({
           const Icon = extendedIconMap[iconName] || ImageIcon
           return (
             <button 
-              key={item.label} 
+              key={`${item}-${i}`}
               onClick={() => setActive(i)}
               className={cn("flex flex-col items-center gap-1", active === i ? "" : "")}
               style={{
@@ -1591,7 +1595,7 @@ export const VerticalMobileBar = ({
           const Icon = iconMap[iconName] || Home
           return (
             <button 
-              key={item.label} 
+              key={`${item}-${i}`}
               onClick={() => setActive(i)} 
               className="p-2 rounded-xl transition-all flex flex-col items-center gap-1"
               style={{

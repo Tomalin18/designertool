@@ -59,6 +59,8 @@ import { tabsComponentsByName } from "@/components/customize/tabs"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { sidebarComponentsByName } from "@/components/customize/sidebars"
 import { tabbarSections } from "@/lib/tabbar-sections"
+import { sheetSections } from "@/lib/sheet-sections"
+import { sheetComponentsByName } from "@/components/customize/sheets"
 import { tabbarComponentsByName } from "@/components/customize/tabbars"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
@@ -139,6 +141,11 @@ const sidebarNameToMeta = sidebarSections.reduce<Record<string, (typeof sidebarS
 
 const tabbarNameToMeta = tabbarSections.reduce<Record<string, (typeof tabbarSections)[number]>>((acc, tabbar) => {
   acc[tabbar.name] = tabbar
+  return acc
+}, {})
+
+const sheetNameToMeta = sheetSections.reduce<Record<string, (typeof sheetSections)[number]>>((acc, sheet) => {
+  acc[sheet.name] = sheet
   return acc
 }, {})
 
@@ -2552,6 +2559,115 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add sheet sections to configs
+  sheetSections.forEach((sheet) => {
+    // Get Component dynamically to avoid circular dependency issues
+    const Component = sheetComponentsByName[sheet.componentName]
+    if (!Component) {
+      console.warn(`Sheet component not found: ${sheet.componentName}. Available components:`, Object.keys(sheetComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(sheet.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[sheet.name] = {
+      props: propConfig,
+      render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
+        // Get Component from sheetComponentsByName (re-fetch to ensure it's available)
+        const Component = sheetComponentsByName[sheet.componentName]
+        
+        if (!Component) {
+          console.error(`Sheet component ${sheet.componentName} is not available in sheetComponentsByName. Available:`, Object.keys(sheetComponentsByName))
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {sheet.componentName}
+            </div>
+          )
+        }
+
+        // Process props that need special handling
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+
+        const processedProps: Record<string, any> = {}
+        Object.keys(propConfig).forEach((key) => {
+          const propConfigItem = propConfig[key]
+          const propValue = props[key]
+
+          // Handle color props - convert hex to rgb
+          if (propConfigItem.type === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') 
+                ? hexToRgb(propValue) 
+                : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props - convert to number
+          else if (propConfigItem.type === "slider" || propConfigItem.type === "number") {
+            processedProps[key] = propValue !== undefined && propValue !== "" 
+              ? Number(propValue) 
+              : (propConfigItem.default !== undefined ? Number(propConfigItem.default) : undefined)
+          }
+          // Handle boolean props
+          else if (propConfigItem.type === "boolean") {
+            processedProps[key] = propValue === true || propValue === "true"
+          }
+          // Handle text/textarea props - ensure string
+          else if (propConfigItem.type === "text" || propConfigItem.type === "textarea") {
+            processedProps[key] = propValue !== undefined ? String(propValue) : (propConfigItem.default !== undefined ? String(propConfigItem.default) : "")
+          }
+          // Handle select props
+          else if (propConfigItem.type === "select") {
+            processedProps[key] = propValue !== undefined ? propValue : (propConfigItem.default !== undefined ? propConfigItem.default : "")
+          }
+          // Default: pass through
+          else {
+            processedProps[key] = props[key]
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full flex items-center justify-center">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${sheet.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2637,6 +2753,18 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
         console.log(`Found tabbar config by slug: ${slug} -> ${tabbarMeta.name}`)
       } else {
         console.warn(`Tabbar meta found but config not found: ${tabbarMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
+      }
+    }
+
+    const sheetMeta = sheetSections.find(s => s.slug === slug)
+    if (sheetMeta) {
+      config = componentConfigs[sheetMeta.name]
+      if (config) {
+        // Update componentName to match the config key
+        actualComponentName = sheetMeta.name
+        console.log(`Found sheet config by slug: ${slug} -> ${sheetMeta.name}`)
+      } else {
+        console.warn(`Sheet meta found but config not found: ${sheetMeta.name}. Available configs:`, Object.keys(componentConfigs).slice(0, 10))
       }
     }
   }
@@ -6279,6 +6407,17 @@ export default function ${sidebarMeta.componentName}Example() {
       }
     }
 
+    // For sheet components with initialCode
+    let sheetMeta: (typeof sheetSections)[number] | undefined
+    sheetMeta = sheetNameToMeta[componentName]
+    if (!sheetMeta) {
+      // Try to find by slug
+      const sheetMetaBySlug = sheetSections.find(s => s.slug === slug)
+      if (sheetMetaBySlug) {
+        sheetMeta = sheetNameToMeta[sheetMetaBySlug.name]
+      }
+    }
+
     if (tabbarMeta && initialCode) {
       // Use the initialCode directly (it already contains the full component)
       // Check if initialCode already has imports
@@ -6374,6 +6513,111 @@ export default function ${tabbarMeta.componentName}Example() {
 }`
     }
 
+    // For sheet components with initialCode
+    if (sheetMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import { 
+  X, 
+  ChevronLeft, 
+  ChevronRight, 
+  Settings, 
+  User, 
+  CreditCard, 
+  Bell, 
+  ShoppingBag, 
+  Filter, 
+  Sliders, 
+  Check, 
+  Search, 
+  MoreVertical, 
+  Share2, 
+  Heart, 
+  MessageCircle, 
+  Trash2, 
+  FileText, 
+  Image as ImageIcon, 
+  Music, 
+  Video, 
+  List, 
+  LogOut, 
+  Plus, 
+  Minus,
+  Calendar,
+  MapPin,
+  Clock,
+  ArrowRight,
+  Shield,
+  Zap,
+  Github,
+  Code
+} from "lucide-react";
+import { ShinyButton } from "./ShinyButton";
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use as-is
+        return initialCode
+      }
+    }
+
+    // For sheet components without initialCode, generate usage example
+    if (sheetMeta) {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string): string => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values (including defaults)
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "activeColor" || key === "hoverColor" || key === "buttonColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          // Escape quotes in strings and handle newlines
+          const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${sheetMeta.componentName} } from "@/components/customize/sheets"
+
+export default function ${sheetMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${sheetMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
     // Default code generation for components without specific handlers
     // Try to determine if it's a shadcn component or custom component
     const shadcnComponents = ["Button", "Badge", "Checkbox", "Progress", "Switch", "Input", "Card", "Alert", "Avatar"]
@@ -6438,44 +6682,42 @@ export default function ${componentName}Example() {
     <div className="relative w-full">
       <div className="flex flex-col gap-6 min-w-0 w-full">
         <div className="relative" ref={playgroundRef} data-playground>
-          <Card className="p-12 min-h-[400px] flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
-            {config && config.render ? (
-              (() => {
-                try {
-                  const rendered = config.render(props, setProps)
-                  if (!rendered) {
-                    console.warn(`Render function returned null for ${componentName}`)
-                    return (
-                      <div className="text-center text-muted-foreground">
-                        Component returned null
-                      </div>
-                    )
-                  }
-                  return rendered
-                } catch (error) {
-                  console.error(`Error in render function for ${componentName}:`, error)
+          {config && config.render ? (
+            (() => {
+              try {
+                const rendered = config.render(props, setProps)
+                if (!rendered) {
+                  console.warn(`Render function returned null for ${componentName}`)
                   return (
-                    <div className="text-center text-muted-foreground p-4">
-                      <div>Error rendering component</div>
-                      <div className="text-xs mt-2">{String(error)}</div>
+                    <div className="text-center text-muted-foreground">
+                      Component returned null
                     </div>
                   )
                 }
-              })()
-            ) : (
-              <div className="text-center text-muted-foreground">
-                {!config ? (
-                  <div>
-                    <div>Config not found for: {componentName}</div>
-                    <div className="text-xs mt-2">Slug: {slug}</div>
-                    <div className="text-xs mt-1">Available card configs: {Object.keys(componentConfigs).filter(k => k.includes('Card')).slice(0, 5).join(', ')}</div>
+                return rendered
+              } catch (error) {
+                console.error(`Error in render function for ${componentName}:`, error)
+                return (
+                  <div className="text-center text-muted-foreground p-4">
+                    <div>Error rendering component</div>
+                    <div className="text-xs mt-2">{String(error)}</div>
                   </div>
-                ) : (
-                  <div>Render function not available</div>
-                )}
-              </div>
-            )}
-          </Card>
+                )
+              }
+            })()
+          ) : (
+            <div className="text-center text-muted-foreground">
+              {!config ? (
+                <div>
+                  <div>Config not found for: {componentName}</div>
+                  <div className="text-xs mt-2">Slug: {slug}</div>
+                  <div className="text-xs mt-1">Available card configs: {Object.keys(componentConfigs).filter(k => k.includes('Card')).slice(0, 5).join(', ')}</div>
+                </div>
+              ) : (
+                <div>Render function not available</div>
+              )}
+            </div>
+          )}
           <Button
             variant="outline"
             size="icon"

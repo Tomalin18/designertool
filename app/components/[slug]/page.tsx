@@ -21,6 +21,7 @@ import { toggleSections } from "@/lib/toggle-sections"
 import { tabsSections } from "@/lib/tabs-sections"
 import { sidebarSections } from "@/lib/sidebar-sections"
 import { tabbarSections } from "@/lib/tabbar-sections"
+import { sheetSections } from "@/lib/sheet-sections"
 import { ComponentInfo } from "@/lib/components-data"
 import fs from 'fs'
 import path from 'path'
@@ -33,7 +34,8 @@ export function generateStaticParams() {
   const tabsSlugs = tabsSections.map(tab => tab.slug)
   const sidebarSlugs = sidebarSections.map(sidebar => sidebar.slug)
   const tabbarSlugs = tabbarSections.map(tabbar => tabbar.slug)
-  return [...componentSlugs, ...inputSlugs, ...dialogSlugs, ...toggleSlugs, ...tabsSlugs, ...sidebarSlugs, ...tabbarSlugs].map((slug) => ({
+  const sheetSlugs = sheetSections.map(sheet => sheet.slug)
+  return [...componentSlugs, ...inputSlugs, ...dialogSlugs, ...toggleSlugs, ...tabsSlugs, ...sidebarSlugs, ...tabbarSlugs, ...sheetSlugs].map((slug) => ({
     slug,
   }))
 }
@@ -62,6 +64,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const tabsMeta = tabsSections.find(t => t.slug === slug)
   const sidebarMeta = sidebarSections.find(s => s.slug === slug)
   const tabbarMeta = tabbarSections.find(t => t.slug === slug)
+  const sheetMeta = sheetSections.find(s => s.slug === slug)
 
   // Get component from componentDetails or create from inputMeta/dialogMeta/toggleMeta/tabsMeta
   let component = componentDetails[slug]
@@ -172,6 +175,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       usage: `<${tabbarMeta.componentName} />`,
       tags: tabbarMeta.tags,
       props: Object.entries(tabbarMeta.props).map(([key, prop]) => ({
+        name: key,
+        type: prop.control,
+        default: String(prop.default || ""),
+        description: prop.description,
+      })),
+    }
+  }
+
+  // For sheet components, create component detail if not in componentDetails
+  if (sheetMeta && !component) {
+    component = {
+      name: sheetMeta.name,
+      description: sheetMeta.description,
+      category: "Sheet",
+      hasPlayground: true,
+      installation: `import { ${sheetMeta.componentName} } from "@/components/customize/sheets"`,
+      usage: `<${sheetMeta.componentName} />`,
+      tags: sheetMeta.tags,
+      props: Object.entries(sheetMeta.props).map(([key, prop]) => ({
         name: key,
         type: prop.control,
         default: String(prop.default || ""),
@@ -579,6 +601,32 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       }
     } catch (e) {
       console.error("Error reading tabbar component code:", e)
+    }
+  }
+
+  if (sheetMeta) {
+    try {
+      const filePath = path.join(process.cwd(), 'components', 'customize', 'sheets', 'index.tsx')
+      const fileContent = fs.readFileSync(filePath, 'utf-8')
+
+      // Extract the specific component function (could be export const or export function)
+      const functionStartRegex = new RegExp(`export (const|function) ${sheetMeta.componentName}\\s*[=(]`, 'm')
+      const match = fileContent.match(functionStartRegex)
+
+      if (match && match.index !== undefined) {
+        const startIndex = match.index
+        // Find the end of this component
+        // Look for the closing by finding the next export statement
+        const nextExportMatch = fileContent.slice(startIndex + 1).match(/^export (type|function|const|interface)/m)
+        const endIndex = nextExportMatch && nextExportMatch.index
+          ? startIndex + 1 + nextExportMatch.index
+          : fileContent.length
+
+        let componentCode = fileContent.slice(startIndex, endIndex).trim()
+        initialCode = componentCode
+      }
+    } catch (e) {
+      console.error("Error reading sheet component code:", e)
     }
   }
 
@@ -1002,6 +1050,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
             tabsMeta={tabsMeta}
             sidebarMeta={sidebarMeta}
             tabbarMeta={tabbarMeta}
+            sheetMeta={sheetMeta}
           />
         </div>
 
