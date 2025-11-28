@@ -7086,12 +7086,14 @@ const hexToRgb = (hex: string): string | undefined => {
         
         // For string props
         if (typeof value === "string") {
-          // For data prop, always include (even if empty, use default value if available)
+          // For data prop, always include the actual value from props (what user entered)
           if (key === "data") {
-            // Use current value if not empty, otherwise use default from metadata
-            const dataValue = value.trim() !== "" ? value : (propConfig.default || "")
-            if (dataValue.trim() !== "") {
-              const escapedValue = dataValue.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+            // Always use the current value from props (what user entered in ChartDataEditor)
+            // Only fallback to default if value is truly empty/undefined
+            const dataValue = (value && value.trim() !== "") ? value : (propConfig.default || "")
+            if (dataValue && dataValue.trim() !== "") {
+              // Escape quotes and newlines for proper string formatting
+              const escapedValue = dataValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')
               propsList.push(`${key}="${escapedValue}"`)
               addedKeys.add(key)
             }
