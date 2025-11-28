@@ -7061,23 +7061,76 @@ const hexToRgb = (hex: string): string | undefined => {
 
       // Build props list - show all props with their current values
       const propsList: string[] = []
+      const addedKeys = new Set<string>()
+      
       Object.entries(props).forEach(([key, value]) => {
-        if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
         
-        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor") && typeof value === "string" && value.startsWith("#")) {
-          // Convert color props to rgb format
-          propsList.push(`${key}="${hexToRgb(value)}"`)
-        } else if (typeof value === "boolean") {
+        // Skip undefined values
+        if (value === undefined) return
+        
+        // For boolean props, always include (even if false)
+        if (typeof value === "boolean") {
           propsList.push(`${key}={${value}}`)
-        } else if (typeof value === "number") {
+          addedKeys.add(key)
+          return
+        }
+        
+        // For number props, always include if not undefined
+        if (typeof value === "number") {
           propsList.push(`${key}={${value}}`)
-        } else if (typeof value === "string") {
-          const escapedValue = value.replace(/"/g, '\\"')
-          propsList.push(`${key}="${escapedValue}"`)
-        } else {
+          addedKeys.add(key)
+          return
+        }
+        
+        // For string props
+        if (typeof value === "string") {
+          // Include data prop even if empty (it might have default value)
+          // Include other string props if not empty
+          if (key === "data" || value.trim() !== "") {
+            // Handle colors prop (newline-separated hex colors)
+            if (key === "colors" && value.includes("\n")) {
+              const colorLines = value.split("\n").filter(c => c.trim() !== "")
+              const rgbColors = colorLines.map(c => {
+                const trimmed = c.trim()
+                return trimmed.startsWith("#") ? hexToRgb(trimmed) : trimmed
+              }).join("\\n")
+              propsList.push(`${key}="${rgbColors}"`)
+            }
+            // Handle regular color props (single hex color)
+            else if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor") && value.startsWith("#")) {
+              propsList.push(`${key}="${hexToRgb(value)}"`)
+            }
+            // Handle regular string props (including data)
+            else {
+              const escapedValue = value.replace(/"/g, '\\"').replace(/\n/g, '\\n')
+              propsList.push(`${key}="${escapedValue}"`)
+            }
+            addedKeys.add(key)
+          }
+          return
+        }
+        
+        // For other types, use JSON.stringify
+        if (value !== null && value !== "") {
           propsList.push(`${key}={${JSON.stringify(value)}}`)
+          addedKeys.add(key)
+        }
+      })
+      
+      // Also include important boolean props that have defaults but are not in current props
+      // This ensures important display options are included even if not explicitly set
+      const importantBooleanProps = ["showXAxis", "showYAxis", "showGrid", "showTooltip", "showLegend", "showLabels", "showDots"]
+      Object.entries(config.props).forEach(([key, propConfig]: [string, any]) => {
+        // Skip if already added
+        if (addedKeys.has(key)) return
+        
+        // Include important boolean props with their default values
+        if (importantBooleanProps.includes(key) && propConfig.control === "boolean") {
+          const defaultValue = propConfig.default !== undefined ? propConfig.default : false
+          propsList.push(`${key}={${defaultValue}}`)
+          addedKeys.add(key)
         }
       })
 
