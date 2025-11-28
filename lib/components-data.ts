@@ -10,6 +10,7 @@ import { toggleSections } from "./toggle-sections"
 import { tabsSections } from "./tabs-sections"
 import { sidebarSections } from "./sidebar-sections"
 import { tabbarSections } from "./tabbar-sections"
+import { sheetSections } from "./sheet-sections"
 
 export interface ComponentInfo {
   name: string
@@ -239,6 +240,14 @@ const tabbarComponentEntries: ComponentInfo[] = tabbarSections.map((tabbar) => (
   tags: tabbar.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries, ...sidebarComponentEntries, ...tabbarComponentEntries]
+const sheetComponentEntries: ComponentInfo[] = sheetSections.map((sheet) => ({
+  name: sheet.name,
+  description: sheet.description,
+  href: `/components/${sheet.slug}`,
+  category: "Sheet",
+  tags: sheet.tags,
+}))
 
-export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar"] as const
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries, ...sidebarComponentEntries, ...tabbarComponentEntries, ...sheetComponentEntries]
+
+export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar", "Sheet"] as const
