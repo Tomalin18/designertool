@@ -11,6 +11,8 @@ import { tabsSections } from "./tabs-sections"
 import { sidebarSections } from "./sidebar-sections"
 import { tabbarSections } from "./tabbar-sections"
 import { sheetSections } from "./sheet-sections"
+import { tableSections } from "./table-sections"
+import { chartSections } from "./chart-sections"
 
 export interface ComponentInfo {
   name: string
@@ -248,6 +250,22 @@ const sheetComponentEntries: ComponentInfo[] = sheetSections.map((sheet) => ({
   tags: sheet.tags,
 }))
 
-export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries, ...sidebarComponentEntries, ...tabbarComponentEntries, ...sheetComponentEntries]
+const tableComponentEntries: ComponentInfo[] = tableSections.map((table) => ({
+  name: table.name,
+  description: table.description,
+  href: `/components/${table.slug}`,
+  category: "Table",
+  tags: table.tags,
+}))
 
-export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar", "Sheet"] as const
+const chartComponentEntries: ComponentInfo[] = chartSections.map((chart) => ({
+  name: chart.name,
+  description: chart.description,
+  href: `/components/${chart.slug}`,
+  category: "Chart",
+  tags: chart.tags,
+}))
+
+export const componentsData: ComponentInfo[] = [...baseComponents, ...heroComponentEntries, ...featureComponentEntries, ...paymentComponentEntries, ...ctaComponentEntries, ...headerComponentEntries, ...buttonComponentEntries, ...inputComponentEntries, ...dialogComponentEntries, ...toggleComponentEntries, ...tabsComponentEntries, ...sidebarComponentEntries, ...tabbarComponentEntries, ...sheetComponentEntries, ...tableComponentEntries, ...chartComponentEntries]
+
+export const categories = ["All", "Display", "Forms", "Feedback", "Overlay", "Layout", "Navigation", "Sections", "Button", "Input", "Dialog", "Toggle", "Tabs", "Sidebar", "Tabbar", "Sheet", "Table", "Chart"] as const

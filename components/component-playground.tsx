@@ -62,6 +62,10 @@ import { tabbarSections } from "@/lib/tabbar-sections"
 import { sheetSections } from "@/lib/sheet-sections"
 import { sheetComponentsByName } from "@/components/customize/sheets"
 import { tabbarComponentsByName } from "@/components/customize/tabbars"
+import { tableSections } from "@/lib/table-sections"
+import { tableComponentsByName } from "@/components/customize/tables"
+import { chartSections } from "@/lib/chart-sections"
+import { chartComponentsByName } from "@/components/customize/charts"
 import { ThreeDCard } from "@/components/three-d-card"
 import { AlertCircle, Terminal } from 'lucide-react'
 import { componentDetails } from "@/lib/component-details"
@@ -146,6 +150,16 @@ const tabbarNameToMeta = tabbarSections.reduce<Record<string, (typeof tabbarSect
 
 const sheetNameToMeta = sheetSections.reduce<Record<string, (typeof sheetSections)[number]>>((acc, sheet) => {
   acc[sheet.name] = sheet
+  return acc
+}, {})
+
+const tableNameToMeta = tableSections.reduce<Record<string, (typeof tableSections)[number]>>((acc, table) => {
+  acc[table.name] = table
+  return acc
+}, {})
+
+const chartNameToMeta = chartSections.reduce<Record<string, (typeof chartSections)[number]>>((acc, chart) => {
+  acc[chart.name] = chart
   return acc
 }, {})
 
@@ -2668,6 +2682,202 @@ const componentConfigs: Record<string, any> = (() => {
     }
   })
 
+  // Add table sections to configs
+  tableSections.forEach((table) => {
+    const Component = tableComponentsByName[table.componentName]
+    if (!Component) {
+      console.warn(`Table component not found: ${table.componentName}. Available components:`, Object.keys(tableComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(table.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[table.name] = {
+      props: propConfig,
+      render: (props: any) => {
+        const Component = tableComponentsByName[table.componentName]
+        
+        if (!Component) {
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {table.componentName}
+            </div>
+          )
+        }
+
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        const processedProps: any = {}
+        
+        Object.keys(table.props).forEach((key) => {
+          const propConfig = table.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            processedProps[key] = propValue === true || propValue === "true"
+          }
+          // Handle text/textarea/select props
+          else {
+            processedProps[key] = propValue !== undefined && propValue !== null ? propValue : (propConfig.default !== undefined ? propConfig.default : "")
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${table.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
+  // Add chart sections to configs
+  chartSections.forEach((chart) => {
+    const Component = chartComponentsByName[chart.componentName]
+    if (!Component) {
+      console.warn(`Chart component not found: ${chart.componentName}. Available components:`, Object.keys(chartComponentsByName))
+      return
+    }
+
+    const propConfig = Object.fromEntries(
+      Object.entries(chart.props).map(([key, prop]) => [
+        key,
+        {
+          type: prop.control,
+          default: prop.default,
+          options: prop.options,
+          min: prop.min,
+          max: prop.max,
+        },
+      ])
+    )
+
+    configs[chart.name] = {
+      props: propConfig,
+      render: (props: any) => {
+        const Component = chartComponentsByName[chart.componentName]
+        
+        if (!Component) {
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Component not found: {chart.componentName}
+            </div>
+          )
+        }
+
+        // Helper to convert hex to rgb
+        const hexToRgb = (hex: string): string | undefined => {
+          if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return hex
+          try {
+            const r = parseInt(hex.slice(1, 3), 16)
+            const g = parseInt(hex.slice(3, 5), 16)
+            const b = parseInt(hex.slice(5, 7), 16)
+            if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+            return `rgb(${r} ${g} ${b})`
+          } catch {
+            return hex
+          }
+        }
+        
+        const processedProps: any = {}
+        
+        Object.keys(chart.props).forEach((key) => {
+          const propConfig = chart.props[key]
+          const propValue = props[key]
+          
+          // Handle color props - convert hex to rgb if needed
+          if (propConfig.control === "color") {
+            if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
+              processedProps[key] = propValue.startsWith('#') ? hexToRgb(propValue) : propValue
+            } else {
+              processedProps[key] = undefined
+            }
+          }
+          // Handle slider/number props
+          else if (propConfig.control === "slider" || propConfig.control === "number") {
+            if (propValue !== undefined && propValue !== null && propValue !== "") {
+              processedProps[key] = typeof propValue === "number" ? propValue : parseFloat(String(propValue)) || propConfig.default || 0
+            } else {
+              processedProps[key] = propConfig.default !== undefined && propConfig.default !== null ? propConfig.default : (propConfig.min !== undefined ? propConfig.min : 0)
+            }
+          }
+          // Handle boolean props
+          else if (propConfig.control === "boolean") {
+            processedProps[key] = propValue === true || propValue === "true"
+          }
+          // Handle text/textarea/select props
+          else {
+            processedProps[key] = propValue !== undefined && propValue !== null ? propValue : (propConfig.default !== undefined ? propConfig.default : "")
+          }
+        })
+
+        try {
+          return (
+            <div className="w-full">
+              <Component {...processedProps} />
+            </div>
+          )
+        } catch (error) {
+          console.error(`Error rendering ${chart.componentName}:`, error)
+          return (
+            <div className="w-full p-4 text-center text-muted-foreground">
+              Error rendering component: {String(error)}
+            </div>
+          )
+        }
+      },
+    }
+  })
+
   return configs
 })()
 
@@ -2862,6 +3072,25 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       tabbarMeta = tabbarNameToMeta[tabbarMetaBySlug.name]
     }
   }
+
+  // For table components, find by slug if not found by componentName
+  let tableMeta = tableNameToMeta[actualComponentName]
+  if (!tableMeta) {
+    const tableMetaBySlug = tableSections.find(t => t.slug === slug)
+    if (tableMetaBySlug) {
+      tableMeta = tableNameToMeta[tableMetaBySlug.name]
+    }
+  }
+
+  // For chart components, find by slug if not found by componentName
+  let chartMeta = chartNameToMeta[actualComponentName]
+  if (!chartMeta) {
+    const chartMetaBySlug = chartSections.find(c => c.slug === slug)
+    if (chartMetaBySlug) {
+      chartMeta = chartNameToMeta[chartMetaBySlug.name]
+    }
+  }
+
   const [copied, setCopied] = React.useState(false)
   const [showSidebar, setShowSidebar] = React.useState(true)
 
@@ -6613,6 +6842,193 @@ export default function ${sheetMeta.componentName}Example() {
   return (
     <div className="flex items-center justify-center p-8 min-h-[200px]">
       <${sheetMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // For table components with initialCode
+    if (tableMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React from "react";
+import { cn } from "@/lib/utils";
+import { 
+  MoreHorizontal, 
+  Filter, 
+  FileText,
+  Image as ImageIcon,
+  MoreVertical,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  CheckCircle2,
+} from "lucide-react";
+
+// Helper function to convert hex to rgb
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined;
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+  if (!result) return hex;
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return \`rgb(\${r} \${g} \${b})\`;
+};
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use as-is
+        return initialCode
+      }
+    }
+
+    // For table components without initialCode, generate usage example
+    if (tableMeta) {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string): string => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${tableMeta.componentName} } from "@/components/customize/tables"
+
+export default function ${tableMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${tableMeta.componentName}${propsString}/>
+    </div>
+  )
+}`
+    }
+
+    // For chart components with initialCode
+    if (chartMeta && initialCode) {
+      // Use the initialCode directly (it already contains the full component)
+      // Check if initialCode already has imports
+      if (!initialCode.includes('"use client"') && !initialCode.includes("import React")) {
+        // Add necessary imports and helper functions at the top
+        const imports = `"use client"
+
+import React from "react";
+import { cn } from "@/lib/utils";
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from "recharts";
+
+// Helper function to convert hex to rgb
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined;
+  const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+  if (!result) return hex;
+  const r = parseInt(result[1], 16);
+  const g = parseInt(result[2], 16);
+  const b = parseInt(result[3], 16);
+  return \`rgb(\${r} \${g} \${b})\`;
+};
+
+`
+        return `${imports}${initialCode}`
+      } else {
+        // initialCode already has imports, use as-is
+        return initialCode
+      }
+    }
+
+    // For chart components without initialCode, generate usage example
+    if (chartMeta) {
+      // Helper to convert hex to rgb
+      const hexToRgb = (hex: string): string => {
+        if (!hex || !hex.startsWith('#')) return hex
+        const r = parseInt(hex.slice(1, 3), 16)
+        const g = parseInt(hex.slice(3, 5), 16)
+        const b = parseInt(hex.slice(5, 7), 16)
+        return `rgb(${r} ${g} ${b})`
+      }
+
+      // Build props list - show all props with their current values
+      const propsList: string[] = []
+      Object.entries(props).forEach(([key, value]) => {
+        if (value === undefined || value === "") return
+        const propConfig = config.props[key]
+        if (!propConfig) return
+        
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "barColor" || key === "lineColor" || key === "areaColor") && typeof value === "string" && value.startsWith("#")) {
+          // Convert color props to rgb format
+          propsList.push(`${key}="${hexToRgb(value)}"`)
+        } else if (typeof value === "boolean") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "number") {
+          propsList.push(`${key}={${value}}`)
+        } else if (typeof value === "string") {
+          const escapedValue = value.replace(/"/g, '\\"')
+          propsList.push(`${key}="${escapedValue}"`)
+        } else {
+          propsList.push(`${key}={${JSON.stringify(value)}}`)
+        }
+      })
+
+      const propsString = propsList.length > 0 ? `\n    ${propsList.join("\n    ")}\n  ` : ""
+
+      // Generate complete, ready-to-use component code
+      return `"use client"
+
+import { ${chartMeta.componentName} } from "@/components/customize/charts"
+
+export default function ${chartMeta.componentName}Example() {
+  return (
+    <div className="flex items-center justify-center p-8 min-h-[200px]">
+      <${chartMeta.componentName}${propsString}/>
     </div>
   )
 }`
