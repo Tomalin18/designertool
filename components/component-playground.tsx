@@ -7509,7 +7509,8 @@ export default function ${componentName}Example() {
       <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
         <SheetContent 
           className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" 
-          side="right" 
+          side="right"
+          offsetTop={56}
           onInteractOutside={(e) => {
             // 在 mobile 上允許點擊外部關閉，在 desktop 上阻止
             if (isMobile) {

@@ -25,6 +25,7 @@ import { sheetSections } from "@/lib/sheet-sections"
 import { tableSections } from "@/lib/table-sections"
 import { chartSections } from "@/lib/chart-sections"
 import { ComponentInfo } from "@/lib/components-data"
+import { isComponentPremium } from "@/lib/component-access"
 import fs from 'fs'
 import path from 'path'
 
@@ -898,59 +899,33 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     return customComponents.filter(c => c.category === "Chart")
   }
 
-  const allFilteredSections = [
-    ...headerSections.map(header => ({
-      slug: header.slug,
-      name: header.name,
-      description: header.description,
-      type: 'header' as const,
-    })),
-    ...heroSections.map(hero => ({
-      slug: hero.slug,
-      name: hero.name,
-      description: hero.description,
-      type: 'hero' as const,
-    })),
-    ...featureSections.map(feature => ({
-      slug: feature.slug,
-      name: feature.name,
-      description: feature.description,
-      type: 'feature' as const,
-    })),
-    ...paymentSections.map(payment => ({
-      slug: payment.slug,
-      name: payment.name,
-      description: payment.description,
-      type: 'payment' as const,
-    })),
-    ...ctaSections.map(cta => ({
-      slug: cta.slug,
-      name: cta.name,
-      description: cta.description,
-      type: 'cta' as const,
-    })),
-    ...footerSections.map(footer => ({
-      slug: footer.slug,
-      name: footer.name,
-      description: footer.description,
-      type: 'footer' as const,
-    })),
-    ...buttonSections.map(button => ({
-      slug: button.slug,
-      name: button.name,
-      description: button.description,
-      type: 'button' as const,
-    })),
-  ]
+  const sectionsByType = {
+    header: headerSections,
+    hero: heroSections,
+    feature: featureSections,
+    payment: paymentSections,
+    cta: ctaSections,
+    footer: footerSections,
+  } as const
 
-  const getSectionComponentsByType = (type: string) => {
-    return allFilteredSections
-      .filter(section => section.type === type)
-      .map(section => ({
-        name: section.name,
-        href: `/components/${section.slug}`,
-      }))
+  type SectionType = keyof typeof sectionsByType
+
+  const getSectionComponentsByType = (type: SectionType) => {
+    const sections = sectionsByType[type] || []
+    return sections.map(section => ({
+      name: section.name,
+      href: `/components/${section.slug}`,
+      category: type,
+    }))
   }
+
+  const toSidebarItem = (
+    component: { name: string; href: string; category?: string }
+  ) => ({
+    title: component.name,
+    href: component.href,
+    isPremium: isComponentPremium(component.name, component.category),
+  })
 
   // Build sidebar items (same structure as components-page-client.tsx)
   const sidebarItems = [
@@ -962,10 +937,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Special`,
         },
-        ...getSpecialComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSpecialComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -976,10 +948,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Button`,
         },
-        ...getButtonComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getButtonComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -990,10 +959,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Card`,
         },
-        ...getCardComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getCardComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1004,14 +970,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Badge`,
         },
-        ...componentsData.filter(c => c.name === "Badge").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
-        ...getBadgeComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...componentsData.filter(c => c.name === "Badge").map((component) => toSidebarItem(component)),
+        ...getBadgeComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1022,10 +982,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Input`,
         },
-        ...getInputComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getInputComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1036,14 +993,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Dialog`,
         },
-        ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
-        ...getDialogComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...componentsData.filter(c => c.name === "Dialog").map((component) => toSidebarItem(component)),
+        ...getDialogComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1054,10 +1005,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Toggle`,
         },
-        ...getToggleComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getToggleComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1068,14 +1016,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Tabs`,
         },
-        ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
-        ...getTabsComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...componentsData.filter(c => c.name === "Tabs").map((component) => toSidebarItem(component)),
+        ...getTabsComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1086,10 +1028,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Sidebar`,
         },
-        ...getSidebarComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSidebarComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1100,10 +1039,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Tabbar`,
         },
-        ...getTabbarComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getTabbarComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1114,10 +1050,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Sheet`,
         },
-        ...getSheetComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSheetComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1128,10 +1061,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Table`,
         },
-        ...getTableComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getTableComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1142,10 +1072,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=components&category=Chart`,
         },
-        ...getChartComponents().map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getChartComponents().map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1156,10 +1083,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=Header`,
         },
-        ...getSectionComponentsByType("header").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("header").map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1170,10 +1094,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=Hero`,
         },
-        ...getSectionComponentsByType("hero").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("hero").map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1184,10 +1105,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=Feature`,
         },
-        ...getSectionComponentsByType("feature").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("feature").map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1198,10 +1116,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=Payment`,
         },
-        ...getSectionComponentsByType("payment").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("payment").map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1212,10 +1127,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=CTA`,
         },
-        ...getSectionComponentsByType("cta").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("cta").map((component) => toSidebarItem(component)),
       ],
     },
     {
@@ -1226,10 +1138,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           title: "All",
           href: `/components?tab=section&category=Footer`,
         },
-        ...getSectionComponentsByType("footer").map((component) => ({
-          title: component.name,
-          href: component.href,
-        })),
+        ...getSectionComponentsByType("footer").map((component) => toSidebarItem(component)),
       ],
     },
   ]
@@ -1284,7 +1193,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
       <div className="py-8 md:py-12 w-full">
         <div className="mb-6 flex flex-col items-center md:items-start">
-          <div className="w-full max-w-4xl">
+          <div className="w-full">
             <BackToComponentsButton
               href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
               isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
@@ -1298,7 +1207,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               <TagsList tags={component.tags} defaultVisible={10} />
             )}
           </div>
-          <div className="w-full max-w-4xl">
+          <div className="w-full">
             <ComponentNavigation
               currentSlug={slug}
               heroMeta={heroMeta}

@@ -28,6 +28,7 @@ import { paymentSections } from "@/lib/payment-sections"
 import { ctaSections } from "@/lib/cta-sections"
 import { footerSections } from "@/lib/footer-sections"
 import { headerSections } from "@/lib/header-sections"
+import { isComponentPremium } from "@/lib/component-access"
 
 interface Product {
   id: string
@@ -200,12 +201,6 @@ export function SubscribePageClient() {
     }
   }
 
-  // Premium components that require paid subscription
-  const premiumComponents = ["MediaPlayer", "ChatInterface"]
-
-  // Check if a component is premium
-  const isPremiumComponent = (name: string) => premiumComponents.includes(name)
-
   // Build component list for sidebar
   const rawCustomComponents = [
     {
@@ -346,7 +341,7 @@ export function SubscribePageClient() {
           .map((component) => ({
             title: component.name,
             href: component.href,
-            isPremium: isPremiumComponent(component.name),
+            isPremium: isComponentPremium(component.name, component.category),
           })),
       ],
     }))

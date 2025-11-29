@@ -44,17 +44,43 @@ function SheetOverlay({
   )
 }
 
+interface SheetContentProps extends React.ComponentProps<typeof SheetPrimitive.Content> {
+  side?: 'top' | 'right' | 'bottom' | 'left'
+  offsetTop?: number
+  offsetBottom?: number
+  overlayClassName?: string
+  showCloseButton?: boolean
+}
+
 function SheetContent({
   className,
   children,
   side = 'right',
+  offsetTop = 0,
+  offsetBottom = 0,
+  overlayClassName,
+  showCloseButton = true,
+  style,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  side?: 'top' | 'right' | 'bottom' | 'left'
-}) {
+}: SheetContentProps) {
+  const hasVerticalOffset = offsetTop !== 0 || offsetBottom !== 0
+  const overlayStyle = hasVerticalOffset
+    ? {
+        top: offsetTop,
+        bottom: offsetBottom,
+      }
+    : undefined
+  const contentStyle = hasVerticalOffset
+    ? {
+        top: offsetTop,
+        bottom: offsetBottom,
+        height: `calc(100% - ${offsetTop + offsetBottom}px)`,
+      }
+    : undefined
+
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay className={overlayClassName} style={overlayStyle} />
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
@@ -69,13 +95,16 @@ function SheetContent({
             'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
           className,
         )}
+        style={{ ...contentStyle, ...style }}
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 z-50 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-          <XIcon className="size-4" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
+        {showCloseButton && (
+          <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 z-50 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+            <XIcon className="size-4" />
+            <span className="sr-only">Close</span>
+          </SheetPrimitive.Close>
+        )}
       </SheetPrimitive.Content>
     </SheetPortal>
   )

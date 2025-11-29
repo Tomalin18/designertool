@@ -68,6 +68,7 @@ import { cn } from "@/lib/utils"
 import { useAuth } from "@/contexts/auth-context"
 import { LoginForm } from "@/components/auth/login-form"
 import { SignupForm } from "@/components/auth/signup-form"
+import { isComponentPremium } from "@/lib/component-access"
 
 interface ComponentPreviewProps {
   name: string
@@ -80,7 +81,7 @@ interface ComponentPreviewProps {
 
 export function ComponentPreview(props: ComponentPreviewProps) {
   // Destructure only the props we need, ignoring any extra props that might be passed
-  const { name, href, tags, className } = props
+  const { name, href, tags, className, category } = props
   const router = useRouter()
   const [selectOpen, setSelectOpen] = useState(false)
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
@@ -103,8 +104,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       (user.user_metadata as any)?.tier === "paid"
     )
 
-  // 需要付費的元件（其他元件只需要登入即可）
-  const isPremiumComponent = name === "MediaPlayer" || name === "ChatInterface"
+  let isPremiumComponent = false
 
   const handleProtectedClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
     // 所有元件都需要登入檢查
@@ -189,6 +189,29 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   const chartMeta = chartSections.find((chart) => chart.name === name)
   const ChartComponent = chartMeta ? chartComponentsByName[chartMeta.componentName] : null
+
+  const derivedCategory =
+    category ||
+    (buttonMeta ? "Button" : undefined) ||
+    (cardMeta ? "Card" : undefined) ||
+    (badgeMeta ? "Badge" : undefined) ||
+    (inputMeta ? "Input" : undefined) ||
+    (dialogMeta ? "Dialog" : undefined) ||
+    (toggleMeta ? "Toggle" : undefined) ||
+    (tabsMeta ? "Tabs" : undefined) ||
+    (sidebarMeta ? "Sidebar" : undefined) ||
+    (tabbarMeta ? "Tabbar" : undefined) ||
+    (sheetMeta ? "Sheet" : undefined) ||
+    (tableMeta ? "Table" : undefined) ||
+    (chartMeta ? "Chart" : undefined) ||
+    (heroMeta ? "Hero" : undefined) ||
+    (featureMeta ? "Feature" : undefined) ||
+    (paymentMeta ? "Payment" : undefined) ||
+    (ctaMeta ? "CTA" : undefined) ||
+    (footerMeta ? "Footer" : undefined) ||
+    (headerMeta ? "Header" : undefined)
+
+  isPremiumComponent = isComponentPremium(name, derivedCategory)
 
   const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta || !!sheetMeta || !!tableMeta || !!chartMeta
 
@@ -742,7 +765,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     </Card>
     {/* 未登入時點擊任何元件，彈出的登入 / 註冊 Dialog */}
     <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
-      <DialogContent className="max-w-lg">
+    <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {authMode === "login" ? "Sign in to view this component" : "Create an account to view this component"}
@@ -773,7 +796,10 @@ export function ComponentPreview(props: ComponentPreviewProps) {
     {/* 已登入但非付費用戶點擊需要付費的元件，彈出的升級提示 Dialog */}
     {isPremiumComponent && (
       <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
-        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+        <DialogContent
+          className="max-w-md border-0 bg-transparent p-0 shadow-none"
+          showCloseButton={false}
+        >
           <DialogTitle className="sr-only">Premium Access Required</DialogTitle>
           <div className="w-full max-w-sm rounded-xl border border-red-900/50 bg-neutral-900 p-6 shadow-2xl shadow-red-900/20">
             <div className="flex gap-4">
