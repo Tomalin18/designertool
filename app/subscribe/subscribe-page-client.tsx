@@ -58,14 +58,14 @@ const getIcon = (id: string) => {
 const formatPrice = (price: number, currency: string, period: string): string => {
   if (price === 0 && period === 'forever') return 'Free'
   if (price === 0) return 'Custom'
-  
+
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price)
-  
+
   return formattedPrice
 }
 
@@ -81,9 +81,9 @@ export function SubscribePageClient() {
       try {
         setIsLoading(true)
         const response = await fetch('/api/products')
-        
+
         const data = await response.json()
-        
+
         // 檢查是否有錯誤訊息
         if (data.error) {
           console.error('API Error:', data.error, data.message)
@@ -93,9 +93,9 @@ export function SubscribePageClient() {
           setProducts([])
           return
         }
-        
+
         setProducts(data.products || [])
-        
+
         // 如果沒有商品，顯示提示
         if (!data.products || data.products.length === 0) {
           console.warn('No products returned from API')
@@ -132,13 +132,13 @@ export function SubscribePageClient() {
     ...product,
     icon: getIcon(product.id),
     displayPrice: formatPrice(product.price, product.currency, product.period),
-    buttonText: product.id === 'enterprise' 
-      ? 'Contact Sales' 
-      : product.id === 'free' 
-        ? 'Current Plan' 
-        : `Upgrade to ${product.name}`,
-    buttonVariant: product.id === 'free' || product.id === 'enterprise' 
-      ? 'outline' 
+    buttonText: product.id === 'enterprise'
+      ? 'Contact Sales'
+      : product.id === 'free'
+        ? 'Current Plan'
+        : `Try ${product.name}`,
+    buttonVariant: product.id === 'free' || product.id === 'enterprise'
+      ? 'outline'
       : 'default',
   }))
 
@@ -183,7 +183,7 @@ export function SubscribePageClient() {
       }
 
       const data = await response.json()
-      
+
       if (data.checkoutUrl) {
         // 導向支付頁面
         window.location.href = data.checkoutUrl
@@ -202,7 +202,7 @@ export function SubscribePageClient() {
 
   // Premium components that require paid subscription
   const premiumComponents = ["MediaPlayer", "ChatInterface"]
-  
+
   // Check if a component is premium
   const isPremiumComponent = (name: string) => premiumComponents.includes(name)
 
@@ -402,66 +402,66 @@ export function SubscribePageClient() {
         <div className={cn(
           "grid gap-8 mb-12",
           plans.length === 1 ? "grid-cols-1 max-w-md mx-auto" :
-          plans.length === 2 ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto" :
-          "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            plans.length === 2 ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto" :
+              "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
         )}>
-        {plans.map((plan) => {
-          const isCurrentPlan = plan.id === "free" && !isPaidUser
-          const isUserPlan = plan.id === "pro" && isPaidUser
-          
-          // 格式化價格顯示
-          const displayPrice = plan.price === 0 && plan.period === 'forever' 
-            ? 0 
-            : plan.price
-          
-          // 格式化週期顯示
-          let periodDisplay = ""
-          if (plan.period === 'month') {
-            periodDisplay = "/mo"
-          } else if (plan.period === 'year') {
-            periodDisplay = "/yr"
-          } else if (plan.period === 'forever' && plan.price === 0) {
-            periodDisplay = ""
-          }
+          {plans.map((plan) => {
+            const isCurrentPlan = plan.id === "free" && !isPaidUser
+            const isUserPlan = plan.id === "pro" && isPaidUser
 
-          // 決定按鈕文字
-          let buttonText = plan.buttonText
-          if (isProcessing && selectedPlan === plan.id) {
-            buttonText = "Processing..."
-          } else if (isCurrentPlan) {
-            buttonText = "Current Plan"
-          } else if (isUserPlan) {
-            buttonText = "Active Plan"
-          }
+            // 格式化價格顯示
+            const displayPrice = plan.price === 0 && plan.period === 'forever'
+              ? 0
+              : plan.price
 
-          return (
-            <div key={plan.id} className={cn("relative", plan.popular && "md:scale-105")}>
-              {plan.popular && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 bg-primary">
-                  Most Popular
-                </Badge>
-              )}
-              <PricingCard
-                planName={plan.name}
-                price={displayPrice}
-                period={periodDisplay}
-                features={plan.features}
-                buttonText={buttonText}
-                accentColor={plan.popular ? "#6366f1" : "#6366f1"}
-                buttonColor={isCurrentPlan || isUserPlan ? "#6b7280" : (plan.popular ? "#6366f1" : "#6366f1")}
-                className={cn(
-                  "transition-all hover:scale-105"
+            // 格式化週期顯示
+            let periodDisplay = ""
+            if (plan.period === 'month') {
+              periodDisplay = "/mo"
+            } else if (plan.period === 'year') {
+              periodDisplay = "/yr"
+            } else if (plan.period === 'forever' && plan.price === 0) {
+              periodDisplay = ""
+            }
+
+            // 決定按鈕文字
+            let buttonText = plan.buttonText
+            if (isProcessing && selectedPlan === plan.id) {
+              buttonText = "Processing..."
+            } else if (isCurrentPlan) {
+              buttonText = "Current Plan"
+            } else if (isUserPlan) {
+              buttonText = "Active Plan"
+            }
+
+            return (
+              <div key={plan.id} className={cn("relative", plan.popular && "md:scale-105")}>
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 bg-primary">
+                    Most Popular
+                  </Badge>
                 )}
-                onClick={() => {
-                  if (!isCurrentPlan && !isUserPlan && !isProcessing) {
-                    handleSubscribe(plan.id, plan.stripePriceId)
-                  }
-                }}
-                disabled={isCurrentPlan || isUserPlan || isProcessing}
-              />
-            </div>
-          )
-        })}
+                <PricingCard
+                  planName={plan.name}
+                  price={displayPrice}
+                  period={periodDisplay}
+                  features={plan.features}
+                  buttonText={buttonText}
+                  accentColor={plan.popular ? "#6366f1" : "#6366f1"}
+                  buttonColor={isCurrentPlan || isUserPlan ? "#6b7280" : (plan.popular ? "#6366f1" : "#6366f1")}
+                  className={cn(
+                    "transition-all hover:scale-105"
+                  )}
+                  onClick={() => {
+                    if (!isCurrentPlan && !isUserPlan && !isProcessing) {
+                      handleSubscribe(plan.id, plan.stripePriceId)
+                    }
+                  }}
+                  disabled={isCurrentPlan || isUserPlan || isProcessing}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
