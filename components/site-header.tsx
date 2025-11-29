@@ -20,6 +20,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { LoginForm } from "@/components/auth/login-form"
 import { SignupForm } from "@/components/auth/signup-form"
@@ -184,7 +185,7 @@ export function SiteHeader() {
                       (user.user_metadata as any)?.plan === "paid" ||
                       (user.user_metadata as any)?.tier === "pro" ||
                       (user.user_metadata as any)?.tier === "paid"
-                    
+
                     return (
                       <SubscribeButton
                         className="!px-4 !py-2 text-sm"
@@ -210,7 +211,7 @@ export function SiteHeader() {
                     Sign up
                   </SubscribeButton>
                 )}
-                
+
                 {user && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -287,6 +288,9 @@ export function SiteHeader() {
             {authMode === 'login' && 'Sign in'}
             {authMode === 'signup' && 'Sign up'}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {authMode === 'login' ? 'Enter your credentials to sign in' : 'Create an account to access features'}
+          </DialogDescription>
           {authMode === 'login' && (
             <LoginForm
               onSwitchToSignup={() => setAuthMode('signup')}

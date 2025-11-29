@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -88,8 +88,8 @@ export function ComponentNavigation({
     )
 
   // Determine which section array to use
-  let currentSection: typeof heroSections[number] | undefined
-  let sectionArray: typeof heroSections | typeof featureSections | typeof paymentSections | typeof ctaSections | typeof footerSections | typeof headerSections | typeof buttonSections | typeof cardSections | typeof badgeSections | typeof inputSections | typeof toggleSections | typeof tabsSections | typeof sidebarSections | typeof tabbarSections | typeof sheetSections | typeof tableSections | typeof chartSections
+  let currentSection: any
+  let sectionArray: any[]
   let sectionCategory: string | undefined
 
   if (heroMeta) {
@@ -166,7 +166,7 @@ export function ComponentNavigation({
 
   // Find current index
   const currentIndex = sectionArray.findIndex((item) => item.slug === currentSlug)
-  
+
   if (currentIndex === -1) return null
 
   // Get previous and next components
@@ -241,6 +241,9 @@ export function ComponentNavigation({
             <DialogTitle>
               {authMode === "login" ? "Sign in to view this component" : "Create an account to view this component"}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {authMode === "login" ? "Please sign in to continue" : "Please create an account to continue"}
+            </DialogDescription>
           </DialogHeader>
           {authMode === "login" ? (
             <LoginForm
@@ -268,6 +271,9 @@ export function ComponentNavigation({
           showCloseButton={false}
         >
           <DialogTitle className="sr-only">Premium Access Required</DialogTitle>
+          <DialogDescription className="sr-only">
+            This content is locked for premium members. Please upgrade your account to access it.
+          </DialogDescription>
           <div className="w-full max-w-sm rounded-xl border border-red-900/50 bg-neutral-900 p-6 shadow-2xl shadow-red-900/20">
             <div className="flex gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-900/30 text-red-500">
