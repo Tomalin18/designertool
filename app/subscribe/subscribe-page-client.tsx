@@ -167,6 +167,11 @@ export function SubscribePageClient() {
         return
       }
 
+      // Find the selected plan to determine the mode
+      const plan = plans.find(p => p.id === planId)
+      const isSubscription = plan?.period === 'month' || plan?.period === 'year'
+      const mode = isSubscription ? 'subscription' : 'payment'
+
       // 呼叫後端 API 創建支付會話
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -176,11 +181,14 @@ export function SubscribePageClient() {
         body: JSON.stringify({
           priceId: stripePriceId,
           planId: planId,
+          mode: mode,
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Checkout API Error:', errorData)
+        throw new Error(errorData.message || errorData.error || 'Failed to create checkout session')
       }
 
       const data = await response.json()
@@ -192,8 +200,9 @@ export function SubscribePageClient() {
         throw new Error('No checkout URL received')
       }
     } catch (error) {
+      console.error('Subscription error:', error)
       toast.error("Subscription failed", {
-        description: "Please try again later or contact support.",
+        description: error instanceof Error ? error.message : "Please try again later or contact support.",
       })
     } finally {
       setIsProcessing(false)
