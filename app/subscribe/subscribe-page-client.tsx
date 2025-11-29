@@ -207,7 +207,7 @@ export function SubscribePageClient() {
   const isPremiumComponent = (name: string) => premiumComponents.includes(name)
 
   // Build component list for sidebar
-  const customComponents = [
+  const rawCustomComponents = [
     {
       name: "MediaPlayer",
       href: "/components/media-player",
@@ -314,6 +314,11 @@ export function SubscribePageClient() {
       category: "Header",
     })),
   ]
+
+  // Deduplicate components by href to avoid "duplicate key" errors
+  const customComponents = Array.from(
+    new Map(rawCustomComponents.map((item) => [item.href, item])).values()
+  )
 
   // Group components by category
   const componentsByCategory = customComponents.reduce((acc, component) => {

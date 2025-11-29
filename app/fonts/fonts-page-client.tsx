@@ -131,7 +131,7 @@ export function FontsPageClient() {
                     <div className="space-y-6">
                         {/* Search */}
                         <div>
-                            <h3 className="mb-3 text-sm font-semibold">Search</h3>
+                            <h3 className="mb-3 text-2xl font-semibold">Search</h3>
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
@@ -146,13 +146,13 @@ export function FontsPageClient() {
 
                         {/* Categories */}
                         <div>
-                            <h3 className="mb-3 text-sm font-semibold">Categories</h3>
+                            <h3 className="mb-3 text-2xl font-semibold">Categories</h3>
                             <div className="space-y-1">
                                 {categories.map((category) => (
                                     <Button
                                         key={category}
                                         variant={selectedCategory === category ? "secondary" : "ghost"}
-                                        className="w-full justify-start"
+                                        className="w-full justify-start text-2xl h-auto py-2"
                                         onClick={() => setSelectedCategory(category)}
                                         style={
                                             selectedCategory === category && colors
@@ -167,18 +167,16 @@ export function FontsPageClient() {
                                         {category}
                                         {category === "All" && (
                                             <Badge
-                                                variant="outline"
-                                                className="ml-auto"
-                                                style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
+                                                variant="secondary"
+                                                className="ml-auto text-sm"
                                             >
                                                 {fonts.length}
                                             </Badge>
                                         )}
                                         {category !== "All" && (
                                             <Badge
-                                                variant="outline"
-                                                className="ml-auto"
-                                                style={colors ? { borderColor: colors[0] + "40", color: colors[0] } : {}}
+                                                variant="secondary"
+                                                className="ml-auto text-sm"
                                             >
                                                 {fonts.filter(f => f.category === category).length}
                                             </Badge>
@@ -190,10 +188,10 @@ export function FontsPageClient() {
 
                         {/* Font List Overview */}
                         <div>
-                            <h3 className="mb-3 text-sm font-semibold">
+                            <h3 className="mb-3 text-2xl font-semibold">
                                 Fonts ({filteredFonts.length})
                             </h3>
-                            <div className="space-y-1 text-sm">
+                            <div className="space-y-1 text-2xl">
                                 {filteredFonts.slice(0, 10).map((font) => (
                                     <button
                                         key={font.name}
@@ -207,7 +205,7 @@ export function FontsPageClient() {
                                     </button>
                                 ))}
                                 {filteredFonts.length > 10 && (
-                                    <p className="px-2 py-1.5 text-muted-foreground text-xs">
+                                    <p className="px-2 py-1.5 text-muted-foreground text-lg">
                                         +{filteredFonts.length - 10} more
                                     </p>
                                 )}

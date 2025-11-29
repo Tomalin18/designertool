@@ -7,11 +7,13 @@ import { ChevronDown, ChevronUp, Lock } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
+import { Badge } from "@/components/ui/badge"
+
 interface SidebarNavProps {
   items: {
     title: string
     href: string
-    items?: { title: string; href: string; isPremium?: boolean }[]
+    items?: { title: string; href: string; isPremium?: boolean; count?: number }[]
   }[]
   defaultExpanded?: string[]
 }
@@ -39,17 +41,17 @@ export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
     setIsMounted(true)
     const effectiveTheme = getEffectiveTheme()
     setCurrentTheme(effectiveTheme)
-    
+
     if (colorPalette) {
       const color = effectiveTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
       setThemeColor(color)
     }
   }, [colorPalette, theme])
-  
+
   // Listen for system theme changes
   useEffect(() => {
     if (!isMounted) return
-    
+
     if (theme !== "system") {
       setCurrentTheme(theme)
       if (colorPalette) {
@@ -75,7 +77,7 @@ export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
       const color = newTheme === "dark" ? colorPalette.dark[0] : colorPalette.light[0]
       setThemeColor(color)
     }
-    
+
     mediaQuery.addEventListener("change", handleChange)
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme, colorPalette, isMounted])
@@ -99,7 +101,7 @@ export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
   // Auto-expand section if current pathname matches any item in that section
   useEffect(() => {
     if (!pathname) return
-    
+
     items.forEach((section) => {
       if (section.items) {
         const hasActiveItem = section.items.some(item => item.href === pathname)
@@ -165,7 +167,12 @@ export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
                     }
                   }}
                 >
-                  <span>{item.title}</span>
+                  <span className="flex-1">{item.title}</span>
+                  {item.count !== undefined && (
+                    <Badge variant="secondary" className="ml-auto text-sm shrink-0">
+                      {item.count}
+                    </Badge>
+                  )}
                   {item.isPremium && (
                     <Lock className="h-4 w-4 text-primary shrink-0" />
                   )}

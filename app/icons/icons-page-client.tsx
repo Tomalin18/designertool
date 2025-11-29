@@ -701,7 +701,7 @@ export function IconsPageClient() {
 
                     {/* Icon Source Filter */}
                     <div>
-                        <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+                        <h3 className="text-2xl font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
                             Icon Source
                         </h3>
                         <div className="space-y-1">
@@ -709,7 +709,7 @@ export function IconsPageClient() {
                                 <button
                                     key={source}
                                     onClick={() => setIconSource(source)}
-                                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${iconSource === source
+                                    className={`w-full text-left px-3 py-2 rounded-md text-2xl transition-colors ${iconSource === source
                                         ? "bg-accent font-medium"
                                         : "hover:bg-accent/50"
                                         }`}
@@ -732,14 +732,14 @@ export function IconsPageClient() {
                     {/* Categories */}
                     {iconSource !== "lineicons" && (
                         <div>
-                            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
+                            <h3 className="text-2xl font-semibold mb-3 text-muted-foreground uppercase tracking-wider">
                                 Categories
                             </h3>
                             <div className="space-y-1">
                                 {/* All Categories Option */}
                                 <button
                                     onClick={() => setSelectedCategory(null)}
-                                    className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === null
+                                    className={`w-full text-left px-3 py-2 rounded-md text-2xl transition-colors ${selectedCategory === null
                                         ? "bg-accent font-medium"
                                         : "hover:bg-accent/50"
                                         }`}
@@ -757,7 +757,7 @@ export function IconsPageClient() {
                                     <button
                                         key={category}
                                         onClick={() => setSelectedCategory(category)}
-                                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${selectedCategory === category
+                                        className={`w-full text-left px-3 py-2 rounded-md text-2xl transition-colors ${selectedCategory === category
                                             ? "bg-accent font-medium"
                                             : "hover:bg-accent/50"
                                             }`}
@@ -775,7 +775,7 @@ export function IconsPageClient() {
                     )}
 
                     {/* Icon Count */}
-                    <div className="pt-4 border-t text-sm text-muted-foreground">
+                    <div className="pt-4 border-t text-lg text-muted-foreground">
                         {iconSource === "all" && (
                             <div>
                                 <div>Lucide: {filteredIconCount} of {totalIconCount}</div>

@@ -128,7 +128,7 @@ export function ColorsPageClient() {
             {/* Desktop: Left sidebar */}
             <aside className="hidden md:block fixed top-14 z-30 -ml-2 h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky">
                 <div className="py-6 pl-6 pr-4 lg:py-8 lg:pl-8">
-                    <h2 className="mb-4 text-lg font-semibold">Color Palettes</h2>
+                    <h2 className="mb-4 text-2xl font-semibold">Color Palettes</h2>
                     <div className="space-y-2">
                         {colorPalettes.map((palette) => {
                             const isSelected = selectedPalette.name === palette.name
@@ -159,8 +159,8 @@ export function ColorsPageClient() {
                                             />
                                         ))}
                                     </div>
-                                    <div className="text-sm font-medium">{palette.name}</div>
-                                    <div className="text-xs text-muted-foreground mt-1">
+                                    <div className="text-2xl font-medium">{palette.name}</div>
+                                    <div className="text-lg text-muted-foreground mt-1">
                                         {palette.description}
                                     </div>
                                 </button>

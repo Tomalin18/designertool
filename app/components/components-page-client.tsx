@@ -379,10 +379,10 @@ export function ComponentsPageClient() {
 
     // Organize sidebar items by category
     const getSpecialComponents = () => {
-        return customComponents.filter(c => 
-            c.name === "MediaPlayer" || 
-            c.name === "ChatInterface" || 
-            c.name === "SocialProfileCard" || 
+        return customComponents.filter(c =>
+            c.name === "MediaPlayer" ||
+            c.name === "ChatInterface" ||
+            c.name === "SocialProfileCard" ||
             c.name === "GlassAuthForm"
         )
     }
@@ -452,6 +452,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Special`,
+                    count: getSpecialComponents().length,
                 },
                 ...getSpecialComponents().map((component) => ({
                     title: component.name,
@@ -466,6 +467,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Button`,
+                    count: getButtonComponents().length,
                 },
                 ...getButtonComponents().map((component) => ({
                     title: component.name,
@@ -480,6 +482,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Card`,
+                    count: getCardComponents().length,
                 },
                 ...getCardComponents().map((component) => ({
                     title: component.name,
@@ -494,6 +497,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Badge`,
+                    count: componentsData.filter(c => c.name === "Badge").length + getBadgeComponents().length,
                 },
                 ...componentsData.filter(c => c.name === "Badge").map((component) => ({
                     title: component.name,
@@ -512,6 +516,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Input`,
+                    count: getInputComponents().length,
                 },
                 ...getInputComponents().map((component) => ({
                     title: component.name,
@@ -526,15 +531,16 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Dialog`,
+                    count: componentsData.filter(c => c.name === "Dialog").length + getDialogComponents().length,
                 },
                 ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
                     title: component.name,
                     href: component.href,
                 })),
                 ...getDialogComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+                    title: component.name,
+                    href: component.href,
+                })),
             ],
         },
         {
@@ -544,6 +550,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Toggle`,
+                    count: getToggleComponents().length,
                 },
                 ...getToggleComponents().map((component) => ({
                     title: component.name,
@@ -558,6 +565,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Tabs`,
+                    count: componentsData.filter(c => c.name === "Tabs").length + getTabsComponents().length,
                 },
                 ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
                     title: component.name,
@@ -576,6 +584,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Sidebar`,
+                    count: getSidebarComponents().length,
                 },
                 ...getSidebarComponents().map((component) => ({
                     title: component.name,
@@ -590,6 +599,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Tabbar`,
+                    count: getTabbarComponents().length,
                 },
                 ...getTabbarComponents().map((component) => ({
                     title: component.name,
@@ -604,6 +614,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Sheet`,
+                    count: getSheetComponents().length,
                 },
                 ...getSheetComponents().map((component) => ({
                     title: component.name,
@@ -618,6 +629,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Table`,
+                    count: getTableComponents().length,
                 },
                 ...getTableComponents().map((component) => ({
                     title: component.name,
@@ -632,6 +644,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Chart`,
+                    count: getChartComponents().length,
                 },
                 ...getChartComponents().map((component) => ({
                     title: component.name,
@@ -646,6 +659,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Header`,
+                    count: getSectionComponentsByType("header").length,
                 },
                 ...getSectionComponentsByType("header").map((component) => ({
                     title: component.name,
@@ -660,6 +674,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Hero`,
+                    count: getSectionComponentsByType("hero").length,
                 },
                 ...getSectionComponentsByType("hero").map((component) => ({
                     title: component.name,
@@ -674,6 +689,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Feature`,
+                    count: getSectionComponentsByType("feature").length,
                 },
                 ...getSectionComponentsByType("feature").map((component) => ({
                     title: component.name,
@@ -688,6 +704,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Payment`,
+                    count: getSectionComponentsByType("payment").length,
                 },
                 ...getSectionComponentsByType("payment").map((component) => ({
                     title: component.name,
@@ -702,6 +719,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=CTA`,
+                    count: getSectionComponentsByType("cta").length,
                 },
                 ...getSectionComponentsByType("cta").map((component) => ({
                     title: component.name,
@@ -716,6 +734,7 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Footer`,
+                    count: getSectionComponentsByType("footer").length,
                 },
                 ...getSectionComponentsByType("footer").map((component) => ({
                     title: component.name,
