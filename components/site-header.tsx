@@ -174,7 +174,7 @@ export function SiteHeader() {
             <ThemeToggle />
             {!loading && (
               <>
-                {/* Member Button */}
+                {/* Member Button - Only show for non-paid users */}
                 {user ? (
                   (() => {
                     const isPaidUser =
@@ -186,6 +186,11 @@ export function SiteHeader() {
                       (user.user_metadata as any)?.tier === "pro" ||
                       (user.user_metadata as any)?.tier === "paid"
 
+                    // Don't show button for paid users
+                    if (isPaidUser) {
+                      return null
+                    }
+
                     return (
                       <SubscribeButton
                         className="!px-4 !py-2 text-sm"
@@ -195,7 +200,7 @@ export function SiteHeader() {
                           router.push('/subscribe')
                         }}
                       >
-                        {isPaidUser ? 'Member' : 'Upgrade'}
+                        Upgrade
                       </SubscribeButton>
                     )
                   })()

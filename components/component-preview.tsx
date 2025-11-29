@@ -89,7 +89,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false)
   const { user, loading } = useAuth()
 
-  // 付費用戶判斷：預設檢查幾個常見欄位，未來若有明確欄位（例如 user.user_metadata.plan === 'pro'），可以在這裡統一調整
+  // 付費用戶判斷：預設檢查幾個常見欄位,未來若有明確欄位(例如 user.user_metadata.plan === 'pro'),可以在這裡統一調整
   const isPaidUser =
     !!user &&
     (
@@ -213,6 +213,21 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   isPremiumComponent = isComponentPremium(name, derivedCategory)
 
+  // Debug logging - only log once per component
+  if (user && typeof window !== 'undefined') {
+    const logKey = `logged_${name}`
+    if (!(window as any)[logKey]) {
+      console.log('=== ComponentPreview Debug ===')
+      console.log('User metadata (stringified):', JSON.stringify(user.user_metadata, null, 2))
+      console.log('isPaidUser:', isPaidUser)
+      console.log('Component name:', name)
+      console.log('Component category:', derivedCategory)
+      console.log('isPremiumComponent:', isPremiumComponent)
+      console.log('==============================')
+        ; (window as any)[logKey] = true
+    }
+  }
+
   const isSection = !!heroMeta || !!featureMeta || !!paymentMeta || !!ctaMeta || !!footerMeta || !!headerMeta || !!buttonMeta || !!cardMeta || !!badgeMeta || !!inputMeta || !!dialogMeta || !!toggleMeta || !!tabsMeta || !!sidebarMeta || !!tabbarMeta || !!sheetMeta || !!tableMeta || !!chartMeta
 
   // Get tags from props or from section metadata
@@ -290,16 +305,16 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       const defaultProps = Object.fromEntries(
         Object.entries(cardMeta.props).map(([key, prop]) => {
           const defaultValue = prop.default
-          
+
           // Handle array props that are stored as strings (textarea control)
           if (key === "features" && typeof defaultValue === "string") {
             return [key, defaultValue.split("\n").filter((f: string) => f.trim())]
           }
-          
+
           if (key === "skills" && typeof defaultValue === "string") {
             return [key, defaultValue.split("\n").filter((s: string) => s.trim())]
           }
-          
+
           // Handle comparison rows for ComparisonCard
           if (key === "rows" && typeof defaultValue === "string") {
             return [key, defaultValue.split("\n").map((row: string) => {
@@ -307,19 +322,19 @@ export function ComponentPreview(props: ComponentPreviewProps) {
               return { label: label?.trim() || "", left: left?.trim() || "", right: right?.trim() || "" }
             }).filter((r: any) => r.label)]
           }
-          
+
           // Handle roadmap items for RoadmapCard
           if (key === "items" && typeof defaultValue === "string") {
             return [key, defaultValue.split("\n").map((item: string) => {
               const [title, status, color] = item.split(":")
-              return { 
-                title: title?.trim() || "", 
-                status: status?.trim() || "", 
+              return {
+                title: title?.trim() || "",
+                status: status?.trim() || "",
                 color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
               }
             }).filter((i: any) => i.title)]
           }
-          
+
           // Handle hourly forecast for WeatherCard
           if (key === "hourlyForecast" && typeof defaultValue === "string") {
             return [key, defaultValue.split("\n").map((forecast: string) => {
@@ -327,7 +342,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
               return { time: time?.trim() || "", temp: parseInt(temp?.trim() || "0") }
             }).filter((f: any) => f.time)]
           }
-          
+
           return [key, defaultValue]
         })
       )
@@ -730,111 +745,111 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
   return (
     <>
-    <Card className={cn(
-      "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
-      isSection && "gap-0 py-0",
-      className
-    )}>
-      <div className={cn(
-        "bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden",
-        isSection ? "p-0" : "p-6"
+      <Card className={cn(
+        "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
+        isSection && "gap-0 py-0",
+        className
       )}>
-        {renderPreview()}
-      </div>
-      <Link
-        href={href}
-        onClick={handleProtectedClick}
-        className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0"
-      >
-        <h3 className="font-semibold group-hover:text-primary transition-colors text-xl">{name}</h3>
-        {displayTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {displayTags.slice(0, 4).map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
-                {tag}
-              </Badge>
-            ))}
-            {displayTags.length > 4 && (
-              <Badge variant="outline" className="text-xs px-2 py-0.5">
-                +{displayTags.length - 4}
-              </Badge>
-            )}
-          </div>
-        )}
-      </Link>
-    </Card>
-    {/* 未登入時點擊任何元件，彈出的登入 / 註冊 Dialog */}
-    <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
-    <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {authMode === "login" ? "Sign in to view this component" : "Create an account to view this component"}
-          </DialogTitle>
-        </DialogHeader>
-        {authMode === "login" ? (
-          <LoginForm
-            onSwitchToSignup={() => setAuthMode("signup")}
-            onSuccess={() => {
-              // 登入成功：關閉 Dialog，並重設為 login 模式
-              setAuthDialogOpen(false)
-              setAuthMode("login")
-            }}
-          />
-        ) : (
-          <SignupForm
-            onSwitchToLogin={() => setAuthMode("login")}
-            onSuccess={() => {
-              // 註冊成功：關閉 Dialog，並重設為 login 模式
-              setAuthDialogOpen(false)
-              setAuthMode("login")
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-
-    {/* 已登入但非付費用戶點擊需要付費的元件，彈出的升級提示 Dialog */}
-    {isPremiumComponent && (
-      <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
-        <DialogContent
-          className="max-w-md border-0 bg-transparent p-0 shadow-none"
-          showCloseButton={false}
+        <div className={cn(
+          "bg-gradient-to-br from-background to-muted/20 flex items-center justify-center flex-1 overflow-hidden",
+          isSection ? "p-0" : "p-6"
+        )}>
+          {renderPreview()}
+        </div>
+        <Link
+          href={href}
+          onClick={handleProtectedClick}
+          className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0"
         >
-          <DialogTitle className="sr-only">Premium Access Required</DialogTitle>
-          <div className="w-full max-w-sm rounded-xl border border-red-900/50 bg-neutral-900 p-6 shadow-2xl shadow-red-900/20">
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-900/30 text-red-500">
-                <AlertTriangle size={20} />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white">Premium Access Required</h3>
-                <p className="mt-1 text-base text-neutral-400">
-                  This component is only available for premium members. Please upgrade your account to unlock this feature.
-                </p>
-              </div>
+          <h3 className="font-semibold group-hover:text-primary transition-colors text-xl">{name}</h3>
+          {displayTags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {displayTags.slice(0, 4).map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
+                  {tag}
+                </Badge>
+              ))}
+              {displayTags.length > 4 && (
+                <Badge variant="outline" className="text-xs px-2 py-0.5">
+                  +{displayTags.length - 4}
+                </Badge>
+              )}
             </div>
-            <div className="mt-6 flex gap-3">
-              <button
-                className="flex-1 rounded-lg border border-neutral-800 bg-transparent py-2.5 text-base font-medium text-white hover:bg-neutral-800"
-                onClick={() => setUpgradeDialogOpen(false)}
-              >
-                Maybe Later
-              </button>
-              <button
-                className="flex-1 rounded-lg bg-red-600 py-2.5 text-base font-bold text-white hover:bg-red-500"
-                onClick={() => {
-                  setUpgradeDialogOpen(false)
-                  window.scrollTo({ top: 0, behavior: 'instant' })
-                  router.push('/subscribe')
-                }}
-              >
-                Upgrade Account
-              </button>
-            </div>
-          </div>
+          )}
+        </Link>
+      </Card>
+      {/* 未登入時點擊任何元件，彈出的登入 / 註冊 Dialog */}
+      <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {authMode === "login" ? "Sign in to view this component" : "Create an account to view this component"}
+            </DialogTitle>
+          </DialogHeader>
+          {authMode === "login" ? (
+            <LoginForm
+              onSwitchToSignup={() => setAuthMode("signup")}
+              onSuccess={() => {
+                // 登入成功：關閉 Dialog，並重設為 login 模式
+                setAuthDialogOpen(false)
+                setAuthMode("login")
+              }}
+            />
+          ) : (
+            <SignupForm
+              onSwitchToLogin={() => setAuthMode("login")}
+              onSuccess={() => {
+                // 註冊成功：關閉 Dialog，並重設為 login 模式
+                setAuthDialogOpen(false)
+                setAuthMode("login")
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
-    )}
+
+      {/* 已登入但非付費用戶點擊需要付費的元件，彈出的升級提示 Dialog */}
+      {isPremiumComponent && (
+        <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+          <DialogContent
+            className="max-w-md border-0 bg-transparent p-0 shadow-none"
+            showCloseButton={false}
+          >
+            <DialogTitle className="sr-only">Premium Access Required</DialogTitle>
+            <div className="w-full max-w-sm rounded-xl border border-red-900/50 bg-neutral-900 p-6 shadow-2xl shadow-red-900/20">
+              <div className="flex gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-900/30 text-red-500">
+                  <AlertTriangle size={20} />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Premium Access Required</h3>
+                  <p className="mt-1 text-base text-neutral-400">
+                    This component is only available for premium members. Please upgrade your account to unlock this feature.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex gap-3">
+                <button
+                  className="flex-1 rounded-lg border border-neutral-800 bg-transparent py-2.5 text-base font-medium text-white hover:bg-neutral-800"
+                  onClick={() => setUpgradeDialogOpen(false)}
+                >
+                  Maybe Later
+                </button>
+                <button
+                  className="flex-1 rounded-lg bg-red-600 py-2.5 text-base font-bold text-white hover:bg-red-500"
+                  onClick={() => {
+                    setUpgradeDialogOpen(false)
+                    window.scrollTo({ top: 0, behavior: 'instant' })
+                    router.push('/subscribe')
+                  }}
+                >
+                  Upgrade Account
+                </button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }
