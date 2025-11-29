@@ -272,24 +272,41 @@ export function ComponentPreview(props: ComponentPreviewProps) {
 
     if (inputMeta && InputComponent) {
       // Get default props for the input
-      // Filter out style props with empty string defaults to prevent them from being passed to DOM
-      const styleProps = ['borderColor', 'textColor', 'backgroundColor', 'borderRadius', 'borderWidth',
-        'focusBorderColor', 'focusRingColor', 'errorColor', 'successColor', 'glowColor', 'buttonColor',
-        'currencyColor', 'accentColor', 'promptColor', 'pathColor', 'gradientFrom', 'gradientVia', 'gradientTo',
-        'hoverBorderColor', 'buttonHoverColor', 'labelColor', 'inputBgColor', 'inputBorderColor', 'inputTextColor']
-      
+      // 完全移除樣式相關 props（例如 borderRadius 等），避免被傳遞到原生 <input> 產生 React 警告
+      const styleProps = [
+        'borderColor',
+        'textColor',
+        'backgroundColor',
+        'borderRadius',
+        'borderWidth',
+        'focusBorderColor',
+        'focusRingColor',
+        'errorColor',
+        'successColor',
+        'glowColor',
+        'buttonColor',
+        'currencyColor',
+        'accentColor',
+        'promptColor',
+        'pathColor',
+        'gradientFrom',
+        'gradientVia',
+        'gradientTo',
+        'hoverBorderColor',
+        'buttonHoverColor',
+        'labelColor',
+        'inputBgColor',
+        'inputBorderColor',
+        'inputTextColor',
+      ]
+
       const defaultProps = Object.fromEntries(
         Object.entries(inputMeta.props)
           .map(([key, prop]) => [key, prop.default])
-          .filter(([key, value]) => {
-            // Filter out style props that are empty strings - they should not be passed to DOM
-            if (styleProps.includes(key) && (value === "" || value === undefined || value === null)) {
-              return false
-            }
-            return true
-          })
+          // 不把樣式 props 傳給元件，避免透過 {...props} 進入 DOM element
+          .filter(([key]) => !styleProps.includes(key))
       )
-      
+
       return (
         <div className="flex items-center justify-center p-8 w-full">
           <InputComponent {...defaultProps} />
