@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const priceId = body?.priceId as string | undefined
     const planId = body?.planId as string | undefined
+    const mode = (body?.mode as 'subscription' | 'payment') || 'subscription'
 
     if (!priceId) {
       return NextResponse.json(
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
       process.env.STRIPE_CANCEL_URL || `${baseUrl}/subscribe?status=cancelled&plan=${planId ?? ''}`
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: mode,
       payment_method_types: ['card'],
       line_items: [
         {
