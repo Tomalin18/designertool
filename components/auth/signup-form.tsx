@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Github, Chrome, Loader2 } from 'lucide-react'
+import { Github, Chrome, Loader2, Mail, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 const signupSchema = z.object({
@@ -33,15 +33,21 @@ type SignupFormValues = z.infer<typeof signupSchema>
 
 interface SignupFormProps {
   onSwitchToLogin?: () => void
+  onSuccess?: () => void
 }
 
-export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
+export function SignupForm({ onSwitchToLogin, onSuccess }: SignupFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [waitingForVerification, setWaitingForVerification] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState<string>('')
+  const [isCheckingVerification, setIsCheckingVerification] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
@@ -67,10 +73,13 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         return
       }
 
-      toast.success('Account created', {
-        description: 'Please check your email to verify your account',
+      // 註冊成功後，切換到「等待驗證」狀態，不立刻關閉 Dialog
+      setRegisteredEmail(data.email)
+      setWaitingForVerification(true)
+      
+      toast.info('Verification email sent', {
+        description: `We've sent a verification email to ${data.email}. Please check your inbox (including spam folder).`,
       })
-      router.push('/auth/login')
     } catch (error) {
       toast.error('Something went wrong', {
         description: 'Please try again later',
@@ -102,6 +111,134 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
       })
       setIsLoading(false)
     }
+  }
+
+  const handleCheckVerification = async () => {
+    setIsCheckingVerification(true)
+    try {
+      // 重新取得最新的 session 和 user 資料
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        toast.error('Failed to check verification status', {
+          description: sessionError.message,
+        })
+        return
+      }
+
+      if (!session?.user) {
+        toast.warning('Not signed in', {
+          description: 'Please make sure you clicked the verification link in your email.',
+        })
+        return
+      }
+
+      // 檢查 email 是否已驗證
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        toast.error('Failed to check verification status', {
+          description: userError.message,
+        })
+        return
+      }
+
+      // Supabase 的 email_confirmed_at 欄位表示 email 是否已驗證
+      const isEmailConfirmed = user.email_confirmed_at !== null
+
+      if (isEmailConfirmed) {
+        toast.success('Email verified successfully!', {
+          description: 'Your account has been activated. You can now sign in.',
+        })
+        
+        // 驗證成功：關閉 Dialog 或執行成功回呼
+        if (onSuccess) {
+          onSuccess()
+        } else if (onSwitchToLogin) {
+          onSwitchToLogin()
+        } else {
+          router.push('/')
+        }
+      } else {
+        toast.warning('Email not verified yet', {
+          description: 'Please make sure you clicked the verification link in your email. If you already did, wait a moment and try again.',
+        })
+      }
+    } catch (error: any) {
+      toast.error('Something went wrong', {
+        description: error?.message || 'Please try again later',
+      })
+    } finally {
+      setIsCheckingVerification(false)
+    }
+  }
+
+  // 如果正在等待驗證，顯示「等待驗證信」的 UI
+  if (waitingForVerification) {
+    return (
+      <div className="w-full max-w-md space-y-6">
+        <div className="space-y-4 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <Mail className="h-8 w-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Check your email</h1>
+            <p className="text-muted-foreground">
+              We've sent a verification email to
+            </p>
+            <p className="font-medium text-foreground">{registeredEmail}</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 rounded-lg border bg-muted/50 p-4">
+          <div className="space-y-2 text-sm">
+            <p className="font-medium">Next steps:</p>
+            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+              <li>Open your email inbox (check spam or promotions folder if needed)</li>
+              <li>Click the verification link in the email</li>
+              <li>Come back here and click the button below</li>
+            </ol>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleCheckVerification}
+          disabled={isCheckingVerification}
+          className="w-full"
+        >
+          {isCheckingVerification ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Checking...
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              I've verified my email
+            </>
+          )}
+        </Button>
+
+        {onSwitchToLogin && (
+          <div className="text-center text-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setWaitingForVerification(false)
+                setRegisteredEmail('')
+                if (onSwitchToLogin) {
+                  onSwitchToLogin()
+                }
+              }}
+              className="text-primary hover:underline"
+            >
+              Back to sign in
+            </button>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (

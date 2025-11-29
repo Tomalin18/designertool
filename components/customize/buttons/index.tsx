@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 // Common button props interface (like UrlInput)
-interface CommonButtonProps {
+interface CommonButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children?: React.ReactNode;
     className?: string;
     style?: React.CSSProperties;
@@ -228,6 +228,67 @@ interface CommonButtonProps {
     roundedCornerMorphBgColor?: string;
     roundedCornerMorphHoverBgColor?: string;
 }
+
+// Helper function to extract only standard HTML button attributes
+// This filters out custom props like buttonText, copyText, etc. that shouldn't be passed to DOM
+const extractHtmlButtonProps = (props: CommonButtonProps): React.ButtonHTMLAttributes<HTMLButtonElement> => {
+    // Extract only standard HTML button attributes from props
+    const {
+        onClick,
+        onMouseEnter,
+        onMouseLeave,
+        onFocus,
+        onBlur,
+        disabled,
+        type,
+        name,
+        value,
+        form,
+        formAction,
+        formEncType,
+        formMethod,
+        formNoValidate,
+        formTarget,
+        autoFocus,
+        tabIndex,
+        id,
+        title,
+        role,
+        'aria-label': ariaLabel,
+        'aria-labelledby': ariaLabelledBy,
+        'aria-describedby': ariaDescribedBy,
+        'aria-disabled': ariaDisabled,
+    } = props;
+    
+    // Build object with only defined standard attributes
+    const htmlProps: React.ButtonHTMLAttributes<HTMLButtonElement> = {};
+    if (onClick !== undefined) htmlProps.onClick = onClick;
+    if (onMouseEnter !== undefined) htmlProps.onMouseEnter = onMouseEnter;
+    if (onMouseLeave !== undefined) htmlProps.onMouseLeave = onMouseLeave;
+    if (onFocus !== undefined) htmlProps.onFocus = onFocus;
+    if (onBlur !== undefined) htmlProps.onBlur = onBlur;
+    if (disabled !== undefined) htmlProps.disabled = disabled;
+    if (type !== undefined) htmlProps.type = type;
+    if (name !== undefined) htmlProps.name = name;
+    if (value !== undefined) htmlProps.value = value;
+    if (form !== undefined) htmlProps.form = form;
+    if (formAction !== undefined) htmlProps.formAction = formAction;
+    if (formEncType !== undefined) htmlProps.formEncType = formEncType;
+    if (formMethod !== undefined) htmlProps.formMethod = formMethod;
+    if (formNoValidate !== undefined) htmlProps.formNoValidate = formNoValidate;
+    if (formTarget !== undefined) htmlProps.formTarget = formTarget;
+    if (autoFocus !== undefined) htmlProps.autoFocus = autoFocus;
+    if (tabIndex !== undefined) htmlProps.tabIndex = tabIndex;
+    if (id !== undefined) htmlProps.id = id;
+    if (title !== undefined) htmlProps.title = title;
+    if (role !== undefined) htmlProps.role = role;
+    if (ariaLabel !== undefined) htmlProps['aria-label'] = ariaLabel;
+    if (ariaLabelledBy !== undefined) htmlProps['aria-labelledby'] = ariaLabelledBy;
+    if (ariaDescribedBy !== undefined) htmlProps['aria-describedby'] = ariaDescribedBy;
+    if (ariaDisabled !== undefined) htmlProps['aria-disabled'] = ariaDisabled;
+    
+    return htmlProps;
+};
 
 // Helper function to build style from props (like UrlInput does)
 const buildButtonStyle = (props: CommonButtonProps, additionalStyle?: React.CSSProperties): React.CSSProperties => {
@@ -549,8 +610,11 @@ export const PulseGlowButton = (props: CommonButtonProps) => {
     const glowColorValue = glowColor || backgroundColor || "#4f46e5";
     const animationDuration = `${2 / pulseSpeed}s`;
     const opacity = glowIntensity * 0.75;
+    const htmlButtonProps = extractHtmlButtonProps(props);
+    
     return (
         <button 
+            {...htmlButtonProps}
             className={cn("relative rounded-full bg-indigo-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-indigo-500", sizeClass, className)}
             style={buttonStyle}
         >
@@ -564,6 +628,53 @@ export const PulseGlowButton = (props: CommonButtonProps) => {
                 className="absolute inset-0 -z-10 rounded-full"
                 style={{
                     backgroundColor: glowColorValue,
+                    opacity: opacity,
+                    animation: `pulse-glow ${animationDuration} cubic-bezier(0.4, 0, 0.6, 1) infinite`,
+                }}
+            />
+            {children}
+        </button>
+    );
+};
+
+// Subscribe Button (based on Pulse Glow Button with rounded-md instead of rounded-full)
+export const SubscribeButton = (props: CommonButtonProps) => {
+    const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, pulseSpeed = 1, glowIntensity = 0.5, glowColor } = props;
+    const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
+    const sizeClass = getSizeClass(size);
+    // Use theme primary color for glow if not provided
+    const glowColorValue = glowColor || backgroundColor || undefined;
+    const animationDuration = `${2 / pulseSpeed}s`;
+    const opacity = glowIntensity * 0.75;
+    const htmlButtonProps = extractHtmlButtonProps(props);
+    
+    return (
+        <button 
+            {...htmlButtonProps}
+            className={cn(
+                "relative rounded-md px-8 py-3 font-bold shadow-lg transition-transform hover:scale-105",
+                backgroundColor ? "" : "bg-primary text-primary-foreground hover:bg-primary/90",
+                sizeClass, 
+                className
+            )}
+            style={buttonStyle}
+        >
+            <style>{`
+                @keyframes pulse-glow {
+                    0%, 100% { transform: scale(1); opacity: ${opacity}; }
+                    50% { transform: scale(1.1); opacity: ${opacity * 0.5}; }
+                }
+            `}</style>
+            <span 
+                className={cn(
+                    "absolute inset-0 -z-10 rounded-md",
+                    !glowColorValue && "bg-primary/20"
+                )}
+                style={glowColorValue ? {
+                    backgroundColor: glowColorValue,
+                    opacity: opacity,
+                    animation: `pulse-glow ${animationDuration} cubic-bezier(0.4, 0, 0.6, 1) infinite`,
+                } : {
                     opacity: opacity,
                     animation: `pulse-glow ${animationDuration} cubic-bezier(0.4, 0, 0.6, 1) infinite`,
                 }}
@@ -1659,8 +1770,14 @@ export const VaporwaveButton = (props: CommonButtonProps) => {
     const { children, className, style, size, borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth } = props;
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
+    const htmlButtonProps = extractHtmlButtonProps(props);
+    
     return (
-        <button className={cn("bg-gradient-to-r from-pink-500 to-cyan-500 px-8 py-3 font-bold text-white italic shadow-[4px_4px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000000] transition-all", sizeClass, className)} style={buttonStyle}>
+        <button 
+            {...htmlButtonProps}
+            className={cn("rounded-lg bg-gradient-to-r from-pink-500 to-cyan-500 px-8 py-3 font-bold text-white italic shadow-[4px_4px_0px_#000000] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#000000] transition-all", sizeClass, className)} 
+            style={buttonStyle}
+        >
             {children}
         </button>
     );
@@ -1849,6 +1966,7 @@ export const buttonComponentsByName: Record<string, React.ComponentType<any>> = 
     GradientBorderButton,
     ShimmerButton,
     PulseGlowButton,
+    "Subscribe-Button": SubscribeButton,
     SlideArrowButton,
     ThreeDPressButton,
     RippleButton,

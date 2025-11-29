@@ -1467,7 +1467,12 @@ export const ActivityLogTable = ({
             <div className="absolute -left-[31px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-800 border-2 border-neutral-900 text-neutral-400">
               <item.i size={12} />
             </div>
-            <p className="text-sm text-neutral-300">
+            {/* 
+              使用 <div> 而不是 <p> 來包住 EditableCell。
+              EditableCell 的根元素是 <div>，如果用 <p> 來包會形成「<div> 不能是 <p> 的子元素」的無效 HTML，
+              進而在 Next.js 中造成 hydration error。
+            */}
+            <div className="text-sm text-neutral-300">
               <EditableCell
                 value={item.u}
                 onChange={onCellChange ? (text) => onCellChange(i, 0, text) : undefined}
@@ -1480,7 +1485,7 @@ export const ActivityLogTable = ({
                 editable={editable}
                 className="inline"
               />
-            </p>
+            </div>
             <EditableCell
               value={item.t}
               onChange={onCellChange ? (text) => onCellChange(i, 2, text) : undefined}

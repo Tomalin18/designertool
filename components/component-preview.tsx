@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +18,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -62,8 +63,11 @@ import { tableSections } from "@/lib/table-sections"
 import { tableComponentsByName } from "@/components/customize/tables"
 import { chartSections } from "@/lib/chart-sections"
 import { chartComponentsByName } from "@/components/customize/charts"
-import { AlertCircle, ChevronDown } from 'lucide-react'
+import { AlertCircle, ChevronDown, AlertTriangle } from 'lucide-react'
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth-context"
+import { LoginForm } from "@/components/auth/login-form"
+import { SignupForm } from "@/components/auth/signup-form"
 
 interface ComponentPreviewProps {
   name: string
@@ -77,7 +81,60 @@ interface ComponentPreviewProps {
 export function ComponentPreview(props: ComponentPreviewProps) {
   // Destructure only the props we need, ignoring any extra props that might be passed
   const { name, href, tags, className } = props
+  const router = useRouter()
   const [selectOpen, setSelectOpen] = useState(false)
+  const [authDialogOpen, setAuthDialogOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false)
+  const { user, loading } = useAuth()
+
+  // 付費用戶判斷：預設檢查幾個常見欄位，未來若有明確欄位（例如 user.user_metadata.plan === 'pro'），可以在這裡統一調整
+  const isPaidUser =
+    !!user &&
+    (
+      // 常見布林旗標
+      (user.user_metadata as any)?.is_paid === true ||
+      (user.user_metadata as any)?.isPaid === true ||
+      (user.user_metadata as any)?.is_pro === true ||
+      // 常見方案欄位
+      (user.user_metadata as any)?.plan === "pro" ||
+      (user.user_metadata as any)?.plan === "paid" ||
+      (user.user_metadata as any)?.tier === "pro" ||
+      (user.user_metadata as any)?.tier === "paid"
+    )
+
+  // 需要付費的元件（其他元件只需要登入即可）
+  const isPremiumComponent = name === "MediaPlayer" || name === "ChatInterface"
+
+  const handleProtectedClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
+    // 所有元件都需要登入檢查
+    // 先阻止預設導航行為，再決定要不要放行
+    event.preventDefault()
+
+    // 還在載入使用者資料時，先不做任何事，避免狀態不一致
+    if (loading) {
+      return
+    }
+
+    // 未登入：打開登入 / 註冊 Dialog，而不是直接跳頁
+    if (!user) {
+      setAuthMode("login")
+      setAuthDialogOpen(true)
+      return
+    }
+
+    // 已登入：檢查是否需要付費
+    if (isPremiumComponent && !isPaidUser) {
+      // 需要付費的元件，但用戶尚未成為付費用戶：顯示升級提示 Dialog
+      setUpgradeDialogOpen(true)
+      return
+    }
+
+    // 通過所有檢查的情況下（已登入，且如果是付費元件則必須是付費用戶），才允許導航
+    // 滾動到頂部後再跳轉
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    window.location.href = href
+  }
 
   const heroMeta = heroSections.find((hero) => hero.name === name)
   const HeroComponent = heroMeta ? heroComponentsByName[heroMeta.componentName] : null
@@ -649,6 +706,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
   }
 
   return (
+    <>
     <Card className={cn(
       "overflow-hidden transition-all hover:shadow-lg hover:border-primary/50 pb-0 flex flex-col",
       isSection && "gap-0 py-0",
@@ -660,7 +718,11 @@ export function ComponentPreview(props: ComponentPreviewProps) {
       )}>
         {renderPreview()}
       </div>
-      <Link href={href} className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0">
+      <Link
+        href={href}
+        onClick={handleProtectedClick}
+        className="block p-4 border-t bg-card group hover:bg-accent transition-colors flex-shrink-0"
+      >
         <h3 className="font-semibold group-hover:text-primary transition-colors text-xl">{name}</h3>
         {displayTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
@@ -678,5 +740,75 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         )}
       </Link>
     </Card>
+    {/* 未登入時點擊任何元件，彈出的登入 / 註冊 Dialog */}
+    <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {authMode === "login" ? "Sign in to view this component" : "Create an account to view this component"}
+          </DialogTitle>
+        </DialogHeader>
+        {authMode === "login" ? (
+          <LoginForm
+            onSwitchToSignup={() => setAuthMode("signup")}
+            onSuccess={() => {
+              // 登入成功：關閉 Dialog，並重設為 login 模式
+              setAuthDialogOpen(false)
+              setAuthMode("login")
+            }}
+          />
+        ) : (
+          <SignupForm
+            onSwitchToLogin={() => setAuthMode("login")}
+            onSuccess={() => {
+              // 註冊成功：關閉 Dialog，並重設為 login 模式
+              setAuthDialogOpen(false)
+              setAuthMode("login")
+            }}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+
+    {/* 已登入但非付費用戶點擊需要付費的元件，彈出的升級提示 Dialog */}
+    {isPremiumComponent && (
+      <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+        <DialogContent className="max-w-md border-0 bg-transparent p-0 shadow-none">
+          <DialogTitle className="sr-only">Premium Access Required</DialogTitle>
+          <div className="w-full max-w-sm rounded-xl border border-red-900/50 bg-neutral-900 p-6 shadow-2xl shadow-red-900/20">
+            <div className="flex gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-900/30 text-red-500">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">Premium Access Required</h3>
+                <p className="mt-1 text-base text-neutral-400">
+                  This component is only available for premium members. Please upgrade your account to unlock this feature.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button
+                className="flex-1 rounded-lg border border-neutral-800 bg-transparent py-2.5 text-base font-medium text-white hover:bg-neutral-800"
+                onClick={() => setUpgradeDialogOpen(false)}
+              >
+                Maybe Later
+              </button>
+              <button
+                className="flex-1 rounded-lg bg-red-600 py-2.5 text-base font-bold text-white hover:bg-red-500"
+                onClick={() => {
+                  setUpgradeDialogOpen(false)
+                  window.scrollTo({ top: 0, behavior: 'instant' })
+                  router.push('/subscribe')
+                }}
+              >
+                Upgrade Account
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
+    </>
   )
 }

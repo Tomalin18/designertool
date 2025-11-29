@@ -7,7 +7,7 @@ export type ButtonPropControl =
     | "color"
 
 export interface ButtonPropDefinition {
-    control: ButtonPropControl
+    control: string
     default: string | number | boolean
     description: string
     options?: string[]
@@ -903,14 +903,14 @@ function getButtonGroupingConfig(
         'downloadText',
         'className',
     ]
-    
+
     const sizeSpacingKeys = [
         'size',
         'borderRadius',
         'paddingX',
         'paddingY',
     ]
-    
+
     const colorKeys = [
         'backgroundColor',
         'textColor',
@@ -1048,7 +1048,7 @@ function getButtonGroupingConfig(
         'roundedCornerMorphBgColor',
         'roundedCornerMorphHoverBgColor',
     ]
-    
+
     const animationKeys = [
         'animationDuration',
         'animationSpeed',
@@ -1062,14 +1062,14 @@ function getButtonGroupingConfig(
         'flickerSpeed',
         'elasticScale',
     ]
-    
+
     // Categorize props
     const generalProps: string[] = []
     const sizeSpacingProps: string[] = []
     const colorProps: string[] = []
     const animationProps: string[] = []
     const otherProps: string[] = []
-    
+
     Object.keys(props).forEach((key) => {
         if (generalKeys.includes(key)) {
             generalProps.push(key)
@@ -1083,10 +1083,10 @@ function getButtonGroupingConfig(
             otherProps.push(key)
         }
     })
-    
+
     // Build tabs array (only include tabs that have props)
     const tabs: { name: string; label: string; keys: string[] }[] = []
-    
+
     if (generalProps.length > 0) {
         tabs.push({ name: "general", label: "General", keys: generalProps })
     }
@@ -1102,12 +1102,12 @@ function getButtonGroupingConfig(
     if (otherProps.length > 0) {
         tabs.push({ name: "other", label: "Other", keys: otherProps })
     }
-    
+
     // Always have at least a General tab
     if (tabs.length === 0) {
         tabs.push({ name: "general", label: "General", keys: [] })
     }
-    
+
     return {
         type: "tabs",
         tabs,

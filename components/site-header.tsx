@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/dialog"
 import { LoginForm } from "@/components/auth/login-form"
 import { SignupForm } from "@/components/auth/signup-form"
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
 import { cn } from "@/lib/utils"
 import { User, LogOut } from "lucide-react"
+import { SubscribeButton } from "@/components/customize/buttons"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -43,7 +43,7 @@ export function SiteHeader() {
   const { user, loading, signOut } = useAuth()
   const [mounted, setMounted] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login')
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -173,7 +173,45 @@ export function SiteHeader() {
             <ThemeToggle />
             {!loading && (
               <>
+                {/* Member Button */}
                 {user ? (
+                  (() => {
+                    const isPaidUser =
+                      (user.user_metadata as any)?.is_paid === true ||
+                      (user.user_metadata as any)?.isPaid === true ||
+                      (user.user_metadata as any)?.is_pro === true ||
+                      (user.user_metadata as any)?.plan === "pro" ||
+                      (user.user_metadata as any)?.plan === "paid" ||
+                      (user.user_metadata as any)?.tier === "pro" ||
+                      (user.user_metadata as any)?.tier === "paid"
+                    
+                    return (
+                      <SubscribeButton
+                        className="!px-4 !py-2 text-sm"
+                        style={{ fontSize: '0.875rem' }}
+                        onClick={() => {
+                          window.scrollTo({ top: 0, behavior: 'instant' })
+                          router.push('/subscribe')
+                        }}
+                      >
+                        {isPaidUser ? 'Member' : 'Upgrade'}
+                      </SubscribeButton>
+                    )
+                  })()
+                ) : (
+                  <SubscribeButton
+                    className="!px-4 !py-2 text-sm"
+                    style={{ fontSize: '0.875rem' }}
+                    onClick={() => {
+                      setAuthMode('signup')
+                      setAuthOpen(true)
+                    }}
+                  >
+                    Sign up
+                  </SubscribeButton>
+                )}
+                
+                {user && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -217,26 +255,17 @@ export function SiteHeader() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setAuthMode('login')
-                        setAuthOpen(true)
-                      }}
-                    >
-                      Sign in
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setAuthMode('signup')
-                        setAuthOpen(true)
-                      }}
-                    >
-                      Sign up
-                    </Button>
-                  </div>
+                )}
+                {!user && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setAuthMode('login')
+                      setAuthOpen(true)
+                    }}
+                  >
+                    Sign in
+                  </Button>
                 )}
               </>
             )}
@@ -257,22 +286,25 @@ export function SiteHeader() {
           <DialogTitle className="sr-only">
             {authMode === 'login' && 'Sign in'}
             {authMode === 'signup' && 'Sign up'}
-            {authMode === 'forgot' && 'Reset password'}
           </DialogTitle>
           {authMode === 'login' && (
             <LoginForm
               onSwitchToSignup={() => setAuthMode('signup')}
-              onSwitchToForgotPassword={() => setAuthMode('forgot')}
+              onSuccess={() => {
+                // 登入成功：關閉 Dialog，並重設為 login 模式
+                setAuthOpen(false)
+                setAuthMode('login')
+              }}
             />
           )}
           {authMode === 'signup' && (
             <SignupForm
               onSwitchToLogin={() => setAuthMode('login')}
-            />
-          )}
-          {authMode === 'forgot' && (
-            <ForgotPasswordForm
-              onSwitchToLogin={() => setAuthMode('login')}
+              onSuccess={() => {
+                // 註冊成功：關閉 Dialog，並將模式重設為 login 方便之後再開啟
+                setAuthOpen(false)
+                setAuthMode('login')
+              }}
             />
           )}
         </DialogContent>

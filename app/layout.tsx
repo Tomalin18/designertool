@@ -2,6 +2,7 @@ import type React from "react"
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import { AuthProvider } from "@/contexts/auth-context"
 import { SiteHeader } from "@/components/site-header"
 import { MobileNav } from "@/components/mobile-nav"
@@ -67,11 +68,13 @@ export default function RootLayout({
           <AuthProvider>
             <div className="relative min-h-screen flex flex-col">
               <SiteHeader />
-              <main className="flex-1 pb-16 md:pb-0">{children}</main>
+              <main className="flex-1 pb-16 md:pb-0">
+                {children}
+              </main>
+              {/* 全站共用的 Scroll to Top 按鈕：在向下捲動一段距離後顯示，點擊平滑捲回頁面頂部 */}
+              <ScrollToTop />
               <MobileNav />
-              <footer className="border-t py-6 md:py-0">
-
-              </footer>
+              <footer className="border-t py-6 md:py-0" />
             </div>
           </AuthProvider>
         </ThemeProvider>
