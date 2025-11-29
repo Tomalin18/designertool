@@ -1036,27 +1036,55 @@ export const RetroInput = ({
   backgroundColor,
   textColor,
   ...props
-}: RetroInputProps) => (
-  <input 
-    className={cn(
-      "w-full border-t-2 border-l-2 border-b border-r border-t-black border-l-black border-b-white border-r-white bg-white px-2 py-1 text-sm font-mono text-black placeholder-neutral-500 focus:outline-none",
-      className
-    )}
-    placeholder={placeholder}
-    style={{
-      ...(borderColor && borderColor.trim() !== "" && {
-        borderColor: borderColor.startsWith("rgb") ? borderColor : (hexToRgb(borderColor) || borderColor)
-      }),
-      ...(backgroundColor && backgroundColor.trim() !== "" && {
-        backgroundColor: backgroundColor.startsWith("rgb") ? backgroundColor : (hexToRgb(backgroundColor) || backgroundColor)
-      }),
-      ...(textColor && textColor.trim() !== "" && {
-        color: textColor.startsWith("rgb") ? textColor : (hexToRgb(textColor) || textColor)
-      }),
-    }}
-    {...props}
-  />
-);
+}: RetroInputProps) => {
+  // 過濾掉非標準的 HTML 屬性，避免傳遞給 DOM 元素
+  const {
+    borderRadius,
+    borderWidth,
+    focusBorderColor,
+    focusRingColor,
+    errorColor,
+    successColor,
+    glowColor,
+    buttonColor,
+    currencyColor,
+    accentColor,
+    promptColor,
+    pathColor,
+    gradientFrom,
+    gradientVia,
+    gradientTo,
+    hoverBorderColor,
+    buttonHoverColor,
+    labelColor,
+    inputBgColor,
+    inputBorderColor,
+    inputTextColor,
+    ...domProps
+  } = props as any;
+
+  return (
+    <input 
+      className={cn(
+        "w-full border-t-2 border-l-2 border-b border-r border-t-black border-l-black border-b-white border-r-white bg-white px-2 py-1 text-sm font-mono text-black placeholder-neutral-500 focus:outline-none",
+        className
+      )}
+      placeholder={placeholder}
+      style={{
+        ...(borderColor && borderColor.trim() !== "" && {
+          borderColor: borderColor.startsWith("rgb") ? borderColor : (hexToRgb(borderColor) || borderColor)
+        }),
+        ...(backgroundColor && backgroundColor.trim() !== "" && {
+          backgroundColor: backgroundColor.startsWith("rgb") ? backgroundColor : (hexToRgb(backgroundColor) || backgroundColor)
+        }),
+        ...(textColor && textColor.trim() !== "" && {
+          color: textColor.startsWith("rgb") ? textColor : (hexToRgb(textColor) || textColor)
+        }),
+      }}
+      {...domProps}
+    />
+  );
+};
 
 // 21. Terminal Input
 export interface TerminalInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -1676,5 +1704,6 @@ export const inputComponentsByName = inputSections.reduce<Record<string, React.F
   },
   {}
 );
+
 
 

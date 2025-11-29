@@ -7334,7 +7334,7 @@ export default function ${componentName}Example() {
   return (
     <div className="relative w-full">
       <div className="flex flex-col gap-6 min-w-0 w-full">
-        <div className="relative" ref={playgroundRef} data-playground>
+        <div className="relative flex items-center justify-center p-4 md:p-8" ref={playgroundRef} data-playground>
           {config && config.render ? (
             (() => {
               try {
@@ -7528,7 +7528,7 @@ export default function ${componentName}Example() {
             e.preventDefault()
           }}
         >
-          <SheetHeader className="p-6 border-b sticky top-0 bg-background z-10">
+          <SheetHeader className="p-6 pr-14 border-b sticky top-0 bg-background z-10">
             <SheetTitle>Customize</SheetTitle>
           </SheetHeader>
           <div className="p-6">
