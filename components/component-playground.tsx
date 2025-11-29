@@ -72,6 +72,7 @@ import { componentDetails } from "@/lib/component-details"
 import { CodeBlock } from "@/components/code-block"
 import { ColorPicker } from "@/components/ui/color-picker"
 import { CustomizePanel } from "@/components/component-playground-customize-panel"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const heroNameToMeta = heroSections.reduce<Record<string, (typeof heroSections)[number]>>((acc, hero) => {
   acc[hero.name] = hero
@@ -3155,7 +3156,22 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   }
 
   const [copied, setCopied] = React.useState(false)
-  const [showSidebar, setShowSidebar] = React.useState(true)
+  const isMobile = useIsMobile()
+  // 在 mobile 上默認關閉，在 desktop 上默認打開
+  const [showSidebar, setShowSidebar] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768
+    }
+    return true
+  })
+  
+  // 當屏幕大小改變時，更新 sidebar 狀態
+  React.useEffect(() => {
+    if (isMobile && showSidebar) {
+      // 如果切換到 mobile 且 sidebar 是打開的，自動關閉
+      setShowSidebar(false)
+    }
+  }, [isMobile])
 
   const [props, setProps] = React.useState<Record<string, any>>(() => {
     if (!config) return {}
@@ -7355,14 +7371,30 @@ export default function ${componentName}Example() {
               )}
             </div>
           )}
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-4 top-4 z-10 h-10 w-10 rounded-full shadow-md bg-background border-muted-foreground/20"
-            onClick={() => setShowSidebar(true)}
-          >
-            <Settings2 className="h-5 w-5" />
-          </Button>
+          {!showSidebar && (
+            <>
+              {/* Desktop: 右上角按鈕 */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="hidden md:flex absolute right-4 top-4 z-10 h-10 w-10 rounded-full shadow-md bg-background border-muted-foreground/20"
+                onClick={() => setShowSidebar(true)}
+                aria-label="Open customize panel"
+              >
+                <Settings2 className="h-5 w-5" />
+              </Button>
+              {/* Mobile: 浮動按鈕 */}
+              <Button
+                variant="default"
+                size="icon"
+                className="md:hidden fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
+                onClick={() => setShowSidebar(true)}
+                aria-label="Open customize panel"
+              >
+                <Settings2 className="h-6 w-6" />
+              </Button>
+            </>
+          )}
         </div>
 
         <Card className="p-6 min-w-0">
@@ -7485,7 +7517,17 @@ export default function ${componentName}Example() {
       </div>
 
       <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
-        <SheetContent className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" side="right" onInteractOutside={(e) => e.preventDefault()}>
+        <SheetContent 
+          className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" 
+          side="right" 
+          onInteractOutside={(e) => {
+            // 在 mobile 上允許點擊外部關閉，在 desktop 上阻止
+            if (isMobile) {
+              return
+            }
+            e.preventDefault()
+          }}
+        >
           <SheetHeader className="p-6 border-b sticky top-0 bg-background z-10">
             <SheetTitle>Customize</SheetTitle>
           </SheetHeader>
