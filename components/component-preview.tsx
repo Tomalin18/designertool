@@ -399,7 +399,7 @@ export function ComponentPreview(props: ComponentPreviewProps) {
         Object.entries(inputMeta.props)
           .map(([key, prop]) => [key, prop.default])
           // 不把樣式 props 傳給元件，避免透過 {...props} 進入 DOM element
-          .filter(([key]) => !styleProps.includes(key))
+          .filter(([key]) => !styleProps.includes(String(key)))
       )
 
       return (
