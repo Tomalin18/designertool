@@ -1755,7 +1755,7 @@ export function CustomizePanel({
           
           // Determine defaultColor: empty string for optional colors, actual color for required colors
           const defaultColor = (() => {
-            if (propMeta && propMeta.default && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
+            if (propMeta && propMeta.default && typeof propMeta.default === 'string' && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
               return propMeta.default
             }
             // If default is empty string or not a color, return empty (for optional colors)
@@ -1766,7 +1766,7 @@ export function CustomizePanel({
             <ColorPicker
               value={props[key] || ""}
               onChange={(value) => updateProp(key, value)}
-              placeholder={propMeta?.default && propMeta.default.trim() !== "" ? propMeta.default : (propConfig.default && propConfig.default.trim() !== "" ? propConfig.default : "")}
+              placeholder={propMeta?.default && typeof propMeta.default === 'string' && propMeta.default.trim() !== "" ? propMeta.default : (propConfig.default && typeof propConfig.default === 'string' && propConfig.default.trim() !== "" ? propConfig.default : "")}
               outputFormat="hex"
               defaultColor={(() => {
                 // If value exists and is hex, use it
@@ -1784,11 +1784,11 @@ export function CustomizePanel({
                   }
                 }
                 // Use propMeta default if available (from table/chart metadata)
-                if (propMeta && propMeta.default && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
+                if (propMeta && propMeta.default && typeof propMeta.default === 'string' && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
                   return propMeta.default
                 }
                 // Fallback to propConfig default
-                if (propConfig.default && propConfig.default.trim() !== "" && propConfig.default.startsWith('#')) {
+                if (propConfig.default && typeof propConfig.default === 'string' && propConfig.default.trim() !== "" && propConfig.default.startsWith('#')) {
                   return propConfig.default
                 }
                 // For empty defaults, return empty string so ColorPicker shows as empty (for optional colors)

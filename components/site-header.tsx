@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
-import { Package2 } from 'lucide-react'
 import { ThemeToggle } from "./theme-toggle"
 import { useTheme } from "./theme-provider"
 import { cn } from "@/lib/utils"
@@ -120,7 +119,6 @@ export function SiteHeader() {
       <div className="flex h-14 w-full items-center px-8 text-2xl">
         <div className="mr-4 flex">
           <Link href="/" className={cn("mr-6 flex items-center gap-2", shouldAnimate && "header-nav-animated")}>
-            <Package2 className="h-6 w-6" />
             <span className="font-bold">DesignerTool</span>
           </Link>
         </div>
