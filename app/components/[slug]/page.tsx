@@ -50,7 +50,7 @@ interface ComponentPageProps {
 
 export default async function ComponentPage({ params }: ComponentPageProps) {
   const { slug } = await params
-  
+
   // Read hero component code if it's a hero section
   let initialCode = ""
   const heroMeta = heroSections.find(h => h.slug === slug)
@@ -74,7 +74,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
   // Get component from componentDetails or create from inputMeta/dialogMeta/toggleMeta/tabsMeta
   let component = componentDetails[slug]
-  
+
   // For input components, create component detail if not in componentDetails
   if (inputMeta && !component) {
     component = {
@@ -842,10 +842,10 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
 
   // Helper functions (same as components-page-client.tsx)
   const getSpecialComponents = () => {
-    return customComponents.filter(c => 
-      c.name === "MediaPlayer" || 
-      c.name === "ChatInterface" || 
-      c.name === "SocialProfileCard" || 
+    return customComponents.filter(c =>
+      c.name === "MediaPlayer" ||
+      c.name === "ChatInterface" ||
+      c.name === "SocialProfileCard" ||
       c.name === "GlassAuthForm"
     )
   }
@@ -957,31 +957,53 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     {
       title: "Special",
       href: "/components",
-      items: getSpecialComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Special`,
+        },
+        ...getSpecialComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Button",
       href: "/components",
-      items: getButtonComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Button`,
+        },
+        ...getButtonComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Card",
       href: "/components",
-      items: getCardComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Card`,
+        },
+        ...getCardComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Badge",
       href: "/components",
       items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Badge`,
+        },
         ...componentsData.filter(c => c.name === "Badge").map((component) => ({
           title: component.name,
           href: component.href,
@@ -995,15 +1017,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     {
       title: "Input",
       href: "/components",
-      items: getInputComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Input`,
+        },
+        ...getInputComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Dialog",
       href: "/components",
       items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Dialog`,
+        },
         ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
           title: component.name,
           href: component.href,
@@ -1017,15 +1049,25 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     {
       title: "Toggle",
       href: "/components",
-      items: getToggleComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Toggle`,
+        },
+        ...getToggleComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Tabs",
       href: "/components",
       items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Tabs`,
+        },
         ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
           title: component.name,
           href: component.href,
@@ -1039,97 +1081,163 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     {
       title: "Sidebar",
       href: "/components",
-      items: getSidebarComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Sidebar`,
+        },
+        ...getSidebarComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Tabbar",
       href: "/components",
-      items: getTabbarComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Tabbar`,
+        },
+        ...getTabbarComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Sheet",
       href: "/components",
-      items: getSheetComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Sheet`,
+        },
+        ...getSheetComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Table",
       href: "/components",
-      items: getTableComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Table`,
+        },
+        ...getTableComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Chart",
       href: "/components",
-      items: getChartComponents().map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=components&category=Chart`,
+        },
+        ...getChartComponents().map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Header",
       href: "/components",
-      items: getSectionComponentsByType("header").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=Header`,
+        },
+        ...getSectionComponentsByType("header").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Hero",
       href: "/components",
-      items: getSectionComponentsByType("hero").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=Hero`,
+        },
+        ...getSectionComponentsByType("hero").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Feature",
       href: "/components",
-      items: getSectionComponentsByType("feature").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=Feature`,
+        },
+        ...getSectionComponentsByType("feature").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Payment",
       href: "/components",
-      items: getSectionComponentsByType("payment").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=Payment`,
+        },
+        ...getSectionComponentsByType("payment").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "CTA",
       href: "/components",
-      items: getSectionComponentsByType("cta").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=CTA`,
+        },
+        ...getSectionComponentsByType("cta").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
     {
       title: "Footer",
       href: "/components",
-      items: getSectionComponentsByType("footer").map((component) => ({
-        title: component.name,
-        href: component.href,
-      })),
+      items: [
+        {
+          title: "All",
+          href: `/components?tab=section&category=Footer`,
+        },
+        ...getSectionComponentsByType("footer").map((component) => ({
+          title: component.name,
+          href: component.href,
+        })),
+      ],
     },
   ]
 
   // Determine which sidebar section should be expanded based on component category
   const getDefaultExpanded = (): string[] => {
     const category = component.category
-    
+
     // Map component category to sidebar section title
     const categoryToSection: Record<string, string> = {
       "Toggle": "Toggle",
@@ -1146,7 +1254,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       "Dialog": "Dialog",
       "Sections": heroMeta ? "Hero" : featureMeta ? "Feature" : paymentMeta ? "Payment" : ctaMeta ? "CTA" : footerMeta ? "Footer" : headerMeta ? "Header" : "",
     }
-    
+
     // For section components, determine the specific section type
     if (heroMeta) return ["Hero"]
     if (featureMeta) return ["Feature"]
@@ -1154,13 +1262,13 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     if (ctaMeta) return ["CTA"]
     if (footerMeta) return ["Footer"]
     if (headerMeta) return ["Header"]
-    
+
     // For other categories, use the mapping
     const sectionTitle = categoryToSection[category]
     if (sectionTitle) {
       return [sectionTitle]
     }
-    
+
     return []
   }
 
@@ -1210,7 +1318,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               sheetMeta={sheetMeta}
               tableMeta={tableMeta}
               chartMeta={chartMeta}
-              sheetMeta={sheetMeta}
+
             />
           </div>
         </div>

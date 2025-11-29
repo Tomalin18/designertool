@@ -7373,21 +7373,11 @@ export default function ${componentName}Example() {
           )}
           {!showSidebar && (
             <>
-              {/* Desktop: 右上角按鈕 */}
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden md:flex absolute right-4 top-4 z-10 h-10 w-10 rounded-full shadow-md bg-background border-muted-foreground/20"
-                onClick={() => setShowSidebar(true)}
-                aria-label="Open customize panel"
-              >
-                <Settings2 className="h-5 w-5" />
-              </Button>
-              {/* Mobile: 浮動按鈕 */}
+              {/* Floating button: 所有尺寸都使用相同的浮動按鈕樣式 */}
               <Button
                 variant="default"
                 size="icon"
-                className="md:hidden fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
+                className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full shadow-lg bg-primary text-primary-foreground"
                 onClick={() => setShowSidebar(true)}
                 aria-label="Open customize panel"
               >

@@ -133,7 +133,13 @@ export function ComponentNavigation({
   return (
     <div className="flex items-center justify-between gap-4 pt-4 mt-6 border-t">
       {prevComponent ? (
-        <Link href={`/components/${prevComponent.slug}`}>
+        <Link 
+          href={`/components/${prevComponent.slug}`}
+          scroll={true}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'instant' })
+          }}
+        >
           <Button variant="outline" className="flex items-center gap-2">
             <ChevronLeft className="h-4 w-4" />
             <span className="text-sm font-medium">{prevComponent.name}</span>
@@ -144,7 +150,14 @@ export function ComponentNavigation({
       )}
       
       {nextComponent ? (
-        <Link href={`/components/${nextComponent.slug}`} className={prevComponent ? "" : "ml-auto"}>
+        <Link 
+          href={`/components/${nextComponent.slug}`} 
+          className={prevComponent ? "" : "ml-auto"}
+          scroll={true}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'instant' })
+          }}
+        >
           <Button variant="outline" className="flex items-center gap-2">
             <span className="text-sm font-medium">{nextComponent.name}</span>
             <ChevronRight className="h-4 w-4" />

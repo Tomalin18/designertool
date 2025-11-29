@@ -37,29 +37,39 @@ const ComponentPreview = dynamic(() => import("@/components/component-preview").
 export function ComponentsPageClient() {
     const searchParams = useSearchParams()
     const router = useRouter()
-    const [selectedCategory, setSelectedCategory] = useState("All")
-    const [selectedCustomCategory, setSelectedCustomCategory] = useState("All")
     const [searchQuery, setSearchQuery] = useState("")
     const [componentsSearch, setComponentsSearch] = useState("")
     const [sectionSearch, setSectionSearch] = useState("")
 
     // Get initial tab from URL parameter, default to "components"
     const tabFromUrl = searchParams.get("tab") || "components"
+    const categoryFromUrl = searchParams.get("category")
     const [activeTab, setActiveTab] = useState(tabFromUrl)
+    const [selectedCategory, setSelectedCategory] = useState("All")
+    const [selectedCustomCategory, setSelectedCustomCategory] = useState(categoryFromUrl || "All")
 
     // Sync activeTab with URL parameter when it changes (e.g., from browser back/forward)
     useEffect(() => {
         const currentTab = searchParams.get("tab") || "components"
+        const currentCategory = searchParams.get("category")
         if (currentTab !== activeTab) {
             setActiveTab(currentTab)
         }
-    }, [searchParams])
+        if (currentCategory && currentCategory !== selectedCustomCategory) {
+            setSelectedCustomCategory(currentCategory)
+        }
+    }, [searchParams, activeTab, selectedCustomCategory])
 
     // Update URL when tab changes
     const handleTabChange = (value: string) => {
         setActiveTab(value)
         const params = new URLSearchParams()
         params.set("tab", value)
+        // Keep category parameter if it exists
+        const currentCategory = searchParams.get("category")
+        if (currentCategory) {
+            params.set("category", currentCategory)
+        }
         router.replace(`/components?${params.toString()}`, { scroll: false })
     }
 
@@ -214,7 +224,23 @@ export function ComponentsPageClient() {
         return matchesCategory && matchesSearch
     })
 
+    // Category mapping for section types
+    const sectionCategoryMap: Record<string, string> = {
+        "Header": "header",
+        "Hero": "hero",
+        "Feature": "feature",
+        "Payment": "payment",
+        "CTA": "cta",
+        "Footer": "footer",
+    }
+
+    const shouldShowSectionType = (type: string) => {
+        if (activeTab !== "section" || !categoryFromUrl) return true
+        return sectionCategoryMap[categoryFromUrl] === type
+    }
+
     const filteredHeaderSections = headerSections.filter((header) => {
+        if (!shouldShowSectionType("header")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             header.name.toLowerCase().includes(searchLower) ||
@@ -224,6 +250,7 @@ export function ComponentsPageClient() {
     })
 
     const filteredHeroSections = heroSections.filter((hero) => {
+        if (!shouldShowSectionType("hero")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             hero.name.toLowerCase().includes(searchLower) ||
@@ -233,6 +260,7 @@ export function ComponentsPageClient() {
     })
 
     const filteredFeatureSections = featureSections.filter((feature) => {
+        if (!shouldShowSectionType("feature")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             feature.name.toLowerCase().includes(searchLower) ||
@@ -242,6 +270,7 @@ export function ComponentsPageClient() {
     })
 
     const filteredPaymentSections = paymentSections.filter((payment) => {
+        if (!shouldShowSectionType("payment")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             payment.name.toLowerCase().includes(searchLower) ||
@@ -251,6 +280,7 @@ export function ComponentsPageClient() {
     })
 
     const filteredCtaSections = ctaSections.filter((cta) => {
+        if (!shouldShowSectionType("cta")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             cta.name.toLowerCase().includes(searchLower) ||
@@ -260,6 +290,7 @@ export function ComponentsPageClient() {
     })
 
     const filteredFooterSections = footerSections.filter((footer) => {
+        if (!shouldShowSectionType("footer")) return false
         const searchLower = sectionSearch.toLowerCase()
         const matchesSearch =
             footer.name.toLowerCase().includes(searchLower) ||
@@ -417,31 +448,53 @@ export function ComponentsPageClient() {
         {
             title: "Special",
             href: "/components",
-            items: getSpecialComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Special`,
+                },
+                ...getSpecialComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Button",
             href: "/components",
-            items: getButtonComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Button`,
+                },
+                ...getButtonComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Card",
             href: "/components",
-            items: getCardComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Card`,
+                },
+                ...getCardComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Badge",
             href: "/components",
             items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Badge`,
+                },
                 ...componentsData.filter(c => c.name === "Badge").map((component) => ({
                     title: component.name,
                     href: component.href,
@@ -455,15 +508,25 @@ export function ComponentsPageClient() {
         {
             title: "Input",
             href: "/components",
-            items: getInputComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Input`,
+                },
+                ...getInputComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Dialog",
             href: "/components",
             items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Dialog`,
+                },
                 ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
                     title: component.name,
                     href: component.href,
@@ -477,15 +540,25 @@ export function ComponentsPageClient() {
         {
             title: "Toggle",
             href: "/components",
-            items: getToggleComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Toggle`,
+                },
+                ...getToggleComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Tabs",
             href: "/components",
             items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Tabs`,
+                },
                 ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
                     title: component.name,
                     href: component.href,
@@ -499,90 +572,156 @@ export function ComponentsPageClient() {
         {
             title: "Sidebar",
             href: "/components",
-            items: getSidebarComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Sidebar`,
+                },
+                ...getSidebarComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Tabbar",
             href: "/components",
-            items: getTabbarComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Tabbar`,
+                },
+                ...getTabbarComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Sheet",
             href: "/components",
-            items: getSheetComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Sheet`,
+                },
+                ...getSheetComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Table",
             href: "/components",
-            items: getTableComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Table`,
+                },
+                ...getTableComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Chart",
             href: "/components",
-            items: getChartComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=components&category=Chart`,
+                },
+                ...getChartComponents().map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Header",
             href: "/components",
-            items: getSectionComponentsByType("header").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=Header`,
+                },
+                ...getSectionComponentsByType("header").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Hero",
             href: "/components",
-            items: getSectionComponentsByType("hero").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=Hero`,
+                },
+                ...getSectionComponentsByType("hero").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Feature",
             href: "/components",
-            items: getSectionComponentsByType("feature").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=Feature`,
+                },
+                ...getSectionComponentsByType("feature").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Payment",
             href: "/components",
-            items: getSectionComponentsByType("payment").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=Payment`,
+                },
+                ...getSectionComponentsByType("payment").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "CTA",
             href: "/components",
-            items: getSectionComponentsByType("cta").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=CTA`,
+                },
+                ...getSectionComponentsByType("cta").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
         {
             title: "Footer",
             href: "/components",
-            items: getSectionComponentsByType("footer").map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+            items: [
+                {
+                    title: "All",
+                    href: `/components?tab=section&category=Footer`,
+                },
+                ...getSectionComponentsByType("footer").map((component) => ({
+                    title: component.name,
+                    href: component.href,
+                })),
+            ],
         },
     ]
 
@@ -647,7 +786,8 @@ export function ComponentsPageClient() {
     }, [])
 
     return (
-        <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
+        // 拿掉 Tailwind 的 container，改用 w-full 讓 components 頁面可以撐滿可用寬度，避免右側留白
+        <div className="w-full flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
             <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
                 <div className="py-6 pl-6 pr-6 lg:py-8 lg:pl-8">
                     <SidebarNav items={sidebarItems} />
@@ -718,7 +858,17 @@ export function ComponentsPageClient() {
                                         key={category}
                                         variant={selectedCustomCategory === category ? "default" : "outline"}
                                         size="sm"
-                                        onClick={() => setSelectedCustomCategory(category)}
+                                        onClick={() => {
+                                            setSelectedCustomCategory(category)
+                                            const params = new URLSearchParams()
+                                            params.set("tab", "components")
+                                            if (category !== "All") {
+                                                params.set("category", category)
+                                            }
+                                            // Scroll to top when changing category
+                                            window.scrollTo({ top: 0, behavior: 'instant' })
+                                            router.replace(`/components?${params.toString()}`, { scroll: false })
+                                        }}
                                     >
                                         {category}
                                     </Button>

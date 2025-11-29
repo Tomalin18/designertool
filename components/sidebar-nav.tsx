@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Lock } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
@@ -11,7 +11,7 @@ interface SidebarNavProps {
   items: {
     title: string
     href: string
-    items?: { title: string; href: string }[]
+    items?: { title: string; href: string; isPremium?: boolean }[]
   }[]
   defaultExpanded?: string[]
 }
@@ -153,12 +153,22 @@ export function SidebarNav({ items, defaultExpanded = [] }: SidebarNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  scroll={true}
                   className={cn(
-                    "group flex w-full items-center rounded-md border border-transparent px-2 py-1.5 hover:underline text-2xl",
+                    "group flex w-full items-center gap-2 rounded-md border border-transparent px-2 py-1.5 hover:underline text-2xl",
                     pathname === item.href ? "font-medium text-foreground" : "text-muted-foreground",
                   )}
+                  onClick={() => {
+                    // Scroll to top when navigating to a different page
+                    if (item.href !== pathname) {
+                      window.scrollTo({ top: 0, behavior: 'instant' })
+                    }
+                  }}
                 >
-                  {item.title}
+                  <span>{item.title}</span>
+                  {item.isPremium && (
+                    <Lock className="h-4 w-4 text-primary shrink-0" />
+                  )}
                 </Link>
               ))}
             </div>

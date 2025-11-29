@@ -441,6 +441,57 @@ export interface PricingCardProps {
   buttonColor?: string;
   borderRadius?: number;
   padding?: number;
+  onClick?: () => void;
+  disabled?: boolean;
+  // Glass effect props
+  orb1Color?: string;
+  orb2Color?: string;
+  backdropBlur?: number;
+  // Outer gradient (border gradient)
+  outerGradientFrom?: string;
+  outerGradientTo?: string;
+  outerGradientWidth?: number;
+  outerGradientAnimated?: boolean;
+}
+
+// Helper function to extract hex from Tailwind class or hex and convert to RGB
+const getColorFromTailwind = (colorValue: string): string | undefined => {
+  if (!colorValue) return undefined
+  // If it's already an RGB value, return as is
+  if (colorValue.startsWith('rgb(')) {
+    return colorValue
+  }
+  // Extract hex from bg-[#hex] or text-[#hex] format
+  const hexMatch = colorValue.match(/\[#([0-9A-Fa-f]{6})\]/)
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1].slice(0, 2), 16)
+    const g = parseInt(hexMatch[1].slice(2, 4), 16)
+    const b = parseInt(hexMatch[1].slice(4, 6), 16)
+    return `rgb(${r} ${g} ${b})`
+  }
+  // If it's already a hex value
+  if (colorValue.startsWith('#')) {
+    const r = parseInt(colorValue.slice(1, 3), 16)
+    const g = parseInt(colorValue.slice(3, 5), 16)
+    const b = parseInt(colorValue.slice(5, 7), 16)
+    return `rgb(${r} ${g} ${b})`
+  }
+  // Try color map
+  const colorMap: Record<string, string> = {
+    "bg-neutral-900/60": "rgb(23 23 23 / 0.6)",
+    "bg-neutral-900": "rgb(23 23 23)",
+    "border-neutral-800": "rgb(38 38 38)",
+    "text-white": "rgb(255 255 255)",
+    "text-neutral-400": "rgb(163 163 163)",
+    "bg-indigo-500/20": "rgb(99 102 241 / 0.2)",
+    "bg-purple-500/20": "rgb(168 85 247 / 0.2)",
+    "from-indigo-500": "rgb(99 102 241)",
+    "to-purple-500": "rgb(168 85 247)",
+    "bg-indigo-600": "rgb(79 70 229)",
+    "border-neutral-700": "rgb(64 64 64)",
+    "bg-neutral-800": "rgb(38 38 38)",
+  }
+  return colorMap[colorValue] || undefined
 }
 
 export const PricingCard = ({
@@ -457,53 +508,142 @@ export const PricingCard = ({
   buttonColor,
   borderRadius = 12,
   padding = 24,
-}: PricingCardProps) => (
-  <div 
-    className={cn("w-full border bg-neutral-900 relative overflow-hidden hover:border-indigo-500/50 transition-colors", className)}
-    style={{ 
-      borderColor: borderColor || `${accentColor}30`,
-      backgroundColor: backgroundColor,
-      color: textColor,
-      borderRadius: `${borderRadius}px`,
-      padding: `${padding}px`,
-    }}
-  >
-    <div 
-      className="absolute -top-10 -right-10 h-24 w-24 rounded-full blur-2xl" 
-      style={{ backgroundColor: `${accentColor}20` }}
-    />
-    
-    <div className="mb-2 text-sm font-bold uppercase" style={{ color: accentColor }}>{planName}</div>
-    <div className="mb-6 flex items-baseline gap-1">
-      <span className="text-3xl font-bold text-white">${price}</span>
-      <span className="text-neutral-500">{period}</span>
+  onClick,
+  disabled = false,
+  orb1Color,
+  orb2Color,
+  backdropBlur = 12,
+  outerGradientFrom,
+  outerGradientTo,
+  outerGradientWidth = 2,
+  outerGradientAnimated = false,
+}: PricingCardProps) => {
+  const displayPrice = price === 0 && !period ? "Free" : `$${price}`
+  
+  // Convert colors
+  const bgColor = backgroundColor ? getColorFromTailwind(backgroundColor) : undefined
+  const borderCol = borderColor ? getColorFromTailwind(borderColor) : undefined
+  const txtColor = textColor ? getColorFromTailwind(textColor) : undefined
+  const subTxtColor = textColor ? getColorFromTailwind(textColor) : undefined
+  
+  // Orb colors - always use theme colors for theme adaptation
+  // Use Tailwind classes instead of inline styles for better theme support
+  const orb1Col = orb1Color ? getColorFromTailwind(orb1Color) : undefined
+  const orb2Col = orb2Color ? getColorFromTailwind(orb2Color) : undefined
+  
+  // Outer gradient colors (border gradient) - always use theme colors for theme adaptation
+  // CSS variables already contain full color values (e.g., oklch(...)), so use them directly
+  const outerGradFrom = outerGradientFrom 
+    ? getColorFromTailwind(outerGradientFrom) 
+    : 'var(--primary)'
+  
+  // If only one color provided, use theme accent color
+  const getGradientToColor = (fromColor: string | undefined): string | undefined => {
+    if (outerGradientTo) return getColorFromTailwind(outerGradientTo)
+    // Always use theme accent color for theme adaptation
+    return 'var(--accent)'
+  }
+  const outerGradTo = getGradientToColor(outerGradFrom)
+  const outerGradInset = `-${outerGradientWidth}px`
+  const showOuterGradient = true // Always show gradient
+  
+  // Default background with glass effect - use theme-aware colors
+  // If no backgroundColor provided, use semi-transparent card background
+  const defaultBgColor = bgColor || undefined
+  const defaultBorderColor = borderCol || undefined
+  
+  return (
+    <div className={cn("relative group", className)} style={{ borderRadius: `${borderRadius}px` }}>
+      {/* Outer gradient (border gradient) */}
+      {showOuterGradient && (
+        <div
+          className="absolute blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 pointer-events-none z-0"
+          style={{
+            inset: outerGradInset,
+            backgroundImage: outerGradientAnimated
+              ? `linear-gradient(90deg, ${outerGradFrom || 'var(--primary)'}, ${outerGradTo || 'var(--accent)'}, ${outerGradFrom || 'var(--primary)'})`
+              : `linear-gradient(to right, ${outerGradFrom || 'var(--primary)'}, ${outerGradTo || 'var(--accent)'})`,
+            backgroundSize: outerGradientAnimated ? '200% 200%' : '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            borderRadius: `${borderRadius + outerGradientWidth}px`,
+            animation: outerGradientAnimated ? 'gradient-rotate 3s ease infinite' : undefined,
+          }}
+        />
+      )}
+      
+      <div
+        className={cn(
+          "w-full border relative overflow-hidden transition-colors z-10",
+          !backgroundColor && "bg-card/60",
+          !borderColor && "border-border hover:border-primary/50",
+          className
+        )}
+        style={{
+          borderColor: borderCol || defaultBorderColor,
+          backgroundColor: bgColor || defaultBgColor,
+          color: txtColor,
+          borderRadius: `${borderRadius}px`,
+          padding: `${padding}px`,
+          backdropFilter: `blur(${backdropBlur}px)`,
+        }}
+      >
+        {/* Background Orbs */}
+        <div
+          className={cn(
+            "absolute -left-10 -top-10 h-32 w-32 rounded-full blur-3xl",
+            !orb1Col && "bg-primary/20"
+          )}
+          style={orb1Col ? { backgroundColor: orb1Col } : undefined}
+        />
+        <div
+          className={cn(
+            "absolute -bottom-10 -right-10 h-32 w-32 rounded-full blur-3xl",
+            !orb2Col && "bg-primary/20"
+          )}
+          style={orb2Col ? { backgroundColor: orb2Col } : undefined}
+        />
+        
+        <div className="relative z-10">
+          <div className={cn("mb-2 text-sm font-bold uppercase text-primary")}>{planName}</div>
+          <div className="mb-6 flex items-baseline gap-1">
+            <span className={cn("text-3xl font-bold", !txtColor && "text-foreground")}>{displayPrice}</span>
+            {period && <span className={cn("text-sm", !txtColor && "text-muted-foreground")}>{period}</span>}
+          </div>
+          
+          <ul className="mb-8 space-y-3">
+            {features.map((f, i) => (
+              <li key={i} className={cn("flex items-center gap-2 text-sm", !txtColor && "text-muted-foreground")}>
+                <Check size={14} className="text-primary" /> {f}
+              </li>
+            ))}
+          </ul>
+          
+          <button 
+            className={cn(
+              "w-full rounded-lg py-2 text-sm font-bold transition-colors",
+              disabled ? "opacity-50 cursor-not-allowed bg-muted text-muted-foreground" : "bg-primary text-primary-foreground hover:bg-primary/90"
+            )}
+            onClick={onClick}
+            disabled={disabled}
+            onMouseEnter={(e) => {
+              if (!disabled) {
+                // Theme hover effect is handled by CSS class
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!disabled) {
+                // Theme hover effect is handled by CSS class
+              }
+            }}
+          >
+            {buttonText}
+          </button>
+        </div>
+      </div>
     </div>
-    
-    <ul className="mb-8 space-y-3">
-      {features.map((f, i) => (
-        <li key={i} className="flex items-center gap-2 text-sm text-neutral-300">
-          <Check size={14} style={{ color: accentColor }} /> {f}
-        </li>
-      ))}
-    </ul>
-    
-    <button 
-      className="w-full rounded-lg py-2 text-sm font-bold text-white transition-colors"
-      style={{ backgroundColor: buttonColor || accentColor }}
-      onMouseEnter={(e) => {
-        const rgb = hexToRgb(accentColor);
-        if (rgb) {
-          e.currentTarget.style.backgroundColor = adjustBrightness(rgb, -10);
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = accentColor;
-      }}
-    >
-      {buttonText}
-    </button>
-  </div>
-);
+  )
+};
 
 // Helper functions for PricingCard
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {

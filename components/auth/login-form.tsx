@@ -30,13 +30,16 @@ type LoginFormValues = z.infer<typeof loginSchema>
 interface LoginFormProps {
   onSwitchToSignup?: () => void
   onSwitchToForgotPassword?: () => void
+  onSuccess?: () => void
 }
 
 export function LoginForm({
   onSwitchToSignup,
   onSwitchToForgotPassword,
+  onSuccess,
 }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -50,6 +53,7 @@ export function LoginForm({
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
+    setAuthError(null)
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
@@ -57,18 +61,40 @@ export function LoginForm({
       })
 
       if (error) {
+        const raw = error.message || 'Sign in failed'
+        // 轉成對使用者比較友善、訊息更完整的說明
+        const friendly =
+          raw.includes('Invalid login credentials')
+            ? 'Invalid email or password. Make sure this email is registered, the password is correct, or try signing in with Google/GitHub if you created your account with social login.'
+            : raw
+
+        setAuthError(friendly)
         toast.error('Sign in failed', {
-          description: error.message,
+          description: friendly,
         })
         return
       }
 
       toast.success('Signed in successfully')
-      router.push('/')
-      router.refresh()
-    } catch (error) {
+
+      // 如果有外部 onSuccess（例如 Dialog），讓父層決定關閉或更新 UI
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        // 預設：導回首頁並 refresh
+        router.push('/')
+        router.refresh()
+      }
+    } catch (error: any) {
+      const raw = error?.message || 'Something went wrong'
+      const friendly =
+        raw.includes('Invalid login credentials')
+          ? 'Invalid email or password. Make sure this email is registered, the password is correct, or try signing in with Google/GitHub if you created your account with social login.'
+          : raw
+
+      setAuthError(friendly)
       toast.error('Something went wrong', {
-        description: 'Please try again later',
+        description: friendly,
       })
     } finally {
       setIsLoading(false)
@@ -86,14 +112,28 @@ export function LoginForm({
       })
 
       if (error) {
+        const raw = error.message || 'Sign in failed'
+        const friendly =
+          raw.includes('Invalid login credentials')
+            ? 'Login failed. If you originally signed up with email and password, please use the email form. If you created your account with Google or GitHub, make sure you are using the same provider.'
+            : raw
+
+        setAuthError(friendly)
         toast.error('Sign in failed', {
-          description: error.message,
+          description: friendly,
         })
         setIsLoading(false)
       }
-    } catch (error) {
+    } catch (error: any) {
+      const raw = error?.message || 'Something went wrong'
+      const friendly =
+        raw.includes('Invalid login credentials')
+          ? 'Login failed. If you originally signed up with email and password, please use the email form. If you created your account with Google or GitHub, make sure you are using the same provider.'
+          : raw
+
+      setAuthError(friendly)
       toast.error('Something went wrong', {
-        description: 'Please try again later',
+        description: friendly,
       })
       setIsLoading(false)
     }
@@ -145,6 +185,12 @@ export function LoginForm({
               </FormItem>
             )}
           />
+
+          {authError && (
+            <p className="text-sm text-red-500">
+              {authError}
+            </p>
+          )}
 
           <div className="flex items-center justify-between">
             {onSwitchToForgotPassword ? (
