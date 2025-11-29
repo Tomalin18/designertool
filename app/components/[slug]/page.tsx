@@ -1184,14 +1184,16 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const defaultExpanded = getDefaultExpanded()
 
   return (
-    <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 px-4 md:px-6 lg:px-8">
+    <div className="container flex-1 items-start md:grid md:grid-cols-[220px_1fr_400px] md:gap-6 lg:grid-cols-[240px_1fr_400px] lg:gap-10 px-4 md:px-6 lg:px-8">
+      {/* Left Sidebar */}
       <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
         <div className="py-6 pl-6 pr-6 lg:py-8 lg:pl-8">
           <SidebarNav items={sidebarItems} defaultExpanded={defaultExpanded} />
         </div>
       </aside>
 
-      <div className="py-8 md:py-12 w-full">
+      {/* Main Content */}
+      <div className="py-8 md:py-12 w-full min-w-0">
         <div className="mb-6 flex flex-col items-center md:items-start">
           <div className="w-full">
             <BackToComponentsButton
@@ -1238,6 +1240,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           initialCode={initialCode}
         />
       </div>
+
+      {/* Right Customize Panel Placeholder - hidden on mobile, visible on desktop */}
+      <div className="hidden md:block" />
     </div>
   )
 }
