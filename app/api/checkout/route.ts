@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 const resolveBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
@@ -9,6 +10,21 @@ const resolveBaseUrl = () => {
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error: 'Unauthorized',
+          message: 'You must be logged in to initiate checkout.',
+        },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json().catch(() => ({}))
     const priceId = body?.priceId as string | undefined
     const planId = body?.planId as string | undefined
@@ -61,6 +77,11 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: mode,
       payment_method_types: ['card'],
+      client_reference_id: user.id,
+      metadata: {
+        userId: user.id,
+        planId: planId ?? '',
+      },
       line_items: [
         {
           price: priceId,

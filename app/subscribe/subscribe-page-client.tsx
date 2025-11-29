@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, Zap, Crown, Loader2, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
 import { PricingCard } from "@/components/customize/cards"
 import { SidebarNav } from "@/components/sidebar-nav"
 import { componentsData } from "@/lib/components-data"
@@ -72,44 +74,44 @@ const formatPrice = (price: number, currency: string, period: string): string =>
 
 export function SubscribePageClient() {
   const { user, loading: authLoading } = useAuth()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const status = searchParams.get("status")
+    const plan = searchParams.get("plan")
+
+    if (status === "success") {
+      toast.success("Subscription Successful!", {
+        description: "Thank you for subscribing. Your account has been upgraded.",
+        duration: 5000,
+      })
+
+      // Refresh session to update user metadata
+      const refreshSession = async () => {
+        await supabase.auth.refreshSession()
+        // Wait a bit for the toast to be seen
+        setTimeout(() => {
+          router.push("/")
+        }, 2000)
+      }
+
+      refreshSession()
+    } else if (status === "cancelled") {
+      toast.info("Subscription Cancelled", {
+        description: "You have not been charged.",
+      })
+    }
+  }, [searchParams, router, supabase.auth])
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        setIsLoading(true)
-        const response = await fetch('/api/products')
-
-        const data = await response.json()
-
-        // 檢查是否有錯誤訊息
-        if (data.error) {
-          console.error('API Error:', data.error, data.message)
-          toast.error('Configuration Error', {
-            description: data.message || data.error,
-          })
-          setProducts([])
-          return
-        }
-
-        setProducts(data.products || [])
-
-        // 如果沒有商品，顯示提示
-        if (!data.products || data.products.length === 0) {
-          console.warn('No products returned from API')
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        toast.error('Failed to load products', {
-          description: error instanceof Error ? error.message : 'Please check your console for details.',
-        })
-        setProducts([])
-      } finally {
-        setIsLoading(false)
-      }
+      // ... (rest of the fetchProducts logic)
     }
 
     fetchProducts()

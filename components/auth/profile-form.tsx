@@ -104,7 +104,28 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <AvatarFallback>{getInitials()}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{user?.user_metadata?.full_name || '未設定'}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">{user?.user_metadata?.full_name || '未設定'}</p>
+              {(() => {
+                const isPaid =
+                  (user?.user_metadata as any)?.is_paid === true ||
+                  (user?.user_metadata as any)?.isPaid === true ||
+                  (user?.user_metadata as any)?.is_pro === true ||
+                  (user?.user_metadata as any)?.plan === "pro" ||
+                  (user?.user_metadata as any)?.plan === "paid" ||
+                  (user?.user_metadata as any)?.tier === "pro" ||
+                  (user?.user_metadata as any)?.tier === "paid"
+
+                return (
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${isPaid
+                      ? "bg-primary/10 text-primary ring-1 ring-inset ring-primary/20"
+                      : "bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20"
+                    }`}>
+                    {isPaid ? "Pro Member" : "Free Plan"}
+                  </span>
+                )
+              })()}
+            </div>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
         </div>
