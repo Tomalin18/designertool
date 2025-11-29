@@ -1,11 +1,30 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from "react"
 import { ThemeToggle } from "./theme-toggle"
 import { useTheme } from "./theme-provider"
+import { useAuth } from "@/contexts/auth-context"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog"
+import { LoginForm } from "@/components/auth/login-form"
+import { SignupForm } from "@/components/auth/signup-form"
+import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
 import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
+import { User, LogOut } from "lucide-react"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -18,8 +37,12 @@ const navigation = [
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const router = useRouter()
   const { colorPalette, theme } = useTheme()
+  const { user, loading, signOut } = useAuth()
   const [mounted, setMounted] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login')
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -115,39 +138,139 @@ export function SiteHeader() {
   const shouldAnimate = mounted && colorPalette
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 w-full items-center px-8 text-2xl">
-        <div className="mr-4 flex">
-          <Link href="/" className={cn("mr-6 flex items-center gap-2", shouldAnimate && "header-nav-animated")}>
-            <span className="font-bold">DesignerTool</span>
-          </Link>
-        </div>
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 w-full items-center px-8 text-2xl">
+          <div className="mr-4 flex">
+            <Link href="/" className={cn("mr-6 flex items-center gap-2", shouldAnimate && "header-nav-animated")}>
+              <span className="font-bold">DesignerTool</span>
+            </Link>
+          </div>
 
-        <nav className="hidden md:flex items-center gap-6 text-2xl">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "transition-colors hover:text-foreground/80",
-                  isActive
-                    ? "text-foreground font-medium"
-                    : "text-foreground/60",
-                  shouldAnimate && "header-nav-animated"
+          <nav className="hidden md:flex items-center gap-6 text-2xl">
+            {navigation.map((item) => {
+              const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "transition-colors hover:text-foreground/80",
+                    isActive
+                      ? "text-foreground font-medium"
+                      : "text-foreground/60",
+                    shouldAnimate && "header-nav-animated"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              )
+            })}
+          </nav>
+
+          <div className="flex flex-1 items-center justify-end gap-2">
+            <ThemeToggle />
+            {!loading && (
+              <>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ''} />
+                          <AvatarFallback>
+                            {user.email?.charAt(0).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {user.user_metadata?.full_name || '未設定'}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>個人資料</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={async () => {
+                          await signOut()
+                          router.push('/')
+                          router.refresh()
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>登出</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setAuthMode('login')
+                        setAuthOpen(true)
+                      }}
+                    >
+                      登入
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setAuthMode('signup')
+                        setAuthOpen(true)
+                      }}
+                    >
+                      註冊
+                    </Button>
+                  </div>
                 )}
-              >
-                {item.name}
-              </Link>
-            )
-          })}
-        </nav>
-
-        <div className="flex flex-1 items-center justify-end gap-2">
-          <ThemeToggle />
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <Dialog
+        open={authOpen}
+        onOpenChange={(open) => {
+          setAuthOpen(open)
+          if (!open) {
+            setAuthMode('login')
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          {authMode === 'login' && (
+            <LoginForm
+              onSwitchToSignup={() => setAuthMode('signup')}
+              onSwitchToForgotPassword={() => setAuthMode('forgot')}
+            />
+          )}
+          {authMode === 'signup' && (
+            <SignupForm
+              onSwitchToLogin={() => setAuthMode('login')}
+            />
+          )}
+          {authMode === 'forgot' && (
+            <ForgotPasswordForm
+              onSwitchToLogin={() => setAuthMode('login')}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

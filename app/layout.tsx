@@ -2,8 +2,10 @@ import type React from "react"
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/contexts/auth-context"
 import { SiteHeader } from "@/components/site-header"
 import { MobileNav } from "@/components/mobile-nav"
+import { Toaster } from "@/components/ui/sonner"
 import { componentsData } from "@/lib/components-data"
 import Script from "next/script"
 import "./globals.css"
@@ -62,15 +64,18 @@ export default function RootLayout({
           />
         )}
         <ThemeProvider defaultTheme="system" storageKey="componentui-theme">
-          <div className="relative min-h-screen flex flex-col">
-            <SiteHeader />
-            <main className="flex-1 pb-16 md:pb-0">{children}</main>
-            <MobileNav />
-            <footer className="border-t py-6 md:py-0">
+          <AuthProvider>
+            <div className="relative min-h-screen flex flex-col">
+              <SiteHeader />
+              <main className="flex-1 pb-16 md:pb-0">{children}</main>
+              <MobileNav />
+              <footer className="border-t py-6 md:py-0">
 
-            </footer>
-          </div>
+              </footer>
+            </div>
+          </AuthProvider>
         </ThemeProvider>
+        <Toaster />
         <Analytics />
       </body>
     </html>
