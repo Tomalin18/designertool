@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import { LoginForm } from "@/components/auth/login-form"
 import { SignupForm } from "@/components/auth/signup-form"
@@ -188,7 +189,7 @@ export function SiteHeader() {
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">
-                            {user.user_metadata?.full_name || '未設定'}
+                            {user.user_metadata?.full_name || 'Not set'}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground">
                             {user.email}
@@ -199,7 +200,7 @@ export function SiteHeader() {
                       <DropdownMenuItem asChild>
                         <Link href="/profile" className="cursor-pointer">
                           <User className="mr-2 h-4 w-4" />
-                          <span>個人資料</span>
+                          <span>Profile</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -212,7 +213,7 @@ export function SiteHeader() {
                         }}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
-                        <span>登出</span>
+                        <span>Sign out</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -225,7 +226,7 @@ export function SiteHeader() {
                         setAuthOpen(true)
                       }}
                     >
-                      登入
+                      Sign in
                     </Button>
                     <Button
                       onClick={() => {
@@ -233,7 +234,7 @@ export function SiteHeader() {
                         setAuthOpen(true)
                       }}
                     >
-                      註冊
+                      Sign up
                     </Button>
                   </div>
                 )}
@@ -253,6 +254,11 @@ export function SiteHeader() {
         }}
       >
         <DialogContent className="max-w-md">
+          <DialogTitle className="sr-only">
+            {authMode === 'login' && 'Sign in'}
+            {authMode === 'signup' && 'Sign up'}
+            {authMode === 'forgot' && 'Reset password'}
+          </DialogTitle>
           {authMode === 'login' && (
             <LoginForm
               onSwitchToSignup={() => setAuthMode('signup')}

@@ -21,11 +21,11 @@ import { Github, Chrome, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 const signupSchema = z.object({
-  email: z.string().email('請輸入有效的電子郵件地址'),
-  password: z.string().min(6, '密碼至少需要 6 個字元'),
-  confirmPassword: z.string().min(6, '請確認密碼'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(6, 'Please confirm your password'),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: '密碼不一致',
+  message: 'Passwords do not match',
   path: ['confirmPassword'],
 })
 
@@ -61,19 +61,19 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
       })
 
       if (error) {
-        toast.error('註冊失敗', {
+        toast.error('Sign up failed', {
           description: error.message,
         })
         return
       }
 
-      toast.success('註冊成功', {
-        description: '請檢查您的電子郵件以確認帳號',
+      toast.success('Account created', {
+        description: 'Please check your email to verify your account',
       })
       router.push('/auth/login')
     } catch (error) {
-      toast.error('發生錯誤', {
-        description: '請稍後再試',
+      toast.error('Something went wrong', {
+        description: 'Please try again later',
       })
     } finally {
       setIsLoading(false)
@@ -91,14 +91,14 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
       })
 
       if (error) {
-        toast.error('登入失敗', {
+        toast.error('Sign in failed', {
           description: error.message,
         })
         setIsLoading(false)
       }
     } catch (error) {
-      toast.error('發生錯誤', {
-        description: '請稍後再試',
+      toast.error('Something went wrong', {
+        description: 'Please try again later',
       })
       setIsLoading(false)
     }
@@ -107,8 +107,8 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
   return (
     <div className="w-full max-w-md space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">建立帳號</h1>
-        <p className="text-muted-foreground">請填寫以下資訊以建立新帳號</p>
+        <h1 className="text-3xl font-bold">Create an account</h1>
+        <p className="text-muted-foreground">Enter your details to get started</p>
       </div>
 
       <Form {...form}>
@@ -118,7 +118,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>電子郵件</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
@@ -137,7 +137,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>密碼</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -156,7 +156,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>確認密碼</FormLabel>
+                <FormLabel>Confirm password</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -172,7 +172,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            註冊
+            Sign up
           </Button>
         </form>
       </Form>
@@ -183,7 +183,7 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            或使用社交帳號註冊
+            Or continue with
           </span>
         </div>
       </div>
@@ -210,18 +210,18 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
       </div>
 
       <div className="text-center text-sm">
-        <span className="text-muted-foreground">已經有帳號？</span>{' '}
+        <span className="text-muted-foreground">Already have an account?</span>{' '}
         {onSwitchToLogin ? (
           <button
             type="button"
             onClick={onSwitchToLogin}
             className="text-primary hover:underline"
           >
-            立即登入
+            Sign in
           </button>
         ) : (
           <Link href="/auth/login" className="text-primary hover:underline">
-            立即登入
+            Sign in
           </Link>
         )}
       </div>
