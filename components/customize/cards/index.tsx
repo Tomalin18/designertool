@@ -605,23 +605,23 @@ export const PricingCard = ({
         />
         
         <div className="relative z-10">
-          <div className={cn("mb-2 text-sm font-bold uppercase text-primary")}>{planName}</div>
+          <div className={cn("mb-2 text-base font-bold uppercase tracking-wide text-primary")}>{planName}</div>
           <div className="mb-6 flex items-baseline gap-1">
-            <span className={cn("text-3xl font-bold", !txtColor && "text-foreground")}>{displayPrice}</span>
-            {period && <span className={cn("text-sm", !txtColor && "text-muted-foreground")}>{period}</span>}
+            <span className={cn("text-4xl font-bold leading-tight", !txtColor && "text-foreground")}>{displayPrice}</span>
+            {period && <span className={cn("text-base font-medium", !txtColor && "text-muted-foreground")}>{period}</span>}
           </div>
           
           <ul className="mb-8 space-y-3">
             {features.map((f, i) => (
-              <li key={i} className={cn("flex items-center gap-2 text-sm", !txtColor && "text-muted-foreground")}>
-                <Check size={14} className="text-primary" /> {f}
+              <li key={i} className={cn("flex items-center gap-2 text-base leading-relaxed", !txtColor && "text-muted-foreground")}>
+                <Check size={16} className="text-primary" /> {f}
               </li>
             ))}
           </ul>
           
           <button 
             className={cn(
-              "w-full rounded-lg py-2 text-sm font-bold transition-colors",
+              "w-full rounded-lg py-3 text-base font-semibold transition-colors",
               disabled ? "opacity-50 cursor-not-allowed bg-muted text-muted-foreground" : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
             onClick={onClick}

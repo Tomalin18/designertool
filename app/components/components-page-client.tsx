@@ -1,9 +1,9 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Search, List } from "lucide-react"
+import { Search, List, ArrowRight, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -30,6 +30,7 @@ import { sheetSections } from "@/lib/sheet-sections"
 import { tableSections } from "@/lib/table-sections"
 import { chartSections } from "@/lib/chart-sections"
 import { cn } from "@/lib/utils"
+import { isComponentPremium } from "@/lib/component-access"
 
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
@@ -61,15 +62,37 @@ export function ComponentsPageClient() {
     }, [searchParams, activeTab, selectedCustomCategory])
 
     // Update URL when tab changes
+    const scrollToTopInstant = useCallback(() => {
+        if (typeof window === "undefined") return
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, behavior: 'auto' })
+        })
+    }, [])
+
+    useEffect(() => {
+        scrollToTopInstant()
+    }, [scrollToTopInstant])
+
+    useEffect(() => {
+        scrollToTopInstant()
+    }, [activeTab, scrollToTopInstant])
+
     const handleTabChange = (value: string) => {
         setActiveTab(value)
+        scrollToTopInstant()
+
         const params = new URLSearchParams()
         params.set("tab", value)
-        // Keep category parameter if it exists
-        const currentCategory = searchParams.get("category")
-        if (currentCategory) {
-            params.set("category", currentCategory)
+
+        if (value === "components") {
+            const currentCategory = selectedCustomCategory || categoryFromUrl || "All"
+            if (currentCategory && currentCategory !== "All") {
+                params.set("category", currentCategory)
+            }
+        } else {
+            setSelectedCustomCategory("All")
         }
+
         router.replace(`/components?${params.toString()}`, { scroll: false })
     }
 
@@ -379,10 +402,10 @@ export function ComponentsPageClient() {
 
     // Organize sidebar items by category
     const getSpecialComponents = () => {
-        return customComponents.filter(c => 
-            c.name === "MediaPlayer" || 
-            c.name === "ChatInterface" || 
-            c.name === "SocialProfileCard" || 
+        return customComponents.filter(c =>
+            c.name === "MediaPlayer" ||
+            c.name === "ChatInterface" ||
+            c.name === "SocialProfileCard" ||
             c.name === "GlassAuthForm"
         )
     }
@@ -435,14 +458,33 @@ export function ComponentsPageClient() {
         return customComponents.filter(c => c.category === "Badge")
     }
 
-    const getSectionComponentsByType = (type: string) => {
-        return allFilteredSections
-            .filter(section => section.type === type)
-            .map(section => ({
-                name: section.name,
-                href: `/components/${section.slug}`,
-            }))
+    const sectionsByType = {
+        header: headerSections,
+        hero: heroSections,
+        feature: featureSections,
+        payment: paymentSections,
+        cta: ctaSections,
+        footer: footerSections,
+    } as const
+
+    type SectionType = keyof typeof sectionsByType
+
+    const getSectionComponentsByType = (type: SectionType) => {
+        const sections = sectionsByType[type] || []
+        return sections.map(section => ({
+            name: section.name,
+            href: `/components/${section.slug}`,
+            category: type,
+        }))
     }
+
+    const toSidebarItem = (
+        component: { name: string; href: string; category?: string }
+    ) => ({
+        title: component.name,
+        href: component.href,
+        isPremium: isComponentPremium(component.name, component.category),
+    })
 
     const sidebarItems = [
         {
@@ -452,11 +494,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Special`,
+                    count: getSpecialComponents().length,
                 },
-                ...getSpecialComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSpecialComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -466,11 +506,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Button`,
+                    count: getButtonComponents().length,
                 },
-                ...getButtonComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getButtonComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -480,11 +518,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Card`,
+                    count: getCardComponents().length,
                 },
-                ...getCardComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getCardComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -494,15 +530,10 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Badge`,
+                    count: componentsData.filter(c => c.name === "Badge").length + getBadgeComponents().length,
                 },
-                ...componentsData.filter(c => c.name === "Badge").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
-                ...getBadgeComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...componentsData.filter(c => c.name === "Badge").map((component) => toSidebarItem(component)),
+                ...getBadgeComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -512,11 +543,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Input`,
+                    count: getInputComponents().length,
                 },
-                ...getInputComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getInputComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -526,15 +555,10 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Dialog`,
+                    count: componentsData.filter(c => c.name === "Dialog").length + getDialogComponents().length,
                 },
-                ...componentsData.filter(c => c.name === "Dialog").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
-                ...getDialogComponents().map((component) => ({
-                title: component.name,
-                href: component.href,
-            })),
+                ...componentsData.filter(c => c.name === "Dialog").map((component) => toSidebarItem(component)),
+                ...getDialogComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -544,11 +568,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Toggle`,
+                    count: getToggleComponents().length,
                 },
-                ...getToggleComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getToggleComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -558,15 +580,10 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Tabs`,
+                    count: componentsData.filter(c => c.name === "Tabs").length + getTabsComponents().length,
                 },
-                ...componentsData.filter(c => c.name === "Tabs").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
-                ...getTabsComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...componentsData.filter(c => c.name === "Tabs").map((component) => toSidebarItem(component)),
+                ...getTabsComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -576,11 +593,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Sidebar`,
+                    count: getSidebarComponents().length,
                 },
-                ...getSidebarComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSidebarComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -590,11 +605,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Tabbar`,
+                    count: getTabbarComponents().length,
                 },
-                ...getTabbarComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getTabbarComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -604,11 +617,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Sheet`,
+                    count: getSheetComponents().length,
                 },
-                ...getSheetComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSheetComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -618,11 +629,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Table`,
+                    count: getTableComponents().length,
                 },
-                ...getTableComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getTableComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -632,11 +641,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=components&category=Chart`,
+                    count: getChartComponents().length,
                 },
-                ...getChartComponents().map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getChartComponents().map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -646,11 +653,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Header`,
+                    count: getSectionComponentsByType("header").length,
                 },
-                ...getSectionComponentsByType("header").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("header").map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -660,11 +665,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Hero`,
+                    count: getSectionComponentsByType("hero").length,
                 },
-                ...getSectionComponentsByType("hero").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("hero").map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -674,11 +677,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Feature`,
+                    count: getSectionComponentsByType("feature").length,
                 },
-                ...getSectionComponentsByType("feature").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("feature").map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -688,11 +689,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Payment`,
+                    count: getSectionComponentsByType("payment").length,
                 },
-                ...getSectionComponentsByType("payment").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("payment").map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -702,11 +701,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=CTA`,
+                    count: getSectionComponentsByType("cta").length,
                 },
-                ...getSectionComponentsByType("cta").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("cta").map((component) => toSidebarItem(component)),
             ],
         },
         {
@@ -716,11 +713,9 @@ export function ComponentsPageClient() {
                 {
                     title: "All",
                     href: `/components?tab=section&category=Footer`,
+                    count: getSectionComponentsByType("footer").length,
                 },
-                ...getSectionComponentsByType("footer").map((component) => ({
-                    title: component.name,
-                    href: component.href,
-                })),
+                ...getSectionComponentsByType("footer").map((component) => toSidebarItem(component)),
             ],
         },
     ]
@@ -794,7 +789,21 @@ export function ComponentsPageClient() {
                 </div>
             </aside>
 
-            <section className="py-6 md:py-8">
+            <section className="py-6 md:py-8 space-y-4">
+                <div className="fixed right-4 bottom-28 md:right-8 md:bottom-20 z-40 flex flex-col gap-2 pointer-events-none">
+                    <Button
+                        variant="secondary"
+                        size="icon"
+                        className="h-10 w-10 rounded-full shadow-lg pointer-events-auto"
+                        onClick={() => handleTabChange(activeTab === "section" ? "components" : "section")}
+                        aria-label={activeTab === "section" ? "Back to Components" : "Browse Sections"}
+                    >
+                        <span className="flex flex-col items-center gap-0.5 text-white">
+                            <ArrowRight className="h-3 w-3" strokeWidth={3} />
+                            <ArrowLeft className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                    </Button>
+                </div>
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                     <TabsList className="mb-6">
                         <TabsTrigger value="preview" className="hidden">Preview</TabsTrigger>
