@@ -6,6 +6,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { AuthProvider } from "@/contexts/auth-context"
 import { SiteHeader } from "@/components/site-header"
 import { MobileNav } from "@/components/mobile-nav"
+import { SiteFooter } from "@/components/site-footer"
 import { Toaster } from "@/components/ui/sonner"
 import { componentsData } from "@/lib/components-data"
 import Script from "next/script"
@@ -75,7 +76,7 @@ export default function RootLayout({
               {/* 全站共用的 Scroll to Top 按鈕：在向下捲動一段距離後顯示，點擊平滑捲回頁面頂部 */}
               <ScrollToTop />
               <MobileNav />
-              <footer className="border-t py-6 md:py-0" />
+              <SiteFooter />
             </div>
           </AuthProvider>
         </ThemeProvider>

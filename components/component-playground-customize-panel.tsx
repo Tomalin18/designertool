@@ -30,12 +30,10 @@ import { chartSections } from "@/lib/chart-sections"
 const ControlledInput = ({ 
   value, 
   onChange, 
-  propKey,
   ...props 
 }: React.ComponentProps<typeof Input> & { 
   value: string | number
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  propKey: string
 }) => {
   const [localValue, setLocalValue] = React.useState(String(value))
   const [isFocused, setIsFocused] = React.useState(false)
@@ -259,8 +257,8 @@ const TabsEditor = ({ value, onChange, placeholder = "Tab label", addButtonLabel
   return (
     <div className="space-y-4">
       {displayTabs.map((tab, index) => (
-        <div key={`${tab}-${index}`} className="flex items-center gap-2">
-          <Input
+        <div key={`tab-${index}`} className="flex items-center gap-2">
+          <ControlledInput
             value={tab}
             onChange={(e) => updateTab(index, e.target.value)}
             placeholder={placeholder}
@@ -402,9 +400,9 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
   return (
     <div className="space-y-4">
       {displayItems.map((item, index) => (
-        <div key={`${item.parent}-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
+        <div key={`tree-parent-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
           <div className="flex items-center gap-2">
-            <Input
+            <ControlledInput
               value={item.parent}
               onChange={(e) => updateParent(index, e.target.value)}
               placeholder="Parent item"
@@ -435,8 +433,8 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
             <div className="space-y-2 pl-4 border-l-2 border-muted">
               <div className="space-y-2">
                 {item.children.map((child, childIndex) => (
-                  <div key={`${child}-${childIndex}`} className="flex items-center gap-2">
-                    <Input
+                  <div key={`tree-child-${index}-${childIndex}`} className="flex items-center gap-2">
+                    <ControlledInput
                       value={child}
                       onChange={(e) => updateChild(index, childIndex, e.target.value)}
                       placeholder="Child item"
@@ -583,9 +581,9 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
   return (
     <div className="space-y-4">
       {displayItems.map((item, index) => (
-        <div key={`${item.label}-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
+        <div key={`nav-item-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
           <div className="flex items-center gap-2">
-            <Input
+            <ControlledInput
               value={item.label}
               onChange={(e) => updateItem(index, "label", e.target.value)}
               placeholder="Item label"
@@ -614,9 +612,9 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
               </Button>
             )}
           </div>
-          {item.label.trim() !== "" && (
-            <div className="flex items-center gap-2">
-              <Input
+            {item.label.trim() !== "" && (
+              <div className="flex items-center gap-2">
+                <ControlledInput
                 value={item.badge || ""}
                 onChange={(e) => updateItem(index, "badge", e.target.value)}
                 placeholder="Badge (optional)"
@@ -712,9 +710,9 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={`${item.title}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`nav-config-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
-            <Input
+            <ControlledInput
               value={item.title}
               onChange={(e) => updateItem(index, 'title', e.target.value)}
               placeholder="Item Title"
@@ -753,7 +751,7 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
                   })
                   .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
                     <div key={`${subItem}-${subIndex}`} className="flex gap-2">
-                      <Input
+                      <ControlledInput
                         value={subItem}
                         onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
                         placeholder="Subitem Title"
@@ -859,15 +857,15 @@ const ChartDataEditor = ({ value, onChange }: { value: string, onChange: (val: s
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={`${item.name}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`chart-data-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
-            <Input
+            <ControlledInput
               value={item.name}
               onChange={(e) => updateItem(index, "name", e.target.value)}
               placeholder="Item Name"
               className="h-8 flex-1"
             />
-            <Input
+            <ControlledInput
               type="number"
               value={item.value}
               onChange={(e) => updateItem(index, "value", e.target.value)}
@@ -952,7 +950,7 @@ const ColorsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
   return (
     <div className="space-y-4">
       {colors.map((color, index) => (
-        <div key={`${color}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`chart-color-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
             <ColorPicker
               value={color || ""}
@@ -1006,8 +1004,8 @@ const FeaturesEditor = ({ value, onChange }: { value: string, onChange: (val: st
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={`${item}-${index}`} className="flex gap-2">
-          <Input
+        <div key={`feature-${index}`} className="flex gap-2">
+          <ControlledInput
             value={item}
             onChange={(e) => updateItem(index, e.target.value)}
             placeholder="Feature name"
@@ -1057,8 +1055,8 @@ const SkillsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={`${item}-${index}`} className="flex gap-2">
-          <Input
+        <div key={`skill-${index}`} className="flex gap-2">
+          <ControlledInput
             value={item}
             onChange={(e) => updateItem(index, e.target.value)}
             placeholder="Skill name"
@@ -1121,22 +1119,22 @@ const ComparisonRowsEditor = ({ value, onChange }: { value: string, onChange: (v
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={`${item.label}-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
+        <div key={`stat-row-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
           <div className="grid grid-cols-3 gap-2">
-            <Input
+            <ControlledInput
               value={item.label}
               onChange={(e) => updateItem(index, "label", e.target.value)}
               placeholder="Label"
               className="text-xs"
             />
-            <Input
+            <ControlledInput
               value={item.left}
               onChange={(e) => updateItem(index, "left", e.target.value)}
               placeholder="Left value"
               className="text-xs"
             />
             <div className="flex gap-2">
-              <Input
+              <ControlledInput
                 value={item.right}
                 onChange={(e) => updateItem(index, "right", e.target.value)}
                 placeholder="Right value"
@@ -1201,8 +1199,8 @@ const RoadmapItemsEditor = ({ value, onChange }: { value: string, onChange: (val
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={`${item.title}-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
-          <Input
+        <div key={`roadmap-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
+          <ControlledInput
             value={item.title}
             onChange={(e) => updateItem(index, "title", e.target.value)}
             placeholder="Title"
@@ -1294,14 +1292,14 @@ const HourlyForecastEditor = ({ value, onChange }: { value: string, onChange: (v
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={`${item.time}-${index}`} className="flex gap-2">
-          <Input
+        <div key={`forecast-${index}`} className="flex gap-2">
+          <ControlledInput
             value={item.time}
             onChange={(e) => updateItem(index, "time", e.target.value)}
             placeholder="Time (e.g., 12:00)"
             className="flex-1"
           />
-          <Input
+          <ControlledInput
             type="number"
             value={item.temp}
             onChange={(e) => updateItem(index, "temp", parseInt(e.target.value) || 0)}
@@ -1619,7 +1617,7 @@ export const CustomizePanel = React.memo(function CustomizePanel({
             </Select>
             {key === "headerUserStatus" && props[key] === "Other" && (
               <>
-                <Input
+            <ControlledInput
                   value={props.headerUserStatusCustom || ""}
                   onChange={(e) => updateProp("headerUserStatusCustom", e.target.value)}
                   placeholder="Enter custom status..."
@@ -1655,7 +1653,6 @@ export const CustomizePanel = React.memo(function CustomizePanel({
 
         {propConfig.type === "text" && (
           <ControlledInput
-            propKey={key}
             value={props[key] || ""}
             onChange={(e) => updateProp(key, e.target.value)}
             placeholder={propConfig.default}
@@ -1716,7 +1713,7 @@ export const CustomizePanel = React.memo(function CustomizePanel({
         )}
 
         {propConfig.type === "number" && (
-          <Input
+          <ControlledInput
             type="number"
             value={props[key] !== undefined ? props[key] : propConfig.default || 0}
             onChange={(e) => updateProp(key, e.target.value === "" ? undefined : parseFloat(e.target.value) || 0)}

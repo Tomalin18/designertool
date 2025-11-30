@@ -23,8 +23,8 @@ import { toast } from 'sonner'
 import type { User } from '@supabase/supabase-js'
 
 const profileSchema = z.object({
-  email: z.string().email('請輸入有效的電子郵件地址').optional(),
-  fullName: z.string().min(2, '姓名至少需要 2 個字元').optional().or(z.literal('')),
+  email: z.string().email('Please enter a valid email address.').optional(),
+  fullName: z.string().min(2, 'Name must be at least 2 characters.').optional().or(z.literal('')),
 })
 
 type ProfileFormValues = z.infer<typeof profileSchema>
@@ -63,16 +63,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
       })
 
       if (error) {
-        toast.error('更新失敗', {
+        toast.error('Update failed', {
           description: error.message,
         })
         return
       }
 
-      toast.success('個人資料已更新')
+      toast.success('Profile updated successfully')
     } catch (error) {
-      toast.error('發生錯誤', {
-        description: '請稍後再試',
+      toast.error('Something went wrong', {
+        description: 'Please try again later.',
       })
     } finally {
       setIsLoading(false)
@@ -94,8 +94,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>個人資料</CardTitle>
-        <CardDescription>更新您的個人資訊</CardDescription>
+        <CardTitle>Personal Information</CardTitle>
+        <CardDescription>Update and manage your personal details.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
@@ -105,7 +105,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </Avatar>
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">{user?.user_metadata?.full_name || '未設定'}</p>
+              <p className="text-sm font-medium">{user?.user_metadata?.full_name || 'Not Set'}</p>
               {(() => {
                 const isPaid =
                   (user?.user_metadata as any)?.is_paid === true ||
@@ -137,7 +137,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>電子郵件</FormLabel>
+                  <FormLabel>Email Address</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -146,7 +146,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    電子郵件地址無法修改
+                    Email address cannot be changed.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -158,10 +158,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>姓名</FormLabel>
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="請輸入您的姓名"
+                      placeholder="Enter your full name"
                       disabled={isLoading}
                       {...field}
                     />
@@ -173,7 +173,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              儲存變更
+              Save changes
             </Button>
           </form>
         </Form>
