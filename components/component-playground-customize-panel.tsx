@@ -62,26 +62,26 @@ interface CustomizePanelProps {
 }
 
 // Icon selector component for tabbar icons
-const IconSelector = ({ 
-  value, 
-  onChange, 
-  itemsValue 
-}: { 
-  value: string, 
+const IconSelector = ({
+  value,
+  onChange,
+  itemsValue
+}: {
+  value: string,
   onChange: (val: string) => void,
-  itemsValue?: string 
+  itemsValue?: string
 }) => {
   // Parse icons from newline-separated string
   const icons = value ? value.split("\n").filter((icon) => icon.trim() !== "") : []
   // Parse items to know how many icons we need
   const items = itemsValue ? itemsValue.split("\n").filter((item) => item.trim() !== "") : []
   const itemCount = items.length || icons.length || 1
-  
+
   // Common icons used in tabbars (removed duplicates)
   const commonIcons = [
-    "Home", "Search", "User", "Bell", "Settings", "Plus", "Heart", 
-    "ShoppingBag", "Map", "Calendar", "MessageSquare", "Menu", "Compass", 
-    "Star", "Video", "Music", "Grid", "Layers", "Zap", "Radio", "Scan", 
+    "Home", "Search", "User", "Bell", "Settings", "Plus", "Heart",
+    "ShoppingBag", "Map", "Calendar", "MessageSquare", "Menu", "Compass",
+    "Star", "Video", "Music", "Grid", "Layers", "Zap", "Radio", "Scan",
     "TrendingUp", "Mail", "Send", "Image", "File", "Folder", "Bookmark",
     "BookmarkCheck", "BookOpen", "Briefcase", "Camera", "Cast", "CheckCircle",
     "Clock", "CreditCard", "Download", "Edit", "Eye", "Filter", "Flag",
@@ -91,9 +91,9 @@ const IconSelector = ({
     "Smile", "Sun", "Tag", "Target", "ThumbsUp", "Trash", "TrendingDown",
     "Upload", "UserPlus", "Volume2", "Wifi", "X"
   ]
-  
+
   const [openIndex, setOpenIndex] = React.useState<number | null>(null)
-  
+
   const updateIcon = (index: number, iconName: string) => {
     const newIcons = [...icons]
     // Ensure array is long enough
@@ -106,17 +106,17 @@ const IconSelector = ({
     onChange(filtered.join("\n"))
     setOpenIndex(null)
   }
-  
+
   // Ensure we have enough icon slots
   const displayIcons = Array.from({ length: itemCount }, (_, i) => icons[i] || "")
-  
+
   return (
     <div className="space-y-3">
       {displayIcons.map((iconName, index) => {
-        const IconComponent = iconName 
+        const IconComponent = iconName
           ? (LucideIcons[iconName as keyof typeof LucideIcons] as any)
           : null
-        
+
         return (
           <div key={index} className="flex items-center gap-2 relative">
             <span className="text-xs text-muted-foreground w-8">#{index + 1}</span>
@@ -141,9 +141,8 @@ const IconSelector = ({
                       <button
                         key={icon}
                         onClick={() => updateIcon(index, icon)}
-                        className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${
-                          iconName === icon ? "border-foreground bg-accent" : "border-border bg-card"
-                        }`}
+                        className={`w-10 h-10 rounded-lg border-2 flex items-center justify-center transition-all hover:border-foreground/30 hover:bg-accent ${iconName === icon ? "border-foreground bg-accent" : "border-border bg-card"
+                          }`}
                         title={icon}
                       >
                         <Icon className="h-5 w-5" strokeWidth={1.5} />
@@ -160,28 +159,25 @@ const IconSelector = ({
   )
 }
 
-const TabsEditor = ({ value, onChange, placeholder = "Tab label", addButtonLabel = "Add Tab" }: { 
-  value: string, 
+const TabsEditor = ({ value, onChange, placeholder = "Tab label", addButtonLabel = "Add Tab" }: {
+  value: string,
   onChange: (val: string) => void,
   placeholder?: string,
   addButtonLabel?: string
 }) => {
   // Parse tabs from newline-separated string
   const tabs = value ? value.split("\n").filter((tab) => tab.trim() !== "") : []
-  
+
   // Always show at least one empty input for adding new tabs
   const displayTabs = tabs.length === 0 ? [""] : [...tabs, ""]
 
   const updateTabs = (newTabs: string[]) => {
     // Remove empty tabs except the last one (for adding new items)
     // Filter out empty tabs, but keep the structure for display
-    const nonEmptyTabs = newTabs.filter((tab, index) => {
-      // Always keep the last item (for adding new tabs)
-      if (index === newTabs.length - 1) return false
-      // Keep non-empty tabs
+    const nonEmptyTabs = newTabs.filter((tab) => {
       return tab.trim() !== ""
     })
-    
+
     // Join with newlines - this is what gets saved
     onChange(nonEmptyTabs.join("\n"))
   }
@@ -257,7 +253,7 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
   // Parse tree items from format "Parent:Child1,Child2" or "Parent"
   const parseTreeItems = (val: string): Array<{ parent: string; children: string[] }> => {
     if (!val || val.trim() === "") return []
-    
+
     return val.split("\n").filter(item => item.trim() !== "").map(item => {
       const parts = item.split(":")
       if (parts.length > 1) {
@@ -288,13 +284,10 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
 
   const updateItems = (newItems: Array<{ parent: string; children: string[] }>) => {
     // Remove empty items except the last one (for adding new items)
-    const nonEmptyItems = newItems.filter((item, index) => {
-      // Always keep the last item (for adding new items)
-      if (index === newItems.length - 1) return false
-      // Keep non-empty items
+    const nonEmptyItems = newItems.filter((item) => {
       return item.parent.trim() !== ""
     })
-    
+
     // Convert to format: "Parent:Child1,Child2" or "Parent"
     const formatted = nonEmptyItems.map(item => {
       if (item.children.length > 0) {
@@ -302,7 +295,7 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
       }
       return item.parent
     }).join("\n")
-    
+
     onChange(formatted)
   }
 
@@ -449,7 +442,7 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
   // Parse items from newline-separated string
   const parseItems = (val: string): Array<{ label: string; badge?: string }> => {
     if (!val || val.trim() === "") return []
-    
+
     try {
       // Try to parse as JSON first
       const parsed = JSON.parse(val)
@@ -465,7 +458,7 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
     } catch (e) {
       // Not JSON, treat as newline-separated string
     }
-    
+
     // Fallback to newline-separated string
     return val.split("\n").filter(item => item.trim() !== "").map(item => {
       const parts = item.split(':')
@@ -493,13 +486,10 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
 
   const updateItems = (newItems: Array<{ label: string; badge?: string }>) => {
     // Remove empty items except the last one (for adding new items)
-    const nonEmptyItems = newItems.filter((item, index) => {
-      // Always keep the last item (for adding new items)
-      if (index === newItems.length - 1) return false
-      // Keep non-empty items
+    const nonEmptyItems = newItems.filter((item) => {
       return item.label.trim() !== ""
     })
-    
+
     // Convert to newline-separated string format: "Label" or "Label:Badge"
     const formatted = nonEmptyItems.map(item => {
       if (item.badge && item.badge.trim() !== "") {
@@ -507,7 +497,7 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
       }
       return item.label
     }).join("\n")
-    
+
     onChange(formatted)
   }
 
@@ -611,24 +601,24 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
     if (shouldCleanEmpty) {
       processedItems = newItems.map((item) => {
         if (!item.items || item.items.length === 0) return item
-        
+
         const nonEmptyItems = item.items.filter((s: string) => s.trim() !== "")
-        
+
         // 如果沒有非空項目，只保留一個空項目
         if (nonEmptyItems.length === 0) {
           return { ...item, items: [""] }
         }
-        
+
         // 如果有非空項目，移除所有末尾的空項目
         const cleaned = [...item.items]
         while (cleaned.length > 0 && cleaned[cleaned.length - 1].trim() === "") {
           cleaned.pop()
         }
-        
+
         return { ...item, items: cleaned }
       })
     }
-    
+
     onChange(JSON.stringify(processedItems, null, 2))
   }
 
@@ -651,14 +641,14 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
   const updateSubitem = (itemIndex: number, subIndex: number, val: string) => {
     const newItems = [...items]
     if (!newItems[itemIndex].items) newItems[itemIndex].items = []
-    
+
     // 如果清空一個項目，移除它
     if (val.trim() === "") {
       newItems[itemIndex].items.splice(subIndex, 1)
     } else {
       newItems[itemIndex].items[subIndex] = val
     }
-    
+
     updateItems(newItems)
   }
 
@@ -673,79 +663,79 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
     <div className="space-y-4">
       {items.map((item, index) => (
         <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
-           <div className="flex items-center gap-2">
-             <Input 
-               value={item.title} 
-               onChange={(e) => updateItem(index, 'title', e.target.value)}
-               placeholder="Item Title"
-               className="h-8"
-             />
-             <Button variant="ghost" size="icon" onClick={() => removeItem(index)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
-               <Trash2 size={14} />
-             </Button>
-           </div>
-           <div className="border rounded-md p-3 space-y-3 bg-muted/30">
-             <div className="flex items-center space-x-2">
-               <Checkbox 
-                 id={`submenu-${index}`} 
-                 checked={!!item.items}
-                 onCheckedChange={(checked) => {
-                   if (checked) {
-                     updateItem(index, 'items', [])
-                   } else {
-                     const newItems = [...items]
-                     delete newItems[index].items
-                     updateItems(newItems)
-                   }
-                 }}
-               />
-               <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
-             </div>
-             {item.items && (
-               <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
-                 {item.items
-                   .map((subItem: string, subIndex: number) => ({ subItem, subIndex }))
-                   .filter(({ subItem, subIndex }: { subItem: string; subIndex: number }) => {
-                     // 渲染非空的項目
-                     if (subItem.trim() !== "") return true
-                     // 如果是空項目，只有在是最後一個項目時才渲染（用於輸入新項目）
-                     return subIndex === item.items.length - 1
-                   })
-                   .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
-                     <div key={subIndex} className="flex gap-2">
-                       <Input
-                         value={subItem}
-                         onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
-                         placeholder="Subitem Title"
-                         className="h-7 text-xs"
-                       />
-                       {subItem.trim() !== "" && (
-                         <Button 
-                           variant="ghost" 
-                           size="icon" 
-                           className="h-7 w-7"
-                           onClick={() => {
-                             const newItems = [...items]
-                             newItems[index].items.splice(subIndex, 1)
-                             updateItems(newItems)
-                           }}
-                         >
-                           <Trash2 size={12} />
-                         </Button>
-                       )}
-                     </div>
-                   ))}
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => addSubitem(index)}
-                   className="h-7 text-xs gap-1 w-full"
-                 >
-                   <Plus size={12} /> Add Subitem
-                 </Button>
-               </div>
-             )}
-           </div>
+          <div className="flex items-center gap-2">
+            <Input
+              value={item.title}
+              onChange={(e) => updateItem(index, 'title', e.target.value)}
+              placeholder="Item Title"
+              className="h-8"
+            />
+            <Button variant="ghost" size="icon" onClick={() => removeItem(index)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+              <Trash2 size={14} />
+            </Button>
+          </div>
+          <div className="border rounded-md p-3 space-y-3 bg-muted/30">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id={`submenu-${index}`}
+                checked={!!item.items}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    updateItem(index, 'items', [])
+                  } else {
+                    const newItems = [...items]
+                    delete newItems[index].items
+                    updateItems(newItems)
+                  }
+                }}
+              />
+              <Label htmlFor={`submenu-${index}`} className="text-xs font-normal text-muted-foreground">Has Submenu</Label>
+            </div>
+            {item.items && (
+              <div className="pl-4 space-y-2 border-l-2 border-muted ml-1">
+                {item.items
+                  .map((subItem: string, subIndex: number) => ({ subItem, subIndex }))
+                  .filter(({ subItem, subIndex }: { subItem: string; subIndex: number }) => {
+                    // 渲染非空的項目
+                    if (subItem.trim() !== "") return true
+                    // 如果是空項目，只有在是最後一個項目時才渲染（用於輸入新項目）
+                    return subIndex === item.items.length - 1
+                  })
+                  .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
+                    <div key={subIndex} className="flex gap-2">
+                      <Input
+                        value={subItem}
+                        onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
+                        placeholder="Subitem Title"
+                        className="h-7 text-xs"
+                      />
+                      {subItem.trim() !== "" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => {
+                            const newItems = [...items]
+                            newItems[index].items.splice(subIndex, 1)
+                            updateItems(newItems)
+                          }}
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addSubitem(index)}
+                  className="h-7 text-xs gap-1 w-full"
+                >
+                  <Plus size={12} /> Add Subitem
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={addItem} className="w-full h-8 text-xs gap-1">
@@ -834,10 +824,10 @@ const ChartDataEditor = ({ value, onChange }: { value: string, onChange: (val: s
               placeholder="Value"
               className="h-8 w-24"
             />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => removeItem(index)} 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeItem(index)}
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
               <Trash2 size={14} />
@@ -921,10 +911,10 @@ const ColorsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
               outputFormat="hex"
               defaultColor={color && /^#[0-9A-Fa-f]{6}$/.test(color) ? color : "#000000"}
             />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => removeColor(index)} 
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => removeColor(index)}
               className="h-8 w-8 text-muted-foreground hover:text-destructive"
             >
               <Trash2 size={14} />
@@ -942,7 +932,7 @@ const ColorsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
 // Features Editor for PricingCard
 const FeaturesEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
   const items = value ? value.split("\n").filter((item) => item.trim() !== "") : []
-  
+
   const updateItems = (newItems: string[]) => {
     onChange(newItems.join("\n"))
   }
@@ -993,7 +983,7 @@ const FeaturesEditor = ({ value, onChange }: { value: string, onChange: (val: st
 // Skills Editor for SkillCard (similar to FeaturesEditor)
 const SkillsEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
   const items = value ? value.split("\n").filter((item) => item.trim() !== "") : []
-  
+
   const updateItems = (newItems: string[]) => {
     onChange(newItems.join("\n"))
   }
@@ -1299,9 +1289,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <NavigationConfigEditor 
-            value={props[key] || "[]"} 
-            onChange={(val) => updateProp(key, val)} 
+          <NavigationConfigEditor
+            value={props[key] || "[]"}
+            onChange={(val) => updateProp(key, val)}
           />
           {!isLast && <Separator className="!mt-4" />}
         </div>
@@ -1313,9 +1303,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label>Tree Items</Label>
-          <TreeItemsEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <TreeItemsEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1330,9 +1320,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <SidebarNavigationEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <SidebarNavigationEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1348,8 +1338,8 @@ export function CustomizePanel({
     )
     if (sidebarSection && key.endsWith("Icons") && propConfig.type === "textarea") {
       // Use default value from metadata if current value is empty
-      const displayValue = props[key] && props[key].trim() !== "" 
-        ? props[key] 
+      const displayValue = props[key] && props[key].trim() !== ""
+        ? props[key]
         : (propConfig.default || sidebarSection.props[key]?.default || "")
       // Find corresponding items prop (e.g., overviewIcons -> overviewItems)
       const itemsKey = key.replace("Icons", "Items")
@@ -1359,8 +1349,8 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2 relative">
           <Label className="capitalize">{label}</Label>
-          <IconSelector 
-            value={displayValue} 
+          <IconSelector
+            value={displayValue}
             onChange={(val) => updateProp(key, val)}
             itemsValue={itemsValue}
           />
@@ -1378,15 +1368,15 @@ export function CustomizePanel({
     )
     if (tabbarSection && key === "items" && propConfig.type === "textarea") {
       // Use default value from metadata if current value is empty
-      const displayValue = props[key] && props[key].trim() !== "" 
-        ? props[key] 
+      const displayValue = props[key] && props[key].trim() !== ""
+        ? props[key]
         : (propConfig.default || tabbarSection.props.items?.default || "")
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <TabsEditor 
-            value={displayValue} 
-            onChange={(val) => updateProp(key, val)} 
+          <TabsEditor
+            value={displayValue}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1399,8 +1389,8 @@ export function CustomizePanel({
     // Special editor for tabbar icons prop (textarea type) - use IconSelector
     if (tabbarSection && key === "icons" && propConfig.type === "textarea") {
       // Use default value from metadata if current value is empty
-      const displayValue = props[key] && props[key].trim() !== "" 
-        ? props[key] 
+      const displayValue = props[key] && props[key].trim() !== ""
+        ? props[key]
         : (propConfig.default || tabbarSection.props.icons?.default || "")
       const itemsValue = props["items"] && props["items"].trim() !== ""
         ? props["items"]
@@ -1408,8 +1398,8 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2 relative">
           <Label className="capitalize">{label}</Label>
-          <IconSelector 
-            value={displayValue} 
+          <IconSelector
+            value={displayValue}
             onChange={(val) => updateProp(key, val)}
             itemsValue={itemsValue}
           />
@@ -1426,9 +1416,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <TabsEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <TabsEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1444,14 +1434,14 @@ export function CustomizePanel({
     )
     if (tableSection && key === "headers" && propConfig.type === "textarea") {
       // Use default value from metadata if current value is empty
-      const displayValue = props[key] && props[key].trim() !== "" 
-        ? props[key] 
+      const displayValue = props[key] && props[key].trim() !== ""
+        ? props[key]
         : (propConfig.default || tableSection.props.headers?.default || "")
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <TabsEditor 
-            value={displayValue} 
+          <TabsEditor
+            value={displayValue}
             onChange={(val) => updateProp(key, val)}
             placeholder="Header name"
             addButtonLabel="Add Header"
@@ -1469,9 +1459,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <FeaturesEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <FeaturesEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1485,9 +1475,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <SkillsEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <SkillsEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1501,9 +1491,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <ComparisonRowsEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <ComparisonRowsEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1517,9 +1507,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <RoadmapItemsEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <RoadmapItemsEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1533,9 +1523,9 @@ export function CustomizePanel({
       return (
         <div key={key} className="space-y-2">
           <Label className="capitalize">{label}</Label>
-          <HourlyForecastEditor 
-            value={props[key] || ""} 
-            onChange={(val) => updateProp(key, val)} 
+          <HourlyForecastEditor
+            value={props[key] || ""}
+            onChange={(val) => updateProp(key, val)}
           />
           {propConfig.description && (
             <p className="text-xs text-muted-foreground mt-1">{propConfig.description}</p>
@@ -1752,7 +1742,7 @@ export function CustomizePanel({
           )
           const section = tableSection || chartSection
           const propMeta = section?.props[key]
-          
+
           // Determine defaultColor: empty string for optional colors, actual color for required colors
           const defaultColor = (() => {
             if (propMeta && propMeta.default && typeof propMeta.default === 'string' && propMeta.default.trim() !== "" && propMeta.default.startsWith('#')) {
@@ -1761,7 +1751,7 @@ export function CustomizePanel({
             // If default is empty string or not a color, return empty (for optional colors)
             return ""
           })()
-          
+
           return (
             <ColorPicker
               value={props[key] || ""}
@@ -2035,7 +2025,7 @@ export function CustomizePanel({
 
     // For Badge components, use detailed grouping (similar to Card components)
     // Try to find by componentName first, then by name
-    const badgeSection = badgeSections.find((badge: { componentName: string; name: string }) => 
+    const badgeSection = badgeSections.find((badge: { componentName: string; name: string }) =>
       badge.componentName === componentName || badge.name === componentName
     )
     if (badgeSection) {
@@ -2063,24 +2053,24 @@ export function CustomizePanel({
         if (!badgeSection.props[key]) {
           return
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         else if (
-          otherStyleKeys.includes(key) || 
-          lowerKey.includes('blur') || 
-          lowerKey.includes('opacity') || 
+          otherStyleKeys.includes(key) ||
+          lowerKey.includes('blur') ||
+          lowerKey.includes('opacity') ||
           lowerKey.includes('gradient') ||
           lowerKey.includes('shadow') ||
           lowerKey.includes('speed') ||
@@ -2088,7 +2078,7 @@ export function CustomizePanel({
           (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width') || lowerKey.includes('speed') || lowerKey.includes('intensity')))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         else {
           contentProps.push(key)
         }
@@ -2110,7 +2100,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2163,27 +2153,27 @@ export function CustomizePanel({
         if (!inputSection.props[key]) {
           return
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         else if (
-          otherStyleKeys.includes(key) || 
+          otherStyleKeys.includes(key) ||
           lowerKey.includes('gradient') ||
           (propType === 'slider' && (lowerKey.includes('radius') || lowerKey.includes('width')))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         else {
           contentProps.push(key)
         }
@@ -2205,7 +2195,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2249,14 +2239,14 @@ export function CustomizePanel({
         if (!tabsSection.props[key]) {
           return
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for color props
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Content props: everything else
         else {
           contentProps.push(key)
@@ -2270,7 +2260,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2321,40 +2311,40 @@ export function CustomizePanel({
         if (!sidebarSection.props[key]) {
           return // Skip props not in metadata
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Spacing props: explicit spacing keys or keys containing spacing keywords
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         // Border props: explicit border keys or keys containing 'border' or 'radius'
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         // Other style props: explicit other style keys or keys containing style keywords
         else if (
-          otherStyleKeys.includes(key) || 
-          lowerKey.includes('blur') || 
-          lowerKey.includes('opacity') || 
+          otherStyleKeys.includes(key) ||
+          lowerKey.includes('blur') ||
+          lowerKey.includes('opacity') ||
           lowerKey.includes('gradient') ||
           lowerKey.includes('shadow') ||
           (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width')))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
         else {
           contentProps.push(key)
         }
       })
-      
+
       // Debug: Log if no props were found
       if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
         console.warn(`Sidebar ${componentName}: No props found in config.props that match sidebarSection.props.`, {
@@ -2379,7 +2369,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2405,7 +2395,7 @@ export function CustomizePanel({
             allProps.push(key)
           }
         })
-        
+
         if (allProps.length > 0) {
           tabs.push({ name: "general", label: "General", keys: allProps })
         } else {
@@ -2460,45 +2450,45 @@ export function CustomizePanel({
         if (!tabbarSection.props[key]) {
           return // Skip props not in metadata
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Spacing props: explicit spacing keys or keys containing spacing keywords
         // But exclude 'className' which should always be in content
         else if (key !== 'className' && spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         // Border props: explicit border keys or keys containing 'border' or 'radius'
         // But exclude 'className' which should always be in content
         else if (key !== 'className' && (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius'))) {
           borderProps.push(key)
-        } 
+        }
         // Other style props: explicit other style keys or keys containing style keywords
         // But exclude 'className' which should always be in content
         else if (
           key !== 'className' &&
-          (otherStyleKeys.includes(key) || 
-          lowerKey.includes('blur') || 
-          lowerKey.includes('opacity') || 
-          lowerKey.includes('gradient') ||
-          lowerKey.includes('shadow') ||
-          (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width'))))
+          (otherStyleKeys.includes(key) ||
+            lowerKey.includes('blur') ||
+            lowerKey.includes('opacity') ||
+            lowerKey.includes('gradient') ||
+            lowerKey.includes('shadow') ||
+            (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width'))))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
         // This includes className and any other non-style props
         else {
           contentProps.push(key)
         }
       })
-      
+
       // Debug: Log if no props were found
       if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
         console.warn(`Tabbar ${componentName}: No props found in config.props that match tabbarSection.props.`, {
@@ -2523,16 +2513,16 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Always create Content tab if there are any content props, even if it's just className
       // Collect all props that should be in content (including className)
       const allContentProps = [...contentProps]
-      
+
       // Ensure className is always in content if it exists in props and metadata
       if (config.props.className && tabbarSection.props.className && !allContentProps.includes('className')) {
         allContentProps.push('className')
       }
-      
+
       // Content tab - always show if there are content props
       if (allContentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: allContentProps })
@@ -2558,7 +2548,7 @@ export function CustomizePanel({
             allProps.push(key)
           }
         })
-        
+
         if (allProps.length > 0) {
           tabs.push({ name: "general", label: "General", keys: allProps })
         } else {
@@ -2615,38 +2605,38 @@ export function CustomizePanel({
         if (!tableSection.props[key]) {
           return // Skip props not in metadata
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Spacing props: explicit spacing keys or keys containing spacing keywords
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         // Border props: explicit border keys or keys containing 'border' or 'radius'
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         // Other style props: explicit other style keys or keys containing style keywords
         else if (
-          otherStyleKeys.includes(key) || 
+          otherStyleKeys.includes(key) ||
           lowerKey.includes('hover') ||
           lowerKey.includes('count') ||
           (propType === 'boolean' && (lowerKey.includes('show') || lowerKey.includes('hover')))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
         else {
           contentProps.push(key)
         }
       })
-      
+
       // Debug: Log if no props were found
       if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
         console.warn(`Table ${componentName}: No props found in config.props that match tableSection.props.`, {
@@ -2671,7 +2661,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2736,10 +2726,10 @@ export function CustomizePanel({
         if (!chartSection.props[key]) {
           return // Skip props not in metadata
         }
-        
+
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for content props first (these should always be in content tab)
         if (contentKeys.includes(key)) {
           contentProps.push(key)
@@ -2748,19 +2738,19 @@ export function CustomizePanel({
         // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
         else if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Spacing props: explicit spacing keys or keys containing spacing keywords
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         // Border props: explicit border keys or keys containing 'border' or 'radius'
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         // Other style props: explicit other style keys or keys containing style keywords
         // But exclude contentKeys (showXAxis, showYAxis, etc.) from style props
         else if (
-          otherStyleKeys.includes(key) || 
+          otherStyleKeys.includes(key) ||
           (lowerKey.includes('radius') && !contentKeys.includes(key)) ||
           (lowerKey.includes('width') && !contentKeys.includes(key)) ||
           (lowerKey.includes('height') && !contentKeys.includes(key)) ||
@@ -2770,13 +2760,13 @@ export function CustomizePanel({
           (propType === 'slider' && (lowerKey.includes('radius') || lowerKey.includes('width') || lowerKey.includes('height')) && !contentKeys.includes(key))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
         else {
           contentProps.push(key)
         }
       })
-      
+
       // Debug: Log if no props were found
       if (contentProps.length === 0 && colorProps.length === 0 && spacingProps.length === 0 && borderProps.length === 0 && otherStyleProps.length === 0) {
         console.warn(`Chart ${componentName}: No props found in config.props that match chartSection.props.`, {
@@ -2801,7 +2791,7 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab
       if (contentProps.length > 0) {
         tabs.push({ name: "content", label: "Content", keys: contentProps })
@@ -2830,15 +2820,15 @@ export function CustomizePanel({
 
     // For Card components, use detailed grouping
     // Try to find by componentName first, then by name
-    const cardSection = cardSections.find((card: { componentName: string; name: string }) => 
+    const cardSection = cardSections.find((card: { componentName: string; name: string }) =>
       card.componentName === componentName || card.name === componentName
     )
     if (cardSection) {
       // Define style-related keys
       const colorKeys = [
-        'backgroundColor', 'borderColor', 'textColor', 'linkColor', 'accentColor', 
-        'buttonColor', 'overlayColor', 'glowColor1', 'glowColor2', 'revealColor', 
-        'statusColor', 'categoryColor', 'badgeColor', 'iconColor', 'gradientFrom', 
+        'backgroundColor', 'borderColor', 'textColor', 'linkColor', 'accentColor',
+        'buttonColor', 'overlayColor', 'glowColor1', 'glowColor2', 'revealColor',
+        'statusColor', 'categoryColor', 'badgeColor', 'iconColor', 'gradientFrom',
         'gradientTo', 'bannerGradientFrom', 'bannerGradientVia', 'bannerGradientTo',
         'cardGradientFrom', 'cardGradientTo', 'outerGradientFrom', 'outerGradientTo'
       ]
@@ -2859,31 +2849,31 @@ export function CustomizePanel({
       Object.entries(config.props).forEach(([key, propConfig]) => {
         const lowerKey = key.toLowerCase()
         const propType = propConfig.type
-        
+
         // Check for style props first
         // Color props: explicit color keys or keys containing 'color', or prop type is 'color'
         if (colorKeys.includes(key) || lowerKey.includes('color') || propType === 'color') {
           colorProps.push(key)
-        } 
+        }
         // Spacing props: explicit spacing keys or keys containing spacing keywords
         else if (spacingKeys.some(k => lowerKey.includes(k))) {
           spacingProps.push(key)
-        } 
+        }
         // Border props: explicit border keys or keys containing 'border' or 'radius'
         else if (borderKeys.some(k => lowerKey.includes(k)) || lowerKey.includes('border') || lowerKey.includes('radius')) {
           borderProps.push(key)
-        } 
+        }
         // Other style props: explicit other style keys or keys containing style keywords, or slider/number props that are style-related
         else if (
-          otherStyleKeys.includes(key) || 
-          lowerKey.includes('blur') || 
-          lowerKey.includes('opacity') || 
+          otherStyleKeys.includes(key) ||
+          lowerKey.includes('blur') ||
+          lowerKey.includes('opacity') ||
           lowerKey.includes('gradient') ||
           lowerKey.includes('shadow') ||
           (propType === 'slider' && (lowerKey.includes('opacity') || lowerKey.includes('blur') || lowerKey.includes('width')))
         ) {
           otherStyleProps.push(key)
-        } 
+        }
         // Content props: everything else (text, textarea, number, boolean, select that aren't style-related)
         else {
           contentProps.push(key)
@@ -2906,11 +2896,11 @@ export function CustomizePanel({
       }
 
       const tabs = []
-      
+
       // Content tab with subcategories for special cards
       if (contentProps.length > 0) {
         const contentSubcategories: Array<{ name: string; label: string; keys: string[] }> = []
-        
+
         // Special handling for specific cards
         if (componentName === "PricingCard") {
           const featuresKey = contentProps.find(k => k === "features")
@@ -3058,7 +3048,7 @@ export function CustomizePanel({
     // Generic grouping for Hero sections and other components
     const contentProps: string[] = []
     const elementsPropsMap: Record<string, string[]> = {}
-    
+
     // Sub-component prefixes to identify properties belonging to specific elements
     const elementPrefixes = [
       { prefix: 'button', group: 'Button' },
@@ -3081,11 +3071,11 @@ export function CustomizePanel({
       { prefix: 'link', group: 'Navbar' },
       { prefix: 'menu', group: 'Navbar' },
     ]
-    
+
     // Separate maps for Navbar and Submenu
     const navbarProps: string[] = []
     const submenuProps: string[] = []
-    
+
     // Style subcategories
     const stylePropsMap: Record<string, string[]> = {
       spacing: [],
@@ -3099,30 +3089,30 @@ export function CustomizePanel({
 
     Object.keys(config.props).forEach((key) => {
       const lowerKey = key.toLowerCase()
-      
+
       // Special case: navigationConfig stays in Content tab
       if (key === 'navigationConfig') {
         contentProps.push(key)
         return
       }
-      
+
       // Special case: navInteractionMode and navbar props (nav*, link*, menu* but not submenu*)
       if (key === 'navInteractionMode' || (key.startsWith('nav') && !key.startsWith('submenu'))) {
         navbarProps.push(key)
         return
       }
-      
+
       // Special case: submenu props go to Submenu
       if (key.startsWith('submenu')) {
         submenuProps.push(key)
         return
       }
-      
+
       // 1. Check for Elements first
       // But exclude some common content keys that might accidentally match like 'icon' in 'showIcon' if we are not careful
       // We should check if it STARTS with the prefix.
       const elementMatch = elementPrefixes.find(item => key.startsWith(item.prefix))
-      
+
       // Special case: don't capture "show..." props into elements unless it's style related? 
       // Actually "showPill" usually goes to Content. 
       // Let's exclude "show" prefixes from elements grouping to keep them in Content.
@@ -3132,7 +3122,7 @@ export function CustomizePanel({
         elementsPropsMap[groupName].push(key)
         return
       }
-      
+
       // Helper to check containment
       const matches = (keywords: string[]) => keywords.some(k => lowerKey.includes(k))
 
@@ -3158,9 +3148,9 @@ export function CustomizePanel({
       if (
         matches(['font', 'lineheight', 'letterspacing']) ||
         (matches(['text']) && matches(['size', 'align', 'decoration', 'transform', 'indent', 'overflow', 'weight', 'style']))
-      ) { 
-         stylePropsMap.typography.push(key)
-         return
+      ) {
+        stylePropsMap.typography.push(key)
+        return
       }
 
       // Animation
@@ -3209,14 +3199,14 @@ export function CustomizePanel({
     if (elementsPropsMap['Navbar']) {
       delete elementsPropsMap['Navbar']
     }
-    
+
     // Create element subcategories
     const elementSubcategories = Object.entries(elementsPropsMap).map(([name, keys]) => ({
       name: name.toLowerCase(),
       label: name,
       keys
     }))
-    
+
     // Add Navbar and Submenu as separate subcategories if they have props
     if (navbarProps.length > 0) {
       elementSubcategories.push({
@@ -3241,12 +3231,12 @@ export function CustomizePanel({
     if (contentProps.length > 0) {
       tabs.push({ name: "content", label: "Content", keys: contentProps })
     }
-    
+
     if (hasStyleProps) {
-      tabs.push({ 
-        name: "style", 
-        label: "Style", 
-        keys: [], 
+      tabs.push({
+        name: "style",
+        label: "Style",
+        keys: [],
         subcategories: styleSubcategories
       })
     }
@@ -3305,13 +3295,15 @@ export function CustomizePanel({
   if (grouping.type === "tabs" && grouping.tabs) {
     return (
       <Tabs defaultValue={grouping.tabs[0]?.name || "general"} className="w-full">
-        <TabsList className="grid w-full grid-flow-col auto-cols-fr h-auto">
-          {grouping.tabs.map((tab) => (
-            <TabsTrigger key={tab.name} value={tab.name} className="whitespace-normal h-full py-2">
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="sticky top-0 z-10 bg-background pb-4">
+          <TabsList className="grid w-full grid-flow-col auto-cols-fr h-auto">
+            {grouping.tabs.map((tab) => (
+              <TabsTrigger key={tab.name} value={tab.name} className="whitespace-normal h-full py-2">
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
         {grouping.tabs.map((tab) => (
           <TabsContent key={tab.name} value={tab.name} className="space-y-4 mt-4">
             {tab.subcategories && tab.subcategories.length > 0 ? (
@@ -3319,9 +3311,9 @@ export function CustomizePanel({
                 <div className="overflow-x-auto pb-2 -mx-1 px-1">
                   <TabsList className="inline-flex h-9 items-center justify-start rounded-lg bg-muted p-1 w-auto min-w-full">
                     {tab.subcategories.map((sub) => (
-                      <TabsTrigger 
-                        key={sub.name} 
-                        value={sub.name} 
+                      <TabsTrigger
+                        key={sub.name}
+                        value={sub.name}
                         className="text-xs px-3 py-1 h-7 flex-1 whitespace-nowrap"
                       >
                         {sub.label}

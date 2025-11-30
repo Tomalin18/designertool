@@ -24,6 +24,7 @@ export interface TableSectionMeta {
   description: string
   tags: string[]
   props: Record<string, TablePropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for all tables

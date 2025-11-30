@@ -24,6 +24,7 @@ export interface ChartSectionMeta {
   description: string
   tags: string[]
   props: Record<string, ChartPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for all charts

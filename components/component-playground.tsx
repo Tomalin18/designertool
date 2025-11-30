@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Copy, Check, Settings2 } from 'lucide-react'
+import { Copy, Check, Settings2, X } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -3134,6 +3134,15 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     const tabbarMetaBySlug = tabbarSections.find(t => t.slug === slug)
     if (tabbarMetaBySlug) {
       tabbarMeta = tabbarNameToMeta[tabbarMetaBySlug.name]
+    }
+  }
+
+  // For sheet components, find by slug if not found by componentName
+  let sheetMeta = sheetNameToMeta[actualComponentName]
+  if (!sheetMeta) {
+    const sheetMetaBySlug = sheetSections.find(s => s.slug === slug)
+    if (sheetMetaBySlug) {
+      sheetMeta = sheetNameToMeta[sheetMetaBySlug.name]
     }
   }
 
@@ -7331,9 +7340,33 @@ export default function ${componentName}Example() {
     )
   }
 
+  const CustomizePanelContent = () => (
+    <div className="h-full flex flex-col">
+      <div className="p-6 pr-14 border-b sticky top-0 bg-background z-10 flex items-center justify-between">
+        <h3 className="font-semibold text-lg">Customize</h3>
+        <Button variant="ghost" size="icon" onClick={() => setShowSidebar(false)} className="h-8 w-8">
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="overflow-y-auto flex-1">
+        <div className="p-6">
+          {config && (
+            <CustomizePanel
+              componentName={actualComponentName}
+              props={props}
+              config={config}
+              updateProp={updateProp}
+              groupingConfig={buttonMeta?.groupingConfig || badgeMeta?.groupingConfig || inputMeta?.groupingConfig || tabsMeta?.groupingConfig || sidebarMeta?.groupingConfig || tabbarMeta?.groupingConfig || sheetMeta?.groupingConfig || tableMeta?.groupingConfig || chartMeta?.groupingConfig}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
-    <div className="relative w-full">
-      <div className="flex flex-col gap-6 min-w-0 w-full">
+    <div className="flex w-full items-start gap-6">
+      <div className="flex-1 min-w-0 flex flex-col gap-6">
         <div className="relative flex items-center justify-center p-4 md:p-8" ref={playgroundRef} data-playground>
           {config && config.render ? (
             (() => {
@@ -7371,7 +7404,7 @@ export default function ${componentName}Example() {
               )}
             </div>
           )}
-          {!showSidebar && (
+          {(!showSidebar || isMobile) && (
             <>
               {/* Floating button: 所有尺寸都使用相同的浮動按鈕樣式 */}
               <Button
@@ -7506,35 +7539,31 @@ export default function ${componentName}Example() {
         })()}
       </div>
 
-      <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
-        <SheetContent
-          className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0"
-          side="right"
-          offsetTop={56}
-          onInteractOutside={(e) => {
-            // 在 mobile 上允許點擊外部關閉，在 desktop 上阻止
-            if (isMobile) {
-              return
-            }
-            e.preventDefault()
-          }}
-        >
-          <SheetHeader className="p-6 pr-14 border-b sticky top-0 bg-background z-10">
-            <SheetTitle>Customize</SheetTitle>
-          </SheetHeader>
-          <div className="p-6">
-            {config && (
-              <CustomizePanel
-                componentName={actualComponentName}
-                props={props}
-                config={config}
-                updateProp={updateProp}
-                groupingConfig={buttonMeta?.groupingConfig}
-              />
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
+      {!isMobile && showSidebar && (
+        <div className="w-[400px] shrink-0 border-l bg-background h-[calc(100vh-8rem)] sticky top-20 overflow-hidden rounded-lg border shadow-sm">
+          <CustomizePanelContent />
+        </div>
+      )}
+
+      {isMobile && (
+        <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
+          <SheetContent
+            className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0"
+            side="right"
+            offsetTop={56}
+            showCloseButton={false}
+            onInteractOutside={(e) => {
+              // 在 mobile 上允許點擊外部關閉，在 desktop 上阻止
+              if (isMobile) {
+                return
+              }
+              e.preventDefault()
+            }}
+          >
+            <CustomizePanelContent />
+          </SheetContent>
+        </Sheet>
+      )}
     </div>
   )
 }

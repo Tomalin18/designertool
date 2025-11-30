@@ -24,6 +24,7 @@ export interface InputSectionMeta {
   description: string
   tags: string[]
   props: Record<string, InputPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for all inputs (without backgroundColor and textColor - add them only where needed)
