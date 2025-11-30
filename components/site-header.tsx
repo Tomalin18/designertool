@@ -37,6 +37,16 @@ const navigation = [
   // { name: "Playground", href: "/playground" },
 ]
 
+const hexToRgb = (hex: string): string | undefined => {
+  if (!hex) return undefined
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) return hex
+  const r = parseInt(result[1], 16)
+  const g = parseInt(result[2], 16)
+  const b = parseInt(result[3], 16)
+  return `rgb(${r} ${g} ${b})`
+}
+
 export function SiteHeader() {
   const pathname = usePathname()
   const router = useRouter()
@@ -45,6 +55,7 @@ export function SiteHeader() {
   const [mounted, setMounted] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark')
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -64,6 +75,7 @@ export function SiteHeader() {
     }
 
     const currentMode = getCurrentThemeMode()
+    setResolvedTheme(currentMode === "dark" ? "dark" : "light")
     const colors = currentMode === "dark" ? colorPalette.dark : colorPalette.light
 
     // Create or update style element for the animation
@@ -104,6 +116,7 @@ export function SiteHeader() {
       mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
       mediaQueryHandler = () => {
         const mode = mediaQuery!.matches ? "dark" : "light"
+        setResolvedTheme(mode === "dark" ? "dark" : "light")
         const updatedColors = mode === "dark" ? colorPalette.dark : colorPalette.light
         styleElement!.textContent = `
           @keyframes headerNavColorCycle {
@@ -138,6 +151,23 @@ export function SiteHeader() {
 
   // Only apply animation class after mount to avoid hydration mismatch
   const shouldAnimate = mounted && colorPalette
+  const paletteColors = colorPalette && mounted
+    ? (resolvedTheme === "dark" ? colorPalette.dark : colorPalette.light)
+    : null
+
+  const toRgb = (color: string | undefined, fallback: string) => {
+    if (!color || color.trim() === "") return fallback
+    return color.startsWith("rgb") ? color : (hexToRgb(color) || color)
+  }
+
+  const activeNavColor = toRgb(
+    paletteColors?.[0],
+    resolvedTheme === "dark" ? "rgb(255 255 255)" : "rgb(23 23 23)"
+  )
+  const inactiveNavColor = toRgb(
+    paletteColors?.[3],
+    resolvedTheme === "dark" ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.6)"
+  )
 
   return (
     <>
@@ -149,7 +179,7 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center gap-6 text-2xl">
+          <nav className="hidden md:flex items-baseline gap-6">
             {navigation.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
               return (
@@ -157,14 +187,19 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "transition-colors hover:text-foreground/80",
-                    isActive
-                      ? "text-foreground font-medium"
-                      : "text-foreground/60",
-                    shouldAnimate && "header-nav-animated"
+                    "font-black leading-none transition-all duration-300",
+                    isActive ? "text-3xl scale-105" : "text-xl hover:scale-105"
                   )}
+                  style={
+                    mounted
+                      ? {
+                          color: isActive ? activeNavColor : inactiveNavColor,
+                        }
+                      : undefined
+                  }
+                  aria-current={isActive ? "page" : undefined}
                 >
-                  {item.name}
+                  {item.name}.
                 </Link>
               )
             })}
@@ -229,12 +264,36 @@ export function SiteHeader() {
                         </Avatar>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
+                        <div className="flex items-center gap-2">
                           <p className="text-sm font-medium leading-none">
-                            {user.user_metadata?.full_name || 'Not set'}
+                            {user.user_metadata?.full_name || 'Not Set'}
                           </p>
+                          <span
+                            className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide",
+                              (user.user_metadata as any)?.plan === "pro" ||
+                                (user.user_metadata as any)?.plan === "paid" ||
+                                (user.user_metadata as any)?.tier === "pro" ||
+                                (user.user_metadata as any)?.tier === "paid" ||
+                                (user.user_metadata as any)?.membership === "pro" ||
+                                (user.user_metadata as any)?.membership === "paid"
+                                ? "bg-green-500/20 text-green-300"
+                                : "bg-neutral-500/20 text-neutral-200"
+                            )}
+                          >
+                            {((user.user_metadata as any)?.plan === "pro" ||
+                              (user.user_metadata as any)?.plan === "paid" ||
+                              (user.user_metadata as any)?.tier === "pro" ||
+                              (user.user_metadata as any)?.tier === "paid" ||
+                              (user.user_metadata as any)?.membership === "pro" ||
+                              (user.user_metadata as any)?.membership === "paid")
+                              ? "Pro Member"
+                              : "Free Plan"}
+                          </span>
+                        </div>
                           <p className="text-xs leading-none text-muted-foreground">
                             {user.email}
                           </p>
