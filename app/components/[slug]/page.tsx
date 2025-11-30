@@ -1207,7 +1207,13 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               <TagsList tags={component.tags} defaultVisible={10} />
             )}
           </div>
-          <div className="w-full">
+        </div>
+
+        <ComponentPlayground
+          componentName={component.name}
+          slug={slug}
+          initialCode={initialCode}
+          navigationSlot={
             <ComponentNavigation
               currentSlug={slug}
               heroMeta={heroMeta}
@@ -1228,14 +1234,9 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               tableMeta={tableMeta}
               chartMeta={chartMeta}
               componentCategory={component?.category}
+              className="mt-0 border-t-0 border-b pb-4 pt-0"
             />
-          </div>
-        </div>
-
-        <ComponentPlayground
-          componentName={component.name}
-          slug={slug}
-          initialCode={initialCode}
+          }
         />
       </div>
     </div>
