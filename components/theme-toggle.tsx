@@ -7,11 +7,32 @@ import { Switch } from "./ui/switch"
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light")
 
   // 避免 hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const resolveTheme = () => {
+      if (theme === "system") {
+        setResolvedTheme(mediaQuery.matches ? "dark" : "light")
+      } else {
+        setResolvedTheme(theme)
+      }
+    }
+
+    resolveTheme()
+
+    if (theme === "system") {
+      mediaQuery.addEventListener("change", resolveTheme)
+      return () => mediaQuery.removeEventListener("change", resolveTheme)
+    }
+  }, [theme, mounted])
 
   if (!mounted) {
     // 服務器端渲染時返回一個佔位符，避免 hydration mismatch
@@ -24,7 +45,7 @@ export function ThemeToggle() {
     )
   }
 
-  const isDark = theme === "dark"
+  const isDark = resolvedTheme === "dark"
 
   return (
     <div className="flex items-center gap-2">

@@ -66,7 +66,7 @@ export function ColorsPageClient() {
     }
 
     return (
-        <div className="flex flex-col md:flex-row container flex-1 items-start md:grid md:grid-cols-[280px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
+        <div className="w-full flex-1 items-start md:grid md:grid-cols-[280px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
             <style jsx global>{`
         .color-themed-switch[data-state="checked"] {
           background-color: ${selectedPalette.light[0]} !important;
