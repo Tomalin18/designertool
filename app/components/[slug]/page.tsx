@@ -1184,67 +1184,60 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const defaultExpanded = getDefaultExpanded()
 
   return (
-    <div className="container flex-1 items-start md:grid md:grid-cols-[220px_1fr_400px] md:gap-6 lg:grid-cols-[240px_1fr_400px] lg:gap-10 px-4 md:px-6 lg:px-8">
-      {/* Left Sidebar */}
+    <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10 px-4 md:px-6 lg:px-8">
       <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
         <div className="py-6 pl-6 pr-6 lg:py-8 lg:pl-8">
           <SidebarNav items={sidebarItems} defaultExpanded={defaultExpanded} />
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="py-8 md:py-12 w-full min-w-0">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-6 flex flex-col items-center md:items-start">
-            <div className="w-full">
-              <BackToComponentsButton
-                href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
-                isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
-              />
-              <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
-                {component.category}
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight mb-2">{component.name}</h1>
-              <p className="text-muted-foreground mb-4">{component.description}</p>
-              {component.tags && component.tags.length > 0 && (
-                <TagsList tags={component.tags} defaultVisible={10} />
-              )}
+      <div className="py-8 md:py-12 w-full">
+        <div className="mb-6 flex flex-col items-center md:items-start">
+          <div className="w-full">
+            <BackToComponentsButton
+              href={heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta ? "/components?tab=section" : "/components"}
+              isSection={!!(heroMeta || featureMeta || paymentMeta || ctaMeta || footerMeta || headerMeta)}
+            />
+            <div className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold mb-3">
+              {component.category}
             </div>
-            <div className="w-full">
-              <ComponentNavigation
-                currentSlug={slug}
-                heroMeta={heroMeta}
-                featureMeta={featureMeta}
-                paymentMeta={paymentMeta}
-                ctaMeta={ctaMeta}
-                footerMeta={footerMeta}
-                headerMeta={headerMeta}
-                buttonMeta={buttonMeta}
-                cardMeta={cardMeta}
-                badgeMeta={badgeMeta}
-                inputMeta={inputMeta}
-                toggleMeta={toggleMeta}
-                tabsMeta={tabsMeta}
-                sidebarMeta={sidebarMeta}
-                tabbarMeta={tabbarMeta}
-                sheetMeta={sheetMeta}
-                tableMeta={tableMeta}
-                chartMeta={chartMeta}
-
-              />
-            </div>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">{component.name}</h1>
+            <p className="text-muted-foreground mb-4">{component.description}</p>
+            {component.tags && component.tags.length > 0 && (
+              <TagsList tags={component.tags} defaultVisible={10} />
+            )}
           </div>
+          <div className="w-full">
+            <ComponentNavigation
+              currentSlug={slug}
+              heroMeta={heroMeta}
+              featureMeta={featureMeta}
+              paymentMeta={paymentMeta}
+              ctaMeta={ctaMeta}
+              footerMeta={footerMeta}
+              headerMeta={headerMeta}
+              buttonMeta={buttonMeta}
+              cardMeta={cardMeta}
+              badgeMeta={badgeMeta}
+              inputMeta={inputMeta}
+              toggleMeta={toggleMeta}
+              tabsMeta={tabsMeta}
+              sidebarMeta={sidebarMeta}
+              tabbarMeta={tabbarMeta}
+              sheetMeta={sheetMeta}
+              tableMeta={tableMeta}
+              chartMeta={chartMeta}
 
-          <ComponentPlayground
-            componentName={component.name}
-            slug={slug}
-            initialCode={initialCode}
-          />
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Right Customize Panel Placeholder - hidden on mobile, visible on desktop */}
-      <div className="hidden md:block" />
+        <ComponentPlayground
+          componentName={component.name}
+          slug={slug}
+          initialCode={initialCode}
+        />
+      </div>
     </div>
   )
 }
