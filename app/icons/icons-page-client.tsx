@@ -570,7 +570,7 @@ export function IconsPageClient() {
     const filteredIconCount = Object.values(filteredCategories).flat().length
 
     return (
-        <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)]">
+        <div className="w-full flex-1 items-start md:grid md:grid-cols-[260px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10 px-4 md:px-8">
             {/* Mobile: Top horizontal scroll */}
             <div className="md:hidden border-b bg-card">
                 <div className="p-4 space-y-4">
