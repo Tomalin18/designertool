@@ -351,23 +351,27 @@ export const FloatingTabs = ({
     : "#171717";
 
   return (
-    <div className={cn("relative w-full max-w-lg", className)}>
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-800 p-1.5 shadow-2xl backdrop-blur-md" style={{ backgroundColor: bgRgb }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActive(tab)}
-            className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-800",
-              active === tab ? "bg-neutral-800 text-white" : "text-neutral-400"
-            )}
-            style={active === tab && activeRgb ? { backgroundColor: activeRgb } : undefined}
-          >
-            {tab}
-          </button>
-        ))}
+    <div className={cn("w-full max-w-lg", className)}>
+      <div className="relative h-48 w-full rounded-2xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50">
+        <div
+          className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-800 p-1.5 shadow-2xl backdrop-blur-md"
+          style={{ backgroundColor: bgRgb }}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActive(tab)}
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-800",
+                active === tab ? "bg-neutral-800 text-white" : "text-neutral-400"
+              )}
+              style={active === tab && activeRgb ? { backgroundColor: activeRgb } : undefined}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="h-48 w-full rounded-2xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50" />
     </div>
   );
 };

@@ -580,7 +580,10 @@ export const ChatInterface = ({
               }}
             >
                 {footerShowAttach && (
-                    <button className="text-neutral-500 hover:text-neutral-300"><Paperclip size={20} /></button>
+                    <button type="button" className="text-neutral-500 hover:text-neutral-300">
+                      <Paperclip size={20} />
+                      <span className="sr-only">Attach file</span>
+                    </button>
                 )}
                 <input 
                     type="text" 
@@ -588,14 +591,19 @@ export const ChatInterface = ({
                     className="flex-1 bg-transparent text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none"
                 />
                 {footerShowEmoji && (
-                    <button className="text-neutral-500 hover:text-neutral-300"><Smile size={20} /></button>
+                    <button type="button" className="text-neutral-500 hover:text-neutral-300">
+                      <Smile size={20} />
+                      <span className="sr-only">Insert emoji</span>
+                    </button>
                 )}
                 <button 
-                  className={cn("rounded-lg p-2 text-white shadow-lg shadow-indigo-500/20 hover:opacity-90 transition-colors")}
+                  type="button"
+                  className="rounded-lg p-2 text-white shadow-lg shadow-indigo-500/20 hover:opacity-90 transition-colors"
                   style={{
                     backgroundColor: getColorFromTailwind(footerButtonColor),
                   }}
                 >
+                    <span className="sr-only">Send message</span>
                     <Send size={16} />
                 </button>
             </div>

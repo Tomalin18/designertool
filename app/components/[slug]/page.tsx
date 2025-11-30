@@ -1227,7 +1227,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               sheetMeta={sheetMeta}
               tableMeta={tableMeta}
               chartMeta={chartMeta}
-
+              componentCategory={component?.category}
             />
           </div>
         </div>

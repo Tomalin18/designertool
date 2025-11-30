@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { componentsData } from "@/lib/components-data"
 import { heroSections } from "@/lib/hero-sections"
 import { featureSections } from "@/lib/feature-sections"
 import { paymentSections } from "@/lib/payment-sections"
@@ -47,6 +48,7 @@ interface ComponentNavigationProps {
   sheetMeta?: typeof sheetSections[number]
   tableMeta?: typeof tableSections[number]
   chartMeta?: typeof chartSections[number]
+  componentCategory?: string
 }
 
 export function ComponentNavigation({
@@ -68,6 +70,7 @@ export function ComponentNavigation({
   sheetMeta,
   tableMeta,
   chartMeta,
+  componentCategory,
 }: ComponentNavigationProps) {
   const router = useRouter()
   const { user, loading } = useAuth()
@@ -89,7 +92,7 @@ export function ComponentNavigation({
 
   // Determine which section array to use
   let currentSection: any
-  let sectionArray: any[]
+  let sectionArray: Array<{ slug: string; name: string }>
   let sectionCategory: string | undefined
 
   if (heroMeta) {
@@ -161,7 +164,25 @@ export function ComponentNavigation({
     sectionArray = chartSections
     sectionCategory = "Chart"
   } else {
-    return null
+    // Fallback: use general components list (e.g. media player, accordion)
+    const normalizedCategory = componentCategory ?? null
+    const fallbackEntries = componentsData
+      .filter((component) => {
+        if (!component.href.startsWith("/components/")) return false
+        return normalizedCategory ? component.category === normalizedCategory : true
+      })
+      .map((component) => ({
+        slug: component.href.replace("/components/", ""),
+        name: component.name,
+      }))
+
+    const fallbackIndex = fallbackEntries.findIndex((item) => item.slug === currentSlug)
+    if (fallbackIndex === -1) {
+      return null
+    }
+
+    sectionArray = fallbackEntries
+    sectionCategory = normalizedCategory ?? "Component"
   }
 
   // Find current index
