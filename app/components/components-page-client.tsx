@@ -35,6 +35,9 @@ import { isComponentPremium } from "@/lib/component-access"
 // Lazy load heavy components
 const ComponentPreview = dynamic(() => import("@/components/component-preview").then(mod => mod.ComponentPreview), { ssr: false })
 
+const ITEMS_PER_BATCH = 8
+const SECTION_BATCH_SIZE = 8
+
 export function ComponentsPageClient() {
     const searchParams = useSearchParams()
     const router = useRouter()
@@ -247,6 +250,50 @@ export function ComponentsPageClient() {
         return matchesCategory && matchesSearch
     })
 
+    const [visibleComponentCount, setVisibleComponentCount] = useState(ITEMS_PER_BATCH)
+    const loadMoreComponentsRef = useRef<HTMLDivElement | null>(null)
+    const [visibleSectionCount, setVisibleSectionCount] = useState(SECTION_BATCH_SIZE)
+    const loadMoreSectionsRef = useRef<HTMLDivElement | null>(null)
+
+    // Reset visible count whenever filters/tab change
+    useEffect(() => {
+        setVisibleComponentCount(ITEMS_PER_BATCH)
+    }, [componentsSearch, selectedCustomCategory, activeTab])
+
+    useEffect(() => {
+        setVisibleSectionCount(SECTION_BATCH_SIZE)
+    }, [sectionSearch, activeTab, categoryFromUrl])
+
+    // Infinite scroll observer for components tab
+    useEffect(() => {
+        if (activeTab !== "components") return
+        const sentinel = loadMoreComponentsRef.current
+        if (!sentinel) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0]
+                if (entry.isIntersecting) {
+                    setVisibleComponentCount((prev) => {
+                        if (prev >= filteredCustomComponents.length) return prev
+                        return Math.min(prev + ITEMS_PER_BATCH, filteredCustomComponents.length)
+                    })
+                }
+            },
+            {
+                rootMargin: "200px",
+            }
+        )
+
+        observer.observe(sentinel)
+
+        return () => {
+            observer.disconnect()
+        }
+    }, [filteredCustomComponents.length, activeTab])
+
+    const visibleCustomComponents = filteredCustomComponents.slice(0, visibleComponentCount)
+
     // Category mapping for section types
     const sectionCategoryMap: Record<string, string> = {
         "Header": "header",
@@ -376,6 +423,35 @@ export function ComponentsPageClient() {
             type: 'button' as const,
         })),
     ]
+
+    const visibleSectionSlugs = new Set(
+        allFilteredSections.slice(0, visibleSectionCount).map((section) => section.slug)
+    )
+
+    useEffect(() => {
+        if (activeTab !== "section") return
+        const sentinel = loadMoreSectionsRef.current
+        if (!sentinel) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0]
+                if (entry.isIntersecting) {
+                    setVisibleSectionCount((prev) => {
+                        if (prev >= allFilteredSections.length) return prev
+                        return Math.min(prev + SECTION_BATCH_SIZE, allFilteredSections.length)
+                    })
+                }
+            },
+            { rootMargin: "200px" }
+        )
+
+        observer.observe(sentinel)
+
+        return () => {
+            observer.disconnect()
+        }
+    }, [allFilteredSections.length, activeTab])
 
     // Calculate tag frequency from sections
     const sectionTagFrequency = new Map<string, number>()
@@ -922,9 +998,9 @@ export function ComponentsPageClient() {
                         </div>
 
                         {/* Custom Components */}
-                        {filteredCustomComponents.length > 0 ? (
+                        {visibleCustomComponents.length > 0 ? (
                             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                {filteredCustomComponents.map((component) => (
+                                {visibleCustomComponents.map((component) => (
                                     <ComponentPreview key={component.name} {...component} />
                                 ))}
                             </div>
@@ -932,6 +1008,11 @@ export function ComponentsPageClient() {
                             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
                                 <p className="text-lg font-medium mb-2">Your Custom Components</p>
                                 <p className="text-sm text-muted-foreground">Custom components you create will appear here</p>
+                            </div>
+                        )}
+                        {filteredCustomComponents.length > visibleComponentCount && (
+                            <div ref={loadMoreComponentsRef} className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+                                Loading more components…
                             </div>
                         )}
                     </TabsContent>
@@ -1006,109 +1087,127 @@ export function ComponentsPageClient() {
                         {allFilteredSections.length > 0 ? (
                             <div className="relative">
                                 {/* Header Sections */}
-                                {filteredHeaderSections.length > 0 && (
+                                {filteredHeaderSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={headerRef} className="scroll-mt-20">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredHeaderSections.map((header, index) => (
-                                                <div key={header.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={header.name}
-                                                        description={header.description}
-                                                        href={`/components/${header.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredHeaderSections.map((header) => {
+                                                if (!visibleSectionSlugs.has(header.slug)) return null
+                                                return (
+                                                    <div key={header.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={header.name}
+                                                            description={header.description}
+                                                            href={`/components/${header.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Hero Sections */}
-                                {filteredHeroSections.length > 0 && (
+                                {filteredHeroSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={heroRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredHeroSections.map((hero, index) => (
-                                                <div key={hero.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={hero.name}
-                                                        description={hero.description}
-                                                        href={`/components/${hero.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredHeroSections.map((hero) => {
+                                                if (!visibleSectionSlugs.has(hero.slug)) return null
+                                                return (
+                                                    <div key={hero.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={hero.name}
+                                                            description={hero.description}
+                                                            href={`/components/${hero.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Features Sections */}
-                                {filteredFeatureSections.length > 0 && (
+                                {filteredFeatureSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={featureRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredFeatureSections.map((feature, index) => (
-                                                <div key={feature.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={feature.name}
-                                                        description={feature.description}
-                                                        href={`/components/${feature.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredFeatureSections.map((feature) => {
+                                                if (!visibleSectionSlugs.has(feature.slug)) return null
+                                                return (
+                                                    <div key={feature.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={feature.name}
+                                                            description={feature.description}
+                                                            href={`/components/${feature.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Payment Sections */}
-                                {filteredPaymentSections.length > 0 && (
+                                {filteredPaymentSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={paymentRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredPaymentSections.map((payment, index) => (
-                                                <div key={payment.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={payment.name}
-                                                        description={payment.description}
-                                                        href={`/components/${payment.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredPaymentSections.map((payment) => {
+                                                if (!visibleSectionSlugs.has(payment.slug)) return null
+                                                return (
+                                                    <div key={payment.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={payment.name}
+                                                            description={payment.description}
+                                                            href={`/components/${payment.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* CTA Sections */}
-                                {filteredCtaSections.length > 0 && (
+                                {filteredCtaSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={ctaRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredCtaSections.map((cta, index) => (
-                                                <div key={cta.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={cta.name}
-                                                        description={cta.description}
-                                                        href={`/components/${cta.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredCtaSections.map((cta) => {
+                                                if (!visibleSectionSlugs.has(cta.slug)) return null
+                                                return (
+                                                    <div key={cta.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={cta.name}
+                                                            description={cta.description}
+                                                            href={`/components/${cta.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Footer Sections */}
-                                {filteredFooterSections.length > 0 && (
+                                {filteredFooterSections.some(section => visibleSectionSlugs.has(section.slug)) && (
                                     <div ref={footerRef} className="scroll-mt-20 mt-6">
                                         <div className="grid gap-6 grid-cols-1">
-                                            {filteredFooterSections.map((footer, index) => (
-                                                <div key={footer.slug} className="relative">
-                                                    <ComponentPreview
-                                                        name={footer.name}
-                                                        description={footer.description}
-                                                        href={`/components/${footer.slug}`}
-                                                        category="Sections"
-                                                    />
-                                                </div>
-                                            ))}
+                                            {filteredFooterSections.map((footer) => {
+                                                if (!visibleSectionSlugs.has(footer.slug)) return null
+                                                return (
+                                                    <div key={footer.slug} className="relative">
+                                                        <ComponentPreview
+                                                            name={footer.name}
+                                                            description={footer.description}
+                                                            href={`/components/${footer.slug}`}
+                                                            category="Sections"
+                                                        />
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -1120,6 +1219,11 @@ export function ComponentsPageClient() {
                             </div>
                         )}
                     </TabsContent>
+                    {allFilteredSections.length > visibleSectionCount && activeTab === "section" && (
+                        <div ref={loadMoreSectionsRef} className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+                            Loading more sections…
+                        </div>
+                    )}
                 </Tabs>
             </section>
         </div>

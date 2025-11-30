@@ -1029,14 +1029,30 @@ export const SocialShareButton = (props: CommonButtonProps) => {
     const buttonStyle = buildButtonStyle({ borderRadius, paddingX, paddingY, backgroundColor, textColor, borderColor, borderWidth, style });
     const sizeClass = getSizeClass(size);
     return (
-        <div className={cn("group flex items-center overflow-hidden rounded-full bg-blue-600 text-white transition-all hover:w-48 w-12 h-12", sizeClass, className)} style={buttonStyle}>
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center">
-                <Share2 size={20} />
+        <div
+          className={cn(
+            "inline-flex items-center gap-3 rounded-full bg-blue-600 px-4 py-2 text-white shadow-lg shadow-blue-500/30 transition-all",
+            sizeClass,
+            className
+          )}
+          style={buttonStyle}
+        >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-700/60">
+                <Share2 size={18} />
             </div>
-            <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-4">
-                <button className="hover:text-blue-200"><Twitter size={16} /></button>
-                <button className="hover:text-blue-200"><Facebook size={16} /></button>
-                <button className="hover:text-blue-200"><Linkedin size={16} /></button>
+            <div className="flex gap-3">
+                <button type="button" className="hover:text-blue-200 transition-colors">
+                  <Twitter size={16} />
+                  <span className="sr-only">Share to Twitter</span>
+                </button>
+                <button type="button" className="hover:text-blue-200 transition-colors">
+                  <Facebook size={16} />
+                  <span className="sr-only">Share to Facebook</span>
+                </button>
+                <button type="button" className="hover:text-blue-200 transition-colors">
+                  <Linkedin size={16} />
+                  <span className="sr-only">Share to LinkedIn</span>
+                </button>
             </div>
         </div>
     );
