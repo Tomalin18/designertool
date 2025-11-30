@@ -24,6 +24,7 @@ export interface BadgeSectionMeta {
   description: string
   tags: string[]
   props: Record<string, BadgePropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for all badges

@@ -23,6 +23,7 @@ export interface TabsSectionMeta {
   description: string
   tags: string[]
   props: Record<string, TabsPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for tabs

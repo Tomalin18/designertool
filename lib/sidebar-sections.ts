@@ -24,6 +24,7 @@ export interface SidebarSectionMeta {
   description: string
   tags: string[]
   props: Record<string, SidebarPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for sidebars

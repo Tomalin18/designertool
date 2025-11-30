@@ -23,6 +23,7 @@ export interface TabbarSectionMeta {
   description: string
   tags: string[]
   props: Record<string, TabbarPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for tabbars

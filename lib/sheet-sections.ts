@@ -23,6 +23,7 @@ export interface SheetSectionMeta {
   description: string
   tags: string[]
   props: Record<string, SheetPropDefinition>
+  groupingConfig?: any
 }
 
 // Common props for sheets
