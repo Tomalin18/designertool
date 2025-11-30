@@ -1557,7 +1557,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from badgeComponentsByName (re-fetch to ensure it's available)
         const Component = badgeComponentsByName[badge.componentName]
-        
+
         if (!Component) {
           console.error(`Badge component ${badge.componentName} is not available in badgeComponentsByName. Available:`, Object.keys(badgeComponentsByName))
           return (
@@ -1581,15 +1581,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from badge.props definition
         Object.keys(badge.props).forEach((key) => {
           const propConfig = badge.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -1627,7 +1627,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in badge.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -1680,7 +1680,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from inputComponentsByName (re-fetch to ensure it's available)
         const Component = inputComponentsByName[input.componentName]
-        
+
         if (!Component) {
           console.error(`Input component ${input.componentName} is not available in inputComponentsByName. Available:`, Object.keys(inputComponentsByName))
           return (
@@ -1704,15 +1704,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from input.props definition
         Object.keys(input.props).forEach((key) => {
           const propConfig = input.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -1750,7 +1750,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in input.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -1803,7 +1803,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from dialogComponentsByName (re-fetch to ensure it's available)
         const Component = dialogComponentsByName[dialog.componentName]
-        
+
         if (!Component) {
           console.error(`Dialog component ${dialog.componentName} is not available in dialogComponentsByName. Available:`, Object.keys(dialogComponentsByName))
           return (
@@ -1827,15 +1827,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from dialog.props definition
         Object.keys(dialog.props).forEach((key) => {
           const propConfig = dialog.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -1873,7 +1873,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in dialog.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -1928,7 +1928,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from cardComponentsByName (re-fetch to ensure it's available)
         const Component = cardComponentsByName[card.componentName]
-        
+
         if (!Component) {
           console.error(`Card component ${card.componentName} is not available in cardComponentsByName. Available:`, Object.keys(cardComponentsByName))
           return (
@@ -1952,16 +1952,16 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps similar to SocialProfileCard - explicitly pass each prop
         const processedProps: any = {}
-        
+
         // Process all props from card.props definition
         // First, ensure all props from card.props are in processedProps
         Object.keys(card.props).forEach((key) => {
           const propConfig = card.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed (like SocialProfileCard)
           // Match SocialProfileCard: backgroundColor={props.backgroundColor ? hexToRgb(props.backgroundColor) : undefined}
           if (propConfig.control === "color") {
@@ -2007,7 +2007,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in card.props (for backward compatibility)
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -2015,21 +2015,21 @@ const componentConfigs: Record<string, any> = (() => {
             processedProps[key] = props[key]
           }
         })
-        
+
         // Handle features array for PricingCard
         if (card.componentName === "PricingCard" && props.features) {
-          processedProps.features = typeof props.features === "string" 
+          processedProps.features = typeof props.features === "string"
             ? props.features.split("\n").filter((f: string) => f.trim())
             : props.features
         }
-        
+
         // Handle skills array for SkillCard
         if (card.componentName === "SkillCard" && props.skills) {
           processedProps.skills = typeof props.skills === "string"
             ? props.skills.split("\n").filter((s: string) => s.trim())
             : props.skills
         }
-        
+
         // Handle comparison rows for ComparisonCard
         if (card.componentName === "ComparisonCard" && props.rows) {
           if (typeof props.rows === "string") {
@@ -2039,21 +2039,21 @@ const componentConfigs: Record<string, any> = (() => {
             }).filter((r: any) => r.label)
           }
         }
-        
+
         // Handle roadmap items for RoadmapCard
         if (card.componentName === "RoadmapCard" && props.items) {
           if (typeof props.items === "string") {
             processedProps.items = props.items.split("\n").map((item: string) => {
               const [title, status, color] = item.split(":")
-              return { 
-                title: title?.trim() || "", 
-                status: status?.trim() || "", 
+              return {
+                title: title?.trim() || "",
+                status: status?.trim() || "",
                 color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
               }
             }).filter((i: any) => i.title)
           }
         }
-        
+
         // Handle hourly forecast for WeatherCard
         if (card.componentName === "WeatherCard" && props.hourlyForecast) {
           if (typeof props.hourlyForecast === "string") {
@@ -2109,7 +2109,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from toggleComponentsByName (re-fetch to ensure it's available)
         const Component = toggleComponentsByName[toggle.componentName]
-        
+
         if (!Component) {
           console.error(`Toggle component ${toggle.componentName} is not available in toggleComponentsByName. Available:`, Object.keys(toggleComponentsByName))
           return (
@@ -2133,15 +2133,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from toggle.props definition
         Object.keys(toggle.props).forEach((key) => {
           const propConfig = toggle.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2179,7 +2179,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in toggle.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -2232,7 +2232,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from tabsComponentsByName (re-fetch to ensure it's available)
         const Component = tabsComponentsByName[tab.componentName]
-        
+
         if (!Component) {
           console.error(`Tabs component ${tab.componentName} is not available in tabsComponentsByName. Available:`, Object.keys(tabsComponentsByName))
           return (
@@ -2256,15 +2256,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from tab.props definition
         Object.keys(tab.props).forEach((key) => {
           const propConfig = tab.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2302,7 +2302,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in tab.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -2355,7 +2355,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from sidebarComponentsByName (re-fetch to ensure it's available)
         const Component = sidebarComponentsByName[sidebar.componentName]
-        
+
         if (!Component) {
           console.error(`Sidebar component ${sidebar.componentName} is not available in sidebarComponentsByName. Available:`, Object.keys(sidebarComponentsByName))
           return (
@@ -2379,15 +2379,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from sidebar.props definition
         Object.keys(sidebar.props).forEach((key) => {
           const propConfig = sidebar.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2425,7 +2425,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in sidebar.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -2478,7 +2478,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from tabbarComponentsByName (re-fetch to ensure it's available)
         const Component = tabbarComponentsByName[tabbar.componentName]
-        
+
         if (!Component) {
           console.error(`Tabbar component ${tabbar.componentName} is not available in tabbarComponentsByName. Available:`, Object.keys(tabbarComponentsByName))
           return (
@@ -2502,15 +2502,15 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         // Build processedProps
         const processedProps: any = {}
-        
+
         // Process all props from tabbar.props definition
         Object.keys(tabbar.props).forEach((key) => {
           const propConfig = tabbar.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2548,7 +2548,7 @@ const componentConfigs: Record<string, any> = (() => {
             }
           }
         })
-        
+
         // Also include any props from props that might not be in tabbar.props
         Object.keys(props).forEach((key) => {
           if (!(key in processedProps) && !key.startsWith('_')) {
@@ -2601,7 +2601,7 @@ const componentConfigs: Record<string, any> = (() => {
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         // Get Component from sheetComponentsByName (re-fetch to ensure it's available)
         const Component = sheetComponentsByName[sheet.componentName]
-        
+
         if (!Component) {
           console.error(`Sheet component ${sheet.componentName} is not available in sheetComponentsByName. Available:`, Object.keys(sheetComponentsByName))
           return (
@@ -2634,8 +2634,8 @@ const componentConfigs: Record<string, any> = (() => {
           // Handle color props - convert hex to rgb
           if (propConfigItem.type === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
-              processedProps[key] = propValue.startsWith('#') 
-                ? hexToRgb(propValue) 
+              processedProps[key] = propValue.startsWith('#')
+                ? hexToRgb(propValue)
                 : propValue
             } else {
               processedProps[key] = undefined
@@ -2643,8 +2643,8 @@ const componentConfigs: Record<string, any> = (() => {
           }
           // Handle slider/number props - convert to number
           else if (propConfigItem.type === "slider" || propConfigItem.type === "number") {
-            processedProps[key] = propValue !== undefined && propValue !== "" 
-              ? Number(propValue) 
+            processedProps[key] = propValue !== undefined && propValue !== ""
+              ? Number(propValue)
               : (propConfigItem.default !== undefined ? Number(propConfigItem.default) : undefined)
           }
           // Handle boolean props
@@ -2708,7 +2708,7 @@ const componentConfigs: Record<string, any> = (() => {
       props: propConfig,
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         const Component = tableComponentsByName[table.componentName]
-        
+
         if (!Component) {
           return (
             <div className="w-full p-4 text-center text-muted-foreground">
@@ -2730,13 +2730,13 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         const processedProps: any = {}
-        
+
         Object.keys(table.props).forEach((key) => {
           const propConfig = table.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2766,14 +2766,14 @@ const componentConfigs: Record<string, any> = (() => {
         // Add editable support for all table components
         if (setProps) {
           processedProps.editable = true
-          
+
           // For tables with title prop
           if (table.props.title) {
             processedProps.onTitleChange = (text: string) => {
               setProps((prev: any) => ({ ...prev, title: text }))
             }
           }
-          
+
           // For tables with headers prop
           if (table.props.headers) {
             processedProps.onHeaderChange = (index: number, text: string) => {
@@ -2784,7 +2784,7 @@ const componentConfigs: Record<string, any> = (() => {
               })
             }
           }
-          
+
           // For cell changes - we'll enable editing but cell data is managed by component internally
           // The component will handle cell editing through onCellChange callback
           processedProps.onCellChange = (rowIndex: number, colIndex: number, text: string) => {
@@ -2837,7 +2837,7 @@ const componentConfigs: Record<string, any> = (() => {
       props: propConfig,
       render: (props: any, setProps?: (updater: (prev: any) => any) => void) => {
         const Component = chartComponentsByName[chart.componentName]
-        
+
         if (!Component) {
           return (
             <div className="w-full p-4 text-center text-muted-foreground">
@@ -2859,13 +2859,13 @@ const componentConfigs: Record<string, any> = (() => {
             return hex
           }
         }
-        
+
         const processedProps: any = {}
-        
+
         Object.keys(chart.props).forEach((key) => {
           const propConfig = chart.props[key]
           const propValue = props[key]
-          
+
           // Handle color props - convert hex to rgb if needed
           if (propConfig.control === "color") {
             if (propValue && typeof propValue === "string" && propValue.trim() !== "") {
@@ -2895,7 +2895,7 @@ const componentConfigs: Record<string, any> = (() => {
         // Add editable support for charts
         if (setProps) {
           processedProps.editable = true
-          
+
           // Special handling for SparklineStat (has label and value instead of title)
           if (chart.componentName === "SparklineStat") {
             processedProps.onLabelChange = (text: string) => {
@@ -2955,7 +2955,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   // Try to find config by componentName first
   let config = componentConfigs[componentName]
   let actualComponentName = componentName
-  
+
   // If not found, try to find by slug (for badge components)
   if (!config) {
     const badgeMeta = badgeSections.find(b => b.slug === slug)
@@ -3042,7 +3042,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       }
     }
   }
-  
+
   // If not found, try to find by slug (for card components)
   if (!config) {
     const cardMeta = cardSections.find(c => c.slug === slug)
@@ -3057,7 +3057,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       }
     }
   }
-  
+
   if (!config) {
     console.warn(`Component config not found for: ${componentName} (slug: ${slug}). Available card configs:`, Object.keys(componentConfigs).filter(k => k.includes('Card')).slice(0, 10))
   }
@@ -3085,7 +3085,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       inputMeta = inputNameToMeta[inputMetaBySlug.name]
     }
   }
-  
+
   let cardMeta = cardNameToMeta[actualComponentName]
   if (!cardMeta) {
     const cardMetaBySlug = cardSections.find(c => c.slug === slug)
@@ -3164,7 +3164,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     }
     return true
   })
-  
+
   // 當屏幕大小改變時，更新 sidebar 狀態
   React.useEffect(() => {
     if (isMobile && showSidebar) {
@@ -3288,7 +3288,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
       setProps((prev) => {
         const updated = { ...prev }
         let hasChanges = false
-        
+
         // Only update if the value is empty (default) and hasn't been set yet
         if ((!prev.backgroundColor || prev.backgroundColor === '') && !prev._colorsExtracted) {
           const bgColor = computedStyle.backgroundColor
@@ -3349,7 +3349,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
   // Helper function to update prop values in initialCode
   const updatePropsInCode = (code: string, props: Record<string, any>, config: any): string => {
     let updatedCode = code
-    
+
     // Helper to convert hex to rgb
     const hexToRgb = (hex: string): string => {
       if (!hex || !hex.startsWith('#')) return hex
@@ -6005,7 +6005,7 @@ export default function ${headerMeta.componentName}Example() {
     if (buttonMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
@@ -6039,7 +6039,7 @@ import { cn } from "@/lib/utils";
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         // Convert color props to rgb format (like UrlInput)
         if ((key === 'backgroundColor' || key === 'textColor' || key === 'borderColor') && typeof value === 'string' && value.startsWith('#')) {
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6078,7 +6078,7 @@ export default function ${buttonMeta.componentName}Example() {
     if (inputMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
@@ -6109,16 +6109,16 @@ import { cn } from "@/lib/utils";
       Object.entries(props).forEach(([key, value]) => {
         // Skip internal props
         if (key.startsWith('_')) return
-        
+
         // Only include props that are defined in inputMeta.props
         if (!inputMeta.props[key]) return
-        
+
         // Skip empty values for optional props
         if (value === "" || value === undefined || value === null) return
-        
+
         // Convert color props to rgb format
-        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "glowColor" || key === "errorColor" || key === "successColor" || key === "focusBorderColor" || key === "buttonColor" || key === "currencyColor" || key === "accentColor" || key === "promptColor" || key === "pathColor" || key === "gradientFrom" || key === "gradientVia" || key === "gradientTo" || key === "hoverBorderColor" || key === "focusBorderColor" || key === "buttonHoverColor") 
-            && typeof value === "string" && value.startsWith("#")) {
+        if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "glowColor" || key === "errorColor" || key === "successColor" || key === "focusBorderColor" || key === "buttonColor" || key === "currencyColor" || key === "accentColor" || key === "promptColor" || key === "pathColor" || key === "gradientFrom" || key === "gradientVia" || key === "gradientTo" || key === "hoverBorderColor" || key === "focusBorderColor" || key === "buttonHoverColor")
+          && typeof value === "string" && value.startsWith("#")) {
           propsList.push(`${key}="${hexToRgb(value)}"`)
         }
         // Handle boolean props
@@ -6160,7 +6160,7 @@ export default function ${inputMeta.componentName}Example() {
     if (badgeMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
@@ -6192,7 +6192,7 @@ import { cn } from "@/lib/utils";
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "gradientFrom" || key === "gradientTo" || key === "glowColor" || key === "pulseColor" || key === "iconColor" || key === "shadowColor" || key === "dotColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6236,7 +6236,7 @@ export default function ${badgeMeta.componentName}Example() {
     if (cardMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
@@ -6268,7 +6268,7 @@ import { cn } from "@/lib/utils";
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         // Handle special cases for card props
         if (key === "features" && typeof value === "string") {
           // Convert newline-separated string to array
@@ -6289,9 +6289,9 @@ import { cn } from "@/lib/utils";
           // Convert roadmap items format: "Title:Status:Color"
           const items = value.split("\n").map((item: string) => {
             const [title, status, color] = item.split(":")
-            return { 
-              title: title?.trim() || "", 
-              status: status?.trim() || "", 
+            return {
+              title: title?.trim() || "",
+              status: status?.trim() || "",
               color: color?.trim() === "green" ? "bg-green-500" : color?.trim() === "yellow" ? "bg-yellow-500" : "bg-neutral-600"
             }
           }).filter((i: any) => i.title)
@@ -6348,7 +6348,7 @@ export default function ${cardMeta.componentName}Example() {
     if (dialogMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports at the top
@@ -6380,7 +6380,7 @@ import { cn } from "@/lib/utils";
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "buttonColor" || key === "buttonHoverColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6513,7 +6513,7 @@ export interface ToggleProps {
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "thumbColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6629,7 +6629,7 @@ export interface TabsProps {
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6666,7 +6666,7 @@ export default function ${tabsMeta.componentName}Example() {
     if (sidebarMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
@@ -6745,7 +6745,7 @@ import {
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6803,7 +6803,7 @@ export default function ${sidebarMeta.componentName}Example() {
     if (tabbarMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
@@ -6864,7 +6864,7 @@ import {
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "activeColor" || key === "inactiveColor" || key === "backgroundColor" || key === "fabColor" || key === "fabShadowColor" || key === "glowColor" || key === "gradientFrom" || key === "gradientTo" || key === "pillBackgroundColor" || key === "pillTextColor" || key === "activeTextColor" || key === "activeBackgroundColor" || key === "containerBackgroundColor" || key === "indicatorColor" || key === "iconColor" || key === "borderColor" || key === "textColor" || key === "dotColor" || key === "dividerColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -6901,7 +6901,7 @@ export default function ${tabbarMeta.componentName}Example() {
     if (sheetMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
@@ -6971,7 +6971,7 @@ import { ShinyButton } from "./ShinyButton";
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor" || key === "activeColor" || key === "hoverColor" || key === "buttonColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -7008,7 +7008,7 @@ export default function ${sheetMeta.componentName}Example() {
     if (tableMeta && initialCode) {
       // Update prop values in initialCode
       let code = updatePropsInCode(initialCode, props, config)
-      
+
       // Check if initialCode already has imports
       if (!code.includes('"use client"') && !code.includes("import React")) {
         // Add necessary imports and helper functions at the top
@@ -7065,7 +7065,7 @@ const hexToRgb = (hex: string): string | undefined => {
         if (value === undefined || value === "") return
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         if ((key.includes("Color") || key === "backgroundColor" || key === "textColor" || key === "borderColor") && typeof value === "string" && value.startsWith("#")) {
           // Convert color props to rgb format
           propsList.push(`${key}="${hexToRgb(value)}"`)
@@ -7160,28 +7160,28 @@ const hexToRgb = (hex: string): string | undefined => {
       // Build props list - show all props with their current values
       const propsList: string[] = []
       const addedKeys = new Set<string>()
-      
+
       Object.entries(props).forEach(([key, value]) => {
         const propConfig = config.props[key]
         if (!propConfig) return
-        
+
         // Skip undefined values
         if (value === undefined) return
-        
+
         // For boolean props, always include (even if false)
         if (typeof value === "boolean") {
           propsList.push(`${key}={${value}}`)
           addedKeys.add(key)
           return
         }
-        
+
         // For number props, always include if not undefined
         if (typeof value === "number") {
           propsList.push(`${key}={${value}}`)
           addedKeys.add(key)
           return
         }
-        
+
         // For string props
         if (typeof value === "string") {
           // For data prop, always include the actual value from props (what user entered)
@@ -7197,7 +7197,7 @@ const hexToRgb = (hex: string): string | undefined => {
             }
             return
           }
-          
+
           // Include other string props if not empty
           if (value.trim() !== "") {
             // Handle colors prop (newline-separated hex colors)
@@ -7222,28 +7222,28 @@ const hexToRgb = (hex: string): string | undefined => {
           }
           return
         }
-        
+
         // For other types, use JSON.stringify
         if (value !== null && value !== "") {
           propsList.push(`${key}={${JSON.stringify(value)}}`)
           addedKeys.add(key)
         }
       })
-      
+
       // Also include important props that have defaults but are not in current props
       // This ensures important display options and data are included even if not explicitly set
       const importantBooleanProps = ["showXAxis", "showYAxis", "showGrid", "showTooltip", "showLegend", "showLabels", "showDots"]
       Object.entries(config.props).forEach(([key, propConfig]: [string, any]) => {
         // Skip if already added
         if (addedKeys.has(key)) return
-        
+
         // Include important boolean props with their default values
         if (importantBooleanProps.includes(key) && propConfig.control === "boolean") {
           const defaultValue = propConfig.default !== undefined ? propConfig.default : false
           propsList.push(`${key}={${defaultValue}}`)
           addedKeys.add(key)
         }
-        
+
         // Include data prop with default value if not already added
         if (key === "data" && propConfig.control === "textarea" && propConfig.default) {
           const defaultData = String(propConfig.default)
@@ -7275,7 +7275,7 @@ export default function ${chartMeta.componentName}Example() {
     // Try to determine if it's a shadcn component or custom component
     const shadcnComponents = ["Button", "Badge", "Checkbox", "Progress", "Switch", "Input", "Card", "Alert", "Avatar"]
     const isShadcnComponent = shadcnComponents.includes(componentName)
-    
+
     // Get import path based on component type
     let importPath = ""
     if (isShadcnComponent) {
@@ -7507,8 +7507,8 @@ export default function ${componentName}Example() {
       </div>
 
       <Sheet open={showSidebar} onOpenChange={setShowSidebar} modal={false}>
-        <SheetContent 
-          className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0" 
+        <SheetContent
+          className="w-[400px] sm:max-w-[400px] overflow-y-auto p-0"
           side="right"
           offsetTop={56}
           onInteractOutside={(e) => {
