@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { ProfileForm } from '@/components/auth/profile-form'
+import { ProfilePageClient } from './profile-page-client'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -13,10 +13,5 @@ export default async function ProfilePage() {
     redirect('/auth/login')
   }
 
-  return (
-    <div className="container flex flex-col items-center justify-center py-10">
-      <ProfileForm user={user} />
-    </div>
-  )
+  return <ProfilePageClient user={user} />
 }
-
