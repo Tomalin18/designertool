@@ -1,26 +1,61 @@
-// 這個檔案可以從 Supabase Dashboard 自動生成
-// 暫時使用基本類型，之後可以從 Supabase CLI 生成完整的類型定義
 export type Database = {
   public: {
     Tables: {
-      // 可以在之後從 Supabase 生成完整的類型
-      [key: string]: {
-        Row: Record<string, unknown>
-        Insert: Record<string, unknown>
-        Update: Record<string, unknown>
+      component_favorites: {
+        Row: {
+          id: string
+          user_id: string
+          component_slug: string
+          component_name: string
+          component_category: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          component_slug: string
+          component_name: string
+          component_category?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          component_slug?: string
+          component_name?: string
+          component_category?: string | null
+          created_at?: string
+        }
+      }
+      component_shares: {
+        Row: {
+          id: string
+          component_slug: string
+          platform: string
+          user_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          component_slug: string
+          platform: string
+          user_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          component_slug?: string
+          platform?: string
+          user_id?: string | null
+          created_at?: string
+        }
       }
     }
     Views: {
-      [key: string]: {
-        Row: Record<string, unknown>
-      }
+      [_ in never]: never
     }
     Functions: {
-      [key: string]: {
-        Args: Record<string, unknown>
-        Returns: unknown
-      }
+      [_ in never]: never
     }
   }
 }
-

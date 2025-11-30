@@ -5,6 +5,7 @@ import { Copy, Check, Settings2, X } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { ComponentActions } from "@/components/component-actions"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -7419,6 +7420,13 @@ export default function ${componentName}Example() {
             </>
           )}
         </div>
+
+        <ComponentActions
+          componentSlug={slug}
+          componentName={componentName}
+          componentCategory={config?.props ? Object.keys(config.props).length > 0 ? 'component' : undefined : undefined}
+          className="mb-6"
+        />
 
         <Card className="p-6 min-w-0">
           <div className="flex items-center justify-between mb-4">
