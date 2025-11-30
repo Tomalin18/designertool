@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { LoginForm } from "@/components/auth/login-form"
 import { SignupForm } from "@/components/auth/signup-form"
 import { isComponentPremium } from "@/lib/component-access"
+import { cn } from "@/lib/utils"
 
 interface ComponentNavigationProps {
   currentSlug: string
@@ -49,6 +50,7 @@ interface ComponentNavigationProps {
   tableMeta?: typeof tableSections[number]
   chartMeta?: typeof chartSections[number]
   componentCategory?: string
+  className?: string
 }
 
 export function ComponentNavigation({
@@ -71,6 +73,7 @@ export function ComponentNavigation({
   tableMeta,
   chartMeta,
   componentCategory,
+  className,
 }: ComponentNavigationProps) {
   const router = useRouter()
   const { user, loading } = useAuth()
@@ -223,7 +226,7 @@ export function ComponentNavigation({
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4 pt-4 mt-6 border-t">
+      <div className={cn("flex items-center justify-between gap-4 pt-4 mt-6 border-t", className)}>
         {prevComponent ? (
           <Link
             href={`/components/${prevComponent.slug}`}

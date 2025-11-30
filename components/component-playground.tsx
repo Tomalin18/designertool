@@ -2950,9 +2950,10 @@ interface PlaygroundProps {
   componentName: string
   slug: string
   initialCode?: string
+  navigationSlot?: React.ReactNode
 }
 
-export function ComponentPlayground({ componentName, slug, initialCode }: PlaygroundProps) {
+export function ComponentPlayground({ componentName, slug, initialCode, navigationSlot }: PlaygroundProps) {
   // Try to find config by componentName first
   let config = componentConfigs[componentName]
   let actualComponentName = componentName
@@ -7378,6 +7379,12 @@ export default function ${componentName}Example() {
   return (
     <div className="flex w-full items-start gap-6">
       <div className="flex-1 min-w-0 flex flex-col gap-6">
+        {navigationSlot && (
+          <>
+            {/* 確保上一個/下一個導覽緊貼 Playground 以消除頁面空白 */}
+            {navigationSlot}
+          </>
+        )}
         <div className="relative flex items-center justify-center p-4 md:p-8" ref={playgroundRef} data-playground>
           {config && config.render ? (
             (() => {
