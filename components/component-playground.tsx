@@ -3343,7 +3343,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
     return () => clearTimeout(timeoutId)
   }, [config, componentName, buttonMeta])
 
-  const updateProp = (key: string, value: any) => {
+  const updateProp = React.useCallback((key: string, value: any) => {
     setProps((prev) => {
       const updated = { ...prev, [key]: value }
 
@@ -3354,7 +3354,7 @@ export function ComponentPlayground({ componentName, slug, initialCode }: Playgr
 
       return updated
     })
-  }
+  }, [componentName])
 
   // Helper function to update prop values in initialCode
   const updatePropsInCode = (code: string, props: Record<string, any>, config: any): string => {
@@ -7341,7 +7341,7 @@ export default function ${componentName}Example() {
     )
   }
 
-  const CustomizePanelContent = () => (
+  const renderCustomizePanelContent = () => (
     <div className="h-full flex flex-col">
       <div className="p-6 pr-14 border-b sticky top-0 bg-background z-10 flex items-center justify-between">
         <h3 className="font-semibold text-lg">Customize</h3>
@@ -7357,7 +7357,17 @@ export default function ${componentName}Example() {
               props={props}
               config={config}
               updateProp={updateProp}
-              groupingConfig={buttonMeta?.groupingConfig || badgeMeta?.groupingConfig || inputMeta?.groupingConfig || tabsMeta?.groupingConfig || sidebarMeta?.groupingConfig || tabbarMeta?.groupingConfig || sheetMeta?.groupingConfig || tableMeta?.groupingConfig || chartMeta?.groupingConfig}
+              groupingConfig={
+                buttonMeta?.groupingConfig ||
+                badgeMeta?.groupingConfig ||
+                inputMeta?.groupingConfig ||
+                tabsMeta?.groupingConfig ||
+                sidebarMeta?.groupingConfig ||
+                tabbarMeta?.groupingConfig ||
+                sheetMeta?.groupingConfig ||
+                tableMeta?.groupingConfig ||
+                chartMeta?.groupingConfig
+              }
             />
           )}
         </div>
@@ -7549,7 +7559,7 @@ export default function ${componentName}Example() {
 
       {!isMobile && showSidebar && (
         <div className="w-[400px] shrink-0 border-l bg-background h-[calc(100vh-8rem)] sticky top-20 overflow-hidden rounded-lg border shadow-sm">
-          <CustomizePanelContent />
+          {renderCustomizePanelContent()}
         </div>
       )}
 
@@ -7568,7 +7578,7 @@ export default function ${componentName}Example() {
               e.preventDefault()
             }}
           >
-            <CustomizePanelContent />
+            {renderCustomizePanelContent()}
           </SheetContent>
         </Sheet>
       )}

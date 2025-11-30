@@ -26,6 +26,56 @@ import { tabbarSections } from "@/lib/tabbar-sections"
 import { tableSections } from "@/lib/table-sections"
 import { chartSections } from "@/lib/chart-sections"
 
+// Optimized Input component that prevents losing focus on re-render
+const ControlledInput = ({ 
+  value, 
+  onChange, 
+  propKey,
+  ...props 
+}: React.ComponentProps<typeof Input> & { 
+  value: string | number
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  propKey: string
+}) => {
+  const [localValue, setLocalValue] = React.useState(String(value))
+  const [isFocused, setIsFocused] = React.useState(false)
+
+  // Only sync external value when not focused
+  React.useEffect(() => {
+    if (!isFocused) {
+      setLocalValue(String(value))
+    }
+  }, [value, isFocused])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setLocalValue(newValue)
+    onChange(e)
+  }
+
+  const handleFocus = () => {
+    setIsFocused(true)
+  }
+
+  const handleBlur = () => {
+    setIsFocused(false)
+    // Sync with external value on blur
+    setLocalValue(String(value))
+  }
+
+  return (
+    <Input 
+      {...props} 
+      value={localValue} 
+      onChange={handleChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    />
+  )
+}
+
+ControlledInput.displayName = "ControlledInput"
+
 interface CustomizePanelProps {
   componentName: string
   props: Record<string, any>
@@ -209,7 +259,7 @@ const TabsEditor = ({ value, onChange, placeholder = "Tab label", addButtonLabel
   return (
     <div className="space-y-4">
       {displayTabs.map((tab, index) => (
-        <div key={index} className="flex items-center gap-2">
+        <div key={`${tab}-${index}`} className="flex items-center gap-2">
           <Input
             value={tab}
             onChange={(e) => updateTab(index, e.target.value)}
@@ -352,7 +402,7 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
   return (
     <div className="space-y-4">
       {displayItems.map((item, index) => (
-        <div key={index} className="border rounded-md p-3 space-y-2 bg-muted/30">
+        <div key={`${item.parent}-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
           <div className="flex items-center gap-2">
             <Input
               value={item.parent}
@@ -385,7 +435,7 @@ const TreeItemsEditor = ({ value, onChange }: { value: string, onChange: (val: s
             <div className="space-y-2 pl-4 border-l-2 border-muted">
               <div className="space-y-2">
                 {item.children.map((child, childIndex) => (
-                  <div key={childIndex} className="flex items-center gap-2">
+                  <div key={`${child}-${childIndex}`} className="flex items-center gap-2">
                     <Input
                       value={child}
                       onChange={(e) => updateChild(index, childIndex, e.target.value)}
@@ -533,7 +583,7 @@ const SidebarNavigationEditor = ({ value, onChange }: { value: string, onChange:
   return (
     <div className="space-y-4">
       {displayItems.map((item, index) => (
-        <div key={index} className="border rounded-md p-3 space-y-2 bg-muted/30">
+        <div key={`${item.label}-${index}`} className="border rounded-md p-3 space-y-2 bg-muted/30">
           <div className="flex items-center gap-2">
             <Input
               value={item.label}
@@ -662,7 +712,7 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`${item.title}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
             <Input
               value={item.title}
@@ -702,7 +752,7 @@ const NavigationConfigEditor = ({ value, onChange }: { value: string, onChange: 
                     return subIndex === item.items.length - 1
                   })
                   .map(({ subItem, subIndex }: { subItem: string; subIndex: number }) => (
-                    <div key={subIndex} className="flex gap-2">
+                    <div key={`${subItem}-${subIndex}`} className="flex gap-2">
                       <Input
                         value={subItem}
                         onChange={(e) => updateSubitem(index, subIndex, e.target.value)}
@@ -809,7 +859,7 @@ const ChartDataEditor = ({ value, onChange }: { value: string, onChange: (val: s
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`${item.name}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
             <Input
               value={item.name}
@@ -902,7 +952,7 @@ const ColorsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
   return (
     <div className="space-y-4">
       {colors.map((color, index) => (
-        <div key={index} className="border rounded-md p-3 space-y-3 bg-muted/30">
+        <div key={`${color}-${index}`} className="border rounded-md p-3 space-y-3 bg-muted/30">
           <div className="flex items-center gap-2">
             <ColorPicker
               value={color || ""}
@@ -956,7 +1006,7 @@ const FeaturesEditor = ({ value, onChange }: { value: string, onChange: (val: st
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="flex gap-2">
+        <div key={`${item}-${index}`} className="flex gap-2">
           <Input
             value={item}
             onChange={(e) => updateItem(index, e.target.value)}
@@ -1007,7 +1057,7 @@ const SkillsEditor = ({ value, onChange }: { value: string, onChange: (val: stri
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="flex gap-2">
+        <div key={`${item}-${index}`} className="flex gap-2">
           <Input
             value={item}
             onChange={(e) => updateItem(index, e.target.value)}
@@ -1071,7 +1121,7 @@ const ComparisonRowsEditor = ({ value, onChange }: { value: string, onChange: (v
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="space-y-2 p-3 border rounded-md bg-muted/30">
+        <div key={`${item.label}-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
           <div className="grid grid-cols-3 gap-2">
             <Input
               value={item.label}
@@ -1151,7 +1201,7 @@ const RoadmapItemsEditor = ({ value, onChange }: { value: string, onChange: (val
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="space-y-2 p-3 border rounded-md bg-muted/30">
+        <div key={`${item.title}-${index}`} className="space-y-2 p-3 border rounded-md bg-muted/30">
           <Input
             value={item.title}
             onChange={(e) => updateItem(index, "title", e.target.value)}
@@ -1244,7 +1294,7 @@ const HourlyForecastEditor = ({ value, onChange }: { value: string, onChange: (v
   return (
     <div className="space-y-2">
       {items.map((item, index) => (
-        <div key={index} className="flex gap-2">
+        <div key={`${item.time}-${index}`} className="flex gap-2">
           <Input
             value={item.time}
             onChange={(e) => updateItem(index, "time", e.target.value)}
@@ -1275,13 +1325,17 @@ const HourlyForecastEditor = ({ value, onChange }: { value: string, onChange: (v
   )
 }
 
-export function CustomizePanel({
+export const CustomizePanel = React.memo(function CustomizePanel({
   componentName,
   props,
   config,
   updateProp,
   groupingConfig,
 }: CustomizePanelProps) {
+  // Maintain tab state to prevent resetting on re-render
+  const [activeTab, setActiveTab] = React.useState<string | null>(null)
+  const [activeSubTab, setActiveSubTab] = React.useState<Record<string, string>>({})
+
   const renderProp = (key: string, propConfig: any, isLast: boolean) => {
     const label = key.replace(/^(header|body|footer)/, '').replace(/([A-Z])/g, ' $1').trim()
 
@@ -1600,7 +1654,8 @@ export function CustomizePanel({
         )}
 
         {propConfig.type === "text" && (
-          <Input
+          <ControlledInput
+            propKey={key}
             value={props[key] || ""}
             onChange={(e) => updateProp(key, e.target.value)}
             placeholder={propConfig.default}
@@ -3293,8 +3348,18 @@ export function CustomizePanel({
   }
 
   if (grouping.type === "tabs" && grouping.tabs) {
+    // Initialize active tab if not set
+    const currentActiveTab = activeTab ?? grouping.tabs[0]?.name ?? "general"
+    
+    // Initialize activeTab on first render
+    React.useEffect(() => {
+      if (activeTab === null && grouping.tabs && grouping.tabs.length > 0) {
+        setActiveTab(grouping.tabs[0].name)
+      }
+    }, [])
+    
     return (
-      <Tabs defaultValue={grouping.tabs[0]?.name || "general"} className="w-full">
+      <Tabs value={currentActiveTab} onValueChange={setActiveTab} className="w-full">
         <div className="sticky top-0 z-10 bg-background pb-4">
           <TabsList className="grid w-full grid-flow-col auto-cols-fr h-auto">
             {grouping.tabs.map((tab) => (
@@ -3304,10 +3369,17 @@ export function CustomizePanel({
             ))}
           </TabsList>
         </div>
-        {grouping.tabs.map((tab) => (
+        {grouping.tabs.map((tab) => {
+          // Initialize sub-tab if not set
+          const currentActiveSubTab = activeSubTab[tab.name] || tab.subcategories?.[0]?.name || ""
+          
+          return (
           <TabsContent key={tab.name} value={tab.name} className="space-y-4 mt-4">
             {tab.subcategories && tab.subcategories.length > 0 ? (
-              <Tabs defaultValue={tab.subcategories[0]?.name} className="w-full">
+              <Tabs 
+                value={currentActiveSubTab} 
+                onValueChange={(value) => setActiveSubTab(prev => ({ ...prev, [tab.name]: value }))}
+                className="w-full">
                 <div className="overflow-x-auto pb-2 -mx-1 px-1">
                   <TabsList className="inline-flex h-9 items-center justify-start rounded-lg bg-muted p-1 w-auto min-w-full">
                     {tab.subcategories.map((sub) => (
@@ -3339,7 +3411,8 @@ export function CustomizePanel({
               })
             )}
           </TabsContent>
-        ))}
+        )
+        })}
       </Tabs>
     )
   }
@@ -3373,5 +3446,5 @@ export function CustomizePanel({
       )}
     </div>
   )
-}
+})
 
