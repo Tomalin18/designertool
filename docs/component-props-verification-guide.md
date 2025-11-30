@@ -304,6 +304,7 @@ if (tableSection) {
 - [ ] TabsEditor provides list-based editing interface
 - [ ] Supports adding, removing, and editing individual tabs
 - [ ] Handles newline-separated string format correctly
+- [ ] **Focus stability:** When rendering multiple text inputs (Tabs list, Sidebar tree items, etc.), always use `ControlledInput` (from `component-playground-customize-panel.tsx`) so the field keeps focus while external props update. Each rendered input in these dynamic editors must also use a stable key (e.g., `key={`tab-${index}`}`) instead of value-based keys to prevent React from remounting inputs on each keystroke.
 
 #### ✅ Special Editors for Tabbar Components
 - [ ] Items prop uses `TabsEditor` instead of textarea
